@@ -51,6 +51,14 @@
     .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
     .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
     .status { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    .task-search input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; }
+    select { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; width: 100%; }
+    .task-admin-group { border: 1px dashed var(--border); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+    .task-admin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .task-admin-name { flex: 1; font-weight: 700; }
+    .task-admin-item { padding: 8px 0 8px 20px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .task-admin-item:last-child { border-bottom: none; }
+    .task-admin-empty { color: var(--muted); font-size: 12px; padding: 4px 0 4px 20px; }
   </style>
 </head>
 <body>
@@ -97,32 +105,42 @@
       </div>
 
       <div class="card" style="margin-top:16px">
-        <h3>③ 公告管理（赛季任务 / 综合挑战手册等）</h3>
-        <p class="forum-tip">发布手动维护的内容：赛季任务、综合挑战手册、活动提醒等。发布后前台「公告 / 赛季任务」菜单即可看到。</p>
-        <div id="noticeList"><div class="status">加载中…</div></div>
+        <h3>③ 任务管理（赛季任务 / 挑战手册）</h3>
+        <p class="forum-tip">按分组维护可折叠的任务列表。例如「行动任务」下展开「第1阶段任务」等。前台「赛季任务 / 挑战手册」菜单会显示这里的数据。</p>
+        <div class="task-search"><input id="taskAdminSearch" placeholder="搜索任务…" /></div>
+        <div id="taskList"><div class="status">加载中…</div></div>
         <hr class="hr" />
-        <form id="noticeForm" onsubmit="return false">
-          <input type="hidden" id="nId" />
+        <form id="taskGroupForm" onsubmit="return false">
+          <h4>添加分组</h4>
+          <div class="row">
+            <input id="tgName" placeholder="分组名称，例如：行动任务" style="flex:1" />
+            <button class="btn" id="addTaskGroup" type="button">添加分组</button>
+          </div>
+          <span class="msg" id="tgMsg"></span>
+        </form>
+        <hr class="hr" />
+        <form id="taskForm" onsubmit="return false">
+          <h4 id="taskFormTitle">添加任务</h4>
+          <input type="hidden" id="tId" />
           <div class="field">
-            <label>标题</label>
-            <input id="nTitle" placeholder="例如：S3 赛季任务一览" />
+            <label>所属分组</label>
+            <select id="tGroup"></select>
           </div>
           <div class="field">
-            <label>标签</label>
-            <input id="nTag" value="赛季任务" placeholder="赛季任务 / 综合挑战 / 活动" />
+            <label>任务标题</label>
+            <input id="tTitle" placeholder="例如：第1阶段任务" />
           </div>
-          <label class="chk"><input type="checkbox" id="nPin" /> 置顶显示</label>
           <div class="field">
-            <label>内容</label>
-            <textarea id="nBody" placeholder="在这里写具体内容…"></textarea>
+            <label>任务内容</label>
+            <textarea id="tBody" placeholder="具体任务要求、奖励、注意事项…"></textarea>
           </div>
           <div class="row">
-            <button class="btn" id="saveNotice">发布 / 保存</button>
-            <button class="btn ghost" id="newNotice" type="button">清空新建</button>
-            <span class="msg" id="nFormMsg"></span>
+            <button class="btn" id="saveTask">保存任务</button>
+            <button class="btn ghost" id="newTask" type="button">清空新建</button>
+            <span class="msg" id="tFormMsg"></span>
           </div>
         </form>
-        <div class="row"><span class="msg" id="noticeMsg"></span></div>
+        <div class="row"><span class="msg" id="taskMsg"></span></div>
       </div>
 
       <div class="card" style="margin-top:16px">
@@ -236,80 +254,138 @@
       }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
     });
 
-    // ③ 公告管理
-    function loadNotices() {
+    // ③ 任务管理
+    function getTasks(d) { return d.obj.tasks || { search: "", groups: [] }; }
+    function refreshGroupSelect(groups) {
+      var sel = document.getElementById("tGroup");
+      sel.innerHTML = (groups || []).map(function (g) {
+        return '<option value="' + esc(g.id) + '">' + esc(g.name) + "</option>";
+      }).join("");
+    }
+    function loadTasks() {
       getDataObj().then(function (d) {
-        var list = d.obj.notices || [];
-        var box = document.getElementById("noticeList");
-        if (!list.length) { box.innerHTML = '<div class="status">暂无公告。在下方填写后点“发布 / 保存”。</div>'; return; }
-        box.innerHTML = list.map(function (n) {
-          return '<div class="post" data-id="' + esc(n.id) + '">' +
-            '<div class="pmeta"><span class="pauthor">' + esc(n.tag || "公告") + "</span>" +
-            (n.pinned ? "<span>📌 置顶</span>" : "") + "<span>" + esc(n.updatedAt || "") + "</span></div>" +
-            '<div class="ptitle">' + esc(n.title) + "</div>" +
-            '<div class="pbody">' + esc(n.body) + "</div>" +
-            '<div class="row" style="margin-top:8px">' +
-              '<button class="btn sm act-edit" data-id="' + esc(n.id) + '">编辑</button>' +
-              '<button class="btn danger sm act-del" data-id="' + esc(n.id) + '">删除</button>' +
-            "</div></div>";
+        var tasks = getTasks(d);
+        var q = document.getElementById("taskAdminSearch").value.toLowerCase();
+        var box = document.getElementById("taskList");
+        if (!tasks.groups || !tasks.groups.length) { box.innerHTML = '<div class="status">暂无任务分组。在上方添加分组。</div>'; refreshGroupSelect([]); return; }
+        var html = tasks.groups.map(function (g) {
+          var items = (g.items || []).filter(function (it) {
+            if (!q) return true;
+            return (it.title + " " + it.content).toLowerCase().indexOf(q) > -1;
+          });
+          var itemsHtml = items.length ? items.map(function (it) {
+            return '<div class="task-admin-item">' +
+              '<b>' + esc(it.title) + '</b>' + (it.done ? " ✅" : "") +
+              '<div style="color:var(--muted);font-size:12px;margin-top:2px">' + esc(it.content || "") + "</div>" +
+              '<div style="margin-top:4px">' +
+                '<button class="btn sm act-edit-task" data-gid="' + esc(g.id) + '" data-tid="' + esc(it.id) + '">编辑</button>' +
+                '<button class="btn danger sm act-del-task" data-gid="' + esc(g.id) + '" data-tid="' + esc(it.id) + '" style="margin-left:6px">删除</button>' +
+              "</div></div>";
+          }).join("") : '<div class="task-admin-empty">该分组暂无任务</div>';
+          return '<div class="task-admin-group">' +
+            '<div class="task-admin-head" data-gid="' + esc(g.id) + '">' +
+              '<span>' + (g.open ? "▾" : "▸") + '</span>' +
+              '<span class="task-admin-name">' + esc(g.name) + "</span>" +
+              '<span style="color:var(--muted);font-size:12px">' + items.length + "</span>" +
+            "</div>" +
+            '<div class="task-admin-body" style="display:' + (g.open ? "block" : "none") + '">' + itemsHtml + "</div>" +
+          "</div>";
         }).join("");
-        box.querySelectorAll(".act-edit").forEach(function (b) {
-          b.addEventListener("click", function () { editNotice(b.getAttribute("data-id")); });
-        });
-        box.querySelectorAll(".act-del").forEach(function (b) {
-          b.addEventListener("click", function () { delNotice(b.getAttribute("data-id")); });
-        });
+        box.innerHTML = html;
+        refreshGroupSelect(tasks.groups);
+        bindTaskAdminEvents();
       }).catch(function () {});
     }
-    function newNotice() {
-      document.getElementById("nId").value = "";
-      document.getElementById("nTitle").value = "";
-      document.getElementById("nTag").value = "赛季任务";
-      document.getElementById("nBody").value = "";
-      document.getElementById("nPin").checked = false;
-      document.getElementById("nFormMsg").textContent = "";
-    }
-    function editNotice(id) {
-      getDataObj().then(function (d) {
-        var n = (d.obj.notices || []).find(function (x) { return x.id === id; });
-        if (!n) return;
-        document.getElementById("nId").value = n.id;
-        document.getElementById("nTitle").value = n.title || "";
-        document.getElementById("nTag").value = n.tag || "公告";
-        document.getElementById("nBody").value = n.body || "";
-        document.getElementById("nPin").checked = !!n.pinned;
-        document.getElementById("nFormMsg").textContent = "编辑中…";
+    function bindTaskAdminEvents() {
+      document.querySelectorAll(".task-admin-head").forEach(function (h) {
+        h.addEventListener("click", function () {
+          var gid = h.getAttribute("data-gid");
+          getDataObj().then(function (d) {
+            var tasks = getTasks(d);
+            var g = tasks.groups.find(function (x) { return x.id === gid; });
+            if (g) { g.open = !g.open; return putDataObj(d.obj, document.getElementById("taskMsg")); }
+          }).then(function () { loadTasks(); }).catch(function () {});
+        });
+      });
+      document.querySelectorAll(".act-edit-task").forEach(function (b) {
+        b.addEventListener("click", function () {
+          editTask(b.getAttribute("data-gid"), b.getAttribute("data-tid"));
+        });
+      });
+      document.querySelectorAll(".act-del-task").forEach(function (b) {
+        b.addEventListener("click", function () {
+          delTask(b.getAttribute("data-gid"), b.getAttribute("data-tid"));
+        });
       });
     }
-    document.getElementById("newNotice").addEventListener("click", newNotice);
-    document.getElementById("saveNotice").addEventListener("click", function () {
-      var id = document.getElementById("nId").value;
-      var title = document.getElementById("nTitle").value.trim();
-      var tag = document.getElementById("nTag").value.trim() || "公告";
-      var body = document.getElementById("nBody").value.trim();
-      var pin = document.getElementById("nPin").checked;
-      var msg = document.getElementById("nFormMsg");
-      if (!title || !body) { msg.className = "msg err"; msg.textContent = "标题和内容都要填。"; return; }
+    function newTask() {
+      document.getElementById("taskFormTitle").textContent = "添加任务";
+      document.getElementById("tId").value = "";
+      document.getElementById("tTitle").value = "";
+      document.getElementById("tBody").value = "";
+      document.getElementById("tFormMsg").textContent = "";
+    }
+    function editTask(gid, tid) {
       getDataObj().then(function (d) {
-        var notices = d.obj.notices || [];
-        if (id) {
-          var n = notices.find(function (x) { return x.id === id; });
-          if (n) { n.title = title; n.tag = tag; n.body = body; n.pinned = pin; n.updatedAt = nowStr(); }
-        } else {
-          notices.unshift({ id: "n" + Date.now(), title: title, tag: tag, body: body, pinned: pin, updatedAt: nowStr() });
-        }
-        d.obj.notices = notices;
-        return putDataObj(d.obj, msg).then(function () { loadNotices(); newNotice(); });
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        var t = g && g.items.find(function (x) { return x.id === tid; });
+        if (!t) return;
+        document.getElementById("taskFormTitle").textContent = "编辑任务";
+        document.getElementById("tGroup").value = gid;
+        document.getElementById("tId").value = tid;
+        document.getElementById("tTitle").value = t.title || "";
+        document.getElementById("tBody").value = t.content || "";
+        document.getElementById("tFormMsg").textContent = "编辑中…";
+      }).catch(function () {});
+    }
+    document.getElementById("newTask").addEventListener("click", newTask);
+    document.getElementById("addTaskGroup").addEventListener("click", function () {
+      var name = document.getElementById("tgName").value.trim();
+      var msg = document.getElementById("tgMsg");
+      if (!name) { msg.className = "msg err"; msg.textContent = "请输入分组名称。"; return; }
+      getDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        tasks.groups = tasks.groups || [];
+        tasks.groups.push({ id: "g" + Date.now(), name: name, open: true, items: [] });
+        d.obj.tasks = tasks;
+        return putDataObj(d.obj, msg).then(function () { loadTasks(); document.getElementById("tgName").value = ""; });
       }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
     });
-    function delNotice(id) {
-      if (!confirm("确定删除该公告？")) return;
-      var msg = document.getElementById("noticeMsg");
+    document.getElementById("saveTask").addEventListener("click", function () {
+      var gid = document.getElementById("tGroup").value;
+      var id = document.getElementById("tId").value;
+      var title = document.getElementById("tTitle").value.trim();
+      var body = document.getElementById("tBody").value.trim();
+      var msg = document.getElementById("tFormMsg");
+      if (!title) { msg.className = "msg err"; msg.textContent = "任务标题必填。"; return; }
       getDataObj().then(function (d) {
-        d.obj.notices = (d.obj.notices || []).filter(function (x) { return x.id !== id; });
-        return putDataObj(d.obj, msg).then(function () { loadNotices(); });
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        if (!g) { throw new Error("分组不存在"); }
+        g.items = g.items || [];
+        if (id) {
+          var t = g.items.find(function (x) { return x.id === id; });
+          if (t) { t.title = title; t.content = body; }
+        } else {
+          g.items.push({ id: "t" + Date.now(), title: title, content: body, done: false, open: false });
+        }
+        d.obj.tasks = tasks;
+        return putDataObj(d.obj, msg).then(function () { loadTasks(); newTask(); });
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+    function delTask(gid, tid) {
+      if (!confirm("确定删除该任务？")) return;
+      var msg = document.getElementById("taskMsg");
+      getDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        if (g) g.items = (g.items || []).filter(function (x) { return x.id !== tid; });
+        d.obj.tasks = tasks;
+        return putDataObj(d.obj, msg).then(function () { loadTasks(); newTask(); });
       }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
     }
+    document.getElementById("taskAdminSearch").addEventListener("input", function () { loadTasks(); });
 
     // ④ 论坛帖子
     function loadPosts() {
@@ -348,7 +424,7 @@
         .catch(function () { box.innerHTML = '<div class="status err">加载失败，请确认 Token 权限。</div>'; });
     }
 
-    function loadAll() { loadData(); loadSite(); loadNotices(); loadPosts(); }
+    function loadAll() { loadData(); loadSite(); loadTasks(); loadPosts(); }
 
     updateWho();
   </script>

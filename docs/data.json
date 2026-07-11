@@ -38,6 +38,7 @@
       "profit": 5376,
       "price": 71469,
       "sell": "晚上11点",
+      "craftMin": 20,
       "grade": "rare"
     },
     {
@@ -46,6 +47,7 @@
       "profit": 36325,
       "price": 1988,
       "sell": "晚上11点",
+      "craftMin": 5,
       "grade": "common"
     },
     {
@@ -54,6 +56,7 @@
       "profit": 9387,
       "price": 192681,
       "sell": "晚上11点",
+      "craftMin": 45,
       "grade": "epic"
     },
     {
@@ -62,6 +65,7 @@
       "profit": 29376,
       "price": 365130,
       "sell": "晚上11点",
+      "craftMin": 60,
       "grade": "legend"
     },
     {
@@ -70,6 +74,7 @@
       "profit": 18200,
       "price": 45200,
       "sell": "晚上8点",
+      "craftMin": 8,
       "grade": "rare"
     }
   ],
@@ -340,7 +345,57 @@
     }
   ],
   "site": { "name": "三角洲情报台", "afdianUrl": "" },
-  "notices": [],
+  "tasks": {
+    "search": "",
+    "groups": [
+      {
+        "id": "g1",
+        "name": "行动任务",
+        "open": true,
+        "items": [
+          { "id": "t1", "title": "第1阶段任务", "content": "完成基础教学、解锁全部新手关卡。", "done": false },
+          { "id": "t2", "title": "第2阶段任务", "content": "累计完成 10 场对局并达到指定 KD。", "done": false },
+          { "id": "t3", "title": "第3阶段任务", "content": "解锁高级地图并收集 5 个情报文件。", "done": false },
+          { "id": "t4", "title": "第4阶段任务", "content": "完成赛季最终挑战，领取限定奖励。", "done": false }
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "命运契约",
+        "open": false,
+        "items": [
+          { "id": "t5", "title": "契约 I", "content": "使用指定干员完成 3 次撤离。", "done": false },
+          { "id": "t6", "title": "契约 II", "content": "单局累计造成 2000 点伤害。", "done": false }
+        ]
+      }
+    ]
+  },
+  "weapons": [
+    { "name": "AKM（示例）", "dmg": 40, "rof": 600, "pen": 40, "range": 60, "ammo": "7.62x39" },
+    { "name": "M4A1（示例）", "dmg": 31, "rof": 780, "pen": 35, "range": 55, "ammo": "5.56x45" },
+    { "name": "ASVAL（示例）", "dmg": 34, "rof": 900, "pen": 50, "range": 35, "ammo": "9x39" },
+    { "name": "M250（示例）", "dmg": 45, "rof": 650, "pen": 55, "range": 80, "ammo": "7.62x51" },
+    { "name": "K416（示例）", "dmg": 33, "rof": 820, "pen": 38, "range": 58, "ammo": "5.56x45" },
+    { "name": "SR-25（示例）", "dmg": 80, "rof": 60, "pen": 58, "range": 150, "ammo": "7.62x51" },
+    { "name": "M700（示例）", "dmg": 95, "rof": 45, "pen": 60, "range": 200, "ammo": "7.62x51" },
+    { "name": "Vector（示例）", "dmg": 27, "rof": 1100, "pen": 28, "range": 30, "ammo": "9x19" }
+  ],
+  "armors": [
+    { "name": "Ⅰ级 轻型战术背心（示例）", "durability": 50, "protection": 22, "tier": "Ⅰ级", "repairable": true, "material": "芳纶" },
+    { "name": "Ⅱ级 标准防弹衣（示例）", "durability": 70, "protection": 32, "tier": "Ⅱ级", "repairable": true, "material": "陶瓷" },
+    { "name": "Ⅲ级 重型防弹衣（示例）", "durability": 95, "protection": 45, "tier": "Ⅲ级", "repairable": true, "material": "复合陶瓷" },
+    { "name": "Ⅳ级 精英防弹背心（示例）", "durability": 120, "protection": 58, "tier": "Ⅳ级", "repairable": true, "material": "聚乙烯+陶瓷" },
+    { "name": "Ⅵ级 顶级防弹衣（示例）", "durability": 150, "protection": 70, "tier": "Ⅵ级", "repairable": true, "material": "复合插板" },
+    { "name": "无护甲（裸血）", "durability": 0, "protection": 0, "tier": "—", "repairable": false, "material": "—" }
+  ],
+  "music": [
+    { "title": "战区序曲", "bpm": 84, "wave": "sine", "root": 220, "scale": [0, 3, 5, 7, 10, 12], "bass": [0, 0, 7, 5], "virtualSec": 110, "mood": "calm" },
+    { "title": "行动准备", "bpm": 104, "wave": "triangle", "root": 233, "scale": [0, 2, 3, 7, 9, 12], "bass": [0, 0, 5, 7], "virtualSec": 95, "mood": "tense" },
+    { "title": "交火", "bpm": 140, "wave": "sawtooth", "root": 196, "scale": [0, 1, 3, 6, 7, 10], "bass": [0, 0, 0, 7], "virtualSec": 80, "mood": "intense" },
+    { "title": "撤离成功", "bpm": 120, "wave": "square", "root": 262, "scale": [0, 4, 7, 9, 12, 16], "bass": [0, 7, 0, 7], "virtualSec": 90, "mood": "triumph" },
+    { "title": "静默潜入", "bpm": 70, "wave": "sine", "root": 174, "scale": [0, 3, 5, 8, 10], "bass": [0, null, 5, null], "virtualSec": 120, "mood": "ambient" },
+    { "title": "结算界面", "bpm": 96, "wave": "triangle", "root": 246, "scale": [0, 2, 4, 7, 9, 11], "bass": [0, 4, 7, 4], "virtualSec": 100, "mood": "mellow" }
+  ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
   "updatedAt": "2026-07-11T02:41:35.095Z"

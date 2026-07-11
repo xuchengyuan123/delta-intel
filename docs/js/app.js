@@ -56,7 +56,7 @@
     },
     {
       group: "资讯", items: [
-        { route: "notices", label: "公告 / 赛季任务", ico: "📢" },
+        { route: "tasks", label: "赛季任务 / 挑战手册", ico: "📋" },
       ],
     },
     {
@@ -187,31 +187,185 @@
       "<tbody>" + rows + "</tbody></table></div>";
   }
 
+  // 地图抽象建筑线描插画（SVG，内联，无需外部图）
+  function mapArt(name) {
+    var n = String(name || "");
+    var color = "rgba(25,195,166,.45)";
+    var stroke = 'stroke="' + color + '" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+    var grid = 'stroke="rgba(25,195,166,.08)" stroke-width="1" fill="none"';
+    var svg = '<svg viewBox="0 0 160 120" class="map-art">';
+
+    // 背景淡网格（蓝图感）
+    svg += '<g>';
+    for (var gx = 0; gx <= 160; gx += 20) {
+      svg += '<line x1="' + gx + '" y1="0" x2="' + gx + '" y2="120" ' + grid + '/>';
+    }
+    for (var gy = 0; gy <= 120; gy += 20) {
+      svg += '<line x1="0" y1="' + gy + '" x2="160" y2="' + gy + '" ' + grid + '/>';
+    }
+    svg += '</g>';
+
+    if (n.indexOf("大坝") > -1) {
+      // 零号大坝：弧形大坝 + 闸门 + 水面 + 远山
+      svg += '<path ' + stroke + ' d="M10 85 Q50 55 90 70 T150 60" />';
+      svg += '<path ' + stroke + ' d="M30 82 L30 60 L50 60 L50 78" />';
+      svg += '<path ' + stroke + ' d="M70 74 L70 52 L90 52 L90 68" />';
+      svg += '<path ' + stroke + ' d="M110 66 L110 48 L130 48 L130 62" />';
+      svg += '<path ' + stroke + ' d="M5 95 Q40 92 80 95 T155 92" />';
+      svg += '<path ' + stroke + ' d="M15 102 Q55 98 100 102 T150 98" />';
+      svg += '<path ' + stroke + ' d="M0 40 L20 25 L50 32 L80 18 L110 28 L140 15 L160 30" />';
+    } else if (n.indexOf("溪谷") > -1 || n.indexOf("长弓") > -1) {
+      // 长弓溪谷：雷达天线 + 信号塔 + 起伏山丘
+      svg += '<circle cx="110" cy="38" r="22" ' + stroke + '/>';
+      svg += '<line x1="110" y1="16" x2="110" y2="8" ' + stroke + '/>';
+      svg += '<line x1="88" y1="38" x2="80" y2="38" ' + stroke + '/>';
+      svg += '<line x1="132" y1="38" x2="140" y2="38" ' + stroke + '/>';
+      svg += '<line x1="40" y1="95" x2="40" y2="35" ' + stroke + '/>';
+      svg += '<line x1="32" y1="45" x2="48" y2="45" ' + stroke + '/>';
+      svg += '<line x1="32" y1="55" x2="48" y2="55" ' + stroke + '/>';
+      svg += '<line x1="32" y1="65" x2="48" y2="65" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M5 100 Q40 75 80 90 T150 80" />';
+      svg += '<path ' + stroke + ' d="M0 110 Q50 95 100 108 T160 100" />';
+      svg += '<circle cx="40" cy="28" r="4" ' + stroke + '/>';
+    } else if (n.indexOf("航天") > -1) {
+      // 航天基地：发射塔 + 火箭 + 尾焰
+      svg += '<line x1="80" y1="15" x2="80" y2="95" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M80 15 L72 38 L80 30 L88 38 Z" />';
+      svg += '<line x1="55" y1="95" x2="55" y2="40" ' + stroke + '/>';
+      svg += '<line x1="105" y1="95" x2="105" y2="40" ' + stroke + '/>';
+      svg += '<line x1="55" y1="55" x2="105" y2="55" ' + stroke + '/>';
+      svg += '<line x1="55" y1="70" x2="105" y2="70" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M70 95 L75 110 L85 110 L90 95" />';
+      svg += '<path ' + stroke + ' d="M65 115 Q80 125 95 115" />';
+      svg += '<path ' + stroke + ' d="M20 100 Q50 85 90 95 T150 88" />';
+    } else if (n.indexOf("巴克") > -1) {
+      // 巴克什：塔楼 + 拱门 + 建筑轮廓
+      svg += '<rect x="35" y="55" width="22" height="50" rx="2" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M35 55 L46 35 L57 55" />';
+      svg += '<line x1="42" y1="45" x2="42" y2="55" ' + stroke + '/>';
+      svg += '<line x1="50" y1="45" x2="50" y2="55" ' + stroke + '/>';
+      svg += '<rect x="67" y="70" width="30" height="35" rx="2" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M67 70 Q82 55 97 70" />';
+      svg += '<rect x="105" y="45" width="28" height="60" rx="2" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M105 45 L119 25 L133 45" />';
+      svg += '<line x1="119" y1="25" x2="119" y2="45" ' + stroke + '/>';
+      svg += '<line x1="75" y1="78" x2="89" y2="78" ' + stroke + '/>';
+      svg += '<line x1="75" y1="88" x2="89" y2="88" ' + stroke + '/>';
+    } else if (n.indexOf("监狱") > -1 || n.indexOf("潮汐") > -1) {
+      // 潮汐监狱：高墙 + 瞭望塔 + 铁丝网
+      svg += '<rect x="25" y="50" width="110" height="55" rx="2" ' + stroke + '/>';
+      svg += '<line x1="25" y1="65" x2="135" y2="65" ' + stroke + '/>';
+      svg += '<line x1="25" y1="80" x2="135" y2="80" ' + stroke + '/>';
+      svg += '<line x1="55" y1="50" x2="55" y2="105" ' + stroke + '/>';
+      svg += '<line x1="105" y1="50" x2="105" y2="105" ' + stroke + '/>';
+      svg += '<rect x="70" y="25" width="20" height="30" rx="2" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M70 25 L80 15 L90 25" />';
+      svg += '<line x1="15" y1="55" x2="145" y2="55" ' + stroke + '/>';
+      svg += '<line x1="15" y1="55" x2="15" y2="50" ' + stroke + '/>';
+      svg += '<line x1="35" y1="55" x2="35" y2="50" ' + stroke + '/>';
+      svg += '<line x1="55" y1="55" x2="55" y2="50" ' + stroke + '/>';
+      svg += '<line x1="105" y1="55" x2="105" y2="50" ' + stroke + '/>';
+      svg += '<line x1="125" y1="55" x2="125" y2="50" ' + stroke + '/>';
+      svg += '<line x1="145" y1="55" x2="145" y2="50" ' + stroke + '/>';
+    } else if (n.indexOf("AZ3") > -1 || n.indexOf("核") > -1) {
+      // AZ3/核电：冷却塔 + 厂房 + 烟囱
+      svg += '<path ' + stroke + ' d="M40 100 Q40 55 55 30 Q70 55 70 100" />';
+      svg += '<ellipse cx="55" cy="30" rx="15" ry="4" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M95 100 Q95 65 110 40 Q125 65 125 100" />';
+      svg += '<ellipse cx="110" cy="40" rx="15" ry="4" ' + stroke + '/>';
+      svg += '<rect x="75" y="75" width="50" height="25" rx="2" ' + stroke + '/>';
+      svg += '<line x1="85" y1="75" x2="85" y2="55" ' + stroke + '/>';
+      svg += '<line x1="115" y1="75" x2="115" y2="55" ' + stroke + '/>';
+      svg += '<path ' + stroke + ' d="M80 55 Q100 45 120 55" />';
+      svg += '<path ' + stroke + ' d="M20 105 Q60 95 100 105 T150 100" />';
+      svg += '<circle cx="130" cy="60" r="3" ' + stroke + '/>';
+    } else {
+      svg += '<circle cx="80" cy="60" r="35" ' + stroke + '/>';
+      svg += '<line x1="80" y1="25" x2="80" y2="95" ' + stroke + '/>';
+      svg += '<line x1="45" y1="60" x2="115" y2="60" ' + stroke + '/>';
+      svg += '<rect x="60" y="45" width="40" height="30" rx="2" ' + stroke + '/>';
+    }
+    svg += "</svg>";
+    return svg;
+  }
+
+  // 建筑线描可被外置 art.js 覆盖（window.DF_MAP_ART），以贴近原站花纹
+  function DFmapArt(name) { return (window.DF_MAP_ART || mapArt)(name); }
+
+  function gradeBgClass(g) {
+    return g === "legend" ? "b-legend" : g === "epic" ? "b-epic" : g === "rare" ? "b-rare" : "b-common";
+  }
+  function itemIcon(name) {
+    var n = String(name || "");
+    if (n.indexOf("弹") > -1 || n.indexOf("Bullet") > -1) return "🔫";
+    if (n.indexOf("医疗") > -1 || n.indexOf("药") > -1) return "💊";
+    if (n.indexOf("背心") > -1 || n.indexOf("头盔") > -1 || n.indexOf("防具") > -1) return "🛡";
+    if (n.indexOf("手电") > -1 || n.indexOf("光") > -1) return "🔦";
+    if (n.indexOf("包") > -1) return "🎒";
+    return "🛠";
+  }
+
+  function homeMapCards() {
+    var cards = (DATA.maps || []).map(function (m) {
+      return '<div class="map-card-v2">' +
+        '<div class="map-v2-meta">' +
+          '<div class="map-v2-name">' + esc(m.name) + "</div>" +
+          '<div class="map-v2-date">' + esc(m.date || "今日更新") + "</div>" +
+        "</div>" +
+        '<div class="map-v2-code">' + esc(m.code) + "</div>" +
+        '<div class="map-v2-art">' + DFmapArt(m.name) + "</div>" +
+      "</div>";
+    }).join("");
+    return '<div class="map-grid-v2">' + cards + "</div>";
+  }
+
+  function homeItemCards() {
+    var list = (DATA.items || []).slice(0, 8);
+    if (!list.length) return "";
+    var cards = list.map(function (i) {
+      var hourly = Math.round(i.profit * 60 / (i.craftMin || 60));
+      return '<div class="item-card">' +
+        '<div class="item-card-icon">' + itemIcon(i.name) + "</div>" +
+        '<div class="item-card-body">' +
+          '<div class="item-card-station">' + esc(i.station) + "</div>" +
+          '<div class="item-card-name ' + gradeClass(i.grade) + '">' + esc(i.name) + "</div>" +
+          '<div class="item-card-profit profit-up">' + fmt(hourly) + "</div>" +
+          '<div class="item-card-hint">总利润 ' + fmt(i.profit) + ' · 理想售价 ' + fmt(i.price) + "</div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    return '<div class="section-title"><span>特勤处制作产物推荐</span><span class="toggle-hour">小时利润</span></div>' +
+      '<div class="item-scroll">' + cards + "</div>";
+  }
+
+  function homeTaskStrip() {
+    var tasks = DATA.tasks || {};
+    var groups = tasks.groups || [];
+    if (!groups.length) return "";
+    var firstOpen = groups.find(function (g) { return g.open; }) || groups[0];
+    var firstItem = (firstOpen.items || [])[0];
+    var title = firstItem ? firstItem.title : (firstOpen.name || "赛季任务");
+    return '<a class="notice-strip" href="?viewpage=tasks">' +
+      '<span class="notice-strip-tag">赛季任务</span>' +
+      '<span class="notice-strip-title">' + esc(title) + '</span>' +
+      '<span class="notice-strip-more">查看全部 →</span>' +
+    "</a>";
+  }
+
   /* ---------- 视图 ---------- */
   var VIEWS = {
     home: {
       html: function () {
-        var maps = (DATA.maps || []).map(function (m) {
-          return '<div class="card map-card">' +
-            '<div class="map-name">' + esc(m.name) + "</div>" +
-            '<div class="code">' + esc(m.code) + "</div>" +
-            '<div class="date">' + esc(m.date) + "</div></div>";
-        }).join("");
-        var total = (DATA.items || []).reduce(function (s, i) { return s + (i.profit || 0); }, 0);
-        return (
-          '<div class="hero"><h1>三角洲情报台 · 每日战区情报</h1>' +
-          "<p>地图密码 / 特勤处产物 / 子弹利润，一屏看全。数据每日自动更新。</p></div>" +
-          '<div class="grid grid-3" style="margin-top:16px">' +
-            '<div class="card stat"><div class="num">' + (DATA.maps || []).length + '</div><div class="label">今日地图</div></div>' +
-            '<div class="card stat"><div class="num">' + (DATA.items || []).length + '</div><div class="label">推荐产物</div></div>' +
-            '<div class="card stat"><div class="num">' + fmt(total) + '</div><div class="label">合计时利润</div></div>' +
-          "</div>" +
-          '<div class="section-title">每日地图密码</div><div class="grid grid-auto">' + maps + "</div>" +
-          '<div class="section-title">特勤处制作产物推荐（Top）</div>' + topItemsTable() +
+        return homeTaskStrip() +
+          '<div class="hero hero-v2"><div class="hero-titles">' +
+          '<h1>三角洲情报台</h1>' +
+          '<p>每日密码 / 产物利润 / 材料价格 · 一屏看全</p></div>' +
+          '<div class="hero-update">每日更新 · <span id="updatedAtTop">' + (DATA.updatedAt ? new Date(DATA.updatedAt).toLocaleString("zh-CN") : "加载中") + "</span></div></div>" +
+          '<div class="section-title">每日地图密码</div>' + homeMapCards() +
+          homeItemCards() +
           '<div class="section-title">热门子弹利润</div>' + topBulletsTable(6) +
           '<div class="section-title">活动物品需求</div>' + topEventsTable() +
-          '<div class="section-title">高价格浮动制造材料</div>' + topMaterialsTable()
-        );
+          '<div class="section-title">高价格浮动制造材料</div>' + topMaterialsTable();
       },
     },
     maps: {
@@ -317,25 +471,82 @@
           "</div>";
       },
     },
-    notices: {
+    tasks: {
       html: function () {
-        var list = (DATA.notices || []).slice();
-        list.sort(function (a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); });
-        if (!list.length) {
-          return '<div class="section-title">公告 / 赛季任务 / 综合挑战手册</div>' +
-            '<div class="card"><p style="color:var(--muted)">暂无公告。管理员可在后台 ' +
-            '<a href="admin.html">admin.html</a> 发布赛季任务、综合挑战手册等内容。</p></div>';
+        var tasks = DATA.tasks || {};
+        var groups = tasks.groups || [];
+        if (!groups.length) {
+          return '<div class="section-title">赛季任务 / 综合挑战手册</div>' +
+            '<div class="card"><p style="color:var(--muted)">暂无任务数据。管理员可在后台 ' +
+            '<a href="admin.html">admin.html</a> 维护赛季任务、挑战手册。</p></div>';
         }
-        var html = list.map(function (n) {
-          return '<div class="card notice">' +
-            '<div class="notice-head">' +
-              '<span class="notice-tag">' + esc(n.tag || "公告") + "</span>" +
-              '<span class="notice-title">' + esc(n.title) + "</span>" +
-              (n.updatedAt ? '<span class="notice-date">' + esc(n.updatedAt) + "</span>" : "") +
+        var searchHtml = '<div class="task-search">' +
+          '<input type="text" id="taskSearch" placeholder="搜索任务…" value="' + esc(tasks.search || "") + '" />' +
+        "</div>";
+        var listHtml = groups.map(function (g) {
+          var items = (g.items || []).filter(function (it) {
+            var q = (tasks.search || "").toLowerCase();
+            if (!q) return true;
+            return (it.title + " " + it.content).toLowerCase().indexOf(q) > -1;
+          });
+          var itemsHtml = items.map(function (it) {
+            return '<div class="task-item' + (it.done ? " done" : "") + '" data-id="' + esc(it.id) + '">' +
+              '<div class="task-row">' +
+                '<span class="task-cb">' + (it.done ? "✅" : "⭕") + '</span>' +
+                '<span class="task-title">' + esc(it.title) + "</span>" +
+                '<span class="task-toggle">' + (it.open ? "▾" : "▸") + "</span>" +
+              "</div>" +
+              (it.open ? '<div class="task-body">' + esc(it.content) + "</div>" : "") +
+            "</div>";
+          }).join("");
+          return '<div class="task-group' + (g.open ? " open" : "") + '" data-id="' + esc(g.id) + '">' +
+            '<div class="task-group-head">' +
+              '<span class="task-group-name">' + esc(g.name) + "</span>" +
+              '<span class="task-group-count">' + items.length + "</span>" +
+              '<span class="task-group-arrow">' + (g.open ? "▾" : "▸") + "</span>" +
             "</div>" +
-            '<div class="notice-body">' + esc(n.body) + "</div></div>";
+            '<div class="task-group-body">' + itemsHtml + "</div>" +
+          "</div>";
         }).join("");
-        return '<div class="section-title">公告 / 赛季任务 / 综合挑战手册</div>' + html;
+        return '<div class="section-title">赛季任务 / 综合挑战手册</div>' + searchHtml +
+          '<div class="task-list">' + listHtml + "</div>";
+      },
+      init: function () {
+        var searchInput = document.getElementById("taskSearch");
+        if (!searchInput) return;
+        searchInput.addEventListener("input", function () {
+          DATA.tasks.search = searchInput.value;
+          render("tasks");
+        });
+        document.querySelectorAll(".task-group-head").forEach(function (h) {
+          h.addEventListener("click", function () {
+            var gid = h.parentElement.getAttribute("data-id");
+            var g = DATA.tasks.groups.find(function (x) { return x.id === gid; });
+            if (g) { g.open = !g.open; render("tasks"); }
+          });
+        });
+        document.querySelectorAll(".task-row").forEach(function (r) {
+          r.addEventListener("click", function (e) {
+            if (e.target.classList.contains("task-cb")) return;
+            var id = r.parentElement.getAttribute("data-id");
+            var groups = DATA.tasks.groups || [];
+            groups.forEach(function (g) {
+              (g.items || []).forEach(function (it) { if (it.id === id) it.open = !it.open; });
+            });
+            render("tasks");
+          });
+        });
+        document.querySelectorAll(".task-cb").forEach(function (cb) {
+          cb.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var id = cb.parentElement.parentElement.getAttribute("data-id");
+            var groups = DATA.tasks.groups || [];
+            groups.forEach(function (g) {
+              (g.items || []).forEach(function (it) { if (it.id === id) it.done = !it.done; });
+            });
+            render("tasks");
+          });
+        });
       },
     },
   };
@@ -359,6 +570,26 @@
     document.getElementById("sidebar").classList.remove("open");
     this.classList.remove("show");
   });
+
+  /* ---------- 插件总线（供 js/art.js、simulators.js、games.js、music.js 等扩展）---------- */
+  window.DF = {
+    VIEWS: VIEWS, MENU: MENU,
+    esc: esc, fmt: fmt,
+    mapArt: DFmapArt,
+    getData: function () { return DATA; },
+    setData: function (d) { DATA = d; },
+    navigate: navigate,
+    render: render,
+    addStyle: function (id, css) {
+      if (document.getElementById(id)) return;
+      var s = document.createElement("style"); s.id = id; s.textContent = css;
+      document.head.appendChild(s);
+    }
+  };
+  if (window.__df_ready) { try { window.__df_ready(window.DF); } catch (e) { console.error(e); } }
+  if (window.__df_plugins) {
+    window.__df_plugins.forEach(function (fn) { try { fn(window.DF); } catch (e) { console.error(e); } });
+  }
 
   /* ---------- 启动：先拉数据，再渲染 ---------- */
   fetchData()
