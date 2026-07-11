@@ -1,105 +1,185 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>三角洲情报台</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <meta name="description" content="三角洲情报台 DeltaIntel — 每日自动更新的战区情报站">
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角洲情报台 · 每日战区情报</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0e14;
+            --panel: #141b26;
+            --panel2: #1c2632;
+            --line: #2a3646;
+            --text: #e6edf3;
+            --muted: #8b98a8;
+            --accent: #ff5722;
+            --accent2: #ffa726;
+            --green: #4caf50;
+            --red: #ff5252;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--line); margin-bottom: 24px; position: relative; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .sub { color: var(--muted); font-size: 14px; }
+        .topbar { position: absolute; top: 16px; right: 0; display: flex; gap: 8px; }
+        .stats { display: flex; justify-content: center; gap: 32px; margin: 20px 0; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat .num { font-size: 32px; font-weight: bold; color: var(--accent2); }
+        .stat .label { font-size: 12px; color: var(--muted); }
+        .section { margin-bottom: 32px; }
+        .section h2 {
+            font-size: 18px; margin-bottom: 16px; padding-left: 12px;
+            border-left: 4px solid var(--accent);
+        }
+        .grid { display: grid; gap: 12px; }
+        .maps { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .card {
+            background: var(--panel); border: 1px solid var(--line);
+            border-radius: 8px; padding: 16px;
+        }
+        .card.map .name { font-size: 15px; color: var(--muted); margin-bottom: 8px; }
+        .card.map .pwd { font-size: 28px; font-weight: bold; color: var(--accent2); letter-spacing: 2px; }
+        .card.map .time { font-size: 11px; color: var(--muted); margin-top: 8px; }
+        .table-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+        th { background: var(--panel2); color: var(--accent2); font-weight: 600; }
+        td { color: var(--text); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 24px 0; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); margin-top: 40px; }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            cursor: pointer; border: 1px solid var(--line); background: var(--panel2);
+            color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 13px;
+            transition: .15s;
+        }
+        .btn:hover { border-color: var(--accent); }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn.primary:hover { background: #e64a19; }
+        .btn.danger { color: var(--red); }
+        .btn.small { padding: 4px 10px; font-size: 12px; }
+
+        /* ===== 论坛 ===== */
+        .forum-post-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .forum-post-box input, .forum-post-box textarea, .modal input {
+            width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+            border-radius: 6px; padding: 10px 12px; font-size: 14px; font-family: inherit; margin-bottom: 10px;
+        }
+        .forum-post-box textarea { min-height: 80px; resize: vertical; }
+        .forum-row { display: flex; gap: 10px; align-items: center; }
+        .forum-row input { margin-bottom: 0; }
+        .forum-item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+        .forum-item.pinned { border-color: var(--accent2); }
+        .forum-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+        .forum-author { color: var(--accent2); font-weight: 600; }
+        .forum-body { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+        .pin-tag { display: inline-block; background: var(--accent2); color: #000; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 6px; }
+        .forum-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .reply { margin: 10px 0 0 16px; padding: 8px 12px; background: var(--panel2); border-radius: 6px; font-size: 13px; }
+        .reply .forum-meta { margin-bottom: 4px; }
+        .reply-box { margin: 10px 0 0 16px; display: none; }
+        .reply-box.show { display: block; }
+        .empty { color: var(--muted); text-align: center; padding: 24px; }
+
+        /* ===== 弹窗 ===== */
+        .modal-mask {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+            z-index: 100; align-items: center; justify-content: center;
+        }
+        .modal-mask.show { display: flex; }
+        .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 24px; width: 90%; max-width: 340px; }
+        .modal h3 { margin-bottom: 16px; font-size: 18px; }
+        .modal .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+        .modal .err { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 6px; }
+        .admin-badge { color: var(--green); font-size: 12px; }
+
+        /* ===== 原站权威数据跳转 ===== */
+        .links-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        .link-card {
+            display: block; text-align: center; text-decoration: none;
+            background: var(--panel); border: 1px solid var(--line);
+            border-radius: 8px; padding: 18px 12px; color: var(--text);
+            transition: .15s; font-size: 14px;
+        }
+        .link-card:hover { border-color: var(--accent); color: var(--accent2); transform: translateY(-2px); }
+        .link-card .ic { font-size: 22px; display: block; margin-bottom: 6px; }
+        .link-card .ext { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+        @media (max-width: 600px) {
+            .stats { gap: 16px; } h1 { font-size: 22px; }
+            .topbar { position: static; justify-content: center; margin-top: 12px; }
+            header { padding-top: 20px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="layout">
-    <!-- 顶栏 -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="icon-btn menu-toggle" id="menuToggle" title="菜单">☰</button>
-        <span class="logo">三角洲<span class="logo-accent">情报台</span></span>
-        <span class="brand-en">DeltaIntel</span>
-      </div>
-      <div class="topbar-right">
-        <span id="userBadge" class="user-badge" style="display:none"></span>
-        <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
-        <button class="icon-btn" id="userBtn" title="登录 / 注册">👤</button>
-        <button class="icon-btn" id="adminBtn" title="管理后台">🛡</button>
-      </div>
-    </header>
+    <div class="wrap" id="app">
+        <header>
+            <h1>三角洲情报台 · 每日战区情报</h1>
+            <p class="sub">地图密码 / 特勤处产物 / 子弹利润，一屏看全。数据每日自动更新。</p>
+            <div class="topbar" id="topbar">
+                <button class="btn small" id="adminBtn">管理登录</button>
+            </div>
+        </header>
 
-    <!-- 左侧菜单 -->
-    <aside class="sidebar" id="sidebar">
-      <nav class="menu" id="menu"><!-- JS 注入 --></nav>
-    </aside>
+        <div id="content">加载中…</div>
 
-    <div class="backdrop" id="backdrop"></div>
-
-    <!-- 内容区 -->
-    <main class="content">
-      <div id="LAY_preview" class="preview"><!-- 视图片段注入处 --></div>
-    </main>
-
-    <!-- 底栏 -->
-    <footer class="footer">
-      <p>三角洲情报台 · 数据每日自动更新 · <span id="updatedAt">加载中…</span></p>
-    </footer>
-  </div>
-
-  <!-- 用户登录 / 注册 弹窗 -->
-  <div class="modal" id="userModal" hidden>
-    <div class="modal-mask" data-close="userModal"></div>
-    <div class="modal-box">
-      <div class="modal-head">
-        <span id="userModalTitle">登录</span>
-        <button class="modal-x" data-close="userModal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="tabs">
-          <button class="tab active" data-tab="login">登录</button>
-          <button class="tab" data-tab="reg">注册</button>
+        <!-- 原站权威数据库跳转（零维护，点开看 kkrb.net 完整图鉴/攻略） -->
+        <div class="section" id="extLinks">
+            <h2>原站权威数据库（跳转查看）</h2>
+            <p class="sub" style="margin-bottom:16px">以下为 kkrb.net《三角洲行动一图流》的权威数据入口，点击前往查看完整图鉴与攻略。</p>
+            <div class="grid links-grid">
+                <a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🪖</span>干员图鉴<span class="ext">前往 kkrb.net</span></a>
+                <a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🔫</span>武器数据库<span class="ext">前往 kkrb.net</span></a>
+                <a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🛠️</span>改枪方案<span class="ext">前往 kkrb.net</span></a>
+                <a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🗺️</span>地图攻略<span class="ext">前往 kkrb.net</span></a>
+                <a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">📚</span>游戏百科<span class="ext">前往 kkrb.net</span></a>
+                <a class="link-card" href="https://www.kkrb.net/?viewpage=view%2Foverview" target="_blank" rel="noopener"><span class="ic">📊</span>一图流首页<span class="ext">前往 kkrb.net</span></a>
+            </div>
         </div>
-        <form id="userForm" autocomplete="on">
-          <label>用户名<input name="username" autocomplete="username" required></label>
-          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
-          <div class="form-msg" id="userMsg"></div>
-          <button class="btn-primary" type="submit" id="userSubmit">登录</button>
-        </form>
-      </div>
-    </div>
-  </div>
 
-  <!-- 管理员后台 弹窗 -->
-  <div class="modal" id="adminModal" hidden>
-    <div class="modal-mask" data-close="adminModal"></div>
-    <div class="modal-box wide">
-      <div class="modal-head">
-        <span>管理后台</span>
-        <button class="modal-x" data-close="adminModal">✕</button>
-      </div>
-      <div class="modal-body" id="adminBody">
-        <form id="adminLoginForm">
-          <label>管理员账号<input name="username" autocomplete="username" required></label>
-          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
-          <div class="form-msg" id="adminMsg"></div>
-          <button class="btn-primary" type="submit">进入后台</button>
-        </form>
-        <div id="adminPanel" style="display:none">
-          <div class="admin-stat" id="adminStat"></div>
-          <div class="admin-actions">
-            <button class="btn-primary" id="updateBtn">🔄 触发每日更新</button>
-            <button class="btn-ghost" id="logoutAdminBtn">退出登录</button>
-          </div>
-          <div class="form-msg" id="adminPanelMsg"></div>
-          <div class="section-title">手动录入 / 修正数据（JSON）</div>
-          <textarea id="adminData" class="code-area" spellcheck="false" placeholder='{"maps":[...],"items":[...],"bullets":[...],"craft":{"nodes":[...],"links":[...]}}'></textarea>
-          <div class="admin-actions">
-            <button class="btn-primary" id="saveDataBtn">保存数据</button>
-            <button class="btn-ghost" id="loadDataBtn">载入当前数据</button>
-          </div>
+        <!-- 论坛 -->
+        <div class="section" id="forum">
+            <h2>战友论坛</h2>
+            <div class="forum-post-box">
+                <div class="forum-row">
+                    <input id="nickInput" placeholder="你的昵称（例如：黑鹰小队）" maxlength="20">
+                </div>
+                <textarea id="postInput" placeholder="发点什么…（打法、组队、情报交流）" maxlength="500"></textarea>
+                <div class="row" style="display:flex;justify-content:flex-end">
+                    <button class="btn primary" id="postBtn">发布</button>
+                </div>
+            </div>
+            <div id="postList"></div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gojs@3.0.15/release/go.js"></script>
-  <script src="js/app.js"></script>
+        <footer>
+            <p>数据仅供参考 · 每日自动更新 · 三角洲情报台</p>
+        </footer>
+    </div>
+
+    <!-- 管理员登录弹窗 -->
+    <div class="modal-mask" id="adminModal">
+        <div class="modal">
+            <h3>管理员登录</h3>
+            <div class="err" id="adminErr"></div>
+            <input id="adminUser" placeholder="用户名" autocomplete="off">
+            <input id="adminPass" type="password" placeholder="密码" autocomplete="off">
+            <div class="row">
+                <button class="btn" id="adminCancel">取消</button>
+                <button class="btn primary" id="adminLogin">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
 </body>
 </html>

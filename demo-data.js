@@ -31,6 +31,22 @@ const data = {
     { name: ".357 Magnum 鼠弹", profit: 6786  },
     { name: "12 Gauge独头 RIP", profit: 6045  },
   ],
+  // 活动物品需求（研发部门 - 集市），暂无免费接口，示例兜底、可手动改
+  eventItems: {
+    title: "活动物品需求（研发部门 · 集市）",
+    period: "2026/07/10 - 2026/07/17",
+    items: [
+      { name: "9V电池",        cur: 40008,  ideal: 14872 },
+      { name: "摩卡咖啡壶",    cur: 200119, ideal: 86419 },
+    ],
+  },
+  // 高价格浮动制造材料前四，暂无免费接口，示例兜底、可手动改
+  materials: [
+    { name: "镜头",         cur: 267691, min: 165946, max: 337306, buy: "凌晨1点", sell: "上午8点" },
+    { name: "移动电缆",     cur: 229491, min: 178191, max: 302391, buy: "下午2点", sell: "上午8点" },
+    { name: "盒装挂耳咖啡", cur: 359482, min: 337557, max: 377022, buy: "凌晨0点", sell: "晚上10点" },
+    { name: "特种钢",       cur: 35637,  min: 18962,  max: 39087,  buy: "下午3点", sell: "上午9点" },
+  ],
   craft: {
     nodes: [
       { key: "p_vest",   text: "精英防弹背心",   station: "防具台", cat: "product" },

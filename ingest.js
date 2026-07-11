@@ -1,57 +1,85 @@
 /* =========================================================
- * ingest.js — 每日数据更新（核心：每天跑一次就“更新”了）
- * 流程：拉取你的数据源 → transform 映射 → 写出 public/data.json
- * 没配数据源时回退到 demo-data.js，保证站点始终有数据。
+ * ingest.js — 每日数据更新（每天跑一次就“更新”了）
+ * ---------------------------------------------------------
+ * 地图密码：从免费公开接口 tmini.net 实时拉取（每天自动变）
+ * 特勤处产物 / 子弹 / 制作树：暂无免费接口，用内置示例兜底
+ * 输出：docs/data.json（GitHub Pages 直接读它）
  *
  * 用法：
- *   node ingest.js              # 作为脚本直接跑（CLI）
- *   require("./ingest").runIngest()  # 被 server.js 的 /api/update 调用
+ *   node ingest.js          # GitHub Actions 每天自动跑
  * ========================================================= */
 
 const fs = require("fs");
 const path = require("path");
 const cfg = require("./config.json");
-const { transform } = require("./transform.js");
 const demo = require("./demo-data.js");
 
-async function runIngest() {
-  let raw = null;
-  let source = "demo (内置示例)";
+// 免费公开的《三角洲行动》每日密码接口（JSON、无需 token、每天更新）
+const PWD_API = cfg.DATA_SOURCE_URL || "https://tmini.net/api/sjzmm?type=json";
 
-  if (cfg.DATA_SOURCE_URL) {
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 15000);
-      const res = await fetch(cfg.DATA_SOURCE_URL, {
-        headers: cfg.SOURCE_HEADERS || {},
-        signal: ctrl.signal,
-      });
-      clearTimeout(t);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      raw = await res.json();
-      source = cfg.DATA_SOURCE_URL;
-      console.log("[ingest] 已从数据源拉取成功");
-    } catch (e) {
-      console.warn("[ingest] 数据源拉取失败，回退 demo：", e.message);
-    }
-  } else {
-    console.log("[ingest] 未配置 DATA_SOURCE_URL，使用内置示例数据");
+function today() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + mm + "-" + dd + " 更新";
+}
+
+// 拉取每日密码，映射成站点需要的 maps: [{ name, code, date }]
+async function fetchMaps() {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch(PWD_API, { signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    const list = (json && json.data && json.data.passwords) || [];
+    const maps = list
+      .filter((p) => p && p.map_name && p.password)
+      .map((p) => ({
+        name: String(p.map_name),
+        code: String(p.password),
+        date: today(),
+      }));
+    if (!maps.length) throw new Error("接口返回空密码列表");
+    console.log("[ingest] 每日密码拉取成功，共", maps.length, "张地图");
+    return maps;
+  } catch (e) {
+    clearTimeout(t);
+    console.warn("[ingest] 密码接口失败，回退示例数据：", e.message);
+    return demo.data.maps;
   }
+}
 
-  const data = raw ? transform(raw) : demo.data;
-  data.updatedAt = new Date().toISOString();
-  data.source = source;
-  data.title = cfg.SITE_TITLE || "三角洲情报台";
+async function runIngest() {
+  const maps = await fetchMaps();
 
-  const outPath = path.join(__dirname, "public", "data.json");
+  // 产物 / 子弹 / 制作树暂无免费接口，沿用示例数据
+  const data = {
+    maps: maps,
+    items: demo.data.items,
+    bullets: demo.data.bullets,
+    craft: demo.data.craft,
+    eventItems: demo.data.eventItems,
+    materials: demo.data.materials,
+    title: cfg.SITE_TITLE || "三角洲情报台",
+    source: PWD_API,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const outPath = path.join(__dirname, "docs", "data.json");
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2), "utf8");
-  console.log("[ingest] 已写出 ->", outPath, "| 地图", data.maps.length, "产物", data.items.length, "子弹", data.bullets.length);
+  console.log(
+    "[ingest] 已写出 ->", outPath,
+    "| 地图", data.maps.length,
+    "产物", data.items.length,
+    "子弹", data.bullets.length
+  );
   return data;
 }
 
 module.exports = { runIngest };
 
-// 作为脚本直接执行时才自动跑
 if (require.main === module) {
   runIngest()
     .then(() => process.exit(0))
