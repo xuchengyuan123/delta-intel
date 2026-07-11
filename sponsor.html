@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>赞助我们 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <style>
+    :root{ --bg:#0e1116; --card:#161b22; --border:#262d36; --text:#e6e9ef; --muted:#8b93a1; --accent:#ffb300; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:24px 16px}
+    .wrap{max-width:720px;margin:0 auto}
+    a.back{color:var(--muted);text-decoration:none;font-size:14px}
+    h1{font-size:24px;margin:18px 0 6px}
+    .sub{color:var(--muted);margin:0 0 22px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 0}
+    .card h2{margin:0 0 12px;font-size:18px;color:var(--accent)}
+    .btn{display:inline-block;background:var(--accent);color:#1a1a1a;font-weight:700;text-decoration:none;border-radius:10px;padding:12px 22px;font-size:15px}
+    .btn:hover{filter:brightness(1.08)}
+    .qr{width:200px;height:200px;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center;margin:10px 0}
+    .tip{font-size:13px;color:var(--muted);background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.25);border-radius:10px;padding:10px 12px;margin-top:12px}
+    footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="index.html">← 返回三角洲情报台</a>
+    <h1>💝 赞助三角洲情报台</h1>
+    <p class="sub">本站由学生独立维护，零预算运行（GitHub Pages 免费托管，数据每日自动更新）。如果你觉得有用，欢迎请我喝杯奶茶 ☕，你的支持能让站点继续稳定运行下去。</p>
+
+    <div class="card">
+      <h2>爱发电（推荐）</h2>
+      <p>点击下方按钮，在爱发电平台进行赞助（无需加好友，最省事）。</p>
+      <!-- 把下面 href 替换成你自己的爱发电主页，例如 https://afdian.com/a/你的ID -->
+      <a class="btn" href="https://afdian.com/" target="_blank" rel="noopener">前往爱发电赞助</a>
+    </div>
+
+    <div class="card">
+      <h2>微信 / 支付宝收款码</h2>
+      <p>你也可以扫码直接打赏：</p>
+      <!-- 把你的收款码图片命名为 sponsor-qr.png 放到本目录，或换成你的图片地址 -->
+      <img class="qr" src="sponsor-qr.png" alt="收款码" onerror="this.outerHTML='<div class=\'qr\'>把收款码图片命名为 sponsor-qr.png 放到本目录即可显示</div>'">
+      <p class="tip">⚠️ 收款码通常需实名认证，未成年人可能受限或提现不便。如果无法使用，请直接用上面的「爱发电」链接，不影响支持。</p>
+    </div>
+
+    <footer>三角洲情报台 DeltaIntel · 感谢每一位支持者</footer>
+  </div>
+</body>
+</html>
