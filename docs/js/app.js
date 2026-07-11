@@ -11,14 +11,20 @@
   var html = document.documentElement;
   var DATA = null; // 站点数据（data.json / /api/data）
 
-  // 统一取数：Cloudflare 走 /api/data（D1，支持每日更新）；静态托管回退到 data.json
+  // 全局错误兜底：万一某段脚本出错，避免“全白”无提示
+  window.addEventListener("error", function (e) {
+    var el = document.getElementById("LAY_preview");
+    if (el && el.children.length === 0) {
+      el.innerHTML = '<div class="card"><p style="color:#ff6b6b">页面脚本出错了：' +
+        esc(e.message || "未知错误") + '。请按 Ctrl+F5（或 Ctrl+Shift+R）强制刷新重试。</p></div>';
+    }
+  });
+
+  // 统一取数：本站在 GitHub Pages 纯静态托管，直接读同源 data.json（相对路径，自动适配子目录 /delta-intel/）。
+  // 不再探测 /api/data（那是 Cloudflare Worker 场景才需要的，纯静态下只会 404 浪费一次请求）。
   function fetchData() {
-    return fetch("/api/data")
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .catch(function () {
-        return fetch("data.json")
-          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
-      });
+    return fetch("data.json?_=" + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
   }
 
   /* ---------- 菜单配置 ---------- */
