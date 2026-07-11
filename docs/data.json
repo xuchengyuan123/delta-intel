@@ -350,13 +350,7 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [
-    {
-      "time": "2026-07-11 16:08",
-      "role": "总管理员",
-      "action": "更新音乐列表（4 首）"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "search": "",
     "groups": [
@@ -652,7 +646,9 @@
       "rof": 600,
       "range": 60,
       "pen": 40,
-      "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。"
+      "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。",
+      "recoil": 55,
+      "acc": 62
     },
     {
       "name": "M4A1",
@@ -663,7 +659,9 @@
       "rof": 700,
       "range": 55,
       "pen": 30,
-      "desc": "稳定好上手，新手到进阶都合适的全能步枪。"
+      "desc": "稳定好上手，新手到进阶都合适的全能步枪。",
+      "recoil": 38,
+      "acc": 78
     },
     {
       "name": "98K",
@@ -674,7 +672,9 @@
       "rof": 40,
       "range": 120,
       "pen": 65,
-      "desc": "经典栓动狙，远距离一枪一个的浪漫。"
+      "desc": "经典栓动狙，远距离一枪一个的浪漫。",
+      "recoil": 50,
+      "acc": 60
     },
     {
       "name": "MP5",
@@ -685,7 +685,9 @@
       "rof": 800,
       "range": 30,
       "pen": 20,
-      "desc": "近距离扫射王者，室内近战称霸。"
+      "desc": "近距离扫射王者，室内近战称霸。",
+      "recoil": 30,
+      "acc": 80
     },
     {
       "name": "M870",
@@ -696,7 +698,9 @@
       "rof": 70,
       "range": 15,
       "pen": 10,
-      "desc": "贴脸爆发极高，适合守点与突袭。"
+      "desc": "贴脸爆发极高，适合守点与突袭。",
+      "recoil": 60,
+      "acc": 55
     },
     {
       "name": "M249",
@@ -707,7 +711,9 @@
       "rof": 600,
       "range": 60,
       "pen": 25,
-      "desc": "持续压制与封锁火力的重火力担当。"
+      "desc": "持续压制与封锁火力的重火力担当。",
+      "recoil": 50,
+      "acc": 60
     },
     {
       "name": "G18",
@@ -718,7 +724,9 @@
       "rof": 1100,
       "range": 20,
       "pen": 15,
-      "desc": "高射速副武器，近身应急与补枪好手。"
+      "desc": "高射速副武器，近身应急与补枪好手。",
+      "recoil": 72,
+      "acc": 45
     },
     {
       "name": "SVD",
@@ -729,40 +737,298 @@
       "rof": 280,
       "range": 100,
       "pen": 50,
-      "desc": "半自动连狙，兼顾射速与远距离打击。"
+      "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "recoil": 50,
+      "acc": 60
     }
   ],
   "music": [
     {
-      "title": "三角洲行动 官方主题曲",
-      "source": "Bilibili",
-      "url": "https://www.bilibili.com/video/BV1yH4y1c7ZA",
-      "icon": "📺",
-      "desc": "官方宣传/主题曲视频"
+      "title": "OST 合集（S8/S9 全配乐）",
+      "artist": "三角洲行动",
+      "type": "bilibili",
+      "bvid": "BV1fwroYAEGY",
+      "page": 1,
+      "dur": "1:26:21",
+      "tag": "合集"
     },
     {
-      "title": "三角洲行动 大厅BGM",
-      "source": "QQ音乐",
-      "url": "https://y.qq.com/n/ryqq/search?w=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8",
-      "icon": "🎵",
-      "desc": "在 QQ音乐 搜索收听"
+      "title": "永不回头 Perforation（殊死一搏）",
+      "artist": "贯穿原声带",
+      "type": "bilibili",
+      "bvid": "BV1jQSdYJEP9",
+      "dur": "06:31",
+      "tag": "战斗"
     },
     {
-      "title": "三角洲行动 枪声/战斗配乐",
-      "source": "Bilibili",
-      "url": "https://search.bilibili.com/all?keyword=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8%20BGM",
-      "icon": "📺",
-      "desc": "B站搜索合集"
+      "title": "CC音乐彩蛋·各赛季主题曲",
+      "artist": "渡鸦音乐",
+      "type": "bilibili",
+      "bvid": "BV1QFuezXEqW",
+      "dur": "系列",
+      "tag": "主题曲"
     },
     {
-      "title": "三角洲行动 原声/OST",
-      "source": "网易云音乐",
-      "url": "https://music.163.com/#/search/m/?s=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8",
-      "icon": "☁",
-      "desc": "网易云搜索试听"
+      "title": "大厅 BGM",
+      "artist": "三角洲行动",
+      "type": "bilibili",
+      "bvid": "BV1fvSbYLEZ8",
+      "dur": "02:57",
+      "tag": "大厅"
+    },
+    {
+      "title": "庇护者行动 主题曲 Fight",
+      "artist": "S2 主题曲",
+      "type": "bilibili",
+      "bvid": "BV1fwroYAEGY",
+      "page": 53,
+      "dur": "04:16",
+      "tag": "主题曲"
+    },
+    {
+      "title": "攀升 / 临界点 Rise",
+      "artist": "临界原作者带",
+      "type": "bilibili",
+      "bvid": "BV1jQSdYJEP9",
+      "page": 2,
+      "dur": "04:50",
+      "tag": "战斗"
     }
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-07-11T02:41:35.095Z"
+  "updatedAt": "2026-07-11T02:41:35.095Z",
+  "rigs": [
+    {
+      "name": "轻型突击胸挂",
+      "slots": 6,
+      "capacity": "18格",
+      "weight": "轻",
+      "desc": "适合突击位，机动高、容量小"
+    },
+    {
+      "name": "战术背心",
+      "slots": 8,
+      "capacity": "24格",
+      "weight": "中",
+      "desc": "均衡之选，攻防兼备"
+    },
+    {
+      "name": "重型胸挂",
+      "slots": 10,
+      "capacity": "30格",
+      "weight": "重",
+      "desc": "搜索位首选，移动较慢"
+    },
+    {
+      "name": "医疗胸挂",
+      "slots": 7,
+      "capacity": "20格",
+      "weight": "中",
+      "desc": "多医疗槽，支援位常用"
+    }
+  ],
+  "keyRooms": [
+    {
+      "map": "零号大坝",
+      "name": "行政楼钥匙房",
+      "key": "行政楼钥匙",
+      "loot": "高价值物资/文件"
+    },
+    {
+      "map": "航天基地",
+      "name": "控制中心钥匙房",
+      "key": "控制中心钥匙",
+      "loot": "电子元件/图纸"
+    },
+    {
+      "map": "巴克什",
+      "name": "金库钥匙房",
+      "key": "金库钥匙",
+      "loot": "现金/金条"
+    },
+    {
+      "map": "潮汐监狱",
+      "name": "狱长办公室",
+      "key": "狱长钥匙",
+      "loot": "武器箱/装备"
+    }
+  ],
+  "upgrades": [
+    {
+      "level": "1 → 2",
+      "cost": "5万",
+      "bonus": "解锁二级工作台"
+    },
+    {
+      "level": "2 → 3",
+      "cost": "12万",
+      "bonus": "解锁三级制作"
+    },
+    {
+      "level": "3 → 4",
+      "cost": "30万",
+      "bonus": "解锁四级制作"
+    },
+    {
+      "level": "4 → 5",
+      "cost": "80万",
+      "bonus": "全部设施满级"
+    }
+  ],
+  "expansion": [
+    {
+      "name": "小型扩容箱",
+      "price": "2万",
+      "capacity": "+10格"
+    },
+    {
+      "name": "中型扩容箱",
+      "price": "6万",
+      "capacity": "+20格"
+    },
+    {
+      "name": "大型扩容箱",
+      "price": "15万",
+      "capacity": "+40格"
+    }
+  ],
+  "scopes": [
+    {
+      "name": "红点瞄具",
+      "type": "近战",
+      "zoom": "1x",
+      "style": "圆点"
+    },
+    {
+      "name": "全息瞄具",
+      "type": "近战",
+      "zoom": "1x",
+      "style": "圆环"
+    },
+    {
+      "name": "2倍镜",
+      "type": "中距",
+      "zoom": "2x",
+      "style": "刻度"
+    },
+    {
+      "name": "4倍镜",
+      "type": "中远",
+      "zoom": "4x",
+      "style": "十字"
+    },
+    {
+      "name": "8倍镜",
+      "type": "远距",
+      "zoom": "8x",
+      "style": "密位"
+    }
+  ],
+  "npc": [
+    {
+      "name": "游荡者",
+      "hp": 120,
+      "armor": 0,
+      "map": "全部地图"
+    },
+    {
+      "name": "精英兵",
+      "hp": 200,
+      "armor": 30,
+      "map": "航天/大坝"
+    },
+    {
+      "name": "BOSS·钢铁",
+      "hp": 1500,
+      "armor": 80,
+      "map": "航天基地"
+    },
+    {
+      "name": "BOSS·渡鸦",
+      "hp": 1800,
+      "armor": 100,
+      "map": "巴克什"
+    }
+  ],
+  "containers": [
+    {
+      "name": "工具箱",
+      "map": "大坝/溪谷",
+      "output": "工具/零件"
+    },
+    {
+      "name": "武器箱",
+      "map": "全部",
+      "output": "武器/配件"
+    },
+    {
+      "name": "医疗箱",
+      "map": "全部",
+      "output": "药品/绷带"
+    },
+    {
+      "name": "电子箱",
+      "map": "航天基地",
+      "output": "电子元件"
+    }
+  ],
+  "scatter": [
+    {
+      "map": "零号大坝",
+      "points": "行政楼1F、水库闸口、港口集装箱"
+    },
+    {
+      "map": "长弓溪谷",
+      "points": "雷达站、信号塔下、村庄仓库"
+    },
+    {
+      "map": "航天基地",
+      "points": "装配车间、控制中心、发射坪"
+    },
+    {
+      "map": "巴克什",
+      "points": "金库、市集、教堂"
+    },
+    {
+      "map": "潮汐监狱",
+      "points": "牢区、厨房、狱长办公室"
+    },
+    {
+      "map": "AZ3核电",
+      "points": "冷却塔、厂房、仓库"
+    }
+  ],
+  "trivia": [
+    {
+      "id": "t1",
+      "title": "撤离点机制",
+      "body": "每个地图有固定撤离点，部分需要满足条件（如倒计时等待、携带指定道具）才会开启。",
+      "tag": "机制"
+    },
+    {
+      "id": "t2",
+      "title": "每日密码门",
+      "body": "地图中的密码门每天刷新密码，可在本站「每日地图密码」查看当日密码。",
+      "tag": "小技巧"
+    },
+    {
+      "id": "t3",
+      "title": "特勤处小时利润",
+      "body": "特勤处制作产物的「小时利润」= 总利润 ÷ 单件耗时 × 60，挑耗时短的更划算。",
+      "tag": "养成"
+    },
+    {
+      "id": "t4",
+      "title": "干员技能搭配",
+      "body": "不同干员拥有位移/治疗/侦察等技能，组队时合理搭配能大幅提升效率。",
+      "tag": "干员"
+    },
+    {
+      "id": "t5",
+      "title": "安全箱规则",
+      "body": "放入安全箱的物品即使阵亡也不会掉落，重要物资请优先放进安全箱。",
+      "tag": "生存"
+    }
+  ]
 }

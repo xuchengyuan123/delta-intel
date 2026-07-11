@@ -171,9 +171,28 @@
     var KEY_ROLE = "di_admin_role";
     var dataSha = "";
 
+    /* ===== 仅支持电脑端登录：移动端/触屏设备直接拦截 ===== */
+    function isMobileDevice() {
+      var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      var small = window.innerWidth < 1024;
+      var touch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+      return coarse || (small && touch);
+    }
+    if (isMobileDevice()) {
+      document.body.innerHTML =
+        '<div class="mobile-block">' +
+          '<div class="mb-icon">💻</div>' +
+          '<h1>管理后台仅支持电脑端</h1>' +
+          '<p>为保障账号与数据安全，三角洲情报台管理后台仅允许在电脑（桌面）浏览器上登录使用。</p>' +
+          '<p class="mb-hint">请使用 Windows / macOS / Linux 电脑上的 Chrome、Edge、Firefox 等桌面浏览器打开本页面。</p>' +
+          '<a class="mb-back" href="index.html">← 返回网站首页</a>' +
+        "</div>";
+      return;
+    }
+
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
       art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art"] },
@@ -190,10 +209,12 @@
       sim:       { label: "模拟器管理",   icon: "🧮", title: "模拟器管理", sub: "维护护甲 / 伤害模拟器使用的武器与护甲数据。", mount: mountSim },
       code:      { label: "代码维护",     icon: "💻", title: "代码维护", sub: "编辑原始数据、站点配置，并管理论坛帖子。", mount: mountCode },
       opcode:    { label: "干员图鉴管理", icon: "🪖", title: "特战干员图鉴管理", sub: "维护干员代号、定位、阵营、稀有度与属性。前台「特战干员图鉴」同步显示。", mount: mountOpCodex },
-      wcodex:    { label: "武器图鉴管理", icon: "🔫", title: "武器图鉴管理", sub: "维护武器类型、弹药、稀有度与属性。前台「武器图鉴」同步显示。", mount: mountWCodex }
+      wcodex:    { label: "武器图鉴管理", icon: "🔫", title: "武器图鉴管理", sub: "维护武器类型、弹药、稀有度与属性。前台「武器图鉴」同步显示。", mount: mountWCodex },
+      trivia:    { label: "小知识管理", icon: "🧠", title: "三角洲小知识管理", sub: "维护「三角洲小知识」条目（标题/标签/内容）。前台战友可点赞、复制与分享。", mount: mountTrivia }
     };
 
     var CHANGELOG = [
+      { date: "2026-07-11", title: "全站大更新 · 攻略/工具/小知识/安装", items: ["新增「新手攻略」与「三角洲小知识」分享（可点赞/复制/发布）", "新增实用工具：宝藏开箱、随机舔包、散落物资点", "图鉴新增特战干员图鉴与武器图鉴", "音乐台可内嵌B站播放完整歌曲", "小游戏补齐 5 款（摩斯/破译电脑/快速反应/脑机/指纹）", "支持 PWA 安装到桌面、深浅模式跟随系统、手机横竖屏自适应", "后台分级管理员（总/赛季任务/音乐/美术/模拟器/代码/干员图鉴/武器图鉴/小知识）", "后台仅电脑端可登录"] },
       { date: "2026-07-11", title: "分级管理员后台上线", items: ["总管理员 + 5 个分管理员（赛季任务/音乐/美术/模拟器/代码）", "美术管理员可直接改网站线描与主题色", "总管理员仪表盘含浏览数据/操作日志/更新日志", "移除原站外链跳转与发票模拟器"] },
       { date: "2026-07-11", title: "小游戏/音乐台/弹窗上线", items: ["数字摩斯密码 + 指纹选择小游戏", "音乐台改为外链 QQ音乐/B站/网易云", "自动赞助弹窗与更新日志"] },
       { date: "2026-07-10", title: "首页美化 V3", items: ["重绘建筑线描卡片", "赛季任务支持搜索与手动维护"] }
@@ -357,7 +378,7 @@
         var kpi = [
           { n: maps, l: "地图密码" }, { n: items, l: "特勤处产物" }, { n: bullets, l: "热门子弹" },
           { n: groups, l: "任务分组" }, { n: music, l: "音乐曲目" }, { n: sims, l: "模拟器数据" },
-          { n: ops, l: "干员图鉴" }, { n: wcx, l: "武器图鉴" }
+          { n: ops, l: "干员图鉴" }, { n: wcx, l: "武器图鉴" }, { n: (o.trivia || []).length, l: "小知识" }
         ];
         var kpiHtml = '<div class="kpi-grid">' + kpi.map(function (k) {
           return '<div class="kpi-card"><div class="n">' + k.n + '</div><div class="l">' + k.l + "</div></div>";
@@ -383,7 +404,7 @@
           '<div class="panel-card"><h3>🚀 快速进入模块</h3><div class="dash-jump">' + jump + "</div></div>" +
           '<div class="panel-card"><h3>👀 管理员操作记录 <span class="tag">用户操作</span></h3>' +
             '<table class="log"><thead><tr><th>时间</th><th>角色</th><th>操作</th></tr></thead><tbody>' + logRows + "</tbody></table></div>" +
-          '<div class="panel-card"><h3>📜 更新日志 <span class="tag">日志记录</span></h3>' + clHtml + "</div>";
+          '<div class="panel-card"><h3>📜 网站更新速览 <span class="tag">日志记录</span></h3>' + clHtml + "</div>";
 
         c.querySelectorAll("[data-jump]").forEach(function (b) {
           b.addEventListener("click", function () { showPanel(b.getAttribute("data-jump")); });
@@ -725,7 +746,7 @@
           '<table class="item-table" id="opTbl"><thead><tr>' +
             '<th>名称</th><th>代号</th><th>定位</th><th>阵营</th><th>稀有度</th>' +
             '<th class="col-min">机动</th><th class="col-min">生存</th><th class="col-min">火力</th><th class="col-min">辅助</th>' +
-            '<th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+            '<th>头像链接</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="opAdd">＋ 添加干员</button></div>' +
           '<div class="row"><button class="btn role-c" id="opSave">保存干员图鉴</button><span class="msg" id="opMsg"></span></div></div>';
       var rows = [];
@@ -741,6 +762,7 @@
           "<td class='col-min'><input class='o-s' type='number' value='" + (st.生存 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-f' type='number' value='" + (st.火力 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-a' type='number' value='" + (st.辅助 || 0) + "'></td>" +
+          "<td><input class='o-cover' value='" + esc(r.cover || r.portrait || "") + "' placeholder='选填'></td>" +
           "<td><input class='o-desc' value='" + esc(r.desc || "") + "'></td>" +
           "<td class='col-act'><button class='btn danger sm o-del'>删</button></td></tr>";
       }
@@ -763,6 +785,7 @@
             faction: tr.querySelector(".o-fac").value.trim(),
             rarity: tr.querySelector(".o-rar").value.trim(),
             stats: { 机动: +tr.querySelector(".o-m").value || 0, 生存: +tr.querySelector(".o-s").value || 0, 火力: +tr.querySelector(".o-f").value || 0, 辅助: +tr.querySelector(".o-a").value || 0 },
+            cover: tr.querySelector(".o-cover").value.trim(),
             desc: tr.querySelector(".o-desc").value.trim()
           });
         });
@@ -780,8 +803,8 @@
           '<p class="panel-tip">维护武器类型、弹药、稀有度与四维属性。保存后前台「武器图鉴」即时更新。</p>' +
           '<table class="item-table" id="wcTbl"><thead><tr>' +
             '<th>名称</th><th>类型</th><th>稀有度</th><th>弹药</th>' +
-            '<th class="col-min">裸伤</th><th class="col-min">射速</th><th class="col-min">射程</th><th class="col-min">穿甲</th>' +
-            '<th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+            '<th class="col-min">裸伤</th><th class="col-min">射速</th><th class="col-min">射程</th><th class="col-min">穿甲</th><th class="col-min">后坐</th><th class="col-min">精准</th>' +
+            '<th>图片链接</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="wcAdd">＋ 添加武器</button></div>' +
           '<div class="row"><button class="btn role-c" id="wcSave">保存武器图鉴</button><span class="msg" id="wcMsg"></span></div></div>';
       var rows = [];
@@ -795,6 +818,9 @@
           "<td class='col-min'><input class='w-rof' type='number' value='" + (r.rof || 0) + "'></td>" +
           "<td class='col-min'><input class='w-rng' type='number' value='" + (r.range || 0) + "'></td>" +
           "<td class='col-min'><input class='w-pen' type='number' value='" + (r.pen || 0) + "'></td>" +
+          "<td class='col-min'><input class='w-rec' type='number' value='" + (r.recoil || 0) + "'></td>" +
+          "<td class='col-min'><input class='w-acc' type='number' value='" + (r.acc || 0) + "'></td>" +
+          "<td><input class='w-cover' value='" + esc(r.cover || r.image || "") + "' placeholder='选填'></td>" +
           "<td><input class='w-desc' value='" + esc(r.desc || "") + "'></td>" +
           "<td class='col-act'><button class='btn danger sm w-del'>删</button></td></tr>";
       }
@@ -802,10 +828,10 @@
       function render() { c.querySelector("#wcTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
       getDataObj().then(function (d) {
         rows = (d.obj.weaponCodex || []).slice();
-        if (!rows.length) rows = [{ name: "", type: "突击步枪", rarity: "稀有", ammo: "5.56x45", dmg: 30, rof: 600, range: 50, pen: 30, desc: "" }];
+        if (!rows.length) rows = [{ name: "", type: "突击步枪", rarity: "稀有", ammo: "5.56x45", dmg: 30, rof: 600, range: 50, pen: 30, recoil: 50, acc: 60, desc: "" }];
         render();
       }).catch(function () {});
-      c.querySelector("#wcAdd").onclick = function () { rows.push({ name: "", type: "突击步枪", rarity: "稀有", ammo: "5.56x45", dmg: 30, rof: 600, range: 50, pen: 30, desc: "" }); render(); };
+      c.querySelector("#wcAdd").onclick = function () { rows.push({ name: "", type: "突击步枪", rarity: "稀有", ammo: "5.56x45", dmg: 30, rof: 600, range: 50, pen: 30, recoil: 50, acc: 60, desc: "" }); render(); };
       c.querySelector("#wcSave").onclick = function () {
         var msg = c.querySelector("#wcMsg");
         var collected = [];
@@ -819,6 +845,9 @@
             rof: +tr.querySelector(".w-rof").value || 0,
             range: +tr.querySelector(".w-rng").value || 0,
             pen: +tr.querySelector(".w-pen").value || 0,
+            recoil: +tr.querySelector(".w-rec").value || 0,
+            acc: +tr.querySelector(".w-acc").value || 0,
+            cover: tr.querySelector(".w-cover").value.trim(),
             desc: tr.querySelector(".w-desc").value.trim()
           });
         });
@@ -827,6 +856,55 @@
           return putDataObj(d.obj, "更新武器图鉴（" + d.obj.weaponCodex.length + " 把）", msg);
         }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
       };
+    }
+
+    /* ============ 三角洲小知识管理 ============ */
+    function mountTrivia(c) {
+      c.innerHTML =
+        '<div class="panel-card"><h3>🧠 小知识列表</h3>' +
+          '<div class="field"><input id="trSearch" placeholder="搜索小知识…"></div>' +
+          '<div id="trList"><div class="status">加载中…</div></div></div>' +
+        '<div class="panel-card"><h3>➕ 添加小知识</h3>' +
+          '<div class="row"><input id="trTitle" placeholder="标题，例如：撤离点需等待倒计时" style="flex:1"></div>' +
+          '<div class="row"><input id="trTag" placeholder="标签（可选），例如：机制" style="flex:1"></div>' +
+          '<div class="row"><textarea id="trBody" rows="3" placeholder="详细内容…" style="flex:1"></textarea></div>' +
+          '<button class="btn role-c" id="trAdd">添加</button>' +
+          '<div class="msg" id="trMsg"></div></div>';
+      var listEl = c.querySelector("#trList");
+      var msg = c.querySelector("#trMsg");
+      function renderList(o) {
+        var arr = o.trivia || [];
+        if (!arr.length) { listEl.innerHTML = '<div class="status">暂无小知识，请在右侧添加。</div>'; return; }
+        listEl.innerHTML = '<table class="log"><thead><tr><th>标题</th><th>标签</th><th>内容</th><th>操作</th></tr></thead><tbody>' +
+          arr.map(function (t, i) {
+            return "<tr><td>" + esc(t.title) + "</td><td>" + esc(t.tag || "") + "</td><td style='max-width:320px'>" + esc((t.body || "").slice(0, 80)) + "</td>" +
+              "<td><button class='btn role-c sm' data-del='" + i + "'>删除</button></td></tr>";
+          }).join("") + "</tbody></table>";
+        listEl.querySelectorAll("[data-del]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            getDataObj().then(function (d) {
+              d.obj.trivia = d.obj.trivia || [];
+              d.obj.trivia.splice(+b.getAttribute("data-del"), 1);
+              putDataObj(d.obj, "删除小知识", msg).then(function () { mountTrivia(c); });
+            });
+          });
+        });
+      }
+      getDataObj().then(function (d) { renderList(d.obj); }).catch(function (e) { listEl.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败：' + esc(e.message) + "</div>"; });
+      c.querySelector("#trAdd").addEventListener("click", function () {
+        var title = c.querySelector("#trTitle").value.trim();
+        var body = c.querySelector("#trBody").value.trim();
+        var tag = c.querySelector("#trTag").value.trim() || "小知识";
+        if (title.length < 2 || body.length < 4) { msg.className = "msg err"; msg.textContent = "标题或内容太短"; return; }
+        getDataObj().then(function (d) {
+          d.obj.trivia = d.obj.trivia || [];
+          d.obj.trivia.unshift({ id: "t" + Date.now(), tag: tag, title: title, body: body, likes: 0 });
+          putDataObj(d.obj, "添加小知识：" + title, msg).then(function () {
+            c.querySelector("#trTitle").value = ""; c.querySelector("#trBody").value = ""; c.querySelector("#trTag").value = "";
+            mountTrivia(c);
+          });
+        });
+      });
     }
 
     /* ===== 启动 ===== */

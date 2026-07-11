@@ -638,3 +638,197 @@ table.tbl thead th { border-bottom: 2px solid color-mix(in srgb, var(--accent) 4
 .wpn-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .chip { font-size: 12px; padding: 4px 9px; border-radius: 8px; background: var(--bg-soft); color: var(--text); }
 .chip b { color: var(--accent-2); font-weight: 700; margin-right: 4px; }
+
+/* ===== 音乐播放器（仿鼠鼠音乐）===== */
+.music-layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+.music-list { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.music-list-head { padding: 12px 14px; font-weight: 700; border-bottom: 1px solid var(--border); font-size: 14px; }
+#plItems { max-height: 72vh; overflow-y: auto; }
+.pl-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.pl-item:hover { background: var(--bg-soft); }
+.pl-item.active { background: color-mix(in srgb, var(--accent-2) 10%, var(--bg-elev)); border-left: 3px solid var(--accent-2); }
+.pl-cover { width: 46px; height: 46px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #04211c; font-size: 18px; }
+.pl-meta { flex: 1; min-width: 0; }
+.pl-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-artist { font-size: 12px; color: var(--muted); }
+.pl-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.pl-tag { font-size: 10px; padding: 2px 6px; border-radius: 6px; background: var(--bg-soft); color: var(--muted); }
+.pl-dur { font-size: 12px; color: var(--muted); }
+.pl-src { font-size: 14px; }
+.music-stage { position: sticky; top: 70px; }
+.pl-player { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+.pl-big-cover { width: 100%; aspect-ratio: 16/10; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: 800; color: #04211c; margin-bottom: 16px; }
+.pl-now { text-align: center; margin-bottom: 14px; }
+.pl-now-title { font-size: 20px; font-weight: 800; }
+.pl-now-artist { font-size: 13px; color: var(--muted); }
+.pl-stage { border-radius: 12px; overflow: hidden; background: #000; }
+.pl-embed { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+.pl-audio { width: 100%; }
+.pl-nostage { padding: 40px 20px; text-align: center; color: var(--muted); display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.pl-tip { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+/* 迷你条覆盖 */
+.music-bar { gap: 12px; padding: 10px 16px; }
+.mb-cover { width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(135deg, var(--accent-2), #0d1b2a); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #04211c; flex-shrink: 0; }
+.mb-meta { flex: 1; min-width: 0; }
+.mb-btn { width: 38px; height: 38px; border-radius: 10px; font-size: 18px; }
+
+/* ===== 图鉴增强（仿 KK日报 数据密集风）===== */
+.op-portrait, .wpn-portrait { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #04211c; }
+.op-head, .wpn-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.count-badge { font-size: 12px; font-weight: 600; color: var(--accent-2); background: color-mix(in srgb, var(--accent-2) 12%, var(--bg-elev)); padding: 3px 10px; border-radius: 999px; margin-left: 8px; }
+.seg-right { margin-left: auto; }
+.codex-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.codex-table th, .codex-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.codex-table th { color: var(--muted); font-weight: 600; font-size: 12px; background: var(--bg-soft); position: sticky; top: 0; }
+.codex-table tbody tr:hover { background: var(--bg-soft); }
+.op-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.op-dot.r-legend { background: #ffb300; } .op-dot.r-epic { background: #c66bff; } .op-dot.r-rare { background: #4d96ff; } .op-dot.r-common { background: #9aa4b2; }
+.op-td-name { min-width: 140px; }
+.op-sub { font-size: 11px; color: var(--muted); }
+.op-stats-td { min-width: 220px; }
+.op-desc-td { color: var(--muted); max-width: 280px; }
+.mini-chip { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--bg-soft); margin: 2px 3px 2px 0; }
+.mini-chip b { color: var(--accent-2); margin-right: 3px; }
+
+/* ===== 破译电脑小游戏 ===== */
+.pc-start { text-align: center; padding: 30px; }
+.pc-game { background: #121921; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.pc-terminal { background: #06120c; border: 1px solid #1c3b2c; border-radius: 10px; overflow: hidden; }
+.pc-bar { display: flex; gap: 6px; padding: 8px 10px; background: #0a1a12; }
+.pc-bar span { width: 10px; height: 10px; border-radius: 50%; }
+.pc-bar span:nth-child(1) { background: #ff5f56; } .pc-bar span:nth-child(2) { background: #ffbd2e; } .pc-bar span:nth-child(3) { background: #27c93f; }
+.pc-screen { padding: 26px 18px; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.pc-code-show { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.pc-code-show span { font-family: Consolas, monospace; font-size: 34px; font-weight: 800; color: #4ade80; background: rgba(74,222,128,.08); border: 1px solid #1c3b2c; border-radius: 8px; width: 48px; height: 56px; display: flex; align-items: center; justify-content: center; }
+.pc-code-hidden { font-size: 34px; letter-spacing: 8px; color: #4ade80; font-family: Consolas, monospace; }
+.pc-hint { font-size: 13px; color: rgba(255,255,255,.5); }
+.pc-actions { display: flex; gap: 10px; align-items: center; padding: 14px; flex-wrap: wrap; }
+.pc-input { flex: 1; min-width: 140px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 10px 12px; font-size: 18px; letter-spacing: 4px; font-family: Consolas, monospace; text-transform: uppercase; }
+.pc-score, .fp-score { text-align: center; font-size: 14px; color: var(--muted); padding: 10px; }
+.pc-score b, .fp-score b { color: var(--accent-2); }
+.fp-score { grid-column: 1 / -1; }
+
+/* ===== 快速反应小游戏 ===== */
+.react-game { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 20px; }
+.react-box { width: 100%; max-width: 420px; height: 180px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; cursor: pointer; user-select: none; transition: .1s; color: #fff; }
+.react-box.idle { background: #2a2f3a; }
+.react-box.wait { background: #c0392b; }
+.react-box.go { background: #27ae60; }
+.react-box:active { transform: scale(.98); }
+.react-stat { font-size: 14px; color: var(--muted); text-align: center; }
+.react-stat b { color: var(--accent-2); }
+.react-actions { display: flex; gap: 12px; }
+
+/* ===== 脑机密码门小游戏 ===== */
+.brain-game { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px; }
+.brain-grid { display: grid; grid-template-columns: repeat(2, 120px); gap: 14px; }
+.brain-pad { height: 120px; border-radius: 16px; cursor: pointer; opacity: .55; transition: .12s; border: 2px solid rgba(255,255,255,.15); }
+.brain-pad.lit { opacity: 1; box-shadow: 0 0 24px rgba(255,255,255,.6); transform: scale(1.04); }
+.brain-status { font-size: 14px; color: var(--muted); }
+.brain-score { font-size: 14px; color: var(--muted); }
+.brain-score b { color: var(--accent-2); }
+
+@media (max-width: 768px) {
+  .music-layout { grid-template-columns: 1fr; }
+  .music-stage { position: static; }
+  .fp-game { grid-template-columns: 1fr; }
+  .fp-left { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .brain-grid { grid-template-columns: repeat(2, 90px); }
+  .brain-pad { height: 90px; }
+}
+
+/* =========================================================
+ * 新增：攻略 / 小知识 / 工具 / 安装横幅 / 后台移动拦截
+ * ========================================================= */
+
+/* ===== 新手攻略 ===== */
+.guide-intro { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 0 0 16px; }
+.guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.guide-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+.guide-head { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; margin-bottom: 12px; color: var(--accent-2); }
+.guide-ico { font-size: 18px; }
+.guide-list { display: flex; flex-direction: column; gap: 8px; }
+.guide-row { display: flex; gap: 10px; font-size: 13px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.guide-row:last-child { border-bottom: none; }
+.guide-k { flex: 0 0 42%; color: var(--text); font-weight: 600; }
+.guide-v { flex: 1; color: var(--muted); line-height: 1.6; }
+.guide-tip { margin-top: 16px; }
+
+/* ===== 三角洲小知识 ===== */
+.trivia-sharebar { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 18px; box-shadow: var(--shadow); }
+.trivia-sharebar .t-input, .trivia-sharebar .t-area {
+  width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+}
+.trivia-sharebar .t-tag { max-width: 200px; }
+.trivia-sharebar .t-area { resize: vertical; min-height: 64px; line-height: 1.6; }
+.trivia-sharebar-actions { display: flex; align-items: center; gap: 12px; }
+.t-msg { font-size: 13px; color: var(--muted); }
+.trivia-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.trivia-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; transition: transform .12s, box-shadow .12s; }
+.trivia-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.18); }
+.trivia-card.mine { border-left: 4px solid var(--accent); }
+.trivia-top { display: flex; align-items: center; gap: 8px; }
+.trivia-tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--accent-2) 14%, var(--bg-soft)); color: var(--accent-2); }
+.trivia-mine { font-size: 11px; color: var(--accent); margin-left: auto; }
+.trivia-title { font-size: 15px; font-weight: 800; }
+.trivia-body { font-size: 13px; color: var(--muted); line-height: 1.7; flex: 1; }
+.trivia-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.t-btn { border: 1px solid var(--border); background: var(--bg-soft); color: var(--text); border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; transition: .12s; }
+.t-btn:hover { border-color: var(--accent-2); }
+.t-btn.liked { background: color-mix(in srgb, var(--accent-2) 16%, var(--bg-soft)); color: var(--accent-2); font-weight: 700; }
+.t-btn.del-btn:hover { border-color: #ff5b5b; color: #ff5b5b; }
+
+/* ===== 实用工具（开箱 / 舔包 / 散落）===== */
+.tool-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); max-width: 560px; }
+.tool-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.tool-row label { flex: 0 0 90px; color: var(--muted); font-size: 13px; }
+.tool-row select, .tool-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 14px; }
+.tool-result { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.loot-line { display: flex; align-items: center; gap: 12px; background: var(--bg-soft); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.loot-i { font-weight: 800; color: var(--accent-2); flex: 0 0 40px; }
+.loot-x { flex: 1; }
+
+/* ===== PWA 安装横幅 ===== */
+.install-banner {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  background: var(--topbar); border-top: 1px solid var(--border); box-shadow: 0 -6px 22px rgba(0,0,0,.22);
+}
+.ib-icon { font-size: 22px; }
+.ib-text { flex: 1; font-size: 13px; color: var(--text); }
+.ib-btn { border: none; background: var(--accent-2); color: #04211c; font-weight: 700; padding: 8px 18px; border-radius: 999px; cursor: pointer; font-size: 13px; }
+.ib-close { background: transparent; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+
+/* ===== 后台：仅电脑端拦截 ===== */
+.mobile-block {
+  max-width: 460px; margin: 12vh auto 0; padding: 32px; text-align: center;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
+}
+.mobile-block .mb-icon { font-size: 56px; margin-bottom: 8px; }
+.mobile-block h1 { font-size: 22px; margin: 8px 0 14px; }
+.mobile-block p { color: var(--muted); font-size: 14px; line-height: 1.8; margin: 8px 0; }
+.mobile-block .mb-hint { font-size: 13px; }
+.mobile-block .mb-back { display: inline-block; margin-top: 18px; color: var(--accent-2); text-decoration: none; font-weight: 700; }
+
+/* ===== 横屏 / 竖屏自适应增强 ===== */
+@media (orientation: landscape) and (max-height: 560px) {
+  .layout { grid-template-rows: 52px 1fr auto; }
+  .topbar { padding: 0 14px; }
+  .content { padding: 12px 18px; }
+  .hero-v2 { padding: 14px 18px; }
+  .map-grid-v2 { grid-template-columns: repeat(4, 1fr); }
+  .item-card { flex: 0 0 240px; }
+}
+@media (orientation: portrait) and (max-width: 768px) {
+  .map-grid-v2 { grid-template-columns: 1fr; }
+  .guide-grid { grid-template-columns: 1fr; }
+  .trivia-grid { grid-template-columns: 1fr; }
+  .op-grid, .wpn-grid { grid-template-columns: 1fr; }
+  .tool-card { max-width: 100%; }
+}
+/* 超宽屏：内容居中，避免过宽 */
+@media (min-width: 1600px) {
+  .preview { max-width: 1320px; }
+  .content { padding: 18px 36px; }
+}

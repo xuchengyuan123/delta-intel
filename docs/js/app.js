@@ -29,6 +29,7 @@
 
   /* ---------- 赞助弹窗与更新日志 ---------- */
   var CHANGELOG = [
+    { date: "2026-07-11", title: "全站大更新 · 攻略/工具/小知识/安装", items: ["新增「新手攻略」与「三角洲小知识」分享（可点赞/复制/发布）", "新增实用工具：宝藏开箱、随机舔包、散落物资点", "图鉴新增特战干员图鉴与武器图鉴", "音乐台可内嵌B站播放完整歌曲", "小游戏补齐 5 款（摩斯/破译电脑/快速反应/脑机/指纹）", "支持 PWA 安装到桌面、深浅模式跟随系统、手机横竖屏自适应", "后台分级管理员（总/赛季任务/音乐/美术/模拟器/代码/干员图鉴/武器图鉴）", "后台仅电脑端可登录"] },
     { date: "2026-07-11", title: "小游戏/音乐台/弹窗上线", items: ["新增数字摩斯密码小游戏与指纹选择小游戏", "音乐台改为外链 QQ音乐/B站/网易云", "增加自动赞助弹窗与更新日志"] },
     { date: "2026-07-10", title: "首页美化 V3", items: ["重绘建筑线描卡片", "赛季任务支持搜索与手动维护"] },
     { date: "2026-07-09", title: "管理后台与自动更新", items: ["上线 admin.html 管理后台", "修复自动更新路径"] }
@@ -62,7 +63,7 @@
         '<ul>' + log.items.map(function (it) { return '<li>' + esc(it) + '</li>'; }).join("") + '</ul>' +
       '</div>';
     }).join("");
-    return '<div class="section-title">📜 更新日志</div>' +
+    return '<div class="section-title">📜 网站更新速览</div>' +
       '<div class="card changelog">' + rows + '</div>';
   }
   function showSponsorModal() {
@@ -110,7 +111,7 @@
     {
       group: "资讯", items: [
         { route: "tasks", label: "赛季任务 / 挑战手册", ico: "📋" },
-        { route: "changelog", label: "更新日志", ico: "📜" },
+        { route: "changelog", label: "网站更新速览", ico: "📜" },
       ],
     },
     {
@@ -597,15 +598,56 @@
     },
   };
 
-  /* ---------- 主题切换 ---------- */
-  function applyTheme(t) { html.classList.toggle("dark", t === "dark"); try { localStorage.setItem("df-theme", t); } catch (e) {} }
+  /* ---------- 主题切换（支持 自动跟随系统 / 浅色 / 深色） ---------- */
+  var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function sysDark() { return mq ? mq.matches : true; }
+  function getSavedTheme() { try { return localStorage.getItem("df-theme") || "auto"; } catch (e) { return "auto"; } }
+  function applyTheme(t) {
+    var eff = (t === "auto") ? (sysDark() ? "dark" : "light") : t;
+    html.classList.toggle("dark", eff === "dark");
+    try { localStorage.setItem("df-theme", t); } catch (e) {}
+    var btn = document.getElementById("themeToggle");
+    if (btn) btn.textContent = (t === "auto") ? "🖥️" : (eff === "dark" ? "🌙" : "☀️");
+  }
   document.getElementById("themeToggle").addEventListener("click", function () {
-    applyTheme(html.classList.contains("dark") ? "light" : "dark");
+    var cur = getSavedTheme();
+    var next = (cur === "auto") ? "light" : (cur === "light" ? "dark" : "auto");
+    applyTheme(next);
   });
-  (function () {
-    var saved; try { saved = localStorage.getItem("df-theme"); } catch (e) {}
-    applyTheme(saved || "dark");
-  })();
+  if (mq && mq.addEventListener) mq.addEventListener("change", function () { if (getSavedTheme() === "auto") applyTheme("auto"); });
+  applyTheme(getSavedTheme());
+
+  /* ---------- PWA：安装横幅 + Service Worker 注册 ---------- */
+  var deferredPrompt = null;
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBanner();
+  });
+  window.addEventListener("appinstalled", function () { hideInstallBanner(); });
+  function showInstallBanner() {
+    if (document.getElementById("dfInstallBanner")) return;
+    var b = document.createElement("div");
+    b.id = "dfInstallBanner";
+    b.className = "install-banner";
+    b.innerHTML = '<span class="ib-icon">📲</span>' +
+      '<span class="ib-text">把「三角洲情报台」安装到桌面，随时查看最新情报</span>' +
+      '<button class="ib-btn" id="ibInstall">安装</button>' +
+      '<button class="ib-close" id="ibClose">×</button>';
+    document.body.appendChild(b);
+    document.getElementById("ibInstall").addEventListener("click", function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function () { deferredPrompt = null; hideInstallBanner(); });
+    });
+    document.getElementById("ibClose").addEventListener("click", hideInstallBanner);
+  }
+  function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
 
   /* ---------- 移动端抽屉 ---------- */
   document.getElementById("menuToggle").addEventListener("click", function () {
