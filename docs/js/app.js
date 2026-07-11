@@ -56,11 +56,12 @@
     '</div>';
   }
   function changelogHtml() {
-    var rows = CHANGELOG.map(function (log) {
+    var list = (DATA && DATA.changelog && DATA.changelog.length) ? DATA.changelog : CHANGELOG;
+    var rows = list.map(function (log) {
       return '<div class="log-item">' +
         '<div class="log-date">' + esc(log.date) + '</div>' +
         '<div class="log-title">' + esc(log.title) + '</div>' +
-        '<ul>' + log.items.map(function (it) { return '<li>' + esc(it) + '</li>'; }).join("") + '</ul>' +
+        '<ul>' + (log.items || []).map(function (it) { return '<li>' + esc(it) + '</li>'; }).join("") + '</ul>' +
       '</div>';
     }).join("");
     return '<div class="section-title">📜 网站更新速览</div>' +
@@ -363,39 +364,6 @@
     return "🛠";
   }
 
-  function homeMapCards() {
-    var cards = (DATA.maps || []).map(function (m) {
-      return '<div class="map-card-v2">' +
-        '<div class="map-v2-meta">' +
-          '<div class="map-v2-name">' + esc(m.name) + "</div>" +
-          '<div class="map-v2-date">' + esc(m.date || "今日更新") + "</div>" +
-        "</div>" +
-        '<div class="map-v2-code">' + esc(m.code) + "</div>" +
-        '<div class="map-v2-art">' + DFmapArt(m.name) + "</div>" +
-      "</div>";
-    }).join("");
-    return '<div class="map-grid-v2">' + cards + "</div>";
-  }
-
-  function homeItemCards() {
-    var list = (DATA.items || []).slice(0, 8);
-    if (!list.length) return "";
-    var cards = list.map(function (i) {
-      var hourly = Math.round(i.profit * 60 / (i.craftMin || 60));
-      return '<div class="item-card">' +
-        '<div class="item-card-icon">' + itemIcon(i.name) + "</div>" +
-        '<div class="item-card-body">' +
-          '<div class="item-card-station">' + esc(i.station) + "</div>" +
-          '<div class="item-card-name ' + gradeClass(i.grade) + '">' + esc(i.name) + "</div>" +
-          '<div class="item-card-profit profit-up">' + fmt(hourly) + "</div>" +
-          '<div class="item-card-hint">总利润 ' + fmt(i.profit) + ' · 理想售价 ' + fmt(i.price) + "</div>" +
-        "</div>" +
-      "</div>";
-    }).join("");
-    return '<div class="section-title"><span>特勤处制作产物推荐</span><span class="toggle-hour">小时利润</span></div>' +
-      '<div class="item-scroll">' + cards + "</div>";
-  }
-
   function homeTaskStrip() {
     var tasks = DATA.tasks || {};
     var groups = tasks.groups || [];
@@ -403,27 +371,77 @@
     var firstOpen = groups.find(function (g) { return g.open; }) || groups[0];
     var firstItem = (firstOpen.items || [])[0];
     var title = firstItem ? firstItem.title : (firstOpen.name || "赛季任务");
-    return '<a class="notice-strip" href="?viewpage=tasks">' +
-      '<span class="notice-strip-tag">赛季任务</span>' +
-      '<span class="notice-strip-title">' + esc(title) + '</span>' +
-      '<span class="notice-strip-more">查看全部 →</span>' +
-    "</a>";
+    return '<a class="kk-tasks" href="?viewpage=tasks">' +
+      '<span class="kk-tasks-tag">赛季任务</span>' +
+      '<span class="kk-tasks-title">' + esc(title) + '</span>' +
+      '<span class="kk-tasks-more">查看全部 →</span></a>';
+  }
+
+  /* ---------- KK日报 式紧凑仪表盘板块 ---------- */
+  function kkMapBlock() {
+    var cards = (DATA.maps || []).map(function (m) {
+      return '<div class="kk-map"><div class="kk-map-name">' + esc(m.name) + '</div>' +
+        '<div class="kk-map-code">' + esc(m.code) + '</div>' +
+        '<div class="kk-map-date">' + esc(m.date || "今日") + '</div></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">🗺 每日地图密码 <a class="kk-more" href="?viewpage=maps">更多</a></div>' +
+      '<div class="kk-map-grid">' + cards + '</div></div>';
+  }
+  function kkItemsBlock() {
+    var list = (DATA.items || []).slice(0, 6);
+    if (!list.length) return '<div class="kk-card"><div class="kk-card-h">🛠 特勤处产物</div><div class="kk-empty">暂无数据</div></div>';
+    var rows = list.map(function (i) {
+      var hourly = Math.round(i.profit * 60 / (i.craftMin || 60));
+      return '<div class="kk-li"><span class="kk-li-st">' + esc(i.station) + '</span>' +
+        '<span class="kk-li-n ' + gradeClass(i.grade) + '">' + esc(i.name) + '</span>' +
+        '<span class="kk-li-v profit-up">' + fmt(hourly) + '</span></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">🛠 特勤处产物（小时利润）</div>' + rows + '</div>';
+  }
+  function kkMaterialsBlock() {
+    var rows = (DATA.materials || []).slice(0, 4).map(function (m) {
+      return '<div class="kk-li"><span class="kk-li-n">' + esc(m.name) + '</span>' +
+        '<span class="kk-li-v">' + fmt(m.cur) + '</span>' +
+        '<span class="kk-li-t">买' + esc(m.buy || "-") + '/卖' + esc(m.sell || "-") + '</span></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">📈 高价格浮动材料</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+  }
+  function kkBulletsBlock() {
+    var list = (DATA.bullets || []).slice(0, 10);
+    var rows = list.map(function (b, i) {
+      return '<div class="kk-li"><span class="kk-li-i">' + (i + 1) + '</span>' +
+        '<span class="kk-li-n">' + esc(b.name) + '</span>' +
+        '<span class="kk-li-v profit-up">' + fmt(b.profit) + '</span></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">🔫 热门子弹利润（前十）</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+  }
+  function kkEventsBlock() {
+    var ev = DATA.eventItems || {};
+    var rows = (ev.items || []).map(function (it) {
+      return '<div class="kk-li"><span class="kk-li-n">' + esc(it.name) + '</span>' +
+        '<span class="kk-li-v">' + fmt(it.cur) + '</span></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">🎁 活动物品需求</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+  }
+  function kkDoorBlock() {
+    var rows = (DATA.doorCodes || []).slice(0, 6).map(function (d) {
+      return '<div class="kk-li"><span class="kk-li-n">' + esc(d.map) + '·' + esc(d.location) + '</span>' +
+        '<span class="kk-li-v code-strong">' + esc(d.code) + '</span></div>';
+    }).join("");
+    return '<div class="kk-card"><div class="kk-card-h">🔑 密码门速查</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
   }
 
   /* ---------- 视图 ---------- */
   var VIEWS = {
     home: {
       html: function () {
-        return homeTaskStrip() +
-          '<div class="hero hero-v2"><div class="hero-titles">' +
-          '<h1>三角洲情报台</h1>' +
-          '<p>每日密码 / 产物利润 / 材料价格 · 一屏看全</p></div>' +
-          '<div class="hero-update">每日更新 · <span id="updatedAtTop">' + (DATA.updatedAt ? new Date(DATA.updatedAt).toLocaleString("zh-CN") : "加载中") + "</span></div></div>" +
-          '<div class="section-title">每日地图密码</div>' + homeMapCards() +
-          homeItemCards() +
-          '<div class="section-title">热门子弹利润</div>' + topBulletsTable(6) +
-          '<div class="section-title">活动物品需求</div>' + topEventsTable() +
-          '<div class="section-title">高价格浮动制造材料</div>' + topMaterialsTable();
+        return '<div class="kk-hero"><div class="kk-hero-t"><h1>三角洲情报台</h1>' +
+          '<p>每日密码 · 产物利润 · 材料价格 · 一屏看全</p></div>' +
+          '<div class="kk-hero-u">每日更新 · ' + (DATA.updatedAt ? new Date(DATA.updatedAt).toLocaleString("zh-CN") : "加载中") + '</div></div>' +
+          homeTaskStrip() +
+          '<div class="kk-board">' +
+            kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() +
+          '</div>';
       },
     },
     maps: {

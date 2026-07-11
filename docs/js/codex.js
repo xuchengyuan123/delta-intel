@@ -10,6 +10,7 @@
   "use strict";
 
   var opQ = "", wpnQ = "", wpnType = "全部", opView = "card", wpnView = "card";
+  var opList = [], wpnList = []; // 当前渲染的列表，供点击弹窗查详情
 
   function uniq(arr) { var seen = {}, out = []; arr.forEach(function (x) { if (x != null && !seen[x]) { seen[x] = 1; out.push(x); } }); return out; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -49,6 +50,53 @@
   }
   function hash(s) { var h = 0; s = String(s || ""); for (var i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return h; }
 
+  /* ---------------- 详情弹窗（点击卡片弹出，内容由管理员后续填充；支持技能演示 MP4） ---------------- */
+  function closeModal() { var m = document.getElementById("dfModal"); if (m) m.remove(); }
+  function modalShell(inner) {
+    closeModal();
+    var root = document.createElement("div");
+    root.className = "df-modal-backdrop";
+    root.id = "dfModal";
+    root.innerHTML = '<div class="df-modal"><button class="df-modal-close" id="dfModalClose">×</button>' + inner + '</div>';
+    document.body.appendChild(root);
+    root.addEventListener("click", function (e) { if (e.target === root) closeModal(); });
+    var c = root.querySelector("#dfModalClose"); if (c) c.onclick = closeModal;
+    document.addEventListener("keydown", function escClose(e) { if (e.key === "Escape") { closeModal(); document.removeEventListener("keydown", escClose); } });
+  }
+  function section(t) { return '<div class="df-sec"><div class="df-sec-h">' + t + '</div><div class="df-sec-b">（管理员可在后台填写，前台即时展示）</div></div>'; }
+  function videoBlock(src) {
+    if (!src) return '<div class="df-detail-video empty">（暂无技能演示视频，管理员可在后台上传 MP4）</div>';
+    return '<div class="df-detail-video"><video controls preload="metadata" src="' + esc(src) + '"></video><div class="df-detail-cap">🎬 技能演示视频</div></div>';
+  }
+  function openOpDetail(o) {
+    if (!o) return;
+    var st = opStats(o);
+    var inner = '<div class="df-detail-head">' + portrait(o.name, o.realname || o.name, "df-detail-portrait", o.cover || o.portrait) +
+      '<div class="df-detail-id"><div class="df-detail-name">' + esc(o.name) + "</div>" +
+      (o.realname ? '<div class="df-detail-sub">本名 · ' + esc(o.realname) + "</div>" : "") +
+      '<div class="df-detail-tags"><span class="pill ' + rarityClass(o.rarity) + '">' + roleIcon(o.role) + " " + esc(o.role || "") + '</span>' +
+      '<span class="pill ' + rarityClass(o.rarity) + '">' + esc(o.rarity || "普通") + "</span></div></div></div>" +
+      '<div class="df-detail-stats">' + statBar("机动", st.机动) + statBar("生存", st.生存) + statBar("火力", st.火力) + statBar("辅助", st.辅助) + "</div>" +
+      '<div class="df-detail-skill"><span class="op-skill-tag">战术技能</span>' + esc(o.skill || "") +
+      (o.skillDesc ? '<div class="op-skill-desc">' + esc(o.skillDesc) + "</div>" : "") + "</div>" +
+      (o.desc ? '<div class="df-detail-desc">' + esc(o.desc) + "</div>" : "") +
+      videoBlock(o.video) +
+      '<div class="df-detail-sections">' + section("📖 背景故事") + section("🎯 战术定位") + section("🧰 配装建议") + section("💡 小贴士") + "</div>";
+    modalShell(inner);
+  }
+  function openWpnDetail(w) {
+    if (!w) return;
+    var inner = '<div class="df-detail-head">' + portrait(w.name, w.name, "df-detail-portrait", w.cover || w.image) +
+      '<div class="df-detail-id"><div class="df-detail-name">' + esc(w.name) + "</div>" +
+      '<div class="df-detail-sub">' + esc(w.type || "") + "</div>" +
+      '<div class="df-detail-tags"><span class="pill">🔫 ' + esc(w.ammo || "—") + '</span><span class="pill ' + rarityClass(w.rarity) + '">' + esc(w.rarity || "普通") + "</span></div></div></div>" +
+      '<div class="df-detail-stats">' + statBar("裸伤", w.dmg) + statBar("射速", w.rof) + statBar("射程", w.range) + statBar("穿甲", w.pen) + statBar("后坐", w.recoil) + statBar("精准", w.acc) + "</div>" +
+      (w.desc ? '<div class="df-detail-desc">' + esc(w.desc) + "</div>" : "") +
+      videoBlock(w.video) +
+      '<div class="df-detail-sections">' + section("🔧 改装建议") + section("🎯 适用场景") + section("🧰 配装思路") + section("💡 小贴士") + "</div>";
+    modalShell(inner);
+  }
+
   /* ---------------- 特战干员图鉴（《三角洲行动》真实干员） ---------------- */
   function opStats(o) {
     return o.stats || { 机动: o.stat_机动, 生存: o.stat_生存, 火力: o.stat_火力, 辅助: o.stat_辅助 };
@@ -60,6 +108,7 @@
       if (!q) return true;
       return (o.name + " " + (o.realname || "") + " " + (o.role || "") + " " + (o.skill || "") + " " + (o.skillDesc || "") + " " + (o.desc || "")).toLowerCase().indexOf(q) > -1;
     });
+    opList = filtered;
     var dataRows = filtered.map(function (o) {
       var st = opStats(o);
       return '<tr><td class="op-td-name"><span class="op-dot ' + rarityClass(o.rarity) + '"></span>' + roleIcon(o.role) + ' <b>' + D.esc(o.name) + '</b>' +
@@ -69,9 +118,9 @@
         '<td class="op-stats-td">' + statBar("机动", st.机动) + statBar("生存", st.生存) + statBar("火力", st.火力) + statBar("辅助", st.辅助) + '</td>' +
         '<td class="op-desc-td">' + D.esc(o.desc || "") + '</td></tr>';
     }).join("");
-    var cards = filtered.map(function (o) {
+    var cards = filtered.map(function (o, idx) {
       var st = opStats(o);
-      return '<div class="op-card ' + rarityClass(o.rarity) + '">' +
+      return '<div class="op-card ' + rarityClass(o.rarity) + '" data-oi="' + idx + '" tabindex="0" role="button">' +
         '<div class="op-head">' + portrait(o.name, o.realname || o.name, "op-portrait", o.cover || o.portrait) +
           '<div class="op-id"><div class="op-name">' + D.esc(o.name) + '</div>' +
           (o.realname ? '<div class="op-code">本名 · ' + D.esc(o.realname) + '</div>' : '') +
@@ -98,6 +147,10 @@
   function operatorsInit() {
     var s = document.getElementById("opSearch"); if (s) s.addEventListener("input", function () { opQ = s.value; window.DF.render("operators"); });
     document.querySelectorAll(".seg-btn[data-ov]").forEach(function (b) { b.addEventListener("click", function () { opView = b.getAttribute("data-ov"); window.DF.render("operators"); }); });
+    document.querySelectorAll("#LAY_preview .op-card[data-oi]").forEach(function (card) {
+      card.addEventListener("click", function () { openOpDetail(opList[+card.getAttribute("data-oi")]); });
+      card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openOpDetail(opList[+card.getAttribute("data-oi")]); } });
+    });
   }
 
   /* ---------------- 武器图鉴 ---------------- */
@@ -110,6 +163,7 @@
       if (!q) return true;
       return (w.name + " " + (w.type || "") + " " + (w.ammo || "") + " " + (w.desc || "")).toLowerCase().indexOf(q) > -1;
     });
+    wpnList = filtered;
     var tabs = types.map(function (t) { return '<button class="seg-btn' + (t === wpnType ? " active" : "") + '" data-type="' + D.esc(t) + '">' + D.esc(t) + '</button>'; }).join("");
 
     var dataRows = filtered.map(function (w) {
@@ -120,8 +174,8 @@
     }).join("");
     function chipText(l, v) { return v == null || v === "" ? "" : '<span class="mini-chip"><b>' + l + '</b> ' + esc(v) + '</span>'; }
 
-    var cards = filtered.map(function (w) {
-      return '<div class="wpn-card ' + rarityClass(w.rarity) + '">' +
+    var cards = filtered.map(function (w, idx) {
+      return '<div class="wpn-card ' + rarityClass(w.rarity) + '" data-wi="' + idx + '" tabindex="0" role="button">' +
         '<div class="wpn-head">' + portrait(w.name, w.name, "wpn-portrait", w.cover || w.image) +
           '<div class="wpn-id"><div class="wpn-name">' + D.esc(w.name) + '</div><div class="wpn-type">' + D.esc(w.type || "") + '</div>' +
           '<div class="wpn-rarity">' + D.esc(w.rarity || "普通") + '</div></div></div>' +
@@ -147,6 +201,10 @@
     document.querySelectorAll("#LAY_preview .seg-btn[data-type]").forEach(function (b) { b.addEventListener("click", function () { wpnType = b.getAttribute("data-type"); window.DF.render("weapons"); }); });
     var s = document.getElementById("wpnSearch"); if (s) s.addEventListener("input", function () { wpnQ = s.value; window.DF.render("weapons"); });
     document.querySelectorAll(".seg-btn[data-wv]").forEach(function (b) { b.addEventListener("click", function () { wpnView = b.getAttribute("data-wv"); window.DF.render("weapons"); }); });
+    document.querySelectorAll("#LAY_preview .wpn-card[data-wi]").forEach(function (card) {
+      card.addEventListener("click", function () { openWpnDetail(wpnList[+card.getAttribute("data-wi")]); });
+      card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWpnDetail(wpnList[+card.getAttribute("data-wi")]); } });
+    });
   }
 
   function reg(D) {

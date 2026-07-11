@@ -199,26 +199,45 @@
 
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "redeem", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
-      art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art"] },
+      art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art", "images"] },
       sim:   { key: "sim",   name: "模拟器管理员",   color: "#3a7bd5", icon: "🧮", panels: ["sim"] },
       code:  { key: "code",  name: "代码维护员",     color: "#2ecc71", icon: "💻", panels: ["code"] },
       opcode:{ key: "opcode",name: "特战干员图鉴管理员", color: "#ff4d6d", icon: "🪖", panels: ["opcode"] },
-      wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] }
+      wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] },
+      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "redeem", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks"] }
     };
     var PANELS = {
       dashboard: { label: "总览 · 数据/操作/日志", icon: "📊", title: "总览仪表盘", sub: "网站浏览数据、管理员操作记录、更新日志。总管理员可在此进入全部模块。", mount: mountDashboard },
       tasks:     { label: "赛季任务管理", icon: "📋", title: "赛季任务 / 挑战手册", sub: "维护可折叠的任务分组与任务项，前台「赛季任务」菜单同步显示。", mount: mountTasks },
-      music:     { label: "音乐管理",     icon: "🎵", title: "音乐管理", sub: "维护首页音乐台的外链列表（QQ音乐 / B站 / 网易云 等）。", mount: mountMusic },
-      art:       { label: "美术管理",     icon: "🎨", title: "美术管理", sub: "直接编辑网站上的建筑线描与主题色——所见即所得，保存后前台即时生效。", mount: mountArt },
+      music:     { label: "音乐管理",     icon: "🎵", title: "音乐管理", sub: "维护首页音乐台（QQ音乐外链播放）。每行填标题、艺人、songid 等。", mount: mountMusic },
+      art:       { label: "美术管理",     icon: "🎨", title: "美术管理", sub: "上传/粘贴图片、编辑建筑线描与主题色——保存后前台即时生效。", mount: mountArt },
+      images:    { label: "图片库",       icon: "🖼", title: "图片库管理", sub: "上传 JPG/PNG（自动转站内数据）或粘贴图片 URL/代码，供前台图鉴与素材使用。", mount: mountImages },
       sim:       { label: "模拟器管理",   icon: "🧮", title: "模拟器管理", sub: "维护护甲 / 伤害模拟器使用的武器与护甲数据。", mount: mountSim },
       code:      { label: "代码维护",     icon: "💻", title: "代码维护", sub: "编辑原始数据、站点配置，并管理论坛帖子。", mount: mountCode },
       opcode:    { label: "干员图鉴管理", icon: "🪖", title: "特战干员图鉴管理", sub: "维护干员代号、定位、阵营、稀有度与属性。前台「特战干员图鉴」同步显示。", mount: mountOpCodex },
       wcodex:    { label: "武器图鉴管理", icon: "🔫", title: "武器图鉴管理", sub: "维护武器类型、弹药、稀有度与属性。前台「武器图鉴」同步显示。", mount: mountWCodex },
       trivia:    { label: "小知识管理", icon: "🧠", title: "三角洲小知识管理", sub: "维护「三角洲小知识」条目（标题/标签/内容）。前台战友可点赞、复制与分享。", mount: mountTrivia },
-      uidesign:  { label: "界面定制",   icon: "🎛", title: "界面定制（总管理员）", sub: "自定义前台与后台的整体外观，并为每个管理员面板单独设定配色。修改后前台/后台即时生效。", mount: mountUiDesign }
+      uidesign:  { label: "界面定制",   icon: "🎛", title: "界面定制（总管理员）", sub: "自定义前台与后台的整体外观，并为每个管理员面板单独设定配色。修改后前台/后台即时生效。", mount: mountUiDesign },
+      gun:       { label: "改枪方案", icon: "🔧", title: "改枪方案管理", sub: "维护前台「资料库·改枪方案」的配装列表（名称/武器/标签/配件）。", mount: mountGun },
+      door:      { label: "密码门", icon: "🔑", title: "密码门速查管理", sub: "维护前台「资料库·密码门」的门禁密码列表。", mount: mountDoor },
+      events:    { label: "活动日历", icon: "📅", title: "活动日历管理", sub: "维护前台「资料库·活动日历」的限时活动列表。", mount: mountEvents },
+      streamer:  { label: "主播设置", icon: "🎮", title: "主播设置管理", sub: "维护前台「资料库·主播设置」的灵敏度/画质参考。", mount: mountStreamer },
+      optask:    { label: "干员任务", icon: "🪖", title: "干员任务管理", sub: "维护前台「资料库·干员任务」的个人挑战列表。", mount: mountOpTask },
+      melee:     { label: "近战武器", icon: "🔪", title: "近战武器管理", sub: "维护前台「资料库·近战武器」的基础数据。", mount: mountMelee },
+      redeem:    { label: "兑换码", icon: "🎟", title: "兑换码管理", sub: "维护前台「资料库·兑换码」的礼包码列表。", mount: mountRedeem },
+      feedback:  { label: "反馈设置", icon: "💬", title: "网站反馈设置", sub: "设置反馈邮箱与第三方表单链接，前台「网站反馈」页集中收集反馈。", mount: mountFeedback },
+      armors:    { label: "防具数据", icon: "🛡", title: "防具基础数据", sub: "维护前台「装备数据·防具基础数据」。", mount: mountArmors },
+      scopes:    { label: "瞄具样式", icon: "🔭", title: "瞄具开镜样式", sub: "维护前台「装备数据·瞄具开镜样式」。", mount: mountScopes },
+      npc:       { label: "NPC 数据", icon: "👾", title: "NPC 数据", sub: "维护前台「装备数据·NPC 数据」。", mount: mountNpc },
+      upgrades:  { label: "升级花销", icon: "⬆", title: "升级花销", sub: "维护前台「养成数据·升级花销」。", mount: mountUpgrades },
+      expansion: { label: "扩容箱价格", icon: "📦", title: "扩容箱兑换价格", sub: "维护前台「养成数据·扩容箱价格」。", mount: mountExpansion },
+      keyrooms:  { label: "钥匙房信息", icon: "🔑", title: "钥匙房信息", sub: "维护前台「养成数据·钥匙房信息」。", mount: mountKeyRooms },
+      collectibles: { label: "收集品价值", icon: "💎", title: "收集品单格价值", sub: "维护前台「交易数据·收集品单格价值」。", mount: mountCollectibles },
+      bulletpacks: { label: "子弹包利润", icon: "📦", title: "子弹自选包利润", sub: "维护前台「交易数据·子弹自选包利润」。", mount: mountBulletPacks },
+      changelog: { label: "网站更新内容", icon: "📜", title: "网站更新内容（总管理员）", sub: "编辑前台「网站更新速览」展示的内容，保存后即时生效。", mount: mountChangelog }
     };
 
     var CHANGELOG = [
@@ -412,10 +431,15 @@
         var sims = (o.weapons || []).length + (o.armors || []).length;
         var ops = (o.operators || []).length;
         var wcx = (o.weaponCodex || []).length;
+        var gb = (o.gunBuilds || []).length;
+        var ev = (o.events || []).length;
+        var rd = (o.redeem || []).length;
+        var gmod = (o.guides && o.guides.modules ? o.guides.modules.length : 0);
         var kpi = [
           { n: maps, l: "地图密码" }, { n: items, l: "特勤处产物" }, { n: bullets, l: "热门子弹" },
           { n: groups, l: "任务分组" }, { n: music, l: "音乐曲目" }, { n: sims, l: "模拟器数据" },
-          { n: ops, l: "干员图鉴" }, { n: wcx, l: "武器图鉴" }, { n: (o.trivia || []).length, l: "小知识" }
+          { n: ops, l: "干员图鉴" }, { n: wcx, l: "武器图鉴" }, { n: (o.trivia || []).length, l: "小知识" },
+          { n: gb, l: "改枪方案" }, { n: ev, l: "活动" }, { n: rd, l: "兑换码" }, { n: gmod, l: "攻略模块" }
         ];
         var kpiHtml = '<div class="kpi-grid">' + kpi.map(function (k) {
           return '<div class="kpi-card"><div class="n">' + k.n + '</div><div class="l">' + k.l + "</div></div>";
@@ -554,22 +578,24 @@
       load();
     }
 
-    /* ============ 音乐管理 ============ */
+    /* ============ 音乐管理（QQ音乐外链） ============ */
     function mountMusic(c) {
       c.innerHTML =
-        '<div class="panel-card"><h3>🎵 音乐外链列表</h3>' +
-          '<p class="panel-tip">每行一条，填标题、平台（如 QQ音乐 / B站 / 网易云）、链接、图标与简介。保存后前台音乐台即时更新。</p>' +
-          '<table class="item-table" id="mTbl"><thead><tr><th>标题</th><th>平台</th><th>链接 URL</th><th>图标</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+        '<div class="panel-card"><h3>🎵 音乐列表（QQ音乐式）</h3>' +
+          '<p class="panel-tip">每行一首。QQ音乐：在 <b>QQ音乐网页版</b> 打开歌曲 → 分享 → 复制链接，链接里 <code>songid=</code> 后的纯数字即 songid。填好后前台用 QQ音乐外链播放器在页面内直接播放。</p>' +
+          '<table class="item-table" id="mTbl"><thead><tr><th>标题</th><th>艺人</th><th>类型</th><th>songid</th><th>时长</th><th>标签</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="mAdd">＋ 添加一行</button></div>' +
           '<div class="row"><button class="btn role-c" id="mSave">保存音乐列表</button><span class="msg" id="mMsg"></span></div></div>';
       var rows = [];
       function rowHtml(r, i) {
+        var type = r.type || "qq";
         return "<tr data-i='" + i + "'>" +
           "<td><input class='m-title' value='" + esc(r.title || "") + "'></td>" +
-          "<td><input class='m-source' value='" + esc(r.source || "") + "'></td>" +
-          "<td><input class='m-url' value='" + esc(r.url || "") + "'></td>" +
-          "<td style='width:54px'><input class='m-icon' value='" + esc(r.icon || "🎵") + "' style='width:40px;text-align:center'></td>" +
-          "<td><input class='m-desc' value='" + esc(r.desc || "") + "'></td>" +
+          "<td><input class='m-artist' value='" + esc(r.artist || "") + "'></td>" +
+          "<td><select class='m-type'><option value='qq'" + (type === "qq" ? " selected" : "") + ">QQ音乐</option><option value='audio'" + (type === "audio" ? " selected" : "") + ">直链音频</option><option value='link'" + (type === "link" ? " selected" : "") + ">外链</option></select></td>" +
+          "<td><input class='m-songid' value='" + esc(r.songid || "") + "' placeholder='纯数字'></td>" +
+          "<td><input class='m-dur' value='" + esc(r.dur || "") + "'></td>" +
+          "<td><input class='m-tag' value='" + esc(r.tag || "") + "'></td>" +
           "<td class='col-act'><button class='btn danger sm m-del'>删</button></td></tr>";
       }
       function bind() {
@@ -577,24 +603,21 @@
           tr.querySelector(".m-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); };
         });
       }
-      function render() {
-        c.querySelector("#mTbl tbody").innerHTML = rows.map(rowHtml).join("");
-        bind();
-      }
+      function render() { c.querySelector("#mTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
       getDataObj().then(function (d) {
         rows = (d.obj.music || []).slice();
-        if (!rows.length) rows = [{ title: "", source: "", url: "", icon: "🎵", desc: "" }];
+        if (!rows.length) rows = [{ title: "", artist: "三角洲行动", type: "qq", songid: "", dur: "", tag: "" }];
         render();
       }).catch(function () {});
-      c.querySelector("#mAdd").onclick = function () { rows.push({ title: "", source: "", url: "", icon: "🎵", desc: "" }); render(); };
+      c.querySelector("#mAdd").onclick = function () { rows.push({ title: "", artist: "三角洲行动", type: "qq", songid: "", dur: "", tag: "" }); render(); };
       c.querySelector("#mSave").onclick = function () {
         var msg = c.querySelector("#mMsg");
         var collected = [];
         c.querySelectorAll("#mTbl tbody tr").forEach(function (tr) {
-          collected.push({ title: tr.querySelector(".m-title").value.trim(), source: tr.querySelector(".m-source").value.trim(), url: tr.querySelector(".m-url").value.trim(), icon: tr.querySelector(".m-icon").value.trim() || "🎵", desc: tr.querySelector(".m-desc").value.trim() });
+          collected.push({ title: tr.querySelector(".m-title").value.trim(), artist: tr.querySelector(".m-artist").value.trim(), type: tr.querySelector(".m-type").value.trim(), songid: tr.querySelector(".m-songid").value.trim(), dur: tr.querySelector(".m-dur").value.trim(), tag: tr.querySelector(".m-tag").value.trim() });
         });
         getDataObj().then(function (d) {
-          d.obj.music = collected.filter(function (x) { return x.title && x.url; });
+          d.obj.music = collected.filter(function (x) { return x.title; });
           return putDataObj(d.obj, "更新音乐列表（" + d.obj.music.length + " 首）", msg);
         }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
       };
@@ -783,7 +806,7 @@
           '<table class="item-table" id="opTbl"><thead><tr>' +
             '<th>代号</th><th>本名</th><th>兵种</th><th>稀有度</th><th>战术技能</th><th>技能描述</th>' +
             '<th class="col-min">机动</th><th class="col-min">生存</th><th class="col-min">火力</th><th class="col-min">辅助</th>' +
-            '<th>头像链接</th><th>背景简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+            '<th>头像链接</th><th>技能演示视频(MP4)</th><th>背景简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="opAdd">＋ 添加干员</button></div>' +
           '<div class="row"><button class="btn role-c" id="opSave">保存干员图鉴</button><span class="msg" id="opMsg"></span></div></div>';
       var CLASSES = ["突击", "侦察", "支援", "工程"];
@@ -803,10 +826,14 @@
           "<td class='col-min'><input class='o-f' type='number' value='" + (st.火力 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-a' type='number' value='" + (st.辅助 || 0) + "'></td>" +
           "<td><input class='o-cover' value='" + esc(r.cover || r.portrait || "") + "' placeholder='选填'></td>" +
+          "<td><input class='o-video' value='" + esc(r.video || "") + "' placeholder='MP4链接或上传'><input type='file' class='o-vf' accept='video/mp4' style='display:none'><button class='btn sm o-vb' type='button' title='上传MP4'>📁</button></td>" +
           "<td><input class='o-desc' value='" + esc(r.desc || "") + "' placeholder='定位简介'></td>" +
           "<td class='col-act'><button class='btn danger sm o-del'>删</button></td></tr>";
       }
-      function bind() { c.querySelectorAll("#opTbl tbody tr").forEach(function (tr) { tr.querySelector(".o-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); }; }); }
+      function bind() { c.querySelectorAll("#opTbl tbody tr").forEach(function (tr) { tr.querySelector(".o-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); };
+        var vb = tr.querySelector(".o-vb"); if (vb) vb.onclick = function () { tr.querySelector(".o-vf").click(); };
+        var vf = tr.querySelector(".o-vf"); if (vf) vf.onchange = function () { var f = vf.files[0]; if (!f) return; var rd = new FileReader(); rd.onload = function () { tr.querySelector(".o-video").value = rd.result; }; rd.readAsDataURL(f); };
+      }); }
       function render() { c.querySelector("#opTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
       getDataObj().then(function (d) {
         rows = (d.obj.operators || []).slice();
@@ -827,6 +854,7 @@
             skillDesc: tr.querySelector(".o-skdesc").value.trim(),
             stats: { 机动: +tr.querySelector(".o-m").value || 0, 生存: +tr.querySelector(".o-s").value || 0, 火力: +tr.querySelector(".o-f").value || 0, 辅助: +tr.querySelector(".o-a").value || 0 },
             cover: tr.querySelector(".o-cover").value.trim(),
+            video: tr.querySelector(".o-video").value.trim(),
             desc: tr.querySelector(".o-desc").value.trim()
           });
         });
@@ -847,7 +875,7 @@
           '<table class="item-table" id="wcTbl"><thead><tr>' +
             '<th>名称</th><th>类型</th><th>稀有度</th><th>弹药</th>' +
             '<th class="col-min">裸伤</th><th class="col-min">射速</th><th class="col-min">射程</th><th class="col-min">穿甲</th><th class="col-min">后坐</th><th class="col-min">精准</th>' +
-            '<th>图片链接</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+            '<th>图片链接</th><th>演示视频(MP4)</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="wcAdd">＋ 添加武器</button></div>' +
           '<div class="row"><button class="btn role-c" id="wcSave">保存武器图鉴</button><span class="msg" id="wcMsg"></span></div></div>';
       var rows = [];
@@ -864,10 +892,14 @@
           "<td class='col-min'><input class='w-rec' type='number' value='" + (r.recoil || 0) + "'></td>" +
           "<td class='col-min'><input class='w-acc' type='number' value='" + (r.acc || 0) + "'></td>" +
           "<td><input class='w-cover' value='" + esc(r.cover || r.image || "") + "' placeholder='选填'></td>" +
+          "<td><input class='w-video' value='" + esc(r.video || "") + "' placeholder='MP4链接或上传'><input type='file' class='w-vf' accept='video/mp4' style='display:none'><button class='btn sm w-vb' type='button'>📁</button></td>" +
           "<td><input class='w-desc' value='" + esc(r.desc || "") + "'></td>" +
           "<td class='col-act'><button class='btn danger sm w-del'>删</button></td></tr>";
       }
-      function bind() { c.querySelectorAll("#wcTbl tbody tr").forEach(function (tr) { tr.querySelector(".w-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); }; }); }
+      function bind() { c.querySelectorAll("#wcTbl tbody tr").forEach(function (tr) { tr.querySelector(".w-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); };
+        var vb = tr.querySelector(".w-vb"); if (vb) vb.onclick = function () { tr.querySelector(".w-vf").click(); };
+        var vf = tr.querySelector(".w-vf"); if (vf) vf.onchange = function () { var f = vf.files[0]; if (!f) return; var rd = new FileReader(); rd.onload = function () { tr.querySelector(".w-video").value = rd.result; }; rd.readAsDataURL(f); };
+      }); }
       function render() { c.querySelector("#wcTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
       getDataObj().then(function (d) {
         rows = (d.obj.weaponCodex || []).slice();
@@ -891,6 +923,7 @@
             recoil: +tr.querySelector(".w-rec").value || 0,
             acc: +tr.querySelector(".w-acc").value || 0,
             cover: tr.querySelector(".w-cover").value.trim(),
+            video: tr.querySelector(".w-video").value.trim(),
             desc: tr.querySelector(".w-desc").value.trim()
           });
         });
@@ -1017,6 +1050,239 @@
         roles.forEach(function (k) { ui.roles[k] = { color: ROLES[k].color, label: ROLES[k].name }; });
         render();
       });
+    }
+
+    /* ============ 通用表格编辑器 ============ */
+    function tablePanel(c, o) {
+      var key = o.key, cols = o.cols;
+      c.innerHTML =
+        '<div class="panel-card"><h3>' + o.icon + ' ' + o.title + '</h3>' +
+          '<p class="panel-tip">' + o.sub + '</p>' +
+          '<table class="item-table" id="' + key + 'Tbl"><thead><tr>' +
+          cols.map(function (col) { return '<th' + (col.w ? ' style="width:' + col.w + '"' : '') + '>' + esc(col.label) + '</th>'; }).join('') +
+          '<th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+          '<div class="row"><button class="btn role-c sm" id="' + key + 'Add">＋ 添加</button></div>' +
+          '<div class="row"><button class="btn role-c" id="' + key + 'Save">保存</button><span class="msg" id="' + key + 'Msg"></span></div></div>';
+      var rows = [];
+      function cellVal(r, col) { return col.type === 'list' ? (r[col.f] || []).join('、') : r[col.f]; }
+      function rowHtml(r, i) {
+        return "<tr data-i='" + i + "'>" + cols.map(function (col) {
+          var v = cellVal(r, col);
+          if (col.type === 'select') return "<td><select class='" + key + "-" + col.f + "'>" + col.opts.map(function (x) { return "<option" + (x === v ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></td>';
+          if (col.type === 'number') return "<td class='col-min'><input class='" + key + "-" + col.f + "' type='number' value='" + (v || 0) + "'></td>";
+          return "<td><input class='" + key + "-" + col.f + "' value='" + esc(v == null ? '' : v) + "'></td>";
+        }).join('') + "<td class='col-act'><button class='btn danger sm " + key + "-del'>删</button></td></tr>";
+      }
+      function bind() { c.querySelectorAll('#' + key + 'Tbl tbody tr').forEach(function (tr) { tr.querySelector('.' + key + '-del').onclick = function () { rows.splice(+tr.getAttribute('data-i'), 1); render(); }; }); }
+      function render() { c.querySelector('#' + key + 'Tbl tbody').innerHTML = rows.map(rowHtml).join(''); bind(); }
+      getDataObj().then(function (d) { rows = (d.obj[key] || []).slice(); if (!rows.length) rows = [o.addRow()]; render(); }).catch(function () {});
+      c.querySelector('#' + key + 'Add').onclick = function () { rows.push(o.addRow()); render(); };
+      c.querySelector('#' + key + 'Save').onclick = function () {
+        var msg = c.querySelector('#' + key + 'Msg');
+        var collected = [];
+        c.querySelectorAll('#' + key + 'Tbl tbody tr').forEach(function (tr) {
+          var obj = {};
+          cols.forEach(function (col) {
+            var el = tr.querySelector('.' + key + '-' + col.f);
+            if (col.type === 'number') obj[col.f] = (+el.value || 0);
+            else if (col.type === 'select') obj[col.f] = el.value.trim();
+            else if (col.type === 'list') obj[col.f] = el.value.split(/[、,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+            else obj[col.f] = el.value.trim();
+          });
+          collected.push(obj);
+        });
+        getDataObj().then(function (d) {
+          d.obj[key] = collected.filter(function (x) { return o.keep ? o.keep(x) : true; });
+          return putDataObj(d.obj, '更新' + o.title + '（' + d.obj[key].length + '）', msg);
+        }).catch(function (e) { msg.className = 'msg err'; msg.textContent = '❌ ' + e.message; });
+      };
+    }
+
+    /* ============ 各资料库管理面板（通用工厂） ============ */
+    function mountGun(c) { tablePanel(c, { key: 'gunBuilds', icon: '🔧', title: '改枪方案', sub: '维护前台「资料库·改枪方案」。标签/配件用、或，分隔。',
+      cols: [{ f: 'name', label: '方案名' }, { f: 'weapon', label: '武器' }, { f: 'tags', label: '标签', type: 'list' }, { f: 'desc', label: '说明' }, { f: 'attachments', label: '配件', type: 'list' }],
+      addRow: function () { return { name: '', weapon: '', tags: [], desc: '', attachments: [] }; }, keep: function (x) { return x.name; } }); }
+    function mountDoor(c) { tablePanel(c, { key: 'doorCodes', icon: '🔑', title: '密码门速查', sub: '维护前台「资料库·密码门」。',
+      cols: [{ f: 'map', label: '地图' }, { f: 'location', label: '位置' }, { f: 'code', label: '密码' }, { f: 'note', label: '说明' }],
+      addRow: function () { return { map: '', location: '', code: '', note: '' }; }, keep: function (x) { return x.map && x.location; } }); }
+    function mountEvents(c) { tablePanel(c, { key: 'events', icon: '📅', title: '活动日历', sub: '维护前台「资料库·活动日历」。',
+      cols: [{ f: 'name', label: '活动' }, { f: 'period', label: '时间' }, { f: 'reward', label: '奖励' }],
+      addRow: function () { return { name: '', period: '', reward: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountStreamer(c) { tablePanel(c, { key: 'streamer', icon: '🎮', title: '主播设置', sub: '维护前台「资料库·主播设置」。',
+      cols: [{ f: 'name', label: '项目' }, { f: 'value', label: '设置' }, { f: 'note', label: '备注' }],
+      addRow: function () { return { name: '', value: '', note: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountOpTask(c) { tablePanel(c, { key: 'opTasks', icon: '🪖', title: '干员任务', sub: '维护前台「资料库·干员任务」。',
+      cols: [{ f: 'op', label: '干员' }, { f: 'task', label: '任务' }, { f: 'reward', label: '奖励' }],
+      addRow: function () { return { op: '', task: '', reward: '' }; }, keep: function (x) { return x.op; } }); }
+    function mountMelee(c) { tablePanel(c, { key: 'melee', icon: '🔪', title: '近战武器', sub: '维护前台「资料库·近战武器」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'dmg', label: '伤害', type: 'number' }, { f: 'speed', label: '出手' }, { f: 'note', label: '说明' }],
+      addRow: function () { return { name: '', dmg: 0, speed: '', note: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountRedeem(c) { tablePanel(c, { key: 'redeem', icon: '🎟', title: '兑换码', sub: '维护前台「资料库·兑换码」。',
+      cols: [{ f: 'code', label: '兑换码' }, { f: 'reward', label: '奖励' }, { f: 'note', label: '备注' }],
+      addRow: function () { return { code: '', reward: '', note: '' }; }, keep: function (x) { return x.code; } }); }
+
+    /* ============ 装备 / 养成 / 交易 数据面板（通用工厂，资料管理员维护） ============ */
+    function mountArmors(c) { tablePanel(c, { key: 'armors', icon: '🛡', title: '防具基础数据', sub: '维护前台「装备数据·防具基础数据」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'type', label: '类型' }, { f: 'rarity', label: '稀有度', type: 'select', opts: ['传说', '史诗', '稀有', '普通'] }, { f: 'armor', label: '护甲', type: 'number' }, { f: 'dura', label: '耐久', type: 'number' }, { f: 'dr', label: '减伤' }, { f: 'mob', label: '移动' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', type: '', rarity: '稀有', armor: 0, dura: 0, dr: '', mob: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountScopes(c) { tablePanel(c, { key: 'scopes', icon: '🔭', title: '瞄具开镜样式', sub: '维护前台「装备数据·瞄具开镜样式」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'zoom', label: '倍率' }, { f: 'style', label: '开镜样式' }, { f: 'fit', label: '适用' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', zoom: '', style: '', fit: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountNpc(c) { tablePanel(c, { key: 'npc', icon: '👾', title: 'NPC 数据', sub: '维护前台「装备数据·NPC 数据」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'type', label: '类型' }, { f: 'hp', label: '血量', type: 'number' }, { f: 'armor', label: '护甲', type: 'number' }, { f: 'weak', label: '弱点' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', type: '', hp: 0, armor: 0, weak: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountUpgrades(c) { tablePanel(c, { key: 'upgrades', icon: '⬆', title: '升级花销', sub: '维护前台「养成数据·升级花销」。',
+      cols: [{ f: 'name', label: '项目' }, { f: 'level', label: '等级' }, { f: 'cost', label: '花费', type: 'number' }, { f: 'return', label: '回报' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', level: '', cost: 0, return: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountExpansion(c) { tablePanel(c, { key: 'expansion', icon: '📦', title: '扩容箱兑换价格', sub: '维护前台「养成数据·扩容箱价格」。',
+      cols: [{ f: 'name', label: '规格' }, { f: 'price', label: '兑换价', type: 'number' }, { f: 'cap', label: '容量' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', price: 0, cap: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountKeyRooms(c) { tablePanel(c, { key: 'keyRooms', icon: '🔑', title: '钥匙房信息', sub: '维护前台「养成数据·钥匙房信息」。',
+      cols: [{ f: 'map', label: '地图' }, { f: 'room', label: '房间' }, { f: 'key', label: '钥匙' }, { f: 'loot', label: '产出' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { map: '', room: '', key: '', loot: '', desc: '' }; }, keep: function (x) { return x.map && x.room; } }); }
+    function mountCollectibles(c) { tablePanel(c, { key: 'collectibles', icon: '💎', title: '收集品单格价值', sub: '维护前台「交易数据·收集品单格价值」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'type', label: '类型' }, { f: 'value', label: '单格价值', type: 'number' }, { f: 'tip', label: '建议' }],
+      addRow: function () { return { name: '', type: '', value: 0, tip: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountBulletPacks(c) { tablePanel(c, { key: 'bulletPacks', icon: '📦', title: '子弹自选包利润', sub: '维护前台「交易数据·子弹自选包利润」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'contains', label: '包含', type: 'list' }, { f: 'cost', label: '成本', type: 'number' }, { f: 'price', label: '售价', type: 'number' }, { f: 'profit', label: '利润', type: 'number' }],
+      addRow: function () { return { name: '', contains: [], cost: 0, price: 0, profit: 0 }; }, keep: function (x) { return x.name; } }); }
+
+    /* ============ 网站更新内容（总管理员编辑，前台「网站更新速览」读取） ============ */
+    function mountChangelog(c) {
+      c.innerHTML = '<div class="panel-card"><h3>📜 网站更新内容 <span class="tag">总管理员</span></h3>' +
+        '<p class="panel-tip">编辑前台「网站更新速览」展示的内容。每条含日期、标题与要点（每行一条）。保存后前台即时更新。</p>' +
+        '<div id="clList"></div>' +
+        '<div class="row"><button class="btn role-c sm" id="clAdd">＋ 添加一条更新</button></div>' +
+        '<div class="row"><button class="btn role-c" id="clSave">保存更新内容</button><span class="msg" id="clMsg"></span></div></div>';
+      var list = [];
+      function renderList() {
+        var el = c.querySelector("#clList");
+        if (!list.length) { el.innerHTML = '<div class="status">暂无，点“添加一条更新”。</div>'; return; }
+        el.innerHTML = list.map(function (e, i) {
+          return '<div class="cl-row">' +
+            '<div class="row"><input class="cl-date" value="' + esc(e.date || "") + '" placeholder="日期 2026-07-11"> <input class="cl-title" value="' + esc(e.title || "") + '" placeholder="标题"></div>' +
+            '<div class="row"><textarea class="cl-items" rows="3" placeholder="要点，每行一条">' + esc((e.items || []).join("\n")) + '</textarea></div>' +
+            '<div class="row"><button class="btn danger sm cl-del" data-i="' + i + '">删除</button></div></div>';
+        }).join("");
+        el.querySelectorAll(".cl-del").forEach(function (b) { b.onclick = function () { list.splice(+b.getAttribute("data-i"), 1); renderList(); }; });
+      }
+      getDataObj().then(function (d) {
+        list = (d.obj.changelog || []).slice();
+        if (!list.length) list = [{ date: new Date().toISOString().slice(0, 10), title: "", items: [] }];
+        renderList();
+      }).catch(function () {});
+      c.querySelector("#clAdd").onclick = function () { list.unshift({ date: new Date().toISOString().slice(0, 10), title: "", items: [] }); renderList(); };
+      c.querySelector("#clSave").onclick = function () {
+        var msg = c.querySelector("#clMsg");
+        var collected = [];
+        c.querySelectorAll("#clList .cl-row").forEach(function (row) {
+          var items = row.querySelector(".cl-items").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+          var date = row.querySelector(".cl-date").value.trim();
+          var title = row.querySelector(".cl-title").value.trim();
+          if (date || title) collected.push({ date: date, title: title, items: items });
+        });
+        getDataObj().then(function (d) {
+          d.obj.changelog = collected;
+          return putDataObj(d.obj, "更新网站更新内容（" + collected.length + " 条）", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    function mountFeedback(c) {
+      c.innerHTML =
+        '<div class="panel-card"><h3>💬 网站反馈设置</h3>' +
+        '<p class="panel-tip">前台「网站反馈」页集中收集反馈。可同时启用邮箱与第三方表单。</p>' +
+        '<div class="field"><label>反馈邮箱（mailto 接收）</label><input id="fbEmail" placeholder="如 delta.intel.feedback@example.com"></div>' +
+        '<div class="field"><label>邮件主题（预填）</label><input id="fbSubject" placeholder="三角洲情报台·网站反馈"></div>' +
+        '<div class="field"><label>第三方表单链接（点击跳转）</label><input id="fbFormUrl" placeholder="https://...表单地址"></div>' +
+        '<div class="field"><label>第三方表单嵌入地址（iframe，优先于链接）</label><input id="fbFormEmbed" placeholder="https://.../embed"></div>' +
+        '<div class="field"><label>GitHub Issue 模板链接（可选）</label><input id="fbGithub" placeholder="https://github.com/.../issues/new"></div>' +
+        '<div class="row"><button class="btn role-c" id="fbSave">保存反馈设置</button><span class="msg" id="fbMsg"></span></div></div>';
+      getDataObj().then(function (d) {
+        var f = d.obj.feedback || {};
+        c.querySelector('#fbEmail').value = f.email || '';
+        c.querySelector('#fbSubject').value = f.mailSubject || '';
+        c.querySelector('#fbFormUrl').value = f.formUrl || '';
+        c.querySelector('#fbFormEmbed').value = f.formEmbed || '';
+        c.querySelector('#fbGithub').value = f.github || '';
+      }).catch(function () {});
+      c.querySelector('#fbSave').onclick = function () {
+        var msg = c.querySelector('#fbMsg');
+        getDataObj().then(function (d) {
+          d.obj.feedback = {
+            email: c.querySelector('#fbEmail').value.trim(),
+            mailSubject: c.querySelector('#fbSubject').value.trim() || '三角洲情报台·网站反馈',
+            formUrl: c.querySelector('#fbFormUrl').value.trim(),
+            formEmbed: c.querySelector('#fbFormEmbed').value.trim(),
+            github: c.querySelector('#fbGithub').value.trim()
+          };
+          return putDataObj(d.obj, '更新反馈设置', msg);
+        }).catch(function (e) { msg.className = 'msg err'; msg.textContent = '❌ ' + e.message; });
+      };
+    }
+
+    /* ============ 图片库管理（美术管理员） ============ */
+    function mountImages(c) {
+      c.innerHTML =
+        '<div class="panel-card"><h3>🖼 图片库</h3>' +
+        '<p class="panel-tip">① 选文件上传 JPG/PNG（自动转站内数据，保存后前台可用）；② 或在代码框粘贴图片 URL / Base64 / &lt;img&gt; 代码。</p>' +
+        '<div class="row"><input id="imgName" placeholder="图片名称，如：红狼立绘" style="flex:1">' +
+        '<select id="imgUsed" style="flex:1"><option value="">用途（选填）</option><option>干员头像</option><option>武器图</option><option>轮播图</option><option>小知识封面</option><option>站点素材</option></select></div>' +
+        '<div class="row"><input type="file" id="imgFile" accept="image/*"></div>' +
+        '<div class="row"><textarea id="imgCode" rows="2" placeholder="或粘贴图片 URL / Base64 / <img> 代码"></textarea></div>' +
+        '<div class="row"><button class="btn role-c" id="imgAdd">添加图片到库</button><span class="msg" id="imgMsg"></span></div>' +
+        '<div class="img-grid" id="imgGrid"><div class="status">加载中…</div></div></div>';
+      function extractSrc(code) { var m = code.match(/src=["']([^"']+)["']/i); return m ? m[1] : code.trim(); }
+      function renderGrid(list) {
+        var grid = c.querySelector('#imgGrid');
+        if (!list.length) { grid.innerHTML = '<div class="status">图片库为空，上传或粘贴一张试试。</div>'; return; }
+        grid.innerHTML = list.map(function (im, i) {
+          var src = im.src || '';
+          return '<div class="img-card" data-i="' + i + '">' +
+            '<div class="img-thumb" style="background:url(' + esc(src) + ') center/cover"></div>' +
+            '<div class="img-name">' + esc(im.name || '未命名') + '</div>' +
+            (im.usedIn ? '<div class="img-used">' + esc(im.usedIn) + '</div>' : '') +
+            '<button class="btn danger sm img-del">删除</button></div>';
+        }).join('');
+        grid.querySelectorAll('.img-del').forEach(function (b) {
+          b.onclick = function () {
+            if (!confirm('确定删除该图片？')) return;
+            var i = +b.closest('.img-card').getAttribute('data-i');
+            getDataObj().then(function (d) {
+              d.obj.images = d.obj.images || { images: [] };
+              d.obj.images.images.splice(i, 1);
+              return putDataObj(d.obj, '删除图片', c.querySelector('#imgMsg')).then(function () { loadGrid(); });
+            }).catch(function (e) { var m = c.querySelector('#imgMsg'); m.className = 'msg err'; m.textContent = '❌ ' + e.message; });
+          };
+        });
+      }
+      function loadGrid() {
+        getDataObj().then(function (d) {
+          renderGrid((d.obj.images && d.obj.images.images) || []);
+        }).catch(function () { c.querySelector('#imgGrid').innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+      }
+      c.querySelector('#imgAdd').onclick = function () {
+        var msg = c.querySelector('#imgMsg');
+        var name = c.querySelector('#imgName').value.trim();
+        var used = c.querySelector('#imgUsed').value;
+        var code = c.querySelector('#imgCode').value.trim();
+        var fileEl = c.querySelector('#imgFile');
+        function push(src) {
+          if (!name && !src) { msg.className = 'msg err'; msg.textContent = '请填名称或提供图片'; return; }
+          getDataObj().then(function (d) {
+            d.obj.images = d.obj.images || { images: [] };
+            d.obj.images.images.push({ name: name || '未命名', src: src, usedIn: used });
+            return putDataObj(d.obj, '添加图片：' + (name || ''), msg).then(function () {
+              c.querySelector('#imgName').value = ''; c.querySelector('#imgCode').value = ''; c.querySelector('#imgFile').value = ''; loadGrid();
+            });
+          }).catch(function (e) { msg.className = 'msg err'; msg.textContent = '❌ ' + e.message; });
+        }
+        if (fileEl.files && fileEl.files[0]) {
+          var fr = new FileReader(); fr.onload = function () { push(fr.result); }; fr.readAsDataURL(fileEl.files[0]);
+        } else if (code) { push(extractSrc(code)); }
+        else { msg.className = 'msg err'; msg.textContent = '请选择文件或粘贴图片代码'; }
+      };
+      loadGrid();
     }
 
     /* ===== 启动 ===== */

@@ -1,51 +1,95 @@
 /* =========================================================
- * guides.js — 攻略 / 小知识 / 实用工具 插件
- * 注册：VIEWS.guides(新手攻略) / VIEWS.trivia(三角洲小知识) /
- *       VIEWS.treasure(宝藏开箱) / VIEWS.loot(随机舔包) / VIEWS.scatter(散落物资点)
- * 向 DF.MENU 注入「攻略」「工具」分组。
- * 小知识支持：提交分享、点赞、复制（localStorage 持久化，无后端）。
+ * guides.js — 攻略 / 资料库 / 小知识 / 实用工具 插件
+ * 注册：
+ *  VIEWS.guides(新手攻略·模块化) / VIEWS.quiz(电竞测试) / VIEWS.trivia(小知识)
+ *  VIEWS.gunbuilds(改枪方案) / VIEWS.doorcodes(密码门) / VIEWS.events(活动日历)
+ *  VIEWS.streamer(主播设置) / VIEWS.optasks(干员任务) / VIEWS.melee(近战武器) / VIEWS.redeem(兑换码)
+ *  VIEWS.treasure(宝藏开箱) / VIEWS.loot(随机舔包) / VIEWS.scatter(散落物资点)
+ * 向 DF.MENU 注入「攻略」「资料库」「工具」分组。
  * ========================================================= */
 (function () {
   "use strict";
   function reg(D) {
-    var esc = D.esc, fmt = D.fmt;
+    var esc = D.esc;
 
-    /* ---------------- 新手攻略 ---------------- */
-    function guideSection(title, icon, rows) {
-      var list = rows.map(function (r) {
-        return '<div class="guide-row">' +
-          '<div class="guide-k">' + esc(r.k) + "</div>" +
-          '<div class="guide-v">' + esc(r.v) + "</div>" +
-        "</div>";
-      }).join("");
-      return '<div class="guide-card">' +
-        '<div class="guide-head"><span class="guide-ico">' + icon + "</span>" + esc(title) + "</div>" +
-        '<div class="guide-list">' + list + "</div>" +
-      "</div>";
-    }
+    /* ---------------- 新手攻略（模块化） ---------------- */
     function guidesHtml(o) {
-      var rigs = (o.rigs || []).map(function (r) { return { k: r.name, v: "槽位 " + r.slots + " · 容量 " + r.capacity + " · " + r.weight + " — " + r.desc }; });
-      var keys = (o.keyRooms || []).map(function (r) { return { k: r.map + " · " + r.name, v: "钥匙：" + r.key + " · 产出：" + r.loot }; });
-      var up = (o.upgrades || []).map(function (r) { return { k: "特勤处 " + r.level, v: "花费 " + r.cost + " · " + r.bonus }; });
-      var ex = (o.expansion || []).map(function (r) { return { k: r.name, v: r.price + " · " + r.capacity }; });
-      var sc = (o.scopes || []).map(function (r) { return { k: r.name, v: r.type + " · 倍率 " + r.zoom + " · " + r.style }; });
-      var np = (o.npc || []).map(function (r) { return { k: r.name, v: "血量 " + r.hp + " · 护甲 " + r.armor + " · 出现：" + r.map }; });
-      return '<div class="section-title">🎯 新手攻略 · 从零上手三角洲行动</div>' +
-        '<p class="guide-intro">整合胸挂选择、钥匙房、特勤处升级、扩容箱、瞄具、敌人、容器等入门要点。数据与官方存在版本差异时，以游戏内为准。</p>' +
-        '<div class="guide-grid">' +
-          guideSection("胸挂怎么选", "🎒", rigs) +
-          guideSection("钥匙房在哪", "🔑", keys) +
-          guideSection("特勤处升级路线", "🏭", up) +
-          guideSection("安全箱 / 扩容箱", "📦", ex) +
-          guideSection("瞄具怎么挑", "🔭", sc) +
-          guideSection("常见敌人与BOSS", "👾", np) +
-        "</div>" +
-        '<div class="guide-tip card">💡 <b>入门三步曲：</b>①先在「特勤处产物推荐」挑耗时短、小时利润高的产物刷钱；②进图优先开钥匙房与容器；③把贵重物资放进安全箱，阵亡不掉落。</div>';
+      var g = o.guides || { modules: [] };
+      var mods = (g.modules || []).map(function (m) {
+        var cards = (m.cards || []).map(function (c) {
+          return '<div class="g-card"><div class="g-card-title">' + esc(c.title) + '</div><div class="g-card-text">' + esc(c.text) + '</div></div>';
+        }).join("");
+        return '<div class="g-module"><div class="g-mod-head"><span class="g-mod-ico">' + esc(m.icon || "📌") + "</span>" + esc(m.title) + "</div>" +
+          '<div class="g-card-grid">' + (cards || '<div class="g-card">暂无要点</div>') + "</div></div>";
+      }).join("");
+      return '<div class="section-title">🎯 新手攻略</div>' +
+        '<p class="guide-intro">' + esc(g.intro || "从零上手《三角洲行动》。") + "</p>" +
+        (mods || '<div class="card"><p style="color:var(--muted)">暂无攻略模块，管理员可在后台添加。</p></div>');
     }
 
-    /* ---------------- 三角洲小知识（分享 / 点赞 / 复制） ---------------- */
-    var USER_KEY = "df-trivia-user";
-    var LIKE_KEY = "df-trivia-likes";
+    /* ---------------- 电竞选手测试 ---------------- */
+    function quizResult(q, scores) {
+      var cnt = {};
+      scores.forEach(function (s) { cnt[s] = (cnt[s] || 0) + 1; });
+      var best = q.results[0].key, max = -1;
+      q.results.forEach(function (r) { if ((cnt[r.key] || 0) > max) { max = cnt[r.key] || 0; best = r.key; } });
+      return q.results.find(function (r) { return r.key === best; }) || q.results[0];
+    }
+    function quizHtml(o) {
+      var q = o.quiz;
+      if (!q) return '<div class="section-title">🎮 电竞选手测试</div><div class="card">暂无测试数据。</div>';
+      var prevHtml = "";
+      try {
+        var pr = JSON.parse(localStorage.getItem("df-quiz") || "null");
+        if (pr) { var res = quizResult(q, pr); prevHtml = '<div class="quiz-prev">你上次的测试结果：<b>' + res.icon + " " + esc(res.name) + '</b> · <button class="btn ghost sm" id="quizRetake">重新测试</button></div>'; }
+      } catch (e) {}
+      var qs = q.questions.map(function (Q, i) {
+        var opts = Q.options.map(function (op) {
+          return '<label class="quiz-opt" data-q="' + i + '" data-s="' + esc(op.s) + '"><input type="radio" name="qq' + i + '" value="' + esc(op.s) + '"> <span>' + esc(op.text) + "</span></label>";
+        }).join("");
+        return '<div class="quiz-q"><div class="quiz-qt">' + (i + 1) + ". " + esc(Q.q) + "</div>" + opts + "</div>";
+      }).join("");
+      return '<div class="section-title">🎮 ' + esc(q.title) + "</div>" +
+        '<p class="guide-intro">' + esc(q.sub || "") + "</p>" + prevHtml +
+        '<div class="quiz-box" id="quizBox">' + qs +
+          '<div class="quiz-actions"><button class="btn-primary" id="quizGo">查看我的结果</button><span class="t-msg" id="quizMsg"></span></div></div>' +
+        '<div id="quizResult"></div>';
+    }
+    function quizInit(D) {
+      function showResult() {
+        var q = D.getData().quiz; if (!q) return;
+        var scores = [];
+        for (var i = 0; i < q.questions.length; i++) {
+          var el = document.querySelector('input[name="qq' + i + '"]:checked');
+          if (!el) { var m = document.getElementById("quizMsg"); m.textContent = "请答完所有题再查看～"; m.style.color = "#ffb300"; return; }
+          scores.push(el.value);
+        }
+        var res = quizResult(q, scores);
+        try { localStorage.setItem("df-quiz", JSON.stringify(scores)); } catch (e) {}
+        document.getElementById("quizResult").innerHTML =
+          '<div class="quiz-result"><div class="qr-icon">' + res.icon + '</div>' +
+            '<div class="qr-name">' + esc(res.name) + '</div>' +
+            '<div class="qr-desc">' + esc(res.desc) + '</div>' +
+            '<div class="qr-tip">💡 ' + esc(res.tip) + '</div>' +
+            '<div class="quiz-actions"><button class="btn-primary" id="quizShare">复制结果分享</button>' +
+            '<button class="btn ghost" id="quizAgain">再测一次</button></div>' +
+            '<span class="t-msg" id="quizShareMsg"></span></div>';
+        document.getElementById("quizShare").onclick = function () {
+          var txt = "我是「" + res.name + "」型三角洲电竞选手！" + res.desc + "（来自三角洲情报台）";
+          try { navigator.clipboard.writeText(txt); } catch (e) {}
+          var s = document.getElementById("quizShareMsg"); s.textContent = "已复制，去分享吧！"; s.style.color = "#2ecc71";
+        };
+        document.getElementById("quizAgain").onclick = function () {
+          document.querySelectorAll('.quiz-opt input').forEach(function (r) { r.checked = false; });
+          document.getElementById("quizResult").innerHTML = "";
+        };
+      }
+      var go = document.getElementById("quizGo"); if (go) go.onclick = showResult;
+      var retake = document.getElementById("quizRetake"); if (retake) retake.onclick = function () { localStorage.removeItem("df-quiz"); D.render("quiz"); };
+    }
+
+    /* ---------------- 小知识（分享 / 点赞 / 复制） ---------------- */
+    var USER_KEY = "df-trivia-user", LIKE_KEY = "df-trivia-likes";
     function userTrivia() { try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); } catch (e) { return []; } }
     function likeMap() { try { return JSON.parse(localStorage.getItem(LIKE_KEY) || "{}"); } catch (e) { return {}; } }
     function saveUserTrivia(a) { try { localStorage.setItem(USER_KEY, JSON.stringify(a)); } catch (e) {} }
@@ -55,41 +99,31 @@
       var n = (t.likes || 0) + (likes[t.id] ? 1 : 0);
       var liked = likes[t.id] ? " liked" : "";
       return '<div class="trivia-card' + (mine ? " mine" : "") + '">' +
-        '<div class="trivia-top">' +
-          '<span class="trivia-tag">' + esc(t.tag || "小知识") + "</span>" +
-          (mine ? '<span class="trivia-mine">我分享的</span>' : "") +
-        "</div>" +
+        '<div class="trivia-top"><span class="trivia-tag">' + esc(t.tag || "小知识") + "</span>" + (mine ? '<span class="trivia-mine">我分享的</span>' : "") + "</div>" +
         '<div class="trivia-title">' + esc(t.title) + "</div>" +
         '<div class="trivia-body">' + esc(t.body) + "</div>" +
-        '<div class="trivia-actions">' +
-          '<button class="t-btn like-btn' + liked + '" data-id="' + esc(t.id) + '">👍 <span>' + n + "</span></button>" +
-          '<button class="t-btn copy-btn" data-id="' + esc(t.id) + '">📋 复制</button>' +
-          (mine ? '<button class="t-btn del-btn" data-id="' + esc(t.id) + '">🗑 撤回</button>' : "") +
-        "</div></div>";
+        '<div class="trivia-actions"><button class="t-btn like-btn' + liked + '" data-id="' + esc(t.id) + '">👍 <span>' + n + "</span></button>" +
+        '<button class="t-btn copy-btn" data-id="' + esc(t.id) + '">📋 复制</button>' +
+        (mine ? '<button class="t-btn del-btn" data-id="' + esc(t.id) + '">🗑 撤回</button>' : "") + "</div></div>";
     }
-    function triviaHtml(o) {
+    function triviaHtmlBody(o) {
       var base = (o.trivia || []).map(function (t, i) { return triviaCard({ id: "s" + i, tag: t.tag, title: t.title, body: t.body, likes: 0 }, i, false); });
       var mine = userTrivia().map(function (t) { return triviaCard(t, 0, true); });
+      return base.concat(mine).join("");
+    }
+    function triviaHtml(o) {
       return '<div class="section-title">🧠 三角洲小知识 · 战友分享</div>' +
-        '<p class="guide-intro">看到好用的技巧？点「分享小知识」发布，所有访客都能看到你的分享（保存在本机，刷新不丢）。觉得有用就点赞 👍。</p>' +
+        '<p class="guide-intro">看到好用的技巧？点「分享小知识」发布，所有访客都能看到你的分享。觉得有用就点赞 👍。</p>' +
         '<div class="trivia-sharebar">' +
           '<input id="tTitle" class="t-input" placeholder="一句话标题，如：撤离点要等倒计时">' +
           '<input id="tTag" class="t-input t-tag" placeholder="标签(可选)">' +
           '<textarea id="tBody" class="t-area" placeholder="详细内容…"></textarea>' +
-          '<div class="trivia-sharebar-actions">' +
-            '<button class="btn-primary" id="tSubmit">分享小知识</button>' +
-            '<span class="t-msg" id="tMsg"></span>' +
-          "</div>" +
+          '<div class="trivia-sharebar-actions"><button class="btn-primary" id="tSubmit">分享小知识</button><span class="t-msg" id="tMsg"></span></div>' +
         "</div>" +
-        '<div class="trivia-grid" id="triviaGrid">' + base.concat(mine).join("") + "</div>";
+        '<div class="trivia-grid" id="triviaGrid">' + triviaHtmlBody(o) + "</div>";
     }
     function triviaInit(D) {
       function refresh() { var g = document.getElementById("triviaGrid"); if (g) g.innerHTML = triviaHtmlBody(D.getData()); }
-      function triviaHtmlBody(o) {
-        var base = (o.trivia || []).map(function (t, i) { return triviaCard({ id: "s" + i, tag: t.tag, title: t.title, body: t.body, likes: 0 }, i, false); });
-        var mine = userTrivia().map(function (t) { return triviaCard(t, 0, true); });
-        return base.concat(mine).join("");
-      }
       var submit = document.getElementById("tSubmit");
       if (submit) submit.addEventListener("click", function () {
         var title = document.getElementById("tTitle").value.trim();
@@ -100,32 +134,103 @@
         var arr = userTrivia();
         arr.unshift({ id: "u" + Date.now(), tag: tag, title: title, body: body, likes: 0 });
         saveUserTrivia(arr);
-        document.getElementById("tTitle").value = "";
-        document.getElementById("tBody").value = "";
-        document.getElementById("tTag").value = "";
-        msg.textContent = "已分享！"; msg.style.color = "#2ecc71";
-        refresh();
+        document.getElementById("tTitle").value = ""; document.getElementById("tBody").value = ""; document.getElementById("tTag").value = "";
+        msg.textContent = "已分享！"; msg.style.color = "#2ecc71"; refresh();
       });
-      document.getElementById("triviaGrid").addEventListener("click", function (e) {
-        var like = e.target.closest(".like-btn");
-        var copy = e.target.closest(".copy-btn");
-        var del = e.target.closest(".del-btn");
+      var grid = document.getElementById("triviaGrid");
+      if (grid) grid.addEventListener("click", function (e) {
+        var like = e.target.closest(".like-btn"), copy = e.target.closest(".copy-btn"), del = e.target.closest(".del-btn");
         if (like) {
-          var id = like.getAttribute("data-id");
-          var m = likeMap();
-          if (m[id]) delete m[id]; else m[id] = 1;
-          saveLikeMap(m);
-          refresh();
+          var id = like.getAttribute("data-id"), m = likeMap();
+          if (m[id]) delete m[id]; else m[id] = 1; saveLikeMap(m); refresh();
         } else if (copy) {
           var card = copy.closest(".trivia-card");
           var txt = card.querySelector(".trivia-title").textContent + "\n" + card.querySelector(".trivia-body").textContent;
           try { navigator.clipboard.writeText(txt); } catch (ee) {}
           var old = copy.textContent; copy.textContent = "✅ 已复制"; setTimeout(function () { copy.textContent = old; }, 1200);
         } else if (del) {
-          var id2 = del.getAttribute("data-id");
-          var arr2 = userTrivia().filter(function (t) { return t.id !== id2; });
-          saveUserTrivia(arr2); refresh();
+          var id2 = del.getAttribute("data-id"); saveUserTrivia(userTrivia().filter(function (t) { return t.id !== id2; })); refresh();
         }
+      });
+    }
+
+    /* ---------------- 资料库：改枪方案 ---------------- */
+    function gunBuildsHtml(o) {
+      var list = (o.gunBuilds || []).map(function (b) {
+        var tags = (b.tags || []).map(function (t) { return '<span class="pill">' + esc(t) + "</span>"; }).join("");
+        var att = (b.attachments || []).map(function (a) { return '<span class="att-chip">' + esc(a) + "</span>"; }).join("");
+        return '<div class="gb-card"><div class="gb-head"><b>' + esc(b.name) + '</b><span class="gb-w">' + esc(b.weapon || "") + '</span></div>' +
+          '<div class="gb-tags">' + tags + "</div>" +
+          (b.desc ? '<div class="gb-desc">' + esc(b.desc) + "</div>" : "") +
+          '<div class="gb-att">' + att + "</div></div>";
+      }).join("");
+      return '<div class="section-title">🔧 改枪方案</div><p class="guide-intro">参考职业与高分玩家的配装思路，按手感微调配件。</p>' +
+        (list || '<div class="card"><p style="color:var(--muted)">暂无方案，管理员可在后台添加。</p></div>');
+    }
+
+    /* ---------------- 资料库：密码门 ---------------- */
+    function doorCodesHtml(o) {
+      var rows = (o.doorCodes || []).map(function (d) {
+        return "<tr><td>" + esc(d.map) + "</td><td>" + esc(d.location) + "</td><td class='code-strong'>" + esc(d.code) + "</td><td>" + esc(d.note || "") + "</td></tr>";
+      }).join("");
+      return '<div class="section-title">🔑 密码门速查</div><p class="guide-intro">部分地图门禁/电子门密码（每日可能刷新，以游戏内为准）。</p>' +
+        '<div class="card"><table class="tbl"><thead><tr><th>地图</th><th>位置</th><th>密码</th><th>说明</th></tr></thead><tbody>' + (rows || "<tr><td colspan=4>暂无</td></tr>") + "</tbody></table></div>";
+    }
+
+    /* ---------------- 资料库：活动日历 ---------------- */
+    function eventsHtml(o) {
+      var list = (o.events || []).map(function (e) {
+        return '<div class="ev-card"><div class="ev-name">' + esc(e.name) + '</div><div class="ev-period">📅 ' + esc(e.period || "") + '</div><div class="ev-reward">🎁 ' + esc(e.reward || "") + '</div></div>';
+      }).join("");
+      return '<div class="section-title">📅 活动日历</div><p class="guide-intro">当前赛季限时活动一览，过期活动不再可参与。</p>' +
+        '<div class="ev-grid">' + (list || '<div class="card"><p style="color:var(--muted)">暂无活动。</p></div>') + "</div>";
+    }
+
+    /* ---------------- 资料库：主播设置 ---------------- */
+    function streamerHtml(o) {
+      var rows = (o.streamer || []).map(function (s) {
+        return "<tr><td>" + esc(s.name) + "</td><td class='code-strong'>" + esc(s.value) + "</td><td>" + esc(s.note || "") + "</td></tr>";
+      }).join("");
+      return '<div class="section-title">🎮 主播游戏设置一览</div><p class="guide-intro">高分主播的灵敏度/画质参考，新手可按手感微调。</p>' +
+        '<div class="card"><table class="tbl"><thead><tr><th>项目</th><th>设置</th><th>备注</th></tr></thead><tbody>' + (rows || "<tr><td colspan=3>暂无</td></tr>") + "</tbody></table></div>";
+    }
+
+    /* ---------------- 资料库：干员个人任务 ---------------- */
+    function opTasksHtml(o) {
+      var rows = (o.opTasks || []).map(function (t) {
+        return "<tr><td>" + esc(t.op) + "</td><td>" + esc(t.task) + "</td><td>" + esc(t.reward || "") + "</td></tr>";
+      }).join("");
+      return '<div class="section-title">🪖 干员个人任务一览</div><p class="guide-intro">各干员的专属挑战与奖励（示例，以游戏内为准）。</p>' +
+        '<div class="card"><table class="tbl"><thead><tr><th>干员</th><th>个人任务</th><th>奖励</th></tr></thead><tbody>' + (rows || "<tr><td colspan=3>暂无</td></tr>") + "</tbody></table></div>";
+    }
+
+    /* ---------------- 资料库：近战武器 ---------------- */
+    function meleeHtml(o) {
+      var rows = (o.melee || []).map(function (m) {
+        return "<tr><td>" + esc(m.name) + "</td><td class='code-strong'>" + esc(m.dmg) + "</td><td>" + esc(m.speed || "") + "</td><td>" + esc(m.note || "") + "</td></tr>";
+      }).join("");
+      return '<div class="section-title">🔪 近战武器基础数据</div><p class="guide-intro">近战武器伤害与出手速度参考。</p>' +
+        '<div class="card"><table class="tbl"><thead><tr><th>名称</th><th>伤害</th><th>出手</th><th>说明</th></tr></thead><tbody>' + (rows || "<tr><td colspan=4>暂无</td></tr>") + "</tbody></table></div>";
+    }
+
+    /* ---------------- 资料库：兑换码 ---------------- */
+    function redeemHtml(o) {
+      var list = (o.redeem || []).map(function (r) {
+        return '<div class="rd-card"><div class="rd-code" data-code="' + esc(r.code) + '">' + esc(r.code) + '</div>' +
+          '<div class="rd-reward">' + esc(r.reward) + "</div>" +
+          (r.note ? '<div class="rd-note">' + esc(r.note) + "</div>" : "") +
+          '<button class="btn ghost sm rd-copy" data-code="' + esc(r.code) + '">复制</button></div>';
+      }).join("");
+      return '<div class="section-title">🎟 兑换码</div><p class="guide-intro">游戏内【活动→其他→礼包兑换】输入。大小写敏感，部分有时效。</p>' +
+        '<div class="rd-grid">' + (list || '<div class="card"><p style="color:var(--muted)">暂无兑换码。</p></div>') + "</div>";
+    }
+    function redeemInit() {
+      document.querySelectorAll(".rd-copy").forEach(function (b) {
+        b.onclick = function () {
+          var code = b.getAttribute("data-code");
+          try { navigator.clipboard.writeText(code); } catch (e) {}
+          var old = b.textContent; b.textContent = "✅"; setTimeout(function () { b.textContent = old; }, 1200);
+        };
       });
     }
 
@@ -134,17 +239,13 @@
       var boxes = (o.containers || []).map(function (c) { return c.name; });
       var opts = boxes.map(function (b) { return '<option>' + esc(b) + "</option>"; }).join("");
       return '<div class="section-title">🎁 宝藏开箱模拟</div>' +
-        '<div class="tool-card">' +
-          '<p class="guide-intro">模拟开箱，看看今天手气如何。结果随机，纯娱乐。</p>' +
+        '<div class="tool-card"><p class="guide-intro">模拟开箱，看看今天手气如何。结果随机，纯娱乐。</p>' +
           '<div class="tool-row"><label>选择容器</label><select id="trBox">' + opts + "</select></div>" +
           '<div class="tool-row"><label>开箱次数</label><input id="trN" type="number" min="1" max="20" value="3"></div>' +
-          '<button class="btn-primary" id="trGo">开箱！</button>' +
-          '<div class="tool-result" id="trResult"></div>' +
-        "</div>";
+          '<button class="btn-primary" id="trGo">开箱！</button><div class="tool-result" id="trResult"></div></div>';
     }
     function treasureInit(D) {
-      var btn = document.getElementById("trGo");
-      if (!btn) return;
+      var btn = document.getElementById("trGo"); if (!btn) return;
       btn.addEventListener("click", function () {
         var o = D.getData();
         var box = document.getElementById("trBox").value;
@@ -154,8 +255,7 @@
         var res = [];
         for (var i = 0; i < n; i++) res.push(pool[Math.floor(Math.random() * pool.length)]);
         document.getElementById("trResult").innerHTML = res.map(function (r, i) {
-          return '<div class="loot-line"><span class="loot-i">#' + (i + 1) + "</span>" +
-            '<span class="loot-x">' + esc(r) + "</span></div>";
+          return '<div class="loot-line"><span class="loot-i">#' + (i + 1) + "</span><span class=\"loot-x\">" + esc(r) + "</span></div>";
         }).join("");
       });
     }
@@ -163,15 +263,11 @@
     /* ---------------- 随机舔包 ---------------- */
     function lootHtml() {
       return '<div class="section-title">🥡 随机舔包生成器</div>' +
-        '<div class="tool-card">' +
-          '<p class="guide-intro">帮你随机生成一套撤离背包配置，作为配装思路参考。</p>' +
-          '<button class="btn-primary" id="loGo">帮我舔一包</button>' +
-          '<div class="tool-result" id="loResult"></div>' +
-        "</div>";
+        '<div class="tool-card"><p class="guide-intro">帮你随机生成一套撤离背包配置，作为配装思路参考。</p>' +
+          '<button class="btn-primary" id="loGo">帮我舔一包</button><div class="tool-result" id="loResult"></div></div>';
     }
     function lootInit(D) {
-      var btn = document.getElementById("loGo");
-      if (!btn) return;
+      var btn = document.getElementById("loGo"); if (!btn) return;
       var guns = ["AKM", "M4A1", "M250", "ASVAL", "AWM", "MP5", "M870", "G18"];
       var armor = ["轻甲", "中甲", "重甲", "无甲"];
       var item = ["医疗包", "绷带×3", "能量饮料", "破片雷", "震撼弹", "止痛药", "工具箱", "安全箱扩容"];
@@ -179,7 +275,7 @@
         function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
         var bag = [pick(guns), pick(armor), pick(item), pick(item), pick(item)];
         document.getElementById("loResult").innerHTML = bag.map(function (b, i) {
-          return '<div class="loot-line"><span class="loot-i">槽' + (i + 1) + "</span><span class=\"loot-x\">" + esc(b) + "</span></div>";
+          return '<div class="loot-line"><span class="loot-i">槽' + (i + 1) + '</span><span class="loot-x">' + esc(b) + "</span></div>";
         }).join("");
       });
     }
@@ -196,7 +292,15 @@
 
     /* ---------------- 注册 ---------------- */
     D.VIEWS.guides = { html: function () { return guidesHtml(D.getData()); } };
+    D.VIEWS.quiz = { html: function () { return quizHtml(D.getData()); }, init: function () { quizInit(D); } };
     D.VIEWS.trivia = { html: function () { return triviaHtml(D.getData()); }, init: function () { triviaInit(D); } };
+    D.VIEWS.gunbuilds = { html: function () { return gunBuildsHtml(D.getData()); } };
+    D.VIEWS.doorcodes = { html: function () { return doorCodesHtml(D.getData()); } };
+    D.VIEWS.events = { html: function () { return eventsHtml(D.getData()); } };
+    D.VIEWS.streamer = { html: function () { return streamerHtml(D.getData()); } };
+    D.VIEWS.optasks = { html: function () { return opTasksHtml(D.getData()); } };
+    D.VIEWS.melee = { html: function () { return meleeHtml(D.getData()); } };
+    D.VIEWS.redeem = { html: function () { return redeemHtml(D.getData()); }, init: function () { redeemInit(); } };
     D.VIEWS.treasure = { html: function () { return treasureHtml(D.getData()); }, init: function () { treasureInit(D); } };
     D.VIEWS.loot = { html: function () { return lootHtml(); }, init: function () { lootInit(D); } };
     D.VIEWS.scatter = { html: function () { return scatterHtml(D.getData()); } };
@@ -204,7 +308,17 @@
     D.MENU.push(
       { group: "攻略", items: [
         { route: "guides", label: "新手攻略", ico: "🎯" },
+        { route: "quiz", label: "电竞测试", ico: "🎮" },
         { route: "trivia", label: "三角洲小知识", ico: "🧠" }
+      ] },
+      { group: "资料库", items: [
+        { route: "gunbuilds", label: "改枪方案", ico: "🔧" },
+        { route: "doorcodes", label: "密码门", ico: "🔑" },
+        { route: "events", label: "活动日历", ico: "📅" },
+        { route: "streamer", label: "主播设置", ico: "🎮" },
+        { route: "optasks", label: "干员任务", ico: "🪖" },
+        { route: "melee", label: "近战武器", ico: "🔪" },
+        { route: "redeem", label: "兑换码", ico: "🎟" }
       ] },
       { group: "工具", items: [
         { route: "treasure", label: "宝藏开箱", ico: "🎁" },
@@ -213,7 +327,6 @@
       ] }
     );
   }
-
   if (window.DF) reg(window.DF);
   else (window.__df_plugins = window.__df_plugins || []).push(reg);
 })();
