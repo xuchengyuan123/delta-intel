@@ -1,0 +1,14 @@
+{
+  "name": "delta-force-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "三角洲行动一图流 — 静态前端 + 每日数据源拉取更新",
+  "scripts": {
+    "start": "node server.js",
+    "ingest": "node ingest.js",
+    "update": "node ingest.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

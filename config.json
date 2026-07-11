@@ -1,0 +1,10 @@
+{
+  "SITE_TITLE": "三角洲情报台",
+  "DATA_SOURCE_URL": "",
+  "SOURCE_HEADERS": {},
+  "PORT": 3000,
+  "SESSION_SECRET": "CHANGE_ME_session_secret_use_openssl_rand_hex_32",
+  "UPDATE_SECRET": "CHANGE_ME_update_secret_use_openssl_rand_hex_32",
+  "ADMIN_USERNAME": "admin",
+  "ADMIN_PASSWORD": "CHANGE_ME_admin_password"
+}

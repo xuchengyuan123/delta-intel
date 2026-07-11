@@ -1,0 +1,79 @@
+/* =========================================================
+ * demo-data.js — 没有配置数据源时的兜底示例数据
+ * 让站点“开箱即跑”，预览也能看到完整效果。
+ * 一旦你在 config.json 填了 DATA_SOURCE_URL，本文件就不再使用。
+ * ========================================================= */
+
+const data = {
+  maps: [
+    { name: "零号大坝", code: "0213", date: "2026-07-10 更新" },
+    { name: "长弓溪谷", code: "0991", date: "2026-07-10 更新" },
+    { name: "巴克什",   code: "0341", date: "2026-07-10 更新" },
+    { name: "航天基地", code: "0729", date: "2026-07-10 更新" },
+    { name: "潮汐监狱", code: "0035", date: "2026-07-10 更新" },
+    { name: "AZ3",      code: "0510", date: "2026-07-10 更新" },
+  ],
+  items: [
+    { station: "技术中心", name: "OLIGHT WARRIOR 3S战术手电", profit: 5376,  price: 71469,  sell: "晚上11点", grade: "rare" },
+    { station: "工作台",   name: "5.8x42mm DBP10",            profit: 36325, price: 1988,   sell: "晚上11点", grade: "common" },
+    { station: "制药台",   name: "战地医疗箱",                profit: 9387,  price: 192681, sell: "晚上11点", grade: "epic" },
+    { station: "防具台",   name: "精英防弹背心",              profit: 29376, price: 365130, sell: "晚上11点", grade: "legend" },
+    { station: "工作台",   name: "7.62x39mm PS",              profit: 18200, price: 45200,  sell: "晚上8点",  grade: "rare" },
+  ],
+  bullets: [
+    { name: "5.45x39mm BT",     profit: 54782 },
+    { name: "9x19mm RIP",       profit: 33098 },
+    { name: "5.56x45mm M855A1", profit: 29271 },
+    { name: "5.7x28mm R37.F",   profit: 24288 },
+    { name: "12 Gauge 8.5mm鹿弹", profit: 18870 },
+    { name: ".300 BLK V-Max",   profit: 18433 },
+    { name: ".45 ACP RIP",      profit: 16899 },
+    { name: ".357 Magnum 鼠弹", profit: 6786  },
+    { name: "12 Gauge独头 RIP", profit: 6045  },
+  ],
+  craft: {
+    nodes: [
+      { key: "p_vest",   text: "精英防弹背心",   station: "防具台", cat: "product" },
+      { key: "p_med",    text: "战地医疗箱",     station: "制药台", cat: "product" },
+      { key: "p_light",  text: "OLIGHT战术手电", station: "技术中心", cat: "product" },
+      { key: "p_ammo",   text: "5.8x42mm DBP10", station: "工作台", cat: "product" },
+      { key: "m_poly",     text: "聚乙烯纤维",   cat: "material" },
+      { key: "m_ceramic",  text: "陶瓷插板",     cat: "material" },
+      { key: "m_kevlar",   text: "凯夫拉纤维",   cat: "material" },
+      { key: "m_bandage",  text: "医用绷带",     cat: "material" },
+      { key: "m_sedative", text: "镇静剂",       cat: "material" },
+      { key: "m_alubox",   text: "铝合金箱",     cat: "material" },
+      { key: "m_battery",  text: "电池",         cat: "material" },
+      { key: "m_alu",      text: "铝合金",       cat: "material" },
+      { key: "m_optic",    text: "光学镜片",     cat: "material" },
+      { key: "m_case",     text: "弹壳",         cat: "material" },
+      { key: "m_powder",   text: "发射药",       cat: "material" },
+      { key: "m_bullet",   text: "弹头",         cat: "material" },
+      { key: "m_aluingot", text: "铝合金锭",     cat: "material" },
+      { key: "m_aluore",   text: "铝矿",         cat: "material" },
+      { key: "m_polymer",  text: "聚合物",       cat: "material" },
+      { key: "m_oil",      text: "原油",         cat: "material" },
+    ],
+    links: [
+      { from: "p_vest",  to: "m_poly" },
+      { from: "p_vest",  to: "m_ceramic" },
+      { from: "p_vest",  to: "m_kevlar" },
+      { from: "p_med",   to: "m_bandage" },
+      { from: "p_med",   to: "m_sedative" },
+      { from: "p_med",   to: "m_alubox" },
+      { from: "p_light", to: "m_battery" },
+      { from: "p_light", to: "m_alu" },
+      { from: "p_light", to: "m_optic" },
+      { from: "p_ammo",  to: "m_case" },
+      { from: "p_ammo",  to: "m_powder" },
+      { from: "p_ammo",  to: "m_bullet" },
+      { from: "m_alubox",   to: "m_alu" },
+      { from: "m_alu",      to: "m_aluingot" },
+      { from: "m_aluingot", to: "m_aluore" },
+      { from: "m_poly",     to: "m_polymer" },
+      { from: "m_polymer",  to: "m_oil" },
+    ],
+  },
+};
+
+module.exports = { data };
