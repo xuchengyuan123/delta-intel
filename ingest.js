@@ -2,11 +2,11 @@
  * ingest.js — 每日数据更新（每天跑一次就“更新”了）
  * ---------------------------------------------------------
  * 地图密码：从免费公开接口 tmini.net 实时拉取（每天自动变）
- * 特勤处产物 / 子弹 / 制作树：暂无免费接口，用内置示例兜底
- * 输出：docs/data.json（GitHub Pages 直接读它）
+ * 特勤处产物 / 子弹 / 制作树 / 活动物品 / 材料价格：暂无免费接口，用内置示例兜底
+ * 输出：public/data.json（GitHub Pages 直接读它）
  *
  * 用法：
- *   node ingest.js          # GitHub Actions 每天自动跑
+ *   node ingest.js          # GitHub Actions / 本地手动跑
  * ========================================================= */
 
 const fs = require("fs");
@@ -54,7 +54,7 @@ async function fetchMaps() {
 async function runIngest() {
   const maps = await fetchMaps();
 
-  // 产物 / 子弹 / 制作树暂无免费接口，沿用示例数据
+  // 产物 / 子弹 / 制作树 / 活动物品 / 材料价格暂无免费接口，沿用示例数据
   const data = {
     maps: maps,
     items: demo.data.items,
@@ -67,13 +67,15 @@ async function runIngest() {
     updatedAt: new Date().toISOString(),
   };
 
-  const outPath = path.join(__dirname, "docs", "data.json");
+  const outPath = path.join(__dirname, "public", "data.json");
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2), "utf8");
   console.log(
     "[ingest] 已写出 ->", outPath,
     "| 地图", data.maps.length,
     "产物", data.items.length,
-    "子弹", data.bullets.length
+    "子弹", data.bullets.length,
+    "活动", data.eventItems.items.length,
+    "材料", data.materials.length
   );
   return data;
 }

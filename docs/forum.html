@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>战友论坛 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
+    .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .forum-head .logo { font-size: 18px; font-weight: 700; }
+    .forum-head .logo-accent { color: var(--accent); }
+    .forum-head a.back { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .forum-head a.back:hover { color: var(--accent); }
+    .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 16px; }
+  </style>
+</head>
+<body>
+  <div class="forum-wrap">
+    <div class="forum-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 战友论坛</span>
+      <a class="back" href="index.html">← 返回首页</a>
+    </div>
+    <p class="forum-tip">全校战友共用同一个论坛，帖子存在本仓库的 GitHub Issues 里（无需服务器）。发帖 / 回复请用 GitHub 账号登录。</p>
+
+    <!-- ===== utterances 评论区（基于 GitHub Issues，无需 Discussions、无需填 ID） ===== -->
+    <script src="https://utteranc.es/client.js"
+            repo="xuchengyuan123/delta-intel"
+            issue-term="pathname"
+            label="💬 论坛"
+            theme="github-dark"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <!-- ===== /utterances ===== -->
+  </div>
+</body>
+</html>

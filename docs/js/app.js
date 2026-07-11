@@ -48,6 +48,11 @@
         { route: "links",  label: "原站权威数据", ico: "🔗" },
       ],
     },
+    {
+      group: "社区", items: [
+        { href: "forum.html", label: "战友论坛", ico: "💬" },
+      ],
+    },
   ];
 
   /* ---------- 工具 ---------- */
@@ -71,13 +76,18 @@
     MENU.forEach(function (g) {
       str += '<div class="menu-group">' + esc(g.group) + "</div>";
       g.items.forEach(function (it) {
-        var cls = "menu-item" + (it.route === active ? " active" : "");
-        str += '<div class="' + cls + '" data-route="' + esc(it.route) + '">' +
-               '<span class="ico">' + it.ico + "</span><span>" + esc(it.label) + "</span></div>";
+        if (it.href) {
+          str += '<a class="menu-item" href="' + esc(it.href) + '">' +
+                 '<span class="ico">' + it.ico + "</span><span>" + esc(it.label) + "</span></a>";
+        } else {
+          var cls = "menu-item" + (it.route === active ? " active" : "");
+          str += '<div class="' + cls + '" data-route="' + esc(it.route) + '">' +
+                 '<span class="ico">' + it.ico + "</span><span>" + esc(it.label) + "</span></div>";
+        }
       });
     });
     menuEl.innerHTML = str;
-    menuEl.querySelectorAll(".menu-item").forEach(function (el) {
+    menuEl.querySelectorAll(".menu-item[data-route]").forEach(function (el) {
       el.addEventListener("click", function () { navigate(el.getAttribute("data-route")); });
     });
   }
