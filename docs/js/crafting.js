@@ -1,6 +1,6 @@
 /* =========================================================
  * crafting.js — 特勤处产物推荐（小时利润 / 总利润 切换）
- * 覆盖 app.js 的 VIEWS.items，增加切换与排序，并提供跳转到发票计算器。
+ * 覆盖 app.js 的 VIEWS.items，增加切换与排序。
  * 依赖 data.json.items[].craftMin（单件制作耗时，分钟）。
  * ========================================================= */
 (function () {
@@ -35,7 +35,6 @@
         "<thead><tr><th>#</th><th>工作台</th><th>产物</th><th style='text-align:right'>总利润</th><th style='text-align:right'>小时利润</th><th style='text-align:right'>理想售价</th><th>建议卖</th></tr></thead>" +
         "<tbody>" + rows + "</tbody></table></div>" +
       '<div class="craft-tools">' +
-        '<a class="btn-ghost" href="?viewpage=sim_invoice">🧾 发票利润计算器</a>' +
         '<span class="muted-note">小时利润 = 总利润 ÷ 单件耗时 × 60。切换按所选指标排序。</span>' +
       "</div>" +
       '<div class="section-title">利润对比图</div>' +

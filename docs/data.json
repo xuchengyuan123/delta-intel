@@ -344,7 +344,8 @@
       "sell": "上午9点"
     }
   ],
-  "site": { "name": "三角洲情报台", "afdianUrl": "" },
+  "site": { "name": "三角洲情报台", "afdianUrl": "", "accent2": "#19c3a6", "art": {} },
+  "adminLog": [],
   "tasks": {
     "search": "",
     "groups": [
@@ -388,13 +389,31 @@
     { "name": "Ⅵ级 顶级防弹衣（示例）", "durability": 150, "protection": 70, "tier": "Ⅵ级", "repairable": true, "material": "复合插板" },
     { "name": "无护甲（裸血）", "durability": 0, "protection": 0, "tier": "—", "repairable": false, "material": "—" }
   ],
+  "operators": [
+    { "name": "凯·席尔瓦", "codename": "Kai", "role": "突击", "faction": "红狼", "rarity": "传说", "desc": "前线突破核心，擅长高机动突进与近距离压制。", "stats": { "机动": 82, "生存": 80, "火力": 92, "辅助": 58 } },
+    { "name": "琳·克罗", "codename": "Lin", "role": "侦察", "faction": "暗影", "rarity": "史诗", "desc": "情报搜集与侧翼包抄专家，视野掌控能力强。", "stats": { "机动": 90, "生存": 70, "火力": 75, "辅助": 65 } },
+    { "name": "雷·诺亚", "codename": "Noah", "role": "支援", "faction": "钢铁", "rarity": "稀有", "desc": "补给与压制火力担当，团队续航保障。", "stats": { "机动": 68, "生存": 85, "火力": 70, "辅助": 90 } },
+    { "name": "薇拉·科恩", "codename": "Vera", "role": "医疗", "faction": "白鸽", "rarity": "史诗", "desc": "战场急救与复活核心，关键时刻拉回队友。", "stats": { "机动": 72, "生存": 88, "火力": 60, "辅助": 95 } },
+    { "name": "大卫·洛克", "codename": "David", "role": "工程", "faction": "铁砧", "rarity": "稀有", "desc": "阵地构筑与爆破，攻防转换的关键。", "stats": { "机动": 70, "生存": 90, "火力": 78, "辅助": 72 } },
+    { "name": "索菲亚·金", "codename": "Sofia", "role": "狙击", "faction": "暗影", "rarity": "传说", "desc": "超远距离精确猎杀，一击致命。", "stats": { "机动": 84, "生存": 76, "火力": 96, "辅助": 60 } },
+    { "name": "马库斯·雷", "codename": "Marcus", "role": "突击", "faction": "红狼", "rarity": "史诗", "desc": "均衡型突击手，适应多种交战距离。", "stats": { "机动": 80, "生存": 82, "火力": 88, "辅助": 62 } },
+    { "name": "艾拉·方", "codename": "Ella", "role": "侦察", "faction": "白鸽", "rarity": "普通", "desc": "轻装机动侦察，适合快速占点与侦查。", "stats": { "机动": 86, "生存": 68, "火力": 72, "辅助": 70 } }
+  ],
+  "weaponCodex": [
+    { "name": "AKM", "type": "突击步枪", "rarity": "史诗", "ammo": "7.62x39", "dmg": 40, "rof": 600, "range": 60, "pen": 40, "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。" },
+    { "name": "M4A1", "type": "突击步枪", "rarity": "稀有", "ammo": "5.56x45", "dmg": 34, "rof": 700, "range": 55, "pen": 30, "desc": "稳定好上手，新手到进阶都合适的全能步枪。" },
+    { "name": "98K", "type": "狙击枪", "rarity": "传说", "ammo": "7.62x54R", "dmg": 120, "rof": 40, "range": 120, "pen": 65, "desc": "经典栓动狙，远距离一枪一个的浪漫。" },
+    { "name": "MP5", "type": "冲锋枪", "rarity": "稀有", "ammo": "9x19", "dmg": 26, "rof": 800, "range": 30, "pen": 20, "desc": "近距离扫射王者，室内近战称霸。" },
+    { "name": "M870", "type": "霰弹枪", "rarity": "史诗", "ammo": "12号", "dmg": 80, "rof": 70, "range": 15, "pen": 10, "desc": "贴脸爆发极高，适合守点与突袭。" },
+    { "name": "M249", "type": "机枪", "rarity": "稀有", "ammo": "5.56x45", "dmg": 30, "rof": 600, "range": 60, "pen": 25, "desc": "持续压制与封锁火力的重火力担当。" },
+    { "name": "G18", "type": "手枪", "rarity": "普通", "ammo": "9x19", "dmg": 22, "rof": 1100, "range": 20, "pen": 15, "desc": "高射速副武器，近身应急与补枪好手。" },
+    { "name": "SVD", "type": "射手步枪", "rarity": "史诗", "ammo": "7.62x54R", "dmg": 75, "rof": 280, "range": 100, "pen": 50, "desc": "半自动连狙，兼顾射速与远距离打击。" }
+  ],
   "music": [
-    { "title": "战区序曲", "bpm": 84, "wave": "sine", "root": 220, "scale": [0, 3, 5, 7, 10, 12], "bass": [0, 0, 7, 5], "virtualSec": 110, "mood": "calm" },
-    { "title": "行动准备", "bpm": 104, "wave": "triangle", "root": 233, "scale": [0, 2, 3, 7, 9, 12], "bass": [0, 0, 5, 7], "virtualSec": 95, "mood": "tense" },
-    { "title": "交火", "bpm": 140, "wave": "sawtooth", "root": 196, "scale": [0, 1, 3, 6, 7, 10], "bass": [0, 0, 0, 7], "virtualSec": 80, "mood": "intense" },
-    { "title": "撤离成功", "bpm": 120, "wave": "square", "root": 262, "scale": [0, 4, 7, 9, 12, 16], "bass": [0, 7, 0, 7], "virtualSec": 90, "mood": "triumph" },
-    { "title": "静默潜入", "bpm": 70, "wave": "sine", "root": 174, "scale": [0, 3, 5, 8, 10], "bass": [0, null, 5, null], "virtualSec": 120, "mood": "ambient" },
-    { "title": "结算界面", "bpm": 96, "wave": "triangle", "root": 246, "scale": [0, 2, 4, 7, 9, 11], "bass": [0, 4, 7, 4], "virtualSec": 100, "mood": "mellow" }
+    { "title": "三角洲行动 官方主题曲", "source": "Bilibili", "url": "https://www.bilibili.com/video/BV1yH4y1c7ZA", "icon": "📺", "desc": "官方宣传/主题曲视频" },
+    { "title": "三角洲行动 大厅BGM", "source": "QQ音乐", "url": "https://y.qq.com/n/ryqq/search?w=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8", "icon": "🎵", "desc": "在 QQ音乐 搜索收听" },
+    { "title": "三角洲行动 枪声/战斗配乐", "source": "Bilibili", "url": "https://search.bilibili.com/all?keyword=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8%20BGM", "icon": "📺", "desc": "B站搜索合集" },
+    { "title": "三角洲行动 原声/OST", "source": "网易云音乐", "url": "https://music.163.com/#/search/m/?s=%E4%B8%89%E8%A7%92%E6%B4%B2%E8%A1%8C%E5%8A%A8", "icon": "☁", "desc": "网易云搜索试听" }
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",

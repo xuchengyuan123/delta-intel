@@ -27,6 +27,64 @@
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
   }
 
+  /* ---------- 赞助弹窗与更新日志 ---------- */
+  var CHANGELOG = [
+    { date: "2026-07-11", title: "小游戏/音乐台/弹窗上线", items: ["新增数字摩斯密码小游戏与指纹选择小游戏", "音乐台改为外链 QQ音乐/B站/网易云", "增加自动赞助弹窗与更新日志"] },
+    { date: "2026-07-10", title: "首页美化 V3", items: ["重绘建筑线描卡片", "赛季任务支持搜索与手动维护"] },
+    { date: "2026-07-09", title: "管理后台与自动更新", items: ["上线 admin.html 管理后台", "修复自动更新路径"] }
+  ];
+
+  function sponsorModalHtml() {
+    return '<div id="sponsorModal" class="modal-backdrop">' +
+      '<div class="modal-card">' +
+        '<button class="modal-close" id="modalClose">×</button>' +
+        '<div class="modal-icon">💝</div>' +
+        '<h2>支持三角洲情报台</h2>' +
+        '<p>制作不易，服务器、数据维护、功能更新都需要时间和精力。</p>' +
+        '<p>如果你觉得这个网站好用，欢迎赞助，让情报台持续运转下去！</p>' +
+        '<div class="modal-meta">' +
+          '<div>制作人：三角洲情报台开发组</div>' +
+          '<div>预计 <strong>11 月左右</strong> 会有重大升级，敬请期待。</div>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<a class="btn-primary" href="sponsor.html">去爱发电赞助</a>' +
+          '<button class="btn-ghost" id="modalLog">查看更新日志</button>' +
+          '<button class="btn-ghost" id="modalLater">稍后再说</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  function changelogHtml() {
+    var rows = CHANGELOG.map(function (log) {
+      return '<div class="log-item">' +
+        '<div class="log-date">' + esc(log.date) + '</div>' +
+        '<div class="log-title">' + esc(log.title) + '</div>' +
+        '<ul>' + log.items.map(function (it) { return '<li>' + esc(it) + '</li>'; }).join("") + '</ul>' +
+      '</div>';
+    }).join("");
+    return '<div class="section-title">📜 更新日志</div>' +
+      '<div class="card changelog">' + rows + '</div>';
+  }
+  function showSponsorModal() {
+    if (document.getElementById("sponsorModal")) return;
+    var wrap = document.createElement("div"); wrap.innerHTML = sponsorModalHtml();
+    document.body.appendChild(wrap.firstElementChild);
+    document.getElementById("modalClose").addEventListener("click", closeSponsorModal);
+    document.getElementById("modalLater").addEventListener("click", closeSponsorModal);
+    document.getElementById("modalLog").addEventListener("click", function () {
+      closeSponsorModal();
+      navigate("changelog");
+    });
+  }
+  function closeSponsorModal() {
+    var m = document.getElementById("sponsorModal"); if (m) m.remove();
+    try { localStorage.setItem("df-sponsor-shown", "1"); } catch (e) {}
+  }
+  function maybeShowSponsorModal() {
+    try { if (localStorage.getItem("df-sponsor-shown")) return; } catch (e) {}
+    setTimeout(showSponsorModal, 1200);
+  }
+
   /* ---------- 菜单配置 ---------- */
   var DEFAULT = "home";
   var MENU = [
@@ -50,13 +108,9 @@
       ],
     },
     {
-      group: "外部", items: [
-        { route: "links",  label: "原站权威数据", ico: "🔗" },
-      ],
-    },
-    {
       group: "资讯", items: [
         { route: "tasks", label: "赛季任务 / 挑战手册", ico: "📋" },
+        { route: "changelog", label: "更新日志", ico: "📜" },
       ],
     },
     {
@@ -189,6 +243,9 @@
 
   // 地图抽象建筑线描插画（SVG，内联，无需外部图）
   function mapArt(name) {
+    // 美术管理员可在 data.json.site.art 中覆盖每张地图的线描，实现“后台改图、前台即时生效”
+    var artOverride = DATA && DATA.site && DATA.site.art && DATA.site.art[name];
+    if (artOverride) return artOverride;
     var n = String(name || "");
     var color = "rgba(25,195,166,.45)";
     var stroke = 'stroke="' + color + '" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
@@ -457,20 +514,6 @@
         return '<div class="section-title">高价格浮动制造材料</div>' + topMaterialsTable();
       },
     },
-    links: {
-      html: function () {
-        return '<div class="section-title">原站权威数据库（跳转查看）</div>' +
-          '<p class="sub">以下为 kkrb.net《三角洲行动一图流》的权威数据入口，点击前往查看完整图鉴与攻略。</p>' +
-          '<div class="grid links-grid">' +
-            '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🪖</span><span>干员图鉴</span><span class="ext">kkrb.net</span></a>' +
-            '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🔫</span><span>武器数据库</span><span class="ext">kkrb.net</span></a>' +
-            '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🛠️</span><span>改枪方案</span><span class="ext">kkrb.net</span></a>' +
-            '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">🗺️</span><span>地图攻略</span><span class="ext">kkrb.net</span></a>' +
-            '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">📚</span><span>游戏百科</span><span class="ext">kkrb.net</span></a>' +
-            '<a class="link-card" href="https://www.kkrb.net/?viewpage=view%2Foverview" target="_blank" rel="noopener"><span class="ic">📊</span><span>一图流首页</span><span class="ext">kkrb.net</span></a>' +
-          "</div>";
-      },
-    },
     tasks: {
       html: function () {
         var tasks = DATA.tasks || {};
@@ -549,6 +592,9 @@
         });
       },
     },
+    changelog: {
+      html: function () { return changelogHtml(); },
+    },
   };
 
   /* ---------- 主题切换 ---------- */
@@ -595,12 +641,19 @@
   fetchData()
     .then(function (d) {
       DATA = d;
+      // 应用美术管理员设置的主题强调色
+      try {
+        if (DATA.site && DATA.site.accent2) {
+          document.documentElement.style.setProperty("--accent-2", DATA.site.accent2);
+        }
+      } catch (e) {}
       var ua = document.getElementById("updatedAt");
       if (ua && d.updatedAt) {
         var t = new Date(d.updatedAt);
         ua.textContent = "最后更新：" + t.toLocaleString("zh-CN");
       }
       render(getRoute());
+      maybeShowSponsorModal();
     })
     .catch(function (e) {
       preview.innerHTML = '<div class="card"><p>加载数据失败：' + esc(e.message) +

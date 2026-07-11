@@ -1,5 +1,5 @@
 /* =========================================================
- * simulators.js — 护甲模拟器 / 伤害模拟器 / 发票利润计算器
+ * simulators.js — 护甲模拟器 / 伤害模拟器
  * 数据：优先取 data.json 的 weapons / armors，缺失时用内置示例数据。
  * 注：公式均为“易于理解的示例模型”，非游戏精确数值。
  * ========================================================= */
@@ -143,63 +143,7 @@
     document.getElementById("dmgResult").innerHTML = html;
   }
 
-  /* ---------------- 发票利润计算器 ---------------- */
-  var INV_ROWS = [{ name: "聚乙烯纤维", qty: 2, price: 1200 }, { name: "陶瓷插板", qty: 1, price: 3400 }, { name: "凯夫拉纤维", qty: 1, price: 1500 }];
-  function invRowHtml(r, i) {
-    return '<div class="inv-row" data-i="' + i + '">' +
-      '<input class="inv-name" placeholder="材料名" value="' + r.name + '">' +
-      '<input class="inv-qty" type="number" min="0" value="' + r.qty + '">' +
-      '<input class="inv-price" type="number" min="0" value="' + r.price + '">' +
-      '<button class="inv-del" title="删除">✕</button></div>';
-  }
-  function invoiceHtml(D) {
-    return '<div class="section-title">发票利润计算器</div>' +
-      '<div class="card sim-card">' +
-        '<div class="sim-row"><label>产物名称</label><input id="invProd" value="精英防弹背心"></div>' +
-        '<div class="inv-head"><span>材料</span><span>数量</span><span>单价</span><span></span></div>' +
-        '<div id="invRows">' + INV_ROWS.map(invRowHtml).join("") + "</div>" +
-        '<button class="btn-ghost" id="invAdd">＋ 添加材料</button>' +
-        '<div class="sim-row"><label>单件制作耗时（分钟）</label><input id="invTime" type="number" min="1" value="60"></div>' +
-        '<div class="sim-row"><label>售价（卖出价）</label><input id="invSell" type="number" min="0" value="365130"></div>' +
-        '<div class="sim-row"><label>税率 / 手续费（% of 售价）</label><input id="invTax" type="number" min="0" step="0.1" value="3"></div>' +
-      "</div>" +
-      '<div class="card"><div id="invResult"></div></div>';
-  }
-  function invoiceCalc(D) {
-    var rows = [];
-    document.querySelectorAll("#invRows .inv-row").forEach(function (el) {
-      rows.push({ name: el.querySelector(".inv-name").value, qty: +el.querySelector(".inv-qty").value || 0, price: +el.querySelector(".inv-price").value || 0 });
-    });
-    var time = +document.getElementById("invTime").value || 1;
-    var sell = +document.getElementById("invSell").value || 0;
-    var tax = (+document.getElementById("invTax").value || 0) / 100;
-    var cost = rows.reduce(function (s, r) { return s + r.qty * r.price; }, 0);
-    var fee = sell * tax;
-    var total = cost + fee;
-    var profit = sell - total;
-    var hourly = profit * 60 / time;
-    var roi = total > 0 ? (profit / total) * 100 : 0;
-    var bep = total; // 盈亏平衡售价
-    var lines = rows.map(function (r) {
-      return '<div class="rc-line"><span>' + D.esc(r.name) + " ×" + r.qty + "</span><span>" + D.fmt(r.qty * r.price) + "</span></div>";
-    }).join("");
-    document.getElementById("invResult").innerHTML =
-      '<div class="receipt">' +
-        '<div class="rc-title">🧾 交易发票 · ' + D.esc(document.getElementById("invProd").value) + "</div>" +
-        '<div class="rc-sub">三角洲情报台 · 利润测算</div>' +
-        lines +
-        '<div class="rc-line"><span>材料成本合计</span><span>' + D.fmt(cost) + "</span></div>" +
-        '<div class="rc-line"><span>手续费(' + (tax * 100) + '%)</span><span>' + D.fmt(Math.round(fee)) + "</span></div>" +
-        '<div class="rc-line rc-strong"><span>总成本</span><span>' + D.fmt(Math.round(total)) + "</span></div>" +
-        '<div class="rc-line"><span>售价</span><span>' + D.fmt(sell) + "</span></div>" +
-        '<div class="rc-line rc-profit"><span>单件利润</span><span>' + (profit >= 0 ? "+" : "") + D.fmt(Math.round(profit)) + "</span></div>" +
-      "</div>" +
-      '<div class="sim-kpis">' +
-        '<div class="kpi"><div class="num">' + D.fmt(Math.round(hourly)) + '</div><div class="label">小时利润</div></div>' +
-        '<div class="kpi"><div class="num">' + Math.round(roi) + '%</div><div class="label">ROI 回报率</div></div>' +
-        '<div class="kpi"><div class="num">' + D.fmt(Math.round(bep)) + '</div><div class="label">盈亏平衡售价</div></div>' +
-      "</div>";
-  }
+  /* ---------------- 发票利润计算器（已按需求移除） ---------------- */
 
   function reg(D) {
     D.VIEWS.sim_armor = {
@@ -221,35 +165,10 @@
         damageCalc(D);
       }
     };
-    D.VIEWS.sim_invoice = {
-      html: function () { return invoiceHtml(D); },
-      init: function () {
-        function bind() {
-          document.querySelectorAll("#invRows input, #invTime, #invSell, #invTax, #invProd").forEach(function (el) {
-            el.addEventListener("input", function () { invoiceCalc(D); });
-          });
-        }
-        bind(); invoiceCalc(D);
-        document.getElementById("invAdd").addEventListener("click", function () {
-          INV_ROWS.push({ name: "", qty: 1, price: 0 });
-          document.getElementById("invRows").insertAdjacentHTML("beforeend", invRowHtml(INV_ROWS[INV_ROWS.length - 1], INV_ROWS.length - 1));
-          bind(); invoiceCalc(D);
-        });
-        document.getElementById("invRows").addEventListener("click", function (e) {
-          if (e.target.classList.contains("inv-del")) {
-            var i = +e.target.parentElement.getAttribute("data-i");
-            INV_ROWS.splice(i, 1);
-            document.getElementById("invRows").innerHTML = INV_ROWS.map(invRowHtml).join("");
-            bind(); invoiceCalc(D);
-          }
-        });
-      }
-    };
     D.MENU.push({
       group: "模拟器", items: [
         { route: "sim_armor", label: "护甲模拟器", ico: "🛡" },
-        { route: "sim_damage", label: "伤害模拟器", ico: "💥" },
-        { route: "sim_invoice", label: "发票利润计算器", ico: "🧾" }
+        { route: "sim_damage", label: "伤害模拟器", ico: "💥" }
       ]
     });
   }

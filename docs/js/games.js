@@ -1,223 +1,371 @@
 /* =========================================================
- * games.js — 摩斯密码小游戏三合一
- *   1) 听摩斯密码：播放音频，听写解码
- *   2) 破解电脑摩斯密码：终端显示摩斯串，手动解码
- *   3) 破解指纹摩斯密码：指纹纹路中藏摩斯点划，解码
- * 计分 + 连击，纯前端 Web Audio，无外部依赖。
+ * games.js — 三角洲小游戏二合一
+ *   1) 数字摩斯密码：像原站截图一样，三位/四位密码，听摩斯音用数字键盘输入
+ *   2) 指纹选择：从候选指纹中选出正确的那一枚
  * ========================================================= */
 (function () {
   "use strict";
 
-  var MORSE = { A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.", H: "....", I: "..", J: ".---", K: "-.-", L: ".-..", M: "--", N: "-.", O: "---", P: ".--.", Q: "--.-", R: ".-.", S: "...", T: "-", U: "..-", V: "...-", W: ".--", X: "-..-", Y: "-.--", Z: "--..", "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-", "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----." };
-  var REV = {}; Object.keys(MORSE).forEach(function (k) { REV[MORSE[k]] = k; });
-  var WORDS = ["SOS", "HELP", "DELTA", "ALPHA", "ECHO", "TANGO", "RADIO", "GHOST", "STORM", "TIGER", "WOLF", "NOVA", "BUNKER", "EXTRACT", "SNIPER", "MEDIC", "OPERATION", "ZERO", "XRAY", "DELTAFORCE"];
+  var MORSE_NUM = {
+    "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-",
+    "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----."
+  };
 
-  function toMorse(text) {
-    return text.toUpperCase().split("").map(function (c) { return MORSE[c] || ""; }).filter(Boolean).join(" ");
-  }
-  function fromMorse(str) {
-    return str.trim().split(/\s+/).map(function (m) { return REV[m] || "?"; }).join("");
-  }
-  function rndWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
+  var CONFIG = {
+    len: 3,           // 3 或 4
+    loop: true,
+    timed: false,
+    bgmVol: 30,
+    morseVol: 40,
+    time: 60
+  };
 
+  var GAME = {
+    tab: "morse",     // morse | fingerprint
+    running: false,
+    score: 0, streak: 0, best: 0,
+    answer: "",       // 当前正确答案
+    input: "",        // 当前输入
+    timeLeft: 0,
+    timer: null, loopTimer: null,
+    bgmOsc: null, bgmGain: null,
+    // 指纹
+    fpTarget: 0,      // 正确候选索引
+    fpPicked: []      // 已选记录
+  };
+
+  /* ---------- 音频上下文 ---------- */
   var actx = null;
   function ensureCtx() {
-    if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+    if (!actx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) { alert("当前浏览器不支持音频，无法玩摩斯密码。"); return null; }
+      actx = new AC();
+    }
     if (actx.state === "suspended") actx.resume();
     return actx;
   }
-  function playMorse(text, wpm) {
-    var ctx = ensureCtx(); if (!ctx) { alert("当前浏览器不支持音频播放"); return; }
-    var unit = 1.2 / (wpm || 12);
+
+  function beep(tone, duration, vol, type) {
+    var ctx = ensureCtx(); if (!ctx) return;
     var osc = ctx.createOscillator(), gain = ctx.createGain();
-    osc.type = "sine"; osc.frequency.value = 620;
+    osc.type = type || "sine";
+    osc.frequency.value = tone;
     osc.connect(gain); gain.connect(ctx.destination);
-    var t = ctx.currentTime + 0.05; gain.gain.value = 0.0001; osc.start(t);
-    var seq = text.toUpperCase().replace(/[^A-Z0-9 ]/g, "");
-    for (var i = 0; i < seq.length; i++) {
-      var ch = seq[i];
-      if (ch === " ") { t += unit * 7; continue; }
-      var code = MORSE[ch] || "";
-      for (var j = 0; j < code.length; j++) {
-        var dur = code[j] === "." ? unit : unit * 3;
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.exponentialRampToValueAtTime(0.3, t + 0.01);
-        gain.gain.setValueAtTime(0.3, t + dur - 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-        t += dur + unit;
-      }
-      t += unit * 2;
-    }
-    gain.gain.setValueAtTime(0.0001, t + 0.1);
-    osc.stop(t + 0.2);
+    var now = ctx.currentTime;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(vol, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.start(now); osc.stop(now + duration + 0.03);
   }
 
-  function fingerprintSVG(morse) {
-    var s = '<svg viewBox="0 0 200 200" class="fp-svg" aria-label="指纹摩斯">';
-    s += '<g stroke="rgba(25,195,166,.32)" stroke-width="2" fill="none">';
-    for (var r = 18; r <= 92; r += 11) s += '<ellipse cx="100" cy="100" rx="' + r + '" ry="' + (r * 0.82) + '"/>';
-    s += '<path d="M30 100 Q100 30 170 100"/>';
-    s += '<path d="M44 116 Q100 70 156 116"/>';
-    s += '<path d="M60 132 Q100 104 140 132"/>';
-    s += "</g>";
-    var x = 18, y = 178;
-    s += '<g>';
-    for (var i = 0; i < morse.length; i++) {
-      var c = morse[i];
-      if (c === ".") { s += '<circle cx="' + x + '" cy="' + y + '" r="5" fill="#19c3a6"/>'; x += 18; }
-      else if (c === "-") { s += '<rect x="' + x + '" y="' + (y - 3) + '" width="22" height="6" rx="3" fill="#19c3a6"/>'; x += 34; }
-      else { x += 24; }
+  function playMorseNum(str) {
+    var ctx = ensureCtx(); if (!ctx) return;
+    var unit = 0.18; // 每个点 0.18s
+    var now = ctx.currentTime + 0.05;
+    var vol = CONFIG.morseVol / 100;
+    var tone = 880;
+    for (var i = 0; i < str.length; i++) {
+      var code = MORSE_NUM[str[i]] || "";
+      for (var j = 0; j < code.length; j++) {
+        var dur = code[j] === "." ? unit : unit * 3;
+        var osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = "sine"; osc.frequency.value = tone;
+        osc.connect(gain); gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.start(now); osc.stop(now + dur + 0.02);
+        now += dur + unit;
+      }
+      now += unit * 2; // 数字之间停顿
     }
-    s += "</g></svg>";
+  }
+
+  /* BGM：持续低音嗡鸣 + 节奏 */
+  function startBgm() {
+    stopBgm();
+    var ctx = ensureCtx(); if (!ctx) return;
+    var osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = "triangle"; osc.frequency.value = 110;
+    gain.gain.value = (CONFIG.bgmVol / 100) * 0.12;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); GAME.bgmOsc = osc; GAME.bgmGain = gain;
+  }
+  function stopBgm() {
+    if (GAME.bgmOsc) { try { GAME.bgmOsc.stop(); } catch (e) {} GAME.bgmOsc = null; }
+    GAME.bgmGain = null;
+  }
+  function updateBgmVolume() {
+    if (GAME.bgmGain) GAME.bgmGain.gain.value = (CONFIG.bgmVol / 100) * 0.12;
+  }
+
+  /* ---------- 数字摩斯密码 ---------- */
+  function genCode() {
+    var s = "";
+    for (var i = 0; i < CONFIG.len; i++) s += Math.floor(Math.random() * 10);
     return s;
   }
 
-  /* ---------- 状态 ---------- */
-  var S = { listen: { word: "", score: 0, streak: 0 }, comp: { word: "", score: 0, streak: 0 }, fp: { word: "", score: 0, streak: 0 } };
-  var TAB = "listen";
-
-  function newPuzzle(tab) {
-    S[tab].word = rndWord();
+  function startMorseGame() {
+    if (GAME.running) return;
+    GAME.running = true;
+    GAME.score = 0; GAME.streak = 0; GAME.input = ""; GAME.answer = "";
+    GAME.timeLeft = +CONFIG.time;
+    startBgm();
+    nextMorseCode();
+    if (CONFIG.timed) startCountdown();
+    renderMorse();
   }
-
-  function listenHtml(D) {
-    newPuzzle("listen");
-    return '<div class="morse-game">' +
-      '<div class="mg-info">🎧 戴上耳机，点击播放，把听到的内容（字母/数字）输入下方。例：<code>DELTA</code></div>' +
-      '<div class="mg-actions">' +
-        '<button class="btn-primary" id="mgPlay">▶ 播放摩斯</button>' +
-        '<button class="btn-ghost" id="mgReplay">↻ 重播</button>' +
-      "</div>" +
-      '<input id="mgInput" class="mg-input" placeholder="输入你听到的词" autocomplete="off">' +
-      '<div class="mg-actions">' +
-        '<button class="btn-primary" id="mgCheck">提交</button>' +
-        '<button class="btn-ghost" id="mgSkip">换一题</button>' +
-      "</div>" +
-      '<div id="mgMsg" class="mg-msg"></div>' +
-      '<div class="mg-score">得分 <b id="mgScore">' + S.listen.score + '</b> · 连击 <b id="mgStreak">' + S.listen.streak + '</b></div>' +
-      "</div>";
+  function stopMorseGame() {
+    GAME.running = false;
+    stopBgm();
+    clearInterval(GAME.timer); GAME.timer = null;
+    clearTimeout(GAME.loopTimer); GAME.loopTimer = null;
+    renderMorse();
   }
-  function listenInit(D) {
-    document.getElementById("mgPlay").addEventListener("click", function () { playMorse(S.listen.word); });
-    document.getElementById("mgReplay").addEventListener("click", function () { playMorse(S.listen.word); });
-    document.getElementById("mgSkip").addEventListener("click", function () { newPuzzle("listen"); document.getElementById("mgInput").value = ""; document.getElementById("mgMsg").innerHTML = ""; updateScore("listen"); });
-    document.getElementById("mgCheck").addEventListener("click", function () {
-      var v = (document.getElementById("mgInput").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-      var msg = document.getElementById("mgMsg");
-      if (!v) { msg.innerHTML = '<span class="err">先输入内容哦</span>'; return; }
-      if (v === S.listen.word) {
-        S.listen.streak++; S.listen.score += 10 + S.listen.streak * 2;
-        msg.innerHTML = '<span class="ok">✓ 正确！+' + (10 + S.listen.streak * 2) + " 分</span>";
-        newPuzzle("listen"); document.getElementById("mgInput").value = "";
-        setTimeout(function () { msg.innerHTML = ""; }, 1200);
+  function nextMorseCode() {
+    if (!GAME.running) return;
+    GAME.answer = genCode();
+    GAME.input = "";
+    playMorseNum(GAME.answer);
+    if (CONFIG.loop) {
+      clearTimeout(GAME.loopTimer);
+      GAME.loopTimer = setTimeout(function loop() {
+        if (GAME.running) { playMorseNum(GAME.answer); GAME.loopTimer = setTimeout(loop, Math.max(2000, GAME.answer.length * 800)); }
+      }, Math.max(2000, GAME.answer.length * 800));
+    }
+    if (GAME.best < GAME.score) GAME.best = GAME.score;
+    renderMorse();
+  }
+  function startCountdown() {
+    clearInterval(GAME.timer);
+    GAME.timer = setInterval(function () {
+      GAME.timeLeft--;
+      if (GAME.timeLeft <= 0) { stopMorseGame(); }
+      renderMorse();
+    }, 1000);
+  }
+  function inputDigit(d) {
+    if (!GAME.running || GAME.input.length >= CONFIG.len) return;
+    GAME.input += d;
+    if (GAME.input.length === CONFIG.len) {
+      if (GAME.input === GAME.answer) {
+        GAME.streak++; GAME.score += 10 + GAME.streak * 2;
+        beep(1200, 0.15, 0.3, "sine");
+        setTimeout(nextMorseCode, 400);
       } else {
-        S.listen.streak = 0;
-        msg.innerHTML = '<span class="err">✗ 正确答案：' + S.listen.word + "（" + toMorse(S.listen.word) + "）</span>";
-        newPuzzle("listen"); document.getElementById("mgInput").value = "";
+        GAME.streak = 0;
+        beep(200, 0.3, 0.3, "sawtooth");
+        setTimeout(function () { GAME.input = ""; renderMorse(); }, 600);
       }
-      updateScore("listen");
-    });
+    }
+    renderMorse();
+  }
+  function backspace() {
+    if (!GAME.running) return;
+    GAME.input = GAME.input.slice(0, -1); renderMorse();
   }
 
-  function compHtml(D) {
-    newPuzzle("comp");
-    var code = toMorse(S.comp.word);
+  /* ---------- 指纹选择 ---------- */
+  function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = rand(0, i);
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function startFpGame() {
+    GAME.fpTarget = rand(0, 5); // 0..5 候选
+    GAME.fpPicked = [];
+    renderFp();
+  }
+  function pickFp(idx) {
+    if (GAME.fpPicked.indexOf(idx) > -1) return;
+    GAME.fpPicked.push(idx);
+    if (idx === GAME.fpTarget) {
+      GAME.streak++; GAME.score += 15 + GAME.streak * 2;
+      beep(1200, 0.15, 0.3, "sine");
+      setTimeout(startFpGame, 500);
+    } else {
+      GAME.streak = 0;
+      beep(200, 0.3, 0.3, "sawtooth");
+      renderFp();
+    }
+    renderFp();
+  }
+
+  /* ---------- 渲染 ---------- */
+  function html(D) { return D.esc ? D.esc : function (s) { return String(s); }; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  function morsePanel() {
+    var inputs = "";
+    for (var i = 0; i < CONFIG.len; i++) {
+      var v = GAME.input[i] || "";
+      inputs += '<div class="morse-input-box ' + (v ? "filled" : "") + '">' + esc(v) + '</div>';
+    }
+    var keypad = "";
+    for (var d = 1; d <= 9; d++) {
+      keypad += '<button class="numkey" data-d="' + d + '">' + d + '</button>';
+    }
+    keypad += '<button class="numkey numkey-wide" data-d="0">0</button>';
+    keypad += '<button class="numkey numkey-wide" id="mgBack">⌫</button>';
+
+    var status = GAME.running
+      ? '⏱ ' + GAME.timeLeft + 's · 得分 <b>' + GAME.score + '</b> · 连击 <b>' + GAME.streak + '</b> · 最高 <b>' + GAME.best + '</b>'
+      : '点击「开始挑战」开始游戏';
+
     return '<div class="morse-game">' +
-      '<div class="mg-info">💻 终端截获一段摩斯电码，手动解码为原文。</div>' +
-      '<div class="terminal"><div class="term-bar"><span></span><span></span><span></span></div>' +
-        '<pre class="term-code">' + D.esc(code) + "</pre>" +
-        '<div class="term-actions"><button class="btn-ghost" id="mgCompPlay">🔊 听这段</button></div>' +
-      "</div>" +
-      '<input id="mgCompInput" class="mg-input" placeholder="输入解码结果，如 DELTA" autocomplete="off">' +
-      '<div class="mg-actions">' +
-        '<button class="btn-primary" id="mgCompCheck">提交</button>' +
-        '<button class="btn-ghost" id="mgCompSkip">换一题</button>' +
-      "</div>" +
-      '<div id="mgCompMsg" class="mg-msg"></div>' +
-      '<div class="mg-score">得分 <b>' + S.comp.score + '</b> · 连击 <b id="mgCompStreak">' + S.comp.streak + '</b></div>' +
-      "</div>";
-  }
-  function compInit(D) {
-    document.getElementById("mgCompPlay").addEventListener("click", function () { playMorse(S.comp.word); });
-    document.getElementById("mgCompSkip").addEventListener("click", function () { newPuzzle("comp"); D.render("games"); });
-    document.getElementById("mgCompCheck").addEventListener("click", function () {
-      var v = (document.getElementById("mgCompInput").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-      var msg = document.getElementById("mgCompMsg");
-      if (v === S.comp.word) {
-        S.comp.streak++; S.comp.score += 10 + S.comp.streak * 2;
-        msg.innerHTML = '<span class="ok">✓ 破解成功！+' + (10 + S.comp.streak * 2) + " 分</span>";
-        newPuzzle("comp"); D.render("games");
-      } else {
-        S.comp.streak = 0;
-        msg.innerHTML = '<span class="err">✗ 正确答案：' + S.comp.word + "</span>";
-        newPuzzle("comp"); D.render("games");
-      }
-    });
+      '<div class="morse-config">' +
+        '<div class="cfg-row"><label>摩斯密码长度</label>' +
+          '<label class="radio"><input type="radio" name="mgLen" value="3" ' + (CONFIG.len === 3 ? "checked" : "") + '> 三位摩斯密码</label>' +
+          '<label class="radio"><input type="radio" name="mgLen" value="4" ' + (CONFIG.len === 4 ? "checked" : "") + '> 四位摩斯密码</label></div>' +
+        '<div class="cfg-row"><label>自定义设定</label>' +
+          '<label class="checkbox"><input type="checkbox" id="mgLoop" ' + (CONFIG.loop ? "checked" : "") + '> 循环播放摩斯密码</label>' +
+          '<label class="checkbox"><input type="checkbox" id="mgTimed" ' + (CONFIG.timed ? "checked" : "") + '> 限时挑战</label></div>' +
+        '<div class="cfg-row"><label>BGM音频音量</label><input type="range" id="bgmVol" min="0" max="100" value="' + CONFIG.bgmVol + '"><span class="val">' + CONFIG.bgmVol + '</span></div>' +
+        '<div class="cfg-row"><label>摩斯音频音量</label><input type="range" id="morseVol" min="0" max="100" value="' + CONFIG.morseVol + '"><span class="val">' + CONFIG.morseVol + '</span></div>' +
+        '<div class="cfg-row"><label>挑战时间 (秒)</label><input type="range" id="mgTime" min="10" max="120" value="' + CONFIG.time + '"><span class="val">' + CONFIG.time + '</span></div>' +
+      '</div>' +
+      '<div class="morse-actions">' +
+        '<button class="btn-primary" id="mgStart">开始挑战</button>' +
+        '<button class="btn-ghost" id="mgStop">停止挑战</button>' +
+      '</div>' +
+      '<div class="morse-screen">' +
+        '<div class="morse-status">' + status + '</div>' +
+        '<div class="morse-answer-row">' + inputs + '</div>' +
+        '<div class="morse-hint">' + (GAME.running ? '正在播放摩斯音，请输入对应数字' : '请输入密码') + '</div>' +
+      '</div>' +
+      '<div class="numkeypad">' + keypad + '</div>' +
+    '</div>';
   }
 
-  function fpHtml(D) {
-    newPuzzle("fp");
-    var code = toMorse(S.fp.word);
-    return '<div class="morse-game">' +
-      '<div class="mg-info">🔍 指纹纹路中藏有一段摩斯密码（青绿点=·，横线=—），解码它。</div>' +
-      '<div class="fp-wrap">' + fingerprintSVG(code) + '<button class="btn-ghost" id="mgFpPlay">🔊 听指纹</button></div>' +
-      '<input id="mgFpInput" class="mg-input" placeholder="输入解码结果" autocomplete="off">' +
-      '<div class="mg-actions">' +
-        '<button class="btn-primary" id="mgFpCheck">提交</button>' +
-        '<button class="btn-ghost" id="mgFpSkip">换一题</button>' +
-      "</div>" +
-      '<div id="mgFpMsg" class="mg-msg"></div>' +
-      '<div class="mg-score">得分 <b>' + S.fp.score + '</b> · 连击 <b id="mgFpStreak">' + S.fp.streak + '</b></div>' +
-      "</div>";
+  function fingerprintSVG(seed) {
+    var s = '<svg viewBox="0 0 220 260" class="fp-svg">';
+    // 外轮廓
+    s += '<ellipse cx="110" cy="130" rx="85" ry="110" stroke="rgba(255,255,255,.25)" stroke-width="2" fill="none"/>';
+    // 纹路（按 seed 生成一些随机弧）
+    for (var i = 0; i < 28; i++) {
+      var ry = 30 + i * 5;
+      var rx = 40 + i * 4;
+      var cy = 130 + (i % 2 === 0 ? -1 : 1) * (i * 1.5);
+      var sw = 1 + (i % 3) * 0.5;
+      s += '<ellipse cx="110" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" stroke="rgba(255,255,255,.18)" stroke-width="' + sw + '" fill="none"/>';
+    }
+    // 分叉点
+    for (var k = 0; k < 5; k++) {
+      var ang = (k * 72 + seed * 17) * Math.PI / 180;
+      var r = 55 + (k % 3) * 15;
+      var x = 110 + Math.cos(ang) * r;
+      var y = 130 + Math.sin(ang) * r * 0.8;
+      s += '<rect x="' + (x - 9) + '" y="' + (y - 9) + '" width="18" height="18" rx="2" stroke="#19c3a6" stroke-width="1.5" fill="rgba(0,0,0,.35)"/>';
+      s += '<text x="' + x + '" y="' + (y + 4) + '" text-anchor="middle" fill="#19c3a6" font-size="11" font-weight="700">' + (k + 1) + '</text>';
+    }
+    s += '</svg>';
+    return s;
   }
-  function fpInit(D) {
-    document.getElementById("mgFpPlay").addEventListener("click", function () { playMorse(S.fp.word); });
-    document.getElementById("mgFpSkip").addEventListener("click", function () { newPuzzle("fp"); D.render("games"); });
-    document.getElementById("mgFpCheck").addEventListener("click", function () {
-      var v = (document.getElementById("mgFpInput").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-      var msg = document.getElementById("mgFpMsg");
-      if (v === S.fp.word) {
-        S.fp.streak++; S.fp.score += 15 + S.fp.streak * 2;
-        msg.innerHTML = '<span class="ok">✓ 指纹破译成功！+' + (15 + S.fp.streak * 2) + " 分</span>";
-        newPuzzle("fp"); D.render("games");
-      } else {
-        S.fp.streak = 0;
-        msg.innerHTML = '<span class="err">✗ 正确答案：' + S.fp.word + "</span>";
-        newPuzzle("fp"); D.render("games");
-      }
-    });
+  function miniFingerprintSVG(idx) {
+    return '<svg viewBox="0 0 60 80" class="fp-mini">' +
+      '<ellipse cx="30" cy="40" rx="24" ry="32" stroke="rgba(255,255,255,.2)" stroke-width="1" fill="none"/>' +
+      '<ellipse cx="30" cy="40" rx="16" ry="24" stroke="rgba(255,255,255,.15)" stroke-width="1" fill="none"/>' +
+      '<ellipse cx="30" cy="40" rx="8" ry="16" stroke="rgba(255,255,255,.12)" stroke-width="1" fill="none"/>' +
+      '</svg>';
   }
-
-  function updateScore(tab) {
-    var id = tab === "listen" ? "mgStreak" : (tab === "comp" ? "mgCompStreak" : "mgFpStreak");
-    var el = document.getElementById(id);
-    if (el) el.textContent = S[tab].streak;
-    var sEl = document.getElementById(tab === "listen" ? "mgScore" : (tab === "comp" ? "mgCompScore" : "mgFpScore"));
-    if (sEl) sEl.textContent = S[tab].score;
+  function fpPanel() {
+    var candidates = "";
+    for (var i = 0; i < 6; i++) {
+      var wrong = GAME.fpPicked.indexOf(i) > -1 && i !== GAME.fpTarget;
+      var right = GAME.fpPicked.indexOf(i) > -1 && i === GAME.fpTarget;
+      candidates += '<div class="fp-candidate" data-i="' + i + '">' + miniFingerprintSVG(i) +
+        '<div class="fp-cand-label">候选 ' + (i + 1) + '</div>' +
+        (wrong ? '<div class="fp-x">✗</div>' : '') +
+        (right ? '<div class="fp-check">✓</div>' : '') +
+      '</div>';
+    }
+    return '<div class="fp-game">' +
+      '<div class="fp-left">' +
+        '<div class="fp-avatar"></div>' +
+        '<div class="fp-role">未知角色</div>' +
+        '<div class="fp-meta">N.145672_x0000D_</div>' +
+        '<div class="fp-meta">>>_x000D_</div>' +
+        '<div class="fp-meta">生物识别信息___</div>' +
+      '</div>' +
+      '<div class="fp-center">' +
+        '<div class="fp-title">等待开始挑战…</div>' +
+        '<div class="fp-print">' + fingerprintSVG(GAME.fpTarget) + '</div>' +
+      '</div>' +
+      '<div class="fp-right">' +
+        '<div class="fp-right-title">>> 请选择正确的指纹___</div>' +
+        '<div class="fp-candidates">' + candidates + '</div>' +
+      '</div>' +
+    '</div>';
   }
 
   function gamesHtml(D) {
-    return '<div class="section-title">摩斯密码小游戏</div>' +
+    return '<div class="section-title">三角洲小游戏</div>' +
       '<div class="seg">' +
-        '<button class="seg-btn' + (TAB === "listen" ? " active" : "") + '" data-tab="listen">🎧 听摩斯</button>' +
-        '<button class="seg-btn' + (TAB === "comp" ? " active" : "") + '" data-tab="comp">💻 电脑摩斯</button>' +
-        '<button class="seg-btn' + (TAB === "fp" ? " active" : "") + '" data-tab="fp">🔍 指纹摩斯</button>' +
-      "</div>" +
+        '<button class="seg-btn' + (GAME.tab === "morse" ? " active" : "") + '" data-tab="morse">📟 数字摩斯密码</button>' +
+        '<button class="seg-btn' + (GAME.tab === "fingerprint" ? " active" : "") + '" data-tab="fingerprint">🖐 指纹选择</button>' +
+      '</div>' +
       '<div id="gamePanel"></div>';
   }
   function gamesInit(D) {
     document.querySelectorAll(".seg-btn[data-tab]").forEach(function (b) {
-      b.addEventListener("click", function () { TAB = b.getAttribute("data-tab"); D.render("games"); });
+      b.addEventListener("click", function () { GAME.tab = b.getAttribute("data-tab"); D.render("games"); });
     });
-    var p = document.getElementById("gamePanel");
-    if (TAB === "listen") { p.innerHTML = listenHtml(D); listenInit(D); }
-    else if (TAB === "comp") { p.innerHTML = compHtml(D); compInit(D); }
-    else { p.innerHTML = fpHtml(D); fpInit(D); }
+    var panel = document.getElementById("gamePanel");
+    if (GAME.tab === "morse") {
+      panel.innerHTML = morsePanel();
+      bindMorseConfig();
+      bindMorseGame();
+    } else {
+      panel.innerHTML = fpPanel();
+      bindFpGame();
+    }
+  }
+  function bindMorseConfig() {
+    document.querySelectorAll('input[name="mgLen"]').forEach(function (r) {
+      r.addEventListener("change", function () { CONFIG.len = +r.value; });
+    });
+    document.getElementById("mgLoop").addEventListener("change", function () { CONFIG.loop = this.checked; });
+    document.getElementById("mgTimed").addEventListener("change", function () { CONFIG.timed = this.checked; });
+    document.getElementById("bgmVol").addEventListener("input", function () { CONFIG.bgmVol = +this.value; updateBgmVolume(); renderMorse(); });
+    document.getElementById("morseVol").addEventListener("input", function () { CONFIG.morseVol = +this.value; renderMorse(); });
+    document.getElementById("mgTime").addEventListener("input", function () { CONFIG.time = +this.value; renderMorse(); });
+  }
+  function bindMorseGame() {
+    document.getElementById("mgStart").addEventListener("click", startMorseGame);
+    document.getElementById("mgStop").addEventListener("click", stopMorseGame);
+    document.querySelectorAll(".numkey").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var d = b.getAttribute("data-d");
+        if (d) inputDigit(d);
+      });
+    });
+    document.getElementById("mgBack").addEventListener("click", backspace);
+  }
+  function bindFpGame() {
+    document.querySelectorAll(".fp-candidate").forEach(function (el) {
+      el.addEventListener("click", function () { pickFp(+el.getAttribute("data-i")); });
+    });
+  }
+  function renderMorse() {
+    var panel = document.getElementById("gamePanel"); if (!panel) return;
+    panel.innerHTML = morsePanel();
+    bindMorseConfig(); bindMorseGame();
+  }
+  function renderFp() {
+    var panel = document.getElementById("gamePanel"); if (!panel) return;
+    panel.innerHTML = fpPanel();
+    bindFpGame();
   }
 
   function reg(D) {
     D.VIEWS.games = { html: function () { return gamesHtml(D); }, init: function () { gamesInit(D); } };
-    D.MENU.push({ group: "小游戏", items: [{ route: "games", label: "摩斯密码小游戏", ico: "📡" }] });
+    D.MENU.push({ group: "小游戏", items: [{ route: "games", label: "三角洲小游戏", ico: "🎮" }] });
   }
   if (window.DF) reg(window.DF);
   else (window.__df_plugins = window.__df_plugins || []).push(reg);
