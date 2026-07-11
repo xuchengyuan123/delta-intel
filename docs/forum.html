@@ -127,7 +127,7 @@
       if (!issues.length) { p.innerHTML = '<div class="status">还没有帖子，发第一帖吧！</div>'; return; }
       var html = "";
       issues.forEach(function (it) {
-        if (it.pull_request) return; // 跳过 PR
+        if (it.pull_request) return;
         var num = it.number;
         html += '<div class="post" data-num="' + num + '">' +
           '<div class="pmeta"><span class="pauthor">' + esc(it.user && it.user.login) + "</span><span>" + fmt(it.created_at) + "</span>" +
@@ -139,7 +139,6 @@
           "</div>";
       });
       p.innerHTML = html;
-      // 绑定回复 + 加载评论
       issues.forEach(function (it) {
         if (it.pull_request) return;
         loadComments(it.number, document.getElementById("replies-" + it.number));
@@ -212,3 +211,4 @@
   </script>
 </body>
 </html>
+
