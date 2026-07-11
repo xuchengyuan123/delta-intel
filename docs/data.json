@@ -350,7 +350,13 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-11 16:59",
+      "role": "总管理员",
+      "action": "更新模拟器数据（护甲6/武器8）"
+    }
+  ],
   "tasks": {
     "search": "",
     "groups": [
@@ -408,7 +414,7 @@
   },
   "weapons": [
     {
-      "name": "AKM（示例）",
+      "name": "AKM",
       "dmg": 40,
       "rof": 600,
       "pen": 40,
@@ -416,7 +422,7 @@
       "ammo": "7.62x39"
     },
     {
-      "name": "M4A1（示例）",
+      "name": "M4A1",
       "dmg": 31,
       "rof": 780,
       "pen": 35,
@@ -424,7 +430,7 @@
       "ammo": "5.56x45"
     },
     {
-      "name": "ASVAL（示例）",
+      "name": "ASVAL",
       "dmg": 34,
       "rof": 900,
       "pen": 50,
@@ -432,7 +438,7 @@
       "ammo": "9x39"
     },
     {
-      "name": "M250（示例）",
+      "name": "M250",
       "dmg": 45,
       "rof": 650,
       "pen": 55,
@@ -440,7 +446,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "K416（示例）",
+      "name": "K416",
       "dmg": 33,
       "rof": 820,
       "pen": 38,
@@ -448,7 +454,7 @@
       "ammo": "5.56x45"
     },
     {
-      "name": "SR-25（示例）",
+      "name": "SR-25",
       "dmg": 80,
       "rof": 60,
       "pen": 58,
@@ -456,7 +462,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "M700（示例）",
+      "name": "M700",
       "dmg": 95,
       "rof": 45,
       "pen": 60,
@@ -464,7 +470,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "Vector（示例）",
+      "name": "Vector",
       "dmg": 27,
       "rof": 1100,
       "pen": 28,
@@ -478,48 +484,48 @@
       "durability": 50,
       "protection": 22,
       "tier": "Ⅰ级",
-      "repairable": true,
-      "material": "芳纶"
+      "material": "芳纶",
+      "repairable": true
     },
     {
       "name": "Ⅱ级 标准防弹衣（示例）",
       "durability": 70,
       "protection": 32,
       "tier": "Ⅱ级",
-      "repairable": true,
-      "material": "陶瓷"
+      "material": "陶瓷",
+      "repairable": true
     },
     {
       "name": "Ⅲ级 重型防弹衣（示例）",
       "durability": 95,
       "protection": 45,
       "tier": "Ⅲ级",
-      "repairable": true,
-      "material": "复合陶瓷"
+      "material": "复合陶瓷",
+      "repairable": true
     },
     {
       "name": "Ⅳ级 精英防弹背心（示例）",
       "durability": 120,
       "protection": 58,
       "tier": "Ⅳ级",
-      "repairable": true,
-      "material": "聚乙烯+陶瓷"
+      "material": "聚乙烯+陶瓷",
+      "repairable": true
     },
     {
       "name": "Ⅵ级 顶级防弹衣（示例）",
       "durability": 150,
       "protection": 70,
       "tier": "Ⅵ级",
-      "repairable": true,
-      "material": "复合插板"
+      "material": "复合插板",
+      "repairable": true
     },
     {
       "name": "无护甲（裸血）",
       "durability": 0,
       "protection": 0,
       "tier": "—",
-      "repairable": false,
-      "material": "—"
+      "material": "—",
+      "repairable": true
     }
   ],
   "operators": [
