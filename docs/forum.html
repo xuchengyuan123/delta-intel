@@ -12,7 +12,40 @@
     .forum-head .logo-accent { color: var(--accent); }
     .forum-head a.back { color: var(--muted); text-decoration: none; font-size: 13px; }
     .forum-head a.back:hover { color: var(--accent); }
-    .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 16px; }
+    .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
+
+    .auth-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+    .auth-bar input { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+    .auth-bar .who { font-size: 13px; color: var(--muted); }
+    .btn { background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; cursor: pointer; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+
+    .composer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+    .composer input.title, .composer textarea { width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
+    .composer textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+    .composer .row { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .post { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .post .pauthor { color: var(--accent); font-weight: 600; }
+    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+    .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+    .post .pactions { margin-top: 8px; }
+    .replies { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px; }
+    .reply { font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .reply .rauthor { color: var(--accent); font-weight: 600; }
+    .reply .rbody { white-space: pre-wrap; line-height: 1.5; margin-top: 2px; }
+    .reply-box { margin-top: 8px; }
+    .reply-box textarea { width: 100%; min-height: 56px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 8px; font-size: 13px; font-family: inherit; box-sizing: border-box; }
+    .status { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    .err { color: #ff6b6b; }
   </style>
 </head>
 <body>
@@ -21,18 +54,161 @@
       <span class="logo">三角洲<span class="logo-accent">情报台</span> · 战友论坛</span>
       <a class="back" href="index.html">← 返回首页</a>
     </div>
-    <p class="forum-tip">全校战友共用同一个论坛，帖子存在本仓库的 GitHub Issues 里（无需服务器）。发帖 / 回复请用 GitHub 账号登录。</p>
+    <p class="forum-tip">帖子存进本仓库的 GitHub Issues（无需服务器）。<b>看帖不需要登录</b>；发帖/回复需用你自己的 GitHub Token（一次设置，只存在你浏览器里）。</p>
 
-    <!-- ===== utterances 评论区（基于 GitHub Issues，无需 Discussions、无需填 ID） ===== -->
-    <script src="https://utteranc.es/client.js"
-            repo="xuchengyuan123/delta-intel"
-            issue-term="pathname"
-            label="💬 论坛"
-            theme="github-dark"
-            crossorigin="anonymous"
-            async>
-    </script>
-    <!-- ===== /utterances ===== -->
+    <div class="auth-bar">
+      <span class="who" id="who">未设置 Token</span>
+      <input id="tokenInput" type="password" placeholder="粘贴你的 GitHub Token（发帖用）" />
+      <button class="btn sm" id="saveToken">保存</button>
+      <button class="btn ghost sm" id="clearToken">清除</button>
+    </div>
+
+    <div class="composer" id="composer">
+      <input class="title" id="postTitle" placeholder="帖子标题" />
+      <textarea id="postBody" placeholder="说点什么…（支持换行）"></textarea>
+      <div class="row">
+        <button class="btn" id="postBtn">发帖</button>
+      </div>
+    </div>
+
+    <div id="posts"><div class="status">加载中…</div></div>
   </div>
+
+  <script>
+    var REPO = "xuchengyuan123/delta-intel";
+    var LABEL = "💬 论坛";
+    var API = "https://api.github.com";
+    var KEY = "di_forum_token";
+
+    function getToken() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
+    function setToken(t) { try { localStorage.setItem(KEY, t); } catch (e) {} }
+    function clearToken() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function fmt(iso) {
+      try { var d = new Date(iso); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
+      catch (e) { return ""; }
+    }
+    function headers(needAuth) {
+      var h = { "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
+      if (needAuth) { var t = getToken(); if (t) h["Authorization"] = "Bearer " + t; }
+      return h;
+    }
+
+    function updateWho() {
+      var t = getToken();
+      document.getElementById("who").textContent = t ? "已设置 Token ✓" : "未设置 Token";
+      document.getElementById("tokenInput").value = "";
+    }
+
+    function showError(msg) {
+      var p = document.getElementById("posts");
+      p.innerHTML = '<div class="status err">' + esc(msg) + "</div>";
+    }
+
+    function loadComments(issueNumber, container) {
+      fetch(API + "/repos/" + REPO + "/issues/" + issueNumber + "/comments", { headers: headers(false) })
+        .then(function (r) { return r.json(); })
+        .then(function (list) {
+          if (!Array.isArray(list)) return;
+          var html = "";
+          list.forEach(function (c) {
+            html += '<div class="reply"><span class="rauthor">' + esc(c.user && c.user.login) + "</span> · " + fmt(c.created_at) +
+                    '<div class="rbody">' + esc(c.body) + "</div></div>";
+          });
+          if (!list.length) html = '<div class="reply" style="color:var(--muted)">还没有回复，来抢沙发～</div>';
+          container.innerHTML = html;
+        })
+        .catch(function () {});
+    }
+
+    function renderPosts(issues) {
+      var p = document.getElementById("posts");
+      if (!issues.length) { p.innerHTML = '<div class="status">还没有帖子，发第一帖吧！</div>'; return; }
+      var html = "";
+      issues.forEach(function (it) {
+        if (it.pull_request) return; // 跳过 PR
+        var num = it.number;
+        html += '<div class="post" data-num="' + num + '">' +
+          '<div class="pmeta"><span class="pauthor">' + esc(it.user && it.user.login) + "</span><span>" + fmt(it.created_at) + "</span>" +
+          "<span>💬 " + (it.comments || 0) + "</span></div>" +
+          '<div class="ptitle">' + esc(it.title) + "</div>" +
+          '<div class="pbody">' + esc(it.body || "") + "</div>" +
+          '<div class="pactions"><button class="btn ghost sm act-reply">回复</button></div>' +
+          '<div class="replies" id="replies-' + num + '"><div class="status">加载回复…</div></div>' +
+          "</div>";
+      });
+      p.innerHTML = html;
+      // 绑定回复 + 加载评论
+      issues.forEach(function (it) {
+        if (it.pull_request) return;
+        loadComments(it.number, document.getElementById("replies-" + it.number));
+        var postEl = p.querySelector('.post[data-num="' + it.number + '"]');
+        if (!postEl) return;
+        postEl.querySelector(".act-reply").addEventListener("click", function () {
+          var box = postEl.querySelector(".reply-box");
+          if (box) { box.remove(); return; }
+          if (!getToken()) { alert("发回复需要先设置 GitHub Token（看顶部）。"); return; }
+          var wrap = document.createElement("div");
+          wrap.className = "reply-box";
+          wrap.innerHTML = '<textarea placeholder="回复内容…"></textarea><div style="margin-top:6px;text-align:right"><button class="btn sm do-reply">发送回复</button></div>';
+          postEl.appendChild(wrap);
+          wrap.querySelector(".do-reply").addEventListener("click", function () {
+            var txt = wrap.querySelector("textarea").value.trim();
+            if (!txt) return;
+            fetch(API + "/repos/" + REPO + "/issues/" + it.number + "/comments", {
+              method: "POST",
+              headers: headers(true),
+              body: JSON.stringify({ body: txt })
+            }).then(function (r) {
+              if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
+              loadComments(it.number, document.getElementById("replies-" + it.number));
+              wrap.remove();
+            }).catch(function (e) { alert("回复失败：" + (e.message || e)); });
+          });
+        });
+      });
+    }
+
+    function loadPosts() {
+      var p = document.getElementById("posts");
+      p.innerHTML = '<div class="status">加载中…</div>';
+      fetch(API + "/repos/" + REPO + "/issues?labels=" + encodeURIComponent(LABEL) + "&state=all&sort=created&direction=desc&per_page=50", { headers: headers(false) })
+        .then(function (r) {
+          if (r.status === 403) throw new Error("读取频率超限（GitHub 公共接口每分钟有限额），稍后再刷新。");
+          return r.json();
+        })
+        .then(function (list) { renderPosts(Array.isArray(list) ? list : []); })
+        .catch(function (e) { showError(e.message || "加载失败"); });
+    }
+
+    document.getElementById("saveToken").addEventListener("click", function () {
+      var v = document.getElementById("tokenInput").value.trim();
+      if (!v) { alert("请输入 Token"); return; }
+      setToken(v); updateWho(); alert("Token 已保存（仅存于本浏览器）。");
+    });
+    document.getElementById("clearToken").addEventListener("click", function () {
+      clearToken(); updateWho();
+    });
+    document.getElementById("postBtn").addEventListener("click", function () {
+      var t = document.getElementById("postTitle").value.trim();
+      var b = document.getElementById("postBody").value.trim();
+      if (!getToken()) { alert("发帖需要先设置 GitHub Token（看顶部）。"); return; }
+      if (!t || !b) { alert("标题和内容都要填。"); return; }
+      fetch(API + "/repos/" + REPO + "/issues", {
+        method: "POST",
+        headers: headers(true),
+        body: JSON.stringify({ title: t, body: b, labels: [LABEL] })
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "发帖失败"); });
+        document.getElementById("postTitle").value = "";
+        document.getElementById("postBody").value = "";
+        loadPosts();
+      }).catch(function (e) { alert("发帖失败：" + (e.message || e)); });
+    });
+
+    updateWho();
+    loadPosts();
+  </script>
 </body>
 </html>
