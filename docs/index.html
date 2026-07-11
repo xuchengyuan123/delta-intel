@@ -17,10 +17,8 @@
         <span class="brand-en">DeltaIntel</span>
       </div>
       <div class="topbar-right">
-        <span id="userBadge" class="user-badge" style="display:none"></span>
         <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
-        <button class="icon-btn" id="userBtn" title="登录 / 注册">👤</button>
-        <button class="icon-btn" id="adminBtn" title="管理后台">🛡</button>
+        <a class="icon-btn" href="admin.html" title="管理后台">🛡</a>
       </div>
     </header>
 
@@ -40,62 +38,6 @@
     <footer class="footer">
       <p>三角洲情报台 · 数据每日自动更新 · <span id="updatedAt">加载中…</span></p>
     </footer>
-  </div>
-
-  <!-- 用户登录 / 注册 弹窗 -->
-  <div class="modal" id="userModal" hidden>
-    <div class="modal-mask" data-close="userModal"></div>
-    <div class="modal-box">
-      <div class="modal-head">
-        <span id="userModalTitle">登录</span>
-        <button class="modal-x" data-close="userModal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="tabs">
-          <button class="tab active" data-tab="login">登录</button>
-          <button class="tab" data-tab="reg">注册</button>
-        </div>
-        <form id="userForm" autocomplete="on">
-          <label>用户名<input name="username" autocomplete="username" required></label>
-          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
-          <div class="form-msg" id="userMsg"></div>
-          <button class="btn-primary" type="submit" id="userSubmit">登录</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- 管理员后台 弹窗 -->
-  <div class="modal" id="adminModal" hidden>
-    <div class="modal-mask" data-close="adminModal"></div>
-    <div class="modal-box wide">
-      <div class="modal-head">
-        <span>管理后台</span>
-        <button class="modal-x" data-close="adminModal">✕</button>
-      </div>
-      <div class="modal-body" id="adminBody">
-        <form id="adminLoginForm">
-          <label>管理员账号<input name="username" autocomplete="username" required></label>
-          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
-          <div class="form-msg" id="adminMsg"></div>
-          <button class="btn-primary" type="submit">进入后台</button>
-        </form>
-        <div id="adminPanel" style="display:none">
-          <div class="admin-stat" id="adminStat"></div>
-          <div class="admin-actions">
-            <button class="btn-primary" id="updateBtn">🔄 触发每日更新</button>
-            <button class="btn-ghost" id="logoutAdminBtn">退出登录</button>
-          </div>
-          <div class="form-msg" id="adminPanelMsg"></div>
-          <div class="section-title">手动录入 / 修正数据（JSON）</div>
-          <textarea id="adminData" class="code-area" spellcheck="false" placeholder='{"maps":[...],"items":[...],"bullets":[...],"eventItems":{...},"materials":[...],"craft":{"nodes":[...],"links":[...]}}'></textarea>
-          <div class="admin-actions">
-            <button class="btn-primary" id="saveDataBtn">保存数据</button>
-            <button class="btn-ghost" id="loadDataBtn">载入当前数据</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
