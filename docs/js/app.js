@@ -368,13 +368,12 @@
     var tasks = DATA.tasks || {};
     var groups = tasks.groups || [];
     if (!groups.length) return "";
-    var firstOpen = groups.find(function (g) { return g.open; }) || groups[0];
-    var firstItem = (firstOpen.items || [])[0];
-    var title = firstItem ? firstItem.title : (firstOpen.name || "赛季任务");
+    var total = groups.reduce(function (n, g) { return n + (g.items || []).length; }, 0);
+    var tags = groups.map(function (g) { return esc(g.name); }).join(" · ");
     return '<a class="kk-tasks" href="?viewpage=tasks">' +
       '<span class="kk-tasks-tag">赛季任务</span>' +
-      '<span class="kk-tasks-title">' + esc(title) + '</span>' +
-      '<span class="kk-tasks-more">查看全部 →</span></a>';
+      '<span class="kk-tasks-title">' + tags + '</span>' +
+      '<span class="kk-tasks-more">共 ' + total + ' 项 · 分栏查看 →</span></a>';
   }
 
   /* ---------- KK日报 式紧凑仪表盘板块 ---------- */
@@ -404,7 +403,7 @@
         '<span class="kk-li-v">' + fmt(m.cur) + '</span>' +
         '<span class="kk-li-t">买' + esc(m.buy || "-") + '/卖' + esc(m.sell || "-") + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">📈 高价格浮动材料</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+    return '<div class="kk-card"><div class="kk-card-h">📈 高价格浮动材料 <span class="kk-snap">快照</span></div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
   }
   function kkBulletsBlock() {
     var list = (DATA.bullets || []).slice(0, 10);
@@ -413,15 +412,24 @@
         '<span class="kk-li-n">' + esc(b.name) + '</span>' +
         '<span class="kk-li-v profit-up">' + fmt(b.profit) + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🔫 热门子弹利润（前十）</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+    return '<div class="kk-card"><div class="kk-card-h">🔫 热门子弹利润（前十）<span class="kk-snap">快照</span></div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+  }
+  function kkLivePriceBlock() {
+    var c = (DATA.livePrice || {});
+    if (c.enabled === false) return "";
+    return '<a class="kk-card kk-live" href="?viewpage=prices">' +
+      '<div class="kk-card-h">💹 实时物价 <span class="kk-api">实时</span></div>' +
+      '<div class="kk-live-body">游戏内交易行真实成交价，直接调用免费公开接口，可搜索 / 按分类筛选。</div>' +
+      '<div class="kk-live-go">查看实时物价 →</div></a>';
   }
   function kkEventsBlock() {
     var ev = DATA.eventItems || {};
+    var apiTag = ev.api ? ' <span class="kk-api">API实时</span>' : '';
     var rows = (ev.items || []).map(function (it) {
       return '<div class="kk-li"><span class="kk-li-n">' + esc(it.name) + '</span>' +
         '<span class="kk-li-v">' + fmt(it.cur) + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🎁 活动物品需求</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
+    return '<div class="kk-card"><div class="kk-card-h">🎁 活动物品需求' + apiTag + '<a class="kk-more" href="?viewpage=eventitems">更多</a></div>' + (rows || '<div class="kk-empty">暂无（后台可维护 / 接 API）</div>') + '</div>';
   }
   function kkDoorBlock() {
     var rows = (DATA.doorCodes || []).slice(0, 6).map(function (d) {
@@ -440,7 +448,7 @@
           '<div class="kk-hero-u">每日更新 · ' + (DATA.updatedAt ? new Date(DATA.updatedAt).toLocaleString("zh-CN") : "加载中") + '</div></div>' +
           homeTaskStrip() +
           '<div class="kk-board">' +
-            kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() +
+            kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() + kkLivePriceBlock() +
           '</div>';
       },
     },
@@ -520,12 +528,30 @@
         });
       },
     },
-    events: {
+    eventitems: {
       html: function () {
         var ev = DATA.eventItems || {};
-        return '<div class="section-title">' + esc(ev.title || "活动物品需求") + "</div>" +
+        var note = ev.note ? '<p class="guide-intro">' + esc(ev.note) + "</p>" : "";
+        var apiTag = ev.api ? '<span class="count-badge" style="background:#19c3a6">API 实时</span>' : "";
+        return '<div class="section-title">' + esc(ev.title || "活动物品需求") + " " + apiTag + "</div>" +
           (ev.period ? '<p class="period">活动时间：' + esc(ev.period) + "</p>" : "") +
-          topEventsTable();
+          note +
+          (ev.items && ev.items.length ? topEventsTable() : '<div class="card"><p style="color:var(--muted)">暂无数据。管理员可在后台「活动物品需求」面板维护，或填写实时 API 接口地址自动拉取。</p></div>');
+      },
+      init: function () {
+        var ev = DATA.eventItems || {};
+        if (!ev.api) return;
+        fetch(ev.api + (ev.api.indexOf("?") > -1 ? "&" : "?") + "_=" + Date.now()).then(function (r) { return r.json(); })
+          .then(function (data) {
+            var items = Array.isArray(data) ? data : (data.items || []);
+            if (items && items.length) {
+              ev.items = items.map(function (it) {
+                return { name: it.name || it.物品 || "", cur: +it.cur || +it.当前 || 0, ideal: +it.ideal || +it.理想 || 0 };
+              });
+              var body = document.querySelector("#LAY_preview .card");
+              if (body) { body.outerHTML = topEventsTable(); }
+            }
+          }).catch(function () {});
       },
     },
     materials: {
@@ -536,78 +562,53 @@
     tasks: {
       html: function () {
         var tasks = DATA.tasks || {};
-        var groups = tasks.groups || [];
+        var groups = (tasks.groups || []).filter(function (g) {
+          return g.id === "g_main" || g.id === "g_collector" || g.id === "g_fate";
+        });
+        var order = { g_main: 0, g_collector: 1, g_fate: 2 };
+        groups.sort(function (a, b) { return (order[a.id] || 9) - (order[b.id] || 9); });
         if (!groups.length) {
           return '<div class="section-title">赛季任务 / 综合挑战手册</div>' +
             '<div class="card"><p style="color:var(--muted)">暂无任务数据。管理员可在后台 ' +
             '<a href="admin.html">admin.html</a> 维护赛季任务、挑战手册。</p></div>';
         }
-        var searchHtml = '<div class="task-search">' +
-          '<input type="text" id="taskSearch" placeholder="搜索任务…" value="' + esc(tasks.search || "") + '" />' +
-        "</div>";
-        var listHtml = groups.map(function (g) {
+        var q = (tasks.search || "").toLowerCase();
+        var cols = groups.map(function (g) {
           var items = (g.items || []).filter(function (it) {
-            var q = (tasks.search || "").toLowerCase();
             if (!q) return true;
-            return (it.title + " " + it.content).toLowerCase().indexOf(q) > -1;
+            return (it.title + " " + (it.content || "")).toLowerCase().indexOf(q) > -1;
           });
-          var itemsHtml = items.map(function (it) {
-            return '<div class="task-item' + (it.done ? " done" : "") + '" data-id="' + esc(it.id) + '">' +
-              '<div class="task-row">' +
-                '<span class="task-cb">' + (it.done ? "✅" : "⭕") + '</span>' +
-                '<span class="task-title">' + esc(it.title) + "</span>" +
-                '<span class="task-toggle">' + (it.open ? "▾" : "▸") + "</span>" +
-              "</div>" +
-              (it.open ? '<div class="task-body">' + esc(it.content) + "</div>" : "") +
-            "</div>";
-          }).join("");
-          return '<div class="task-group' + (g.open ? " open" : "") + '" data-id="' + esc(g.id) + '">' +
-            '<div class="task-group-head">' +
-              '<span class="task-group-name">' + esc(g.name) + "</span>" +
-              '<span class="task-group-count">' + items.length + "</span>" +
-              '<span class="task-group-arrow">' + (g.open ? "▾" : "▸") + "</span>" +
-            "</div>" +
-            '<div class="task-group-body">' + itemsHtml + "</div>" +
-          "</div>";
+          var body = items.map(function (it) {
+            return '<div class="tci' + (it.done ? " done" : "") + '" data-id="' + esc(it.id) + '" role="button" tabindex="0">' +
+              '<span class="tci-cb">' + (it.done ? "✅" : "⭕") + '</span>' +
+              '<span class="tci-title">' + esc(it.title) + '</span>' +
+              (it.content ? '<span class="tci-tag">' + esc(it.content) + '</span>' : '') +
+            '</div>';
+          }).join("") || '<div class="kk-empty">无匹配任务</div>';
+          return '<div class="task-col"><div class="task-col-h ' + (g.cls || "") + '">' + esc(g.name) +
+            '<span class="task-col-n">' + items.length + '</span></div><div class="task-col-body">' + body + '</div></div>';
         }).join("");
-        return '<div class="section-title">赛季任务 / 综合挑战手册</div>' + searchHtml +
-          '<div class="task-list">' + listHtml + "</div>";
+        return '<div class="section-title">赛季任务 / 综合挑战手册 <span class="count-badge">' + esc(tasks.season || "S10") + '</span></div>' +
+          (tasks.note ? '<p class="guide-intro">' + esc(tasks.note) + '</p>' : '') +
+          '<div class="task-search"><input type="text" id="taskSearch" placeholder="搜索任务…" value="' + esc(tasks.search || "") + '" /></div>' +
+          '<div class="task-cols">' + cols + '</div>';
       },
       init: function () {
         var searchInput = document.getElementById("taskSearch");
-        if (!searchInput) return;
-        searchInput.addEventListener("input", function () {
+        if (searchInput) searchInput.addEventListener("input", function () {
           DATA.tasks.search = searchInput.value;
           render("tasks");
         });
-        document.querySelectorAll(".task-group-head").forEach(function (h) {
-          h.addEventListener("click", function () {
-            var gid = h.parentElement.getAttribute("data-id");
-            var g = DATA.tasks.groups.find(function (x) { return x.id === gid; });
-            if (g) { g.open = !g.open; render("tasks"); }
-          });
-        });
-        document.querySelectorAll(".task-row").forEach(function (r) {
-          r.addEventListener("click", function (e) {
-            if (e.target.classList.contains("task-cb")) return;
-            var id = r.parentElement.getAttribute("data-id");
-            var groups = DATA.tasks.groups || [];
-            groups.forEach(function (g) {
-              (g.items || []).forEach(function (it) { if (it.id === id) it.open = !it.open; });
+        document.querySelectorAll(".tci").forEach(function (el) {
+          function toggle() {
+            var id = el.getAttribute("data-id"), found = false;
+            (DATA.tasks.groups || []).forEach(function (g) {
+              (g.items || []).forEach(function (it) { if (it.id === id) { it.done = !it.done; found = true; } });
             });
-            render("tasks");
-          });
-        });
-        document.querySelectorAll(".task-cb").forEach(function (cb) {
-          cb.addEventListener("click", function (e) {
-            e.stopPropagation();
-            var id = cb.parentElement.parentElement.getAttribute("data-id");
-            var groups = DATA.tasks.groups || [];
-            groups.forEach(function (g) {
-              (g.items || []).forEach(function (it) { if (it.id === id) it.done = !it.done; });
-            });
-            render("tasks");
-          });
+            if (found) render("tasks");
+          }
+          el.addEventListener("click", toggle);
+          el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
         });
       },
     },
@@ -615,6 +616,9 @@
       html: function () { return changelogHtml(); },
     },
   };
+
+  /* 活动物品需求（研发集市）菜单入口，避免与攻略插件的「活动日历」(events) 路由冲突 */
+  MENU.push({ group: "资料库", items: [{ route: "eventitems", label: "活动物品需求", ico: "🎁" }] });
 
   /* ---------- 主题切换（支持 自动跟随系统 / 浅色 / 深色） ---------- */
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;

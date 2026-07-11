@@ -18,6 +18,9 @@
     .btn:hover{filter:brightness(1.08)}
     .qr{width:200px;height:200px;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center;margin:10px 0}
     .tip{font-size:13px;color:var(--muted);background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.25);border-radius:10px;padding:10px 12px;margin-top:12px}
+    .pay-photo{display:inline-block;margin:8px 10px 8px 0;vertical-align:top;text-align:center}
+    .pay-photo img{width:200px;height:200px;object-fit:cover;border:2px dashed var(--border);border-radius:12px;display:block}
+    .pay-label{font-size:12px;color:var(--muted);margin-top:6px}
     footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
   </style>
 </head>
@@ -37,8 +40,7 @@
     <div class="card">
       <h2>微信 / 支付宝收款码</h2>
       <p>你也可以扫码直接打赏：</p>
-      <!-- 把你的收款码图片命名为 sponsor-qr.png 放到本目录，或换成你的图片地址 -->
-      <img class="qr" src="sponsor-qr.png" alt="收款码" onerror="this.outerHTML='<div class=\'qr\'>把收款码图片命名为 sponsor-qr.png 放到本目录即可显示</div>'">
+      <div id="payPhotos"></div>
       <p class="tip">⚠️ 收款码通常需实名认证，未成年人可能受限或提现不便。如果无法使用，请直接用上面的「爱发电」链接，不影响支持。</p>
     </div>
 
@@ -46,10 +48,21 @@
   </div>
 
   <script>
-    // 读取站点配置，自动填充爱发电链接（管理后台可改）
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    // 读取站点配置，自动填充爱发电链接与收款照片（管理后台可改）
     fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
       var url = d && d.site && d.site.afdianUrl;
       if (url) { document.getElementById("afdianLink").href = url; }
+      var photos = (d && d.sponsor && d.sponsor.photos) || [];
+      var box = document.getElementById("payPhotos");
+      if (!box) return;
+      if (photos.length) {
+        box.innerHTML = photos.map(function (p) {
+          return '<div class="pay-photo"><img src="' + esc(p.src || "") + '" alt="' + esc(p.label || "收款照片") + '"><div class="pay-label">' + esc(p.label || "") + '</div></div>';
+        }).join("");
+      } else {
+        box.innerHTML = '<div class="qr">管理员可在后台「收款照片」面板添加收款码图片</div>';
+      }
     }).catch(function () {});
   </script>
 </body>

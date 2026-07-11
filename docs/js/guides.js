@@ -3,7 +3,7 @@
  * 注册：
  *  VIEWS.guides(新手攻略·模块化) / VIEWS.quiz(电竞测试) / VIEWS.trivia(小知识)
  *  VIEWS.gunbuilds(改枪方案) / VIEWS.doorcodes(密码门) / VIEWS.events(活动日历)
- *  VIEWS.streamer(主播设置) / VIEWS.optasks(干员任务) / VIEWS.melee(近战武器) / VIEWS.redeem(兑换码)
+ *  VIEWS.streamer(主播设置) / VIEWS.optasks(干员任务) / VIEWS.melee(近战武器)
  *  VIEWS.treasure(宝藏开箱) / VIEWS.loot(随机舔包) / VIEWS.scatter(散落物资点)
  * 向 DF.MENU 注入「攻略」「资料库」「工具」分组。
  * ========================================================= */
@@ -159,7 +159,9 @@
       var list = (o.gunBuilds || []).map(function (b) {
         var tags = (b.tags || []).map(function (t) { return '<span class="pill">' + esc(t) + "</span>"; }).join("");
         var att = (b.attachments || []).map(function (a) { return '<span class="att-chip">' + esc(a) + "</span>"; }).join("");
-        return '<div class="gb-card"><div class="gb-head"><b>' + esc(b.name) + '</b><span class="gb-w">' + esc(b.weapon || "") + '</span></div>' +
+        var img = b.image ? '<div class="gb-img"><img src="' + esc(b.image) + '" alt="' + esc(b.name) + '"></div>' : "";
+        return '<div class="gb-card">' + img +
+          '<div class="gb-head"><b>' + esc(b.name) + '</b><span class="gb-w">' + esc(b.weapon || "") + '</span></div>' +
           '<div class="gb-tags">' + tags + "</div>" +
           (b.desc ? '<div class="gb-desc">' + esc(b.desc) + "</div>" : "") +
           '<div class="gb-att">' + att + "</div></div>";
@@ -211,27 +213,6 @@
       }).join("");
       return '<div class="section-title">🔪 近战武器基础数据</div><p class="guide-intro">近战武器伤害与出手速度参考。</p>' +
         '<div class="card"><table class="tbl"><thead><tr><th>名称</th><th>伤害</th><th>出手</th><th>说明</th></tr></thead><tbody>' + (rows || "<tr><td colspan=4>暂无</td></tr>") + "</tbody></table></div>";
-    }
-
-    /* ---------------- 资料库：兑换码 ---------------- */
-    function redeemHtml(o) {
-      var list = (o.redeem || []).map(function (r) {
-        return '<div class="rd-card"><div class="rd-code" data-code="' + esc(r.code) + '">' + esc(r.code) + '</div>' +
-          '<div class="rd-reward">' + esc(r.reward) + "</div>" +
-          (r.note ? '<div class="rd-note">' + esc(r.note) + "</div>" : "") +
-          '<button class="btn ghost sm rd-copy" data-code="' + esc(r.code) + '">复制</button></div>';
-      }).join("");
-      return '<div class="section-title">🎟 兑换码</div><p class="guide-intro">游戏内【活动→其他→礼包兑换】输入。大小写敏感，部分有时效。</p>' +
-        '<div class="rd-grid">' + (list || '<div class="card"><p style="color:var(--muted)">暂无兑换码。</p></div>') + "</div>";
-    }
-    function redeemInit() {
-      document.querySelectorAll(".rd-copy").forEach(function (b) {
-        b.onclick = function () {
-          var code = b.getAttribute("data-code");
-          try { navigator.clipboard.writeText(code); } catch (e) {}
-          var old = b.textContent; b.textContent = "✅"; setTimeout(function () { b.textContent = old; }, 1200);
-        };
-      });
     }
 
     /* ---------------- 宝藏开箱模拟 ---------------- */
@@ -300,7 +281,6 @@
     D.VIEWS.streamer = { html: function () { return streamerHtml(D.getData()); } };
     D.VIEWS.optasks = { html: function () { return opTasksHtml(D.getData()); } };
     D.VIEWS.melee = { html: function () { return meleeHtml(D.getData()); } };
-    D.VIEWS.redeem = { html: function () { return redeemHtml(D.getData()); }, init: function () { redeemInit(); } };
     D.VIEWS.treasure = { html: function () { return treasureHtml(D.getData()); }, init: function () { treasureInit(D); } };
     D.VIEWS.loot = { html: function () { return lootHtml(); }, init: function () { lootInit(D); } };
     D.VIEWS.scatter = { html: function () { return scatterHtml(D.getData()); } };
@@ -317,8 +297,7 @@
         { route: "events", label: "活动日历", ico: "📅" },
         { route: "streamer", label: "主播设置", ico: "🎮" },
         { route: "optasks", label: "干员任务", ico: "🪖" },
-        { route: "melee", label: "近战武器", ico: "🔪" },
-        { route: "redeem", label: "兑换码", ico: "🎟" }
+        { route: "melee", label: "近战武器", ico: "🔪" }
       ] },
       { group: "工具", items: [
         { route: "treasure", label: "宝藏开箱", ico: "🎁" },
