@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>管理后台 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .forum-wrap { max-width: 920px; margin: 0 auto; padding: 18px; }
+    .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .forum-head .logo { font-size: 18px; font-weight: 700; }
+    .forum-head .logo-accent { color: var(--accent); }
+    .forum-head a.back { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .forum-head a.back:hover { color: var(--accent); }
+    .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; line-height: 1.6; }
+
+    .auth-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+    .auth-bar input { flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+    .auth-bar .who { font-size: 13px; color: var(--muted); }
+    .btn { background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; cursor: pointer; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+    .btn.danger { background: #d9534f; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .card .editor { width: 100%; min-height: 340px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 10px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace;
+      box-sizing: border-box; line-height: 1.5; resize: vertical; }
+    .card .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .msg { font-size: 13px; }
+    .msg.ok { color: #7fdc83; }
+    .msg.err { color: #ff6b6b; }
+
+    .post { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .post .pauthor { color: var(--accent); font-weight: 600; }
+    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+    .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+    .status { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="forum-wrap">
+    <div class="forum-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 管理后台</span>
+      <a class="back" href="index.html">← 返回首页</a>
+    </div>
+    <p class="forum-tip">用你自己的 GitHub Token（<b>repo 权限</b>）登录即可管理网站：在线改数据、删帖子。Token 仅存于本浏览器，绝不上传任何服务器。</p>
+
+    <div class="auth-bar">
+      <span class="who" id="who">未登录</span>
+      <input id="tokenInput" type="password" placeholder="粘贴 GitHub Token（classic，只勾 repo）" />
+      <button class="btn sm" id="loginBtn">登录</button>
+      <button class="btn ghost sm" id="logoutBtn">退出</button>
+    </div>
+
+    <div id="panel" style="display:none">
+      <div class="card">
+        <h3>① 数据管理（data.json）</h3>
+        <p class="forum-tip">直接编辑下面的 JSON，保存后立即生效（提交到仓库）。<b>地图密码每天自动更新</b>；子弹利润 / 材料价格 / 活动物品等没有免费自动接口，你在这里手动改后会被保留（不会被每日更新覆盖）。</p>
+        <textarea class="editor" id="dataEditor" spellcheck="false"></textarea>
+        <div class="row">
+          <button class="btn" id="saveData">保存数据</button>
+          <span class="msg" id="dataMsg"></span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>② 论坛管理（标签：💬 论坛）</h3>
+        <div id="posts"><div class="status">加载中…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var REPO = "xuchengyuan123/delta-intel";
+    var LABEL = "💬 论坛";
+    var API = "https://api.github.com";
+    var KEY = "di_admin_token";
+    var dataSha = "";
+
+    function getToken() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
+    function setToken(t) { try { localStorage.setItem(KEY, t); } catch (e) {} }
+    function clearToken() { try { localStorage.removeItem(KEY); } catch (e) {} }
+    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
+    function headers(auth) {
+      var h = { "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
+      if (auth) { var t = getToken(); if (t) h["Authorization"] = "Bearer " + t; }
+      return h;
+    }
+
+    function updateWho() {
+      var t = getToken();
+      document.getElementById("who").textContent = t ? "已登录 ✓" : "未登录";
+      document.getElementById("panel").style.display = t ? "block" : "none";
+      document.getElementById("tokenInput").value = "";
+      if (t) loadAll();
+    }
+
+    // 登录：用 /user 验证 Token
+    document.getElementById("loginBtn").addEventListener("click", function () {
+      var v = document.getElementById("tokenInput").value.trim();
+      if (!v) { alert("请输入 Token"); return; }
+      setToken(v);
+      fetch(API + "/user", { headers: headers(true) })
+        .then(function (r) { return r.json(); })
+        .then(function (u) {
+          if (u && u.login) { alert("登录成功，欢迎 " + u.login); updateWho(); }
+          else { clearToken(); alert("Token 无效或权限不足（需要 repo）。"); updateWho(); }
+        })
+        .catch(function () { clearToken(); alert("登录失败，请检查网络或 Token。"); updateWho(); });
+    });
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      clearToken(); updateWho();
+    });
+
+    // 读取当前 data.json
+    function loadData() {
+      fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(false) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          dataSha = j.sha;
+          document.getElementById("dataEditor").value = decodeURIComponent(escape(atob(j.content)));
+        })
+        .catch(function () { document.getElementById("dataEditor").value = "/* 读取失败，请确认 Token 有 repo 权限 */"; });
+    }
+
+    // 保存 data.json
+    document.getElementById("saveData").addEventListener("click", function () {
+      var txt = document.getElementById("dataEditor").value;
+      var msg = document.getElementById("dataMsg");
+      try { JSON.parse(txt); } catch (e) { msg.className = "msg err"; msg.textContent = "JSON 格式错误，未保存：" + e.message; return; }
+      if (!dataSha) { msg.className = "msg err"; msg.textContent = "未拿到文件 sha，请先刷新。"; return; }
+      msg.className = "msg"; msg.textContent = "保存中…";
+      fetch(API + "/repos/" + REPO + "/contents/docs/data.json", {
+        method: "PUT",
+        headers: headers(true),
+        body: JSON.stringify({ message: "更新网站数据（管理后台）", content: b64utf8(txt), sha: dataSha })
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
+        return r.json();
+      }).then(function (j) {
+        dataSha = j.content.sha;
+        msg.className = "msg ok"; msg.textContent = "✅ 保存成功，网站已更新。";
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + (e.message || e); });
+    });
+
+    // 论坛帖子
+    function loadPosts() {
+      var box = document.getElementById("posts");
+      box.innerHTML = '<div class="status">加载中…</div>';
+      fetch(API + "/repos/" + REPO + "/issues?labels=" + encodeURIComponent(LABEL) + "&state=all&sort=created&direction=desc&per_page=50", { headers: headers(false) })
+        .then(function (r) { return r.json(); })
+        .then(function (list) {
+          if (!Array.isArray(list) || !list.length) { box.innerHTML = '<div class="status">还没有帖子。</div>'; return; }
+          var html = "";
+          list.filter(function (it) { return !it.pull_request; }).forEach(function (it) {
+            var num = it.number;
+            var closed = it.state === "closed";
+            html += '<div class="post" data-num="' + num + '">' +
+              '<div class="pmeta"><span class="pauthor">' + esc(it.user && it.user.login) + "</span><span>" + esc(it.state) + "</span><span>💬 " + (it.comments || 0) + "</span></div>" +
+              '<div class="ptitle">' + esc(it.title) + "</div>" +
+              '<div class="pbody">' + esc(it.body || "") + "</div>" +
+              '<div class="row" style="margin-top:8px">' +
+              (closed ? '<span class="msg">已关闭</span>'
+                      : '<button class="btn danger sm act-del" data-num="' + num + '">删除/关闭</button>') +
+              "</div></div>";
+          });
+          box.innerHTML = html;
+          box.querySelectorAll(".act-del").forEach(function (b) {
+            b.addEventListener("click", function () {
+              if (!confirm("确定关闭该帖子（GitHub Issue）？")) return;
+              fetch(API + "/repos/" + REPO + "/issues/" + b.getAttribute("data-num"), {
+                method: "PATCH", headers: headers(true), body: JSON.stringify({ state: "closed" })
+              }).then(function (r) {
+                if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
+                loadPosts();
+              }).catch(function (e) { alert("操作失败：" + (e.message || e)); });
+            });
+          });
+        })
+        .catch(function () { box.innerHTML = '<div class="status err">加载失败，请确认 Token 权限。</div>'; });
+    }
+
+    function loadAll() { loadData(); loadPosts(); }
+
+    updateWho();
+  </script>
+</body>
+</html>
