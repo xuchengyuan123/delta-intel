@@ -51,6 +51,7 @@
     {
       group: "社区", items: [
         { href: "forum.html", label: "战友论坛", ico: "💬" },
+        { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
   ];
@@ -327,170 +328,7 @@
     this.classList.remove("show");
   });
 
-  /* ====================================================================
-   * 用户 / 管理员 鉴权（新增）
-   * ==================================================================== */
-  window.__user = null;
-  window.__role = null;
-
-  function api(path, opts) {
-    return fetch(path, Object.assign({ credentials: "same-origin", headers: { "content-type": "application/json" } }, opts))
-      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
-  }
-
-  function refreshAuth() {
-    return api("/api/me", { method: "GET" }).then(function (r) {
-      var d = r.body;
-      var badge = document.getElementById("userBadge");
-      if (d.ok && d.username) {
-        window.__user = d.username;
-        window.__role = d.role;
-        badge.style.display = "";
-        badge.textContent = d.username + (d.role === "admin" ? "（管理员）" : "");
-      } else {
-        window.__user = null;
-        window.__role = null;
-        badge.style.display = "none";
-      }
-      return d;
-    }).catch(function () { return { anonymous: true }; });
-  }
-
-  /* --- 弹窗通用 --- */
-  function openModal(id) { document.getElementById(id).hidden = false; }
-  function closeModal(id) { document.getElementById(id).hidden = true; }
-  document.querySelectorAll("[data-close]").forEach(function (el) {
-    el.addEventListener("click", function () { closeModal(el.getAttribute("data-close")); });
-  });
-
-  /* --- 用户：登录 / 注册 --- */
-  document.querySelectorAll("#userModal .tab").forEach(function (t) {
-    t.addEventListener("click", function () {
-      document.querySelectorAll("#userModal .tab").forEach(function (x) { x.classList.remove("active"); });
-      t.classList.add("active");
-      var tab = t.getAttribute("data-tab");
-      document.getElementById("userModalTitle").textContent = tab === "login" ? "登录" : "注册";
-      document.getElementById("userSubmit").textContent = tab === "login" ? "登录" : "注册";
-      window.__userTab = tab;
-      document.getElementById("userMsg").textContent = "";
-    });
-  });
-
-  document.getElementById("userBtn").addEventListener("click", function () {
-    if (window.__user) {
-      api("/api/logout", { method: "POST" }).then(function () { refreshAuth(); });
-    } else {
-      openModal("userModal");
-    }
-  });
-
-  document.getElementById("userForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var f = e.target;
-    var username = f.username.value.trim();
-    var password = f.password.value;
-    var url = window.__userTab === "reg" ? "/api/register" : "/api/login";
-    api(url, { method: "POST", body: JSON.stringify({ username: username, password: password }) }).then(function (r) {
-      var msg = document.getElementById("userMsg");
-      if (r.body.ok) {
-        msg.className = "form-msg ok"; msg.textContent = "成功！";
-        closeModal("userModal"); f.reset(); refreshAuth();
-      } else {
-        msg.className = "form-msg err"; msg.textContent = r.body.error || "操作失败";
-      }
-    }).catch(function () {
-      document.getElementById("userMsg").className = "form-msg err";
-      document.getElementById("userMsg").textContent = "网络错误";
-    });
-  });
-
-  /* --- 管理员后台 --- */
-  function showAdminPanel(on) {
-    document.getElementById("adminLoginForm").style.display = on ? "none" : "";
-    document.getElementById("adminPanel").style.display = on ? "" : "none";
-  }
-
-  document.getElementById("adminBtn").addEventListener("click", function () {
-    openModal("adminModal");
-    refreshAuth().then(function (d) {
-      if (d.ok && d.role === "admin") { showAdminPanel(true); updateAdminStat(); }
-      else { showAdminPanel(false); }
-    });
-  });
-
-  document.getElementById("adminLoginForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var f = e.target;
-    api("/api/admin/login", { method: "POST", body: JSON.stringify({ username: f.username.value.trim(), password: f.password.value }) })
-      .then(function (r) {
-        var msg = document.getElementById("adminMsg");
-        if (r.body.ok) {
-          msg.className = "form-msg ok"; msg.textContent = "";
-          showAdminPanel(true); updateAdminStat(); loadAdminData();
-        } else {
-          msg.className = "form-msg err"; msg.textContent = r.body.error || "登录失败";
-        }
-      }).catch(function () {
-        document.getElementById("adminMsg").className = "form-msg err";
-        document.getElementById("adminMsg").textContent = "网络错误";
-      });
-  });
-
-  document.getElementById("updateBtn").addEventListener("click", function () {
-    var msg = document.getElementById("adminPanelMsg");
-    msg.className = "form-msg"; msg.textContent = "更新中…";
-    api("/api/update", { method: "POST" }).then(function (r) {
-      if (r.body.ok) {
-        msg.className = "form-msg ok"; msg.textContent = "更新成功，updatedAt=" + r.body.updatedAt + "，来源=" + r.body.source;
-        updateAdminStat();
-      } else {
-        msg.className = "form-msg err"; msg.textContent = r.body.error || "更新失败";
-      }
-    }).catch(function () {
-      msg.className = "form-msg err"; msg.textContent = "网络错误";
-    });
-  });
-
-  document.getElementById("saveDataBtn").addEventListener("click", function () {
-    var msg = document.getElementById("adminPanelMsg");
-    var ta = document.getElementById("adminData");
-    var obj;
-    try { obj = JSON.parse(ta.value); }
-    catch (e) { msg.className = "form-msg err"; msg.textContent = "JSON 解析失败：" + e.message; return; }
-    api("/api/admin/data", { method: "POST", body: JSON.stringify(obj) }).then(function (r) {
-      if (r.body.ok) { msg.className = "form-msg ok"; msg.textContent = "保存成功，updatedAt=" + r.body.updatedAt; }
-      else { msg.className = "form-msg err"; msg.textContent = r.body.error || "保存失败"; }
-    }).catch(function () {
-      msg.className = "form-msg err"; msg.textContent = "网络错误";
-    });
-  });
-
-  document.getElementById("loadDataBtn").addEventListener("click", loadAdminData);
-  document.getElementById("logoutAdminBtn").addEventListener("click", function () {
-    api("/api/logout", { method: "POST" }).then(function () {
-      refreshAuth(); showAdminPanel(false);
-      document.getElementById("adminMsg").textContent = "";
-      document.getElementById("adminLoginForm").reset();
-    });
-  });
-
-  function loadAdminData() {
-    fetchData().then(function (j) {
-      document.getElementById("adminData").value = JSON.stringify(j, null, 2);
-    }).catch(function () {});
-  }
-  function updateAdminStat() {
-    fetchData().then(function (j) {
-      document.getElementById("adminStat").textContent =
-        "最后更新：" + (j.updatedAt || "?") + " · 来源：" + (j.source || "?") +
-        " · 地图 " + (j.maps ? j.maps.length : 0) + " / 产物 " + (j.items ? j.items.length : 0) +
-        " / 子弹 " + (j.bullets ? j.bullets.length : 0) +
-        " / 活动 " + (j.eventItems && j.eventItems.items ? j.eventItems.items.length : 0) +
-        " / 材料 " + (j.materials ? j.materials.length : 0);
-    }).catch(function () {});
-  }
-
-  /* ---------- 启动：先拉数据 + 鉴权态，再渲染 ---------- */
+  /* ---------- 启动：先拉数据，再渲染 ---------- */
   fetchData()
     .then(function (d) {
       DATA = d;
@@ -505,6 +343,4 @@
       preview.innerHTML = '<div class="card"><p>加载数据失败：' + esc(e.message) +
         "。</p><p>请通过服务器访问（<code>node server.js</code> / <code>wrangler dev</code> / 部署到托管），不要直接双击本地文件。</p></div>";
     });
-
-  refreshAuth();
 })();

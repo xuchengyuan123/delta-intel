@@ -16,6 +16,21 @@ const demo = require("./demo-data.js");
 
 // 免费公开的《三角洲行动》每日密码接口（JSON、无需 token、每天更新）
 const PWD_API = cfg.DATA_SOURCE_URL || "https://tmini.net/api/sjzmm?type=json";
+const REPO = "xuchengyuan123/delta-intel";
+
+// 拉取仓库当前 data.json：保留管理员在后台手动改的内容（子弹利润/材料等），不被示例覆盖
+async function fetchCurrent() {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch("https://raw.githubusercontent.com/" + REPO + "/main/docs/data.json", { signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
 
 function today() {
   const d = new Date();
@@ -53,29 +68,36 @@ async function fetchMaps() {
 
 async function runIngest() {
   const maps = await fetchMaps();
-
-  // 产物 / 子弹 / 制作树 / 活动物品 / 材料价格暂无免费接口，沿用示例数据
+  // 拉取仓库当前 data.json：保留管理员在后台手动改的内容（子弹利润/材料等），仅更新地图密码
+  const existing = await fetchCurrent();
+  const base = existing || demo.data; // 首次无历史则用示例兜底
   const data = {
+    ...base,
     maps: maps,
-    items: demo.data.items,
-    bullets: demo.data.bullets,
-    craft: demo.data.craft,
-    eventItems: demo.data.eventItems,
-    materials: demo.data.materials,
     title: cfg.SITE_TITLE || "三角洲情报台",
     source: PWD_API,
     updatedAt: new Date().toISOString(),
   };
 
-  const outPath = path.join(__dirname, "public", "data.json");
-  fs.writeFileSync(outPath, JSON.stringify(data, null, 2), "utf8");
+  // 同时写 docs/（GitHub Pages 读取）与 public/（本地预览），哪个目录存在写哪个
+  const outPaths = [
+    path.join(__dirname, "docs", "data.json"),
+    path.join(__dirname, "public", "data.json"),
+  ];
+  outPaths.forEach(function (p) {
+    try { fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8"); console.log("[ingest] 已写出 ->", p); }
+    catch (e) { /* 目录不存在则跳过 */ }
+  });
+  const bullets = data.bullets || [];
+  const items = data.items || [];
+  const mats = data.materials || [];
   console.log(
-    "[ingest] 已写出 ->", outPath,
-    "| 地图", data.maps.length,
-    "产物", data.items.length,
-    "子弹", data.bullets.length,
-    "活动", data.eventItems.items.length,
-    "材料", data.materials.length
+    "[ingest] 地图", data.maps.length,
+    "| 产物", items.length,
+    "| 子弹", bullets.length,
+    "| 活动", (data.eventItems && data.eventItems.items ? data.eventItems.items.length : 0),
+    "| 材料", mats.length,
+    "| 现有数据", existing ? "已保留(手动改动不被覆盖)" : "示例兜底(首次)"
   );
   return data;
 }
