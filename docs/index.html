@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <meta name="description" content="三角洲情报台 DeltaIntel — 每日自动更新的战区情报站">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <!-- 顶栏 -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn menu-toggle" id="menuToggle" title="菜单">☰</button>
+        <span class="logo">三角洲<span class="logo-accent">情报台</span></span>
+        <span class="brand-en">DeltaIntel</span>
+      </div>
+      <div class="topbar-right">
+        <span id="userBadge" class="user-badge" style="display:none"></span>
+        <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
+        <button class="icon-btn" id="userBtn" title="登录 / 注册">👤</button>
+        <button class="icon-btn" id="adminBtn" title="管理后台">🛡</button>
+      </div>
+    </header>
+
+    <!-- 左侧菜单 -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="menu" id="menu"><!-- JS 注入 --></nav>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <!-- 内容区 -->
+    <main class="content">
+      <div id="LAY_preview" class="preview"><!-- 视图片段注入处 --></div>
+    </main>
+
+    <!-- 底栏 -->
+    <footer class="footer">
+      <p>三角洲情报台 · 数据每日自动更新 · <span id="updatedAt">加载中…</span></p>
+    </footer>
+  </div>
+
+  <!-- 用户登录 / 注册 弹窗 -->
+  <div class="modal" id="userModal" hidden>
+    <div class="modal-mask" data-close="userModal"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        <span id="userModalTitle">登录</span>
+        <button class="modal-x" data-close="userModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tabs">
+          <button class="tab active" data-tab="login">登录</button>
+          <button class="tab" data-tab="reg">注册</button>
+        </div>
+        <form id="userForm" autocomplete="on">
+          <label>用户名<input name="username" autocomplete="username" required></label>
+          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
+          <div class="form-msg" id="userMsg"></div>
+          <button class="btn-primary" type="submit" id="userSubmit">登录</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理员后台 弹窗 -->
+  <div class="modal" id="adminModal" hidden>
+    <div class="modal-mask" data-close="adminModal"></div>
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <span>管理后台</span>
+        <button class="modal-x" data-close="adminModal">✕</button>
+      </div>
+      <div class="modal-body" id="adminBody">
+        <form id="adminLoginForm">
+          <label>管理员账号<input name="username" autocomplete="username" required></label>
+          <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
+          <div class="form-msg" id="adminMsg"></div>
+          <button class="btn-primary" type="submit">进入后台</button>
+        </form>
+        <div id="adminPanel" style="display:none">
+          <div class="admin-stat" id="adminStat"></div>
+          <div class="admin-actions">
+            <button class="btn-primary" id="updateBtn">🔄 触发每日更新</button>
+            <button class="btn-ghost" id="logoutAdminBtn">退出登录</button>
+          </div>
+          <div class="form-msg" id="adminPanelMsg"></div>
+          <div class="section-title">手动录入 / 修正数据（JSON）</div>
+          <textarea id="adminData" class="code-area" spellcheck="false" placeholder='{"maps":[...],"items":[...],"bullets":[...],"craft":{"nodes":[...],"links":[...]}}'></textarea>
+          <div class="admin-actions">
+            <button class="btn-primary" id="saveDataBtn">保存数据</button>
+            <button class="btn-ghost" id="loadDataBtn">载入当前数据</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gojs@3.0.15/release/go.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
