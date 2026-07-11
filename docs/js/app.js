@@ -617,6 +617,20 @@
   if (mq && mq.addEventListener) mq.addEventListener("change", function () { if (getSavedTheme() === "auto") applyTheme("auto"); });
   applyTheme(getSavedTheme());
 
+  /* ---------- 界面定制（总管理员后台设置，前台即时应用） ---------- */
+  function applySiteUi(site) {
+    var ui = (site && site.ui) || {};
+    var root = document.documentElement;
+    try {
+      if (ui.accent) root.style.setProperty("--accent", ui.accent);
+      if (ui.accent2) root.style.setProperty("--accent-2", ui.accent2);
+      else if (site && site.accent2) root.style.setProperty("--accent-2", site.accent2);
+      if (ui.radius) root.style.setProperty("--radius", ui.radius + "px");
+      if (ui.density === "compact") root.classList.add("compact"); else root.classList.remove("compact");
+      root.style.zoom = (ui.fontScale && ui.fontScale !== 1) ? ui.fontScale : "";
+    } catch (e) {}
+  }
+
   /* ---------- PWA：安装横幅 + Service Worker 注册 ---------- */
   var deferredPrompt = null;
   window.addEventListener("beforeinstallprompt", function (e) {
@@ -683,12 +697,8 @@
   fetchData()
     .then(function (d) {
       DATA = d;
-      // 应用美术管理员设置的主题强调色
-      try {
-        if (DATA.site && DATA.site.accent2) {
-          document.documentElement.style.setProperty("--accent-2", DATA.site.accent2);
-        }
-      } catch (e) {}
+      // 应用界面定制（总管理员在后台设置的全局外观）
+      try { applySiteUi(DATA.site); } catch (e) {}
       var ua = document.getElementById("updatedAt");
       if (ua && d.updatedAt) {
         var t = new Date(d.updatedAt);

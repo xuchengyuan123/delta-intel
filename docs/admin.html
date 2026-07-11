@@ -106,6 +106,13 @@
     .accent-row input[type=color] { width: 54px; height: 38px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; }
     .accent-row code { background: var(--bg-soft); padding: 3px 8px; border-radius: 6px; color: var(--muted); font-size: 12px; }
 
+    /* 界面定制：各角色配色网格 */
+    .ui-role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .ui-role-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
+    .ui-role-row .ui-role-name { flex: 1; font-size: 13px; font-weight: 600; }
+    .ui-role-row input[type=color] { width: 44px; height: 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; }
+    .ui-role-row code { font-size: 12px; color: var(--muted); }
+
     .post { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
     .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .post .pauthor { color: var(--accent); font-weight: 600; }
@@ -192,7 +199,7 @@
 
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
       art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art"] },
@@ -210,7 +217,8 @@
       code:      { label: "代码维护",     icon: "💻", title: "代码维护", sub: "编辑原始数据、站点配置，并管理论坛帖子。", mount: mountCode },
       opcode:    { label: "干员图鉴管理", icon: "🪖", title: "特战干员图鉴管理", sub: "维护干员代号、定位、阵营、稀有度与属性。前台「特战干员图鉴」同步显示。", mount: mountOpCodex },
       wcodex:    { label: "武器图鉴管理", icon: "🔫", title: "武器图鉴管理", sub: "维护武器类型、弹药、稀有度与属性。前台「武器图鉴」同步显示。", mount: mountWCodex },
-      trivia:    { label: "小知识管理", icon: "🧠", title: "三角洲小知识管理", sub: "维护「三角洲小知识」条目（标题/标签/内容）。前台战友可点赞、复制与分享。", mount: mountTrivia }
+      trivia:    { label: "小知识管理", icon: "🧠", title: "三角洲小知识管理", sub: "维护「三角洲小知识」条目（标题/标签/内容）。前台战友可点赞、复制与分享。", mount: mountTrivia },
+      uidesign:  { label: "界面定制",   icon: "🎛", title: "界面定制（总管理员）", sub: "自定义前台与后台的整体外观，并为每个管理员面板单独设定配色。修改后前台/后台即时生效。", mount: mountUiDesign }
     };
 
     var CHANGELOG = [
@@ -263,6 +271,34 @@
     }
     function currentRoleName() { var r = ROLES[activeRole]; return r ? r.name : "未知"; }
 
+    /* ===== 界面定制：应用 UI 偏好 ===== */
+    function applyUiPrefs(ui) {
+      ui = ui || {};
+      var root = document.documentElement;
+      try {
+        if (ui.accent) root.style.setProperty("--accent", ui.accent);
+        if (ui.accent2) root.style.setProperty("--accent-2", ui.accent2);
+        if (ui.radius) root.style.setProperty("--radius", ui.radius + "px");
+        if (ui.density === "compact") root.classList.add("compact"); else root.classList.remove("compact");
+        root.style.zoom = (ui.fontScale && ui.fontScale !== 1) ? ui.fontScale : "";
+      } catch (e) {}
+    }
+    function roleColor(roleKey, ui) {
+      try {
+        if (ui && ui.roles && ui.roles[roleKey] && ui.roles[roleKey].color) return ui.roles[roleKey].color;
+      } catch (e) {}
+      return ROLES[roleKey] ? ROLES[roleKey].color : "#888";
+    }
+    function applyStoredUi(roleKey) {
+      fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (o) {
+        var ui = (o.site && o.site.ui) || {};
+        applyUiPrefs(ui);
+        var col = roleColor(roleKey, ui);
+        document.documentElement.style.setProperty("--role", col);
+        var badge = document.getElementById("roleBadge"); if (badge) badge.style.background = col;
+      }).catch(function () {});
+    }
+
     /* ===== 登录 ===== */
     var activeRole = getRole();
     var activePanel = "dashboard";
@@ -307,12 +343,13 @@
       var shell = document.getElementById("shell");
       shell.classList.add("on");
       shell.style.setProperty("--role", ROLES[activeRole].color);
-      document.documentElement.style.setProperty("--role", ROLES[activeRole].color);
       document.getElementById("who").textContent = "👤 " + login;
       renderRoleBadge();
       renderRoleSwitch();
       renderSide();
       showPanel("dashboard");
+      // 应用已保存的界面定制（全局 + 当前角色配色）
+      applyStoredUi(activeRole);
     }
 
     function renderRoleBadge() {
@@ -325,8 +362,8 @@
       var allowed = ROLES[activeRole].panels.slice();
       var sel = document.getElementById("roleSwitch");
       sel.innerHTML = allowed.map(function (p) {
-        var r = ROLES[Object.keys(ROLES).find(function (k) { return ROLES[k].panels[0] === p; })];
-        return '<option value="' + p + '">' + (r ? r.icon + " " + r.name : p) + "</option>";
+        var P = PANELS[p];
+        return '<option value="' + p + '">' + (P ? P.icon + " " + P.label : p) + "</option>";
       }).join("");
       sel.value = activePanel;
       sel.onchange = function () { showPanel(sel.value); };
@@ -741,49 +778,53 @@
     /* ============ 特战干员图鉴管理 ============ */
     function mountOpCodex(c) {
       c.innerHTML =
-        '<div class="panel-card"><h3>🪖 特战干员图鉴</h3>' +
-          '<p class="panel-tip">维护干员代号、定位、阵营、稀有度与四维属性。保存后前台「特战干员图鉴」即时更新。</p>' +
+        '<div class="panel-card"><h3>🪖 特战干员图鉴 <span class="tag">真实干员</span></h3>' +
+          '<p class="panel-tip">维护《三角洲行动》干员的代号、兵种、战术技能与四维属性。保存后前台「特战干员图鉴」即时更新。</p>' +
           '<table class="item-table" id="opTbl"><thead><tr>' +
-            '<th>名称</th><th>代号</th><th>定位</th><th>阵营</th><th>稀有度</th>' +
+            '<th>代号</th><th>本名</th><th>兵种</th><th>稀有度</th><th>战术技能</th><th>技能描述</th>' +
             '<th class="col-min">机动</th><th class="col-min">生存</th><th class="col-min">火力</th><th class="col-min">辅助</th>' +
-            '<th>头像链接</th><th>简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
+            '<th>头像链接</th><th>背景简介</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="opAdd">＋ 添加干员</button></div>' +
           '<div class="row"><button class="btn role-c" id="opSave">保存干员图鉴</button><span class="msg" id="opMsg"></span></div></div>';
+      var CLASSES = ["突击", "侦察", "支援", "工程"];
+      var RAR = ["传说", "史诗", "稀有", "普通"];
       var rows = [];
       function rowHtml(r, i) {
         var st = r.stats || {};
         return "<tr data-i='" + i + "'>" +
-          "<td><input class='o-name' value='" + esc(r.name || "") + "'></td>" +
-          "<td><input class='o-code' value='" + esc(r.codename || "") + "'></td>" +
-          "<td><input class='o-role' value='" + esc(r.role || "") + "'></td>" +
-          "<td><input class='o-fac' value='" + esc(r.faction || "") + "'></td>" +
-          "<td><input class='o-rar' value='" + esc(r.rarity || "") + "'></td>" +
+          "<td><input class='o-name' value='" + esc(r.name || "") + "' placeholder='代号'></td>" +
+          "<td><input class='o-real' value='" + esc(r.realname || "") + "' placeholder='本名(选填)'></td>" +
+          "<td><select class='o-role'>" + CLASSES.map(function (x) { return "<option" + (x === (r.role || "突击") ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></td>" +
+          "<td><select class='o-rar'>" + RAR.map(function (x) { return "<option" + (x === (r.rarity || "稀有") ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></td>" +
+          "<td><input class='o-skill' value='" + esc(r.skill || "") + "' placeholder='如：手炮'></td>" +
+          "<td><input class='o-skdesc' value='" + esc(r.skillDesc || "") + "' placeholder='技能简述'></td>" +
           "<td class='col-min'><input class='o-m' type='number' value='" + (st.机动 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-s' type='number' value='" + (st.生存 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-f' type='number' value='" + (st.火力 || 0) + "'></td>" +
           "<td class='col-min'><input class='o-a' type='number' value='" + (st.辅助 || 0) + "'></td>" +
           "<td><input class='o-cover' value='" + esc(r.cover || r.portrait || "") + "' placeholder='选填'></td>" +
-          "<td><input class='o-desc' value='" + esc(r.desc || "") + "'></td>" +
+          "<td><input class='o-desc' value='" + esc(r.desc || "") + "' placeholder='定位简介'></td>" +
           "<td class='col-act'><button class='btn danger sm o-del'>删</button></td></tr>";
       }
       function bind() { c.querySelectorAll("#opTbl tbody tr").forEach(function (tr) { tr.querySelector(".o-del").onclick = function () { rows.splice(+tr.getAttribute("data-i"), 1); render(); }; }); }
       function render() { c.querySelector("#opTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
       getDataObj().then(function (d) {
         rows = (d.obj.operators || []).slice();
-        if (!rows.length) rows = [{ name: "", codename: "", role: "突击", faction: "红狼", rarity: "稀有", stats: { 机动: 70, 生存: 70, 火力: 70, 辅助: 70 }, desc: "" }];
+        if (!rows.length) rows = [{ name: "", realname: "", role: "突击", rarity: "稀有", skill: "", skillDesc: "", stats: { 机动: 70, 生存: 70, 火力: 70, 辅助: 70 }, desc: "" }];
         render();
       }).catch(function () {});
-      c.querySelector("#opAdd").onclick = function () { rows.push({ name: "", codename: "", role: "突击", faction: "红狼", rarity: "稀有", stats: { 机动: 70, 生存: 70, 火力: 70, 辅助: 70 }, desc: "" }); render(); };
+      c.querySelector("#opAdd").onclick = function () { rows.push({ name: "", realname: "", role: "突击", rarity: "稀有", skill: "", skillDesc: "", stats: { 机动: 70, 生存: 70, 火力: 70, 辅助: 70 }, desc: "" }); render(); };
       c.querySelector("#opSave").onclick = function () {
         var msg = c.querySelector("#opMsg");
         var collected = [];
         c.querySelectorAll("#opTbl tbody tr").forEach(function (tr) {
           collected.push({
             name: tr.querySelector(".o-name").value.trim(),
-            codename: tr.querySelector(".o-code").value.trim(),
+            realname: tr.querySelector(".o-real").value.trim(),
             role: tr.querySelector(".o-role").value.trim(),
-            faction: tr.querySelector(".o-fac").value.trim(),
             rarity: tr.querySelector(".o-rar").value.trim(),
+            skill: tr.querySelector(".o-skill").value.trim(),
+            skillDesc: tr.querySelector(".o-skdesc").value.trim(),
             stats: { 机动: +tr.querySelector(".o-m").value || 0, 生存: +tr.querySelector(".o-s").value || 0, 火力: +tr.querySelector(".o-f").value || 0, 辅助: +tr.querySelector(".o-a").value || 0 },
             cover: tr.querySelector(".o-cover").value.trim(),
             desc: tr.querySelector(".o-desc").value.trim()
@@ -798,9 +839,11 @@
 
     /* ============ 武器图鉴管理 ============ */
     function mountWCodex(c) {
+      var WTYPES = ["突击步枪", "狙击枪", "冲锋枪", "霰弹枪", "机枪", "轻机枪", "手枪", "射手步枪", "弓", "发射器"];
+      var RAR = ["传说", "史诗", "稀有", "普通"];
       c.innerHTML =
         '<div class="panel-card"><h3>🔫 武器图鉴</h3>' +
-          '<p class="panel-tip">维护武器类型、弹药、稀有度与四维属性。保存后前台「武器图鉴」即时更新。</p>' +
+          '<p class="panel-tip">维护武器类型、弹药、稀有度与六维属性。保存后前台「武器图鉴」即时更新。</p>' +
           '<table class="item-table" id="wcTbl"><thead><tr>' +
             '<th>名称</th><th>类型</th><th>稀有度</th><th>弹药</th>' +
             '<th class="col-min">裸伤</th><th class="col-min">射速</th><th class="col-min">射程</th><th class="col-min">穿甲</th><th class="col-min">后坐</th><th class="col-min">精准</th>' +
@@ -811,8 +854,8 @@
       function rowHtml(r, i) {
         return "<tr data-i='" + i + "'>" +
           "<td><input class='w-name' value='" + esc(r.name || "") + "'></td>" +
-          "<td><input class='w-type' value='" + esc(r.type || "") + "'></td>" +
-          "<td><input class='w-rar' value='" + esc(r.rarity || "") + "'></td>" +
+          "<td><select class='w-type'>" + WTYPES.map(function (x) { return "<option" + (x === (r.type || "突击步枪") ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></td>" +
+          "<td><select class='w-rar'>" + RAR.map(function (x) { return "<option" + (x === (r.rarity || "稀有") ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></td>" +
           "<td><input class='w-ammo' value='" + esc(r.ammo || "") + "'></td>" +
           "<td class='col-min'><input class='w-dmg' type='number' value='" + (r.dmg || 0) + "'></td>" +
           "<td class='col-min'><input class='w-rof' type='number' value='" + (r.rof || 0) + "'></td>" +
@@ -904,6 +947,75 @@
             mountTrivia(c);
           });
         });
+      });
+    }
+
+    /* ============ 界面定制（总管理员） ============ */
+    function mountUiDesign(c) {
+      var roles = ["super", "tasks", "music", "art", "sim", "code", "opcode", "wcodex"];
+      var ui = { accent: "#19c3a6", accent2: "#19c3a6", radius: 14, density: "normal", fontScale: 1, roles: {} };
+
+      function render() {
+        var rolePick = roles.map(function (k) {
+          var r = ui.roles[k] || { color: ROLES[k].color };
+          return '<div class="ui-role-row"><span class="ui-role-name">' + ROLES[k].icon + " " + ROLES[k].name + '</span>' +
+            '<input type="color" class="ui-role-color" data-k="' + k + '" value="' + r.color + '">' +
+            '<code>' + r.color + "</code></div>";
+        }).join("");
+        c.innerHTML =
+          '<div class="panel-card"><h3>🎛 全局外观 <span class="tag">即时预览</span></h3>' +
+            '<p class="panel-tip">修改后前台与后台整体风格即时变化（保存后持久生效）。</p>' +
+            '<div class="field"><label>主色（按钮 / 链接高亮）</label><input type="color" id="uiAccent" value="' + ui.accent + '"></div>' +
+            '<div class="field"><label>强调色（卡片数字 / 高亮线）</label><input type="color" id="uiAccent2" value="' + ui.accent2 + '"></div>' +
+            '<div class="field"><label>卡片圆角：<b id="uiRadiusV">' + ui.radius + "</b> px</label>" +
+            '<input type="range" id="uiRadius" min="6" max="26" value="' + ui.radius + '"></div>' +
+            '<div class="field"><label>界面密度</label><select id="uiDensity">' +
+            '<option value="normal"' + (ui.density === "normal" ? " selected" : "") + '>标准</option>' +
+            '<option value="compact"' + (ui.density === "compact" ? " selected" : "") + '>紧凑</option></select></div>' +
+            '<div class="field"><label>字号缩放：<b id="uiFontV">' + ui.fontScale + "</b> x</label>" +
+            '<input type="range" id="uiFont" min="0.9" max="1.15" step="0.01" value="' + ui.fontScale + '"></div>' +
+          "</div>" +
+          '<div class="panel-card"><h3>🎨 各管理员界面配色</h3>' +
+            '<p class="panel-tip">为「总管理员」与每个「分管理员」的面板单独设定强调色。该角色登录进入后台时即应用此配色。</p>' +
+            '<div class="ui-role-grid">' + rolePick + "</div></div>" +
+          '<div class="row"><button class="btn role-c" id="uiSave">保存界面设置</button><span class="msg" id="uiMsg"></span></div>';
+
+        var ac = c.querySelector("#uiAccent"); if (ac) ac.oninput = function () { ui.accent = ac.value; applyUiPrefs(ui); };
+        var ac2 = c.querySelector("#uiAccent2"); if (ac2) ac2.oninput = function () { ui.accent2 = ac2.value; applyUiPrefs(ui); };
+        var rg = c.querySelector("#uiRadius"); if (rg) rg.oninput = function () { ui.radius = +rg.value; c.querySelector("#uiRadiusV").textContent = rg.value; applyUiPrefs(ui); };
+        var de = c.querySelector("#uiDensity"); if (de) de.onchange = function () { ui.density = de.value; applyUiPrefs(ui); };
+        var fo = c.querySelector("#uiFont"); if (fo) fo.oninput = function () { ui.fontScale = +fo.value; c.querySelector("#uiFontV").textContent = (+fo.value).toFixed(2); applyUiPrefs(ui); };
+        c.querySelectorAll(".ui-role-color").forEach(function (inp) {
+          inp.oninput = function () {
+            var k = inp.getAttribute("data-k");
+            ui.roles[k].color = inp.value;
+            inp.nextElementSibling.textContent = inp.value;
+            if (k === activeRole) document.documentElement.style.setProperty("--role", inp.value);
+          };
+        });
+        c.querySelector("#uiSave").onclick = function () {
+          var msg = c.querySelector("#uiMsg");
+          getDataObj().then(function (d) {
+            d.obj.site = d.obj.site || {};
+            d.obj.site.ui = { accent: ui.accent, accent2: ui.accent2, radius: ui.radius, density: ui.density, fontScale: ui.fontScale, roles: ui.roles };
+            return putDataObj(d.obj, "更新界面定制设置", msg);
+          }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+        };
+      }
+
+      getDataObj().then(function (d) {
+        var s = (d.obj.site && d.obj.site.ui) || {};
+        ui.accent = s.accent || ui.accent;
+        ui.accent2 = s.accent2 || s.accent || ui.accent2;
+        ui.radius = s.radius || 14;
+        ui.density = s.density || "normal";
+        ui.fontScale = s.fontScale || 1;
+        ui.roles = s.roles || {};
+        roles.forEach(function (k) { if (!ui.roles[k]) ui.roles[k] = { color: ROLES[k].color, label: ROLES[k].name }; });
+        render();
+      }).catch(function (e) {
+        roles.forEach(function (k) { ui.roles[k] = { color: ROLES[k].color, label: ROLES[k].name }; });
+        render();
       });
     }
 

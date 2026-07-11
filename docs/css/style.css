@@ -832,3 +832,23 @@ table.tbl thead th { border-bottom: 2px solid color-mix(in srgb, var(--accent) 4
   .preview { max-width: 1320px; }
   .content { padding: 18px 36px; }
 }
+
+/* ===== 界面定制：圆角 / 紧凑密度（总管理员可改） ===== */
+.card, .panel-card, .kpi-card, .login-card, .art-card, .post, .map-card-v2,
+.op-card, .wpn-card, .codex-table, .guide-card, .tool-card, .trivia-card, .rash-card {
+  border-radius: var(--radius, 12px);
+}
+html.compact .panel-card { padding: 12px; }
+html.compact .card { padding: 12px; }
+html.compact .kpi-card { padding: 12px; }
+html.compact .op-card, html.compact .wpn-card { padding: 12px; }
+html.compact .admin-main { padding: 14px; }
+html.compact .as-item { padding: 9px 16px; }
+html.compact .field { margin-bottom: 8px; }
+
+/* 干员图鉴：战术技能样式（前台） */
+.op-skill { margin: 4px 0 8px; font-size: 13px; font-weight: 700; color: var(--accent-2); }
+.op-skill-tag { display: inline-block; font-size: 10px; font-weight: 700; color: #1a1a1a; background: var(--accent-2); padding: 1px 7px; border-radius: 6px; margin-right: 6px; vertical-align: middle; }
+.op-skill-desc { font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.6; }
+.op-skill-td { font-size: 13px; }
+.op-skill-td b { color: var(--accent-2); }

@@ -49,7 +49,7 @@
   }
   function hash(s) { var h = 0; s = String(s || ""); for (var i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return h; }
 
-  /* ---------------- 特战干员图鉴 ---------------- */
+  /* ---------------- 特战干员图鉴（《三角洲行动》真实干员） ---------------- */
   function opStats(o) {
     return o.stats || { 机动: o.stat_机动, 生存: o.stat_生存, 火力: o.stat_火力, 辅助: o.stat_辅助 };
   }
@@ -58,23 +58,27 @@
     var q = opQ.toLowerCase();
     var filtered = list.filter(function (o) {
       if (!q) return true;
-      return (o.name + " " + (o.codename || "") + " " + (o.role || "") + " " + (o.faction || "") + " " + (o.desc || "")).toLowerCase().indexOf(q) > -1;
+      return (o.name + " " + (o.realname || "") + " " + (o.role || "") + " " + (o.skill || "") + " " + (o.skillDesc || "") + " " + (o.desc || "")).toLowerCase().indexOf(q) > -1;
     });
     var dataRows = filtered.map(function (o) {
       var st = opStats(o);
-      return '<tr><td class="op-td-name"><span class="op-dot ' + rarityClass(o.rarity) + '"></span>' + roleIcon(o.role) + ' <b>' + D.esc(o.name) + '</b><br><span class="op-sub">' + D.esc(o.codename || "") + '</span></td>' +
-        '<td>' + D.esc(o.role || "") + '</td><td>' + D.esc(o.faction || "") + '</td>' +
+      return '<tr><td class="op-td-name"><span class="op-dot ' + rarityClass(o.rarity) + '"></span>' + roleIcon(o.role) + ' <b>' + D.esc(o.name) + '</b>' +
+          (o.realname ? '<br><span class="op-sub">' + D.esc(o.realname) + '</span>' : '') + '</td>' +
+        '<td>' + D.esc(o.role || "") + '</td>' +
+        '<td class="op-skill-td"><b>' + D.esc(o.skill || "") + '</b>' + (o.skillDesc ? '<br><span class="op-sub">' + D.esc(o.skillDesc) + '</span>' : '') + '</td>' +
         '<td class="op-stats-td">' + statBar("机动", st.机动) + statBar("生存", st.生存) + statBar("火力", st.火力) + statBar("辅助", st.辅助) + '</td>' +
         '<td class="op-desc-td">' + D.esc(o.desc || "") + '</td></tr>';
     }).join("");
     var cards = filtered.map(function (o) {
       var st = opStats(o);
       return '<div class="op-card ' + rarityClass(o.rarity) + '">' +
-        '<div class="op-head">' + portrait(o.name, o.codename || o.name, "op-portrait", o.cover || o.portrait) +
-          '<div class="op-id"><div class="op-name">' + D.esc(o.name) + '</div><div class="op-code">' + D.esc(o.codename || "") + '</div>' +
+        '<div class="op-head">' + portrait(o.name, o.realname || o.name, "op-portrait", o.cover || o.portrait) +
+          '<div class="op-id"><div class="op-name">' + D.esc(o.name) + '</div>' +
+          (o.realname ? '<div class="op-code">本名 · ' + D.esc(o.realname) + '</div>' : '') +
           '<div class="op-rarity">' + D.esc(o.rarity || "普通") + '</div></div></div>' +
-        '<div class="op-meta"><span class="pill">' + roleIcon(o.role) + ' ' + D.esc(o.role || "") + '</span>' +
-          '<span class="pill pill-2">' + D.esc(o.faction || "") + '</span></div>' +
+        '<div class="op-meta"><span class="pill ' + rarityClass(o.rarity) + '">' + roleIcon(o.role) + ' ' + D.esc(o.role || "") + '</span></div>' +
+        '<div class="op-skill"><span class="op-skill-tag">战术技能</span>' + D.esc(o.skill || "") +
+          (o.skillDesc ? '<div class="op-skill-desc">' + D.esc(o.skillDesc) + '</div>' : '') + '</div>' +
         (o.desc ? '<div class="op-desc">' + D.esc(o.desc) + '</div>' : '') +
         '<div class="op-stats">' + statBar("机动", st.机动) + statBar("生存", st.生存) + statBar("火力", st.火力) + statBar("辅助", st.辅助) + '</div>' +
       '</div>';
@@ -85,10 +89,10 @@
       '<button class="seg-btn' + (opView === "list" ? " active" : "") + '" data-ov="list">列表</button></div>';
 
     return '<div class="section-title">🪖 特战干员图鉴 <span class="count-badge">' + filtered.length + ' 名</span></div>' +
-      '<div class="task-search"><input type="text" id="opSearch" placeholder="搜索干员 / 代号 / 定位 / 阵营…" value="' + D.esc(opQ) + '"></div>' +
+      '<div class="task-search"><input type="text" id="opSearch" placeholder="搜索干员 / 代号 / 兵种 / 战术技能…" value="' + D.esc(opQ) + '"></div>' +
       viewBtns +
       (opView === "list"
-        ? '<div class="card" style="padding:0;overflow:auto"><table class="codex-table"><thead><tr><th>干员</th><th>定位</th><th>阵营</th><th>属性</th><th>简介</th></tr></thead><tbody>' + dataRows + '</tbody></table></div>'
+        ? '<div class="card" style="padding:0;overflow:auto"><table class="codex-table"><thead><tr><th>干员</th><th>兵种</th><th>战术技能</th><th>属性</th><th>简介</th></tr></thead><tbody>' + dataRows + '</tbody></table></div>'
         : '<div class="op-grid">' + cards + '</div>');
   }
   function operatorsInit() {
