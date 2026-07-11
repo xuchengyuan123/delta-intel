@@ -55,6 +55,11 @@
       ],
     },
     {
+      group: "资讯", items: [
+        { route: "notices", label: "公告 / 赛季任务", ico: "📢" },
+      ],
+    },
+    {
       group: "社区", items: [
         { href: "forum.html", label: "战友论坛", ico: "💬" },
         { href: "sponsor.html", label: "赞助我们", ico: "💝" },
@@ -310,6 +315,27 @@
             '<a class="link-card" href="https://www.kkrb.net/" target="_blank" rel="noopener"><span class="ic">📚</span><span>游戏百科</span><span class="ext">kkrb.net</span></a>' +
             '<a class="link-card" href="https://www.kkrb.net/?viewpage=view%2Foverview" target="_blank" rel="noopener"><span class="ic">📊</span><span>一图流首页</span><span class="ext">kkrb.net</span></a>' +
           "</div>";
+      },
+    },
+    notices: {
+      html: function () {
+        var list = (DATA.notices || []).slice();
+        list.sort(function (a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); });
+        if (!list.length) {
+          return '<div class="section-title">公告 / 赛季任务 / 综合挑战手册</div>' +
+            '<div class="card"><p style="color:var(--muted)">暂无公告。管理员可在后台 ' +
+            '<a href="admin.html">admin.html</a> 发布赛季任务、综合挑战手册等内容。</p></div>';
+        }
+        var html = list.map(function (n) {
+          return '<div class="card notice">' +
+            '<div class="notice-head">' +
+              '<span class="notice-tag">' + esc(n.tag || "公告") + "</span>" +
+              '<span class="notice-title">' + esc(n.title) + "</span>" +
+              (n.updatedAt ? '<span class="notice-date">' + esc(n.updatedAt) + "</span>" : "") +
+            "</div>" +
+            '<div class="notice-body">' + esc(n.body) + "</div></div>";
+        }).join("");
+        return '<div class="section-title">公告 / 赛季任务 / 综合挑战手册</div>' + html;
       },
     },
   };
