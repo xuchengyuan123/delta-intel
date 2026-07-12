@@ -321,7 +321,13 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-12 13:19",
+      "role": "总管理员",
+      "action": "更新地图密码接口配置"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
