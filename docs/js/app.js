@@ -564,7 +564,7 @@
     }).join("");
   }
 
-  /* ---------- 赛季任务图谱（KK日报式思维导图） ---------- */
+  /* ---------- 赛季任务图谱（纯 CSS 横向分支树，无外部依赖） ---------- */
   var TASK_COLORS = {
     g_phase1: "#3a7bd5",
     g_phase2: "#7b2cbf",
@@ -573,14 +573,6 @@
     g_collector: "#2ecc71",
     g_fate: "#ff6b6b"
   };
-  function isDarkTheme() { return html.classList.contains("dark"); }
-  function taskNodeFill(done) {
-    return done
-      ? (isDarkTheme() ? "rgba(46,204,113,.18)" : "rgba(46,204,113,.12)")
-      : (isDarkTheme() ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.04)");
-  }
-  function taskNodeTextColor() { return isDarkTheme() ? "#e6e9ef" : "#1f2937"; }
-  function taskNodeMutedColor() { return isDarkTheme() ? "#9ca3af" : "#6b7280"; }
   function taskGroupColor(gid) { return TASK_COLORS[gid] || "#19c3a6"; }
   function taskGroupType(g) {
     if (g.type) return g.type;
@@ -605,90 +597,45 @@
     } catch (e) {}
   }
   function renderTaskTree(group) {
-    try {
-      if (!window.go || !window.go.GraphObject) {
-        var tree = document.getElementById("taskTree");
-        if (tree) tree.innerHTML = '<p style="padding:20px;color:var(--muted)">GoJS 未加载，请联网后刷新。</p>';
-        return;
-      }
-      var $ = go.GraphObject.make;
+    var container = document.getElementById("taskTree");
+    if (!container || !group) return;
     var color = taskGroupColor(group.id);
-    if (window.__taskDiagram) { window.__taskDiagram.div = null; window.__taskDiagram = null; }
-    var diagram = $(go.Diagram, "taskTree", {
-      background: "transparent",
-      initialContentAlignment: go.Spot.Center,
-      initialAutoScale: go.AutoScale.Uniform,
-      padding: 24,
-      layout: $(go.TreeLayout, { angle: 0, layerSpacing: 60, nodeSpacing: 22, alignment: go.TreeLayout.AlignmentStart, setsPortSpot: false, setsChildPortSpot: false }),
-      "animationManager.isEnabled": false,
-      "toolManager.hoverDelay": 100
-    });
-    diagram.linkTemplate = $(go.Link, { routing: go.Routing.Orthogonal, corner: 8, curve: go.Curve.JumpOver },
-      $(go.Shape, { strokeWidth: 2 }, new go.Binding("stroke", "color"))
-    );
-    diagram.nodeTemplate = $(go.Node, "Auto", {
-        cursor: "pointer",
-        selectionAdorned: false,
-        click: function(e, node) { if (node.data && !node.data.isRoot) showTaskModal(node.data); }
-      },
-      $(go.Shape, "RoundedRectangle", { parameter1: 10, strokeWidth: 2 },
-        new go.Binding("fill", "fill"),
-        new go.Binding("stroke", "stroke")
-      ),
-      $(go.Panel, "Vertical", { margin: new go.Margin(10, 12, 10, 12), maxSize: new go.Size(160, NaN) },
-        $(go.Panel, "Horizontal", { alignment: go.Spot.Left, margin: new go.Margin(0, 0, 5, 0) },
-          $(go.TextBlock, { font: "bold 10px 'Microsoft YaHei',sans-serif", stroke: "color", maxSize: new go.Size(120, NaN) },
-            new go.Binding("text", "badge"),
-            new go.Binding("stroke", "color")
-          ),
-          $(go.TextBlock, { font: "12px 'Microsoft YaHei',sans-serif", stroke: "#9ca3af", margin: new go.Margin(0, 0, 0, 6) },
-            new go.Binding("text", "icon"),
-            new go.Binding("stroke", "mutedColor")
-          )
-        ),
-        $(go.TextBlock, { font: "bold 13px 'Microsoft YaHei',sans-serif", stroke: "#e6e9ef", maxSize: new go.Size(160, NaN), wrap: go.TextBlock.WrapFit, textAlign: "left" },
-          new go.Binding("text", "text"),
-          new go.Binding("stroke", "textColor")
-        )
-      )
-    );
-    window.__taskDiagram = diagram;
-    var nodes = [], links = [];
-    var rootKey = "root:" + group.id;
-    nodes.push({ key: rootKey, text: group.name, isRoot: true, badge: "", icon: "", fill: color, stroke: color, color: color, textColor: "#ffffff", mutedColor: "rgba(255,255,255,.7)" });
-    (group.items || []).forEach(function(it) {
+    var items = (group.items || []).filter(function(it) { return it && it.id; });
+    if (!items.length) {
+      container.innerHTML = '<div class="task-tree-empty">暂无该阶段任务数据</div>';
+      return;
+    }
+
+    var rootHtml = '<div class="task-root"><div class="task-root-card" style="--c:' + color + '">' + esc(group.name) + '</div></div>';
+
+    var branchesHtml = items.map(function(it) {
       var done = getTaskDone(it.id);
-      nodes.push({
-        key: it.id,
-        text: it.title,
-        badge: taskGroupType(group),
-        icon: done ? "✅" : "▼",
-        fill: taskNodeFill(done),
-        stroke: done ? "#2ecc71" : color,
-        color: color,
-        textColor: taskNodeTextColor(),
-        mutedColor: taskNodeMutedColor(),
-        data: it
+      var cls = done ? "task-node done" : "task-node";
+      return '<div class="task-branch" style="--c:' + color + '">' +
+        '<div class="task-connector"></div>' +
+        '<div class="' + cls + '" data-id="' + esc(it.id) + '" style="--c:' + color + '">' +
+          '<div class="task-node-type">' + esc(taskGroupType(group)) + '</div>' +
+          '<div class="task-node-title">' + esc(it.title) + '</div>' +
+          '<div class="task-node-meta">' + esc(it.map || "任意地图") + ' · ' + (done ? "✅ 已完成" : "▼ 待完成") + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+
+    container.innerHTML = '<div class="task-tree" style="--c:' + color + '">' + rootHtml +
+      '<div class="task-branches" style="--c:' + color + '">' + branchesHtml + '</div>' +
+    '</div>';
+
+    container.querySelectorAll(".task-node").forEach(function(node) {
+      node.addEventListener("click", function() {
+        var id = node.getAttribute("data-id");
+        var item = items.find(function(x) { return x.id === id; });
+        if (item) showTaskModal(item, group, color);
       });
-      links.push({ from: rootKey, to: it.id, color: color });
     });
-    diagram.model = new go.GraphLinksModel(nodes, links);
-    } catch (err) {
-      console.error("renderTaskTree error:", err);
-      var tree = document.getElementById("taskTree");
-      if (tree) tree.innerHTML = '<div style="padding:20px;color:#ff6b6b"><p>导图加载失败：' + esc(err && err.message || "未知错误") + '</p><p style="font-size:12px;color:var(--muted)">请刷新重试，或截图控制台报错。</p></div>';
-    }
   }
-  function showTaskModal(nodeData) {
-    if (!nodeData || !nodeData.data) return;
-    var it = nodeData.data;
-    var groups = (DATA && DATA.tasks && DATA.tasks.groups) || [];
-    var g = null;
-    for (var i = 0; i < groups.length; i++) {
-      if ((groups[i].items || []).some(function(x) { return x.id === it.id; })) { g = groups[i]; break; }
-    }
+  function showTaskModal(it, g, color) {
+    if (!it) return;
     var type = g ? taskGroupType(g) : "赛季任务";
-    var color = g ? taskGroupColor(g.id) : "#19c3a6";
     var done = getTaskDone(it.id);
     var goals = (it.goals || []).map(function(x) { return "<li>" + esc(x) + "</li>"; }).join("") || "<li>暂无具体目标</li>";
     var rewards = (it.reward || "").split(/[、；;]/).filter(function(s) { return s.trim(); }).map(function(x) { return "<li>" + esc(x.trim()) + "</li>"; }).join("") || "<li>暂无</li>";
@@ -720,16 +667,12 @@
     document.getElementById("taskModalMark").addEventListener("click", function() {
       var newDone = !done;
       setTaskDone(it.id, newDone);
-      var diagram = window.__taskDiagram;
-      if (diagram && diagram.model) {
-        diagram.model.nodeDataArray.forEach(function(n) {
-          if (n.data && n.data.id === it.id) {
-            diagram.model.setDataProperty(n, "fill", newDone ? "rgba(46,204,113,.15)" : "#1f242d");
-            diagram.model.setDataProperty(n, "stroke", newDone ? "#2ecc71" : color);
-            diagram.model.setDataProperty(n, "icon", newDone ? "✅" : "▼");
-          }
-        });
+      var currentGroup = g;
+      if (!currentGroup) {
+        var groups = ((DATA && DATA.tasks && DATA.tasks.groups) || []).filter(function(gx) { return gx.id && gx.id.indexOf("g_") === 0; });
+        currentGroup = groups.find(function(gx) { return (gx.items || []).some(function(x) { return x.id === it.id; }); });
       }
+      if (currentGroup) renderTaskTree(currentGroup);
       close();
     });
   }
@@ -860,30 +803,40 @@
       init: function () {
         var div = document.getElementById("craftDiagram");
         if (!div) return;
-        if (!window.go) { div.innerHTML = '<p style="padding:20px;color:var(--muted)">GoJS 未加载（可能无网络）。</p>'; return; }
-        var $ = go.GraphObject.make;
-        var diagram = $(go.Diagram, "craftDiagram", {
-          "undoManager.isEnabled": true, background: "transparent",
-          initialAutoScale: go.AutoScale.Uniform, padding: 24,
-          layout: $(go.LayeredDigraphLayout, { direction: 0, layerSpacing: 45, columnSpacing: 18 }),
-        });
-        var c = DATA.craft || { nodes: [], links: [] };
-        function colorOf(d) {
-          if (d.cat === "product") return "#ffb300";
-          var raw = !c.links.some(function (l) { return l.from === d.key; });
-          return raw ? "#2ecc71" : "#3a7bd5";
+        function render() {
+          if (!window.go) { div.innerHTML = '<p style="padding:20px;color:var(--muted)">制作树引擎未加载（可能无网络）。</p>'; return; }
+          var $ = go.GraphObject.make;
+          var diagram = $(go.Diagram, "craftDiagram", {
+            "undoManager.isEnabled": true, background: "transparent",
+            initialAutoScale: go.AutoScale.Uniform, padding: 24,
+            layout: $(go.LayeredDigraphLayout, { direction: 0, layerSpacing: 45, columnSpacing: 18 }),
+          });
+          var c = DATA.craft || { nodes: [], links: [] };
+          function colorOf(d) {
+            if (d.cat === "product") return "#ffb300";
+            var raw = !c.links.some(function (l) { return l.from === d.key; });
+            return raw ? "#2ecc71" : "#3a7bd5";
+          }
+          diagram.nodeTemplate = $(go.Node, "Auto", { cursor: "pointer" },
+            $(go.Shape, "RoundedRectangle", { strokeWidth: 0 },
+              new go.Binding("fill", "", colorOf)),
+            $(go.TextBlock, { margin: 8, font: "13px 'Microsoft YaHei', sans-serif", stroke: "#fff" },
+              new go.Binding("text", "text")));
+          diagram.linkTemplate = $(go.Link, { routing: go.Routing.AvoidsNodes, corner: 6, curve: go.Curve.JumpOver },
+            $(go.Shape, { stroke: "#6b7280", strokeWidth: 2 }));
+          diagram.model = $(go.GraphLinksModel, {
+            nodeKeyProperty: "key", linkKeyProperty: "key",
+            nodeDataArray: c.nodes || [], linkDataArray: c.links || [],
+          });
         }
-        diagram.nodeTemplate = $(go.Node, "Auto", { cursor: "pointer" },
-          $(go.Shape, "RoundedRectangle", { strokeWidth: 0 },
-            new go.Binding("fill", "", colorOf)),
-          $(go.TextBlock, { margin: 8, font: "13px 'Microsoft YaHei', sans-serif", stroke: "#fff" },
-            new go.Binding("text", "text")));
-        diagram.linkTemplate = $(go.Link, { routing: go.Routing.AvoidsNodes, corner: 6, curve: go.Curve.JumpOver },
-          $(go.Shape, { stroke: "#6b7280", strokeWidth: 2 }));
-        diagram.model = $(go.GraphLinksModel, {
-          nodeKeyProperty: "key", linkKeyProperty: "key",
-          nodeDataArray: c.nodes || [], linkDataArray: c.links || [],
-        });
+        if (window.go) { render(); return; }
+        // 按需懒加载 GoJS（避免首页/微信端白下载约 3MB 的图表库）
+        div.innerHTML = '<p style="padding:20px;color:var(--muted)">正在加载制作树引擎…</p>';
+        var s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/gojs@3.0.15/release/go.js";
+        s.onload = render;
+        s.onerror = function () { div.innerHTML = '<p style="padding:20px;color:#ff5b5b">制作树引擎加载失败，请检查网络后重试。</p>'; };
+        document.head.appendChild(s);
       },
     },
     eventitems: {
@@ -1041,7 +994,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=10").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=12").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

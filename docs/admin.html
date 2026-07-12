@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=12">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=10"></script>
+  <script src="js/art.js?v=12"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -317,6 +317,18 @@
       });
     }
     function currentRoleName() { var r = ROLES[activeRole]; return r ? r.name : "未知"; }
+
+    /* 上传独立文件（如图片）到仓库，返回可访问的 download_url */
+    function putFile(path, base64, message, msgEl) {
+      if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "上传中…"; }
+      return fetch(API + "/repos/" + REPO + "/contents/" + path, {
+        method: "PUT", headers: headers(true),
+        body: JSON.stringify({ message: message || "上传文件", content: base64 })
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "上传失败"); });
+        return r.json();
+      }).then(function (j) { return j.content ? j.content.download_url : null; });
+    }
 
     /* ===== 界面定制：应用 UI 偏好 ===== */
     function applyUiPrefs(ui) {
@@ -671,7 +683,8 @@
           '<div class="accent-row"><input type="color" id="accentPick" value="#19c3a6"><code id="accentCode">#19c3a6</code>' +
           '<button class="btn role-c sm" id="accentSave">保存主题色</button><span class="msg" id="accentMsg"></span></div></div>' +
         '<div class="panel-card"><h3>🏛 地图建筑线描（与首页卡片一致）</h3>' +
-          '<p class="panel-tip">右侧预览就是首页地图卡片的真实样式。编辑 SVG 后点「保存此图」，前台立即换成你画的线描。</p>' +
+          '<p class="panel-tip">右侧预览就是首页地图卡片的真实样式。直接在文本框里画/粘贴 <b>SVG 线描</b>，点「保存此图」前台立即换图。' +
+          '<b>说明：本站为纯静态站，美术管理用于「上传图片 / 编辑建筑线描 / 改主题色」，不提供 AI 自动生图（那需要付费接口）。</b></p>' +
           '<div class="art-grid" id="artGrid"><div class="status">加载中…</div></div></div>';
 
       var accent = document.getElementById("accentPick");
@@ -1631,7 +1644,7 @@
         var used = c.querySelector('#imgUsed').value;
         var code = c.querySelector('#imgCode').value.trim();
         var fileEl = c.querySelector('#imgFile');
-        function push(src) {
+        function pushRef(src) {
           if (!name && !src) { msg.className = 'msg err'; msg.textContent = '请填名称或提供图片'; return; }
           getDataObj().then(function (d) {
             d.obj.images = d.obj.images || { images: [] };
@@ -1642,8 +1655,19 @@
           }).catch(function (e) { msg.className = 'msg err'; msg.textContent = '❌ ' + e.message; });
         }
         if (fileEl.files && fileEl.files[0]) {
-          var fr = new FileReader(); fr.onload = function () { push(fr.result); }; fr.readAsDataURL(fileEl.files[0]);
-        } else if (code) { push(extractSrc(code)); }
+          var file = fileEl.files[0];
+          var reader = new FileReader();
+          reader.onload = function () {
+            var b64 = reader.result.split(',')[1];
+            var safe = (name || file.name || 'image').replace(/[^\w\u4e00-\u9fa5.\-]/g, '_');
+            var ext = /png/i.test(file.type) ? 'png' : (/jpe?g/i.test(file.type) ? 'jpg' : (/gif/i.test(file.type) ? 'gif' : 'png'));
+            var path = 'docs/assets/img/' + Date.now() + '_' + safe + '.' + ext;
+            putFile(path, b64, '上传图片：' + (name || file.name), msg)
+              .then(function (url) { if (!url) throw new Error('未获取到图片地址'); pushRef(url); })
+              .catch(function (e) { msg.className = 'msg err'; msg.textContent = '❌ ' + e.message; });
+          };
+          reader.readAsDataURL(file);
+        } else if (code) { pushRef(extractSrc(code)); }
         else { msg.className = 'msg err'; msg.textContent = '请选择文件或粘贴图片代码'; }
       };
       loadGrid();

@@ -1,30 +1,79 @@
 /* 三角洲情报台 Service Worker
- * 策略：纯透传（不缓存任何应用资源），彻底避免「旧缓存导致页面打不开 / 更新不生效」。
- * 本站数据每日更新（地图密码/实时物价），缓存应用壳反而有害；
- * 仅保留 SW 以支撑 PWA「添加到主屏幕」，所有请求一律走网络。
- * 每次大版本更新请同步修改 CACHE 名称。
+ * 策略：
+ *  - 应用壳（HTML/JS/CSS/图片等静态资源）缓存优先 → 重复访问秒开，微信内置浏览器尤其受益
+ *  - data.json 每日更新 → 走网络优先（有网取最新，无网回退缓存）
+ *  - GitHub API 等跨域请求 → 直接走网络
+ * 每次大版本更新请同步修改 CACHE 名称与 HTML 里的 sw.js?v= 版本。
  */
-const CACHE = "delta-intel-v10";
+const CACHE = "delta-intel-v12";
+const SHELL = [
+  "index.html",
+  "css/style.css",
+  "js/app.js",
+  "js/art.js",
+  "js/crafting.js",
+  "js/simulators.js",
+  "js/games.js",
+  "js/music.js",
+  "js/codex.js",
+  "js/addons.js",
+  "js/guides.js",
+  "js/database.js",
+  "js/feedback.js",
+  "js/analytics.js",
+  "js/liveprice.js",
+  "js/mappass.js",
+  "data.json"
+];
 
 self.addEventListener("install", function (e) {
-  // 立即接管，不等旧标签关闭，避免「旧 SW 死锁」
-  self.skipWaiting();
+  self.skipWaiting(); // 立即接管，避免旧 SW 死锁
+  e.waitUntil(
+    caches.open(CACHE).then(function (c) { return c.addAll(SHELL).catch(function () {}); })
+  );
 });
 
 self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+      return Promise.all(keys.map(function (k) { if (k !== CACHE) return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
 
-// 所有请求直接转发到网络，绝不返回任何旧缓存
+function isDataJson(url) {
+  return /(^|\/)data\.json(\?|$)/.test(url.pathname);
+}
+
 self.addEventListener("fetch", function (e) {
-  if (e.request.method !== "GET") return;
+  var req = e.request;
+  if (req.method !== "GET") return;
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // 跨域（如 GitHub API / QQ音乐）直接走网络
+
+  // data.json：网络优先，失败回退缓存（保证内容新鲜 + 离线可用）
+  if (isDataJson(url)) {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () { return caches.match(req); })
+    );
+    return;
+  }
+
+  // 其余静态资源：缓存优先，后台更新缓存（重复访问极快）
   e.respondWith(
-    fetch(e.request).catch(function () {
-      return new Response("", { status: 504, statusText: "offline" });
+    caches.match(req).then(function (cached) {
+      var net = fetch(req).then(function (res) {
+        if (res && res.status === 200) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function () { return cached; });
+      return cached || net;
     })
   );
 });

@@ -261,7 +261,7 @@
         var box = document.getElementById("trBox").value;
         var n = Math.max(1, Math.min(20, +document.getElementById("trN").value || 1));
         var container = (o.containers || []).find(function (c) { return c.name === box; }) || { output: "未知物资" };
-        var pool = ["传说武器箱", "金条×1", "高级配件", "医疗包", "弹药盒", "工具零件", "空", "空", "普通物资", container.output];
+        var pool = ["传说武器箱", "史诗配件包", "哈夫币×5000", "量子模块", "收集品·金条", "高级护甲维修包", "战术快拆手术包", "空", "空", "普通物资", container.output];
         var res = [];
         for (var i = 0; i < n; i++) res.push(pool[Math.floor(Math.random() * pool.length)]);
         document.getElementById("trResult").innerHTML = res.map(function (r, i) {
@@ -278,9 +278,9 @@
     }
     function lootInit(D) {
       var btn = document.getElementById("loGo"); if (!btn) return;
-      var guns = ["AKM", "M4A1", "M250", "ASVAL", "AWM", "MP5", "M870", "G18"];
-      var armor = ["轻甲", "中甲", "重甲", "无甲"];
-      var item = ["医疗包", "绷带×3", "能量饮料", "破片雷", "震撼弹", "止痛药", "工具箱", "安全箱扩容"];
+      var guns = ["M4A1", "AK-12", "K416", "M7", "AS Val", "AWM", "SR-25", "MP5", "MP7", "M870", "G18", "沙漠之鹰", "P90", "M250"];
+      var armor = ["无甲", "3级 TG-H防弹衣", "4级 MK-2战术背心", "5级 重型突击背心", "6级 特里克MAS2.0装甲"];
+      var item = ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器", "破片手雷", "闪光弹", "烟雾弹", "护甲维修包", "工具箱", "安全箱扩容", "防弹插板"];
       btn.addEventListener("click", function () {
         function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
         var bag = [pick(guns), pick(armor), pick(item), pick(item), pick(item)];

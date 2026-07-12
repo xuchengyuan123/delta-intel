@@ -109,7 +109,7 @@
         return '<div class="section-title">实时物价 <span class="kk-api" id="lpBadge">实时</span></div>' +
           '<p class="guide-intro">数据来自《三角洲行动》游戏内交易行真实成交价（caiweilv/DeltaForcePrice，每 10 分钟更新）。本页直接调用该免费公开接口，<strong>价格为真实数据，非本站编造</strong>。</p>' +
           '<div class="lp-bar">' +
-            '<input type="text" id="lpSearch" placeholder="搜索物品名，如：沙漠之鹰 / M4 / 三级甲">' +
+            '<input type="text" id="lpSearch" placeholder="搜索物品名，如：沙漠之鹰 / M4A1 / 3级防弹衣">' +
             '<select id="lpCat"><option value="">全部分类</option></select>' +
             '<span class="lp-meta" id="lpMeta">加载中…</span>' +
           '</div>' +
