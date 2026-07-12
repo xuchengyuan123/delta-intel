@@ -29,11 +29,18 @@
 
     /* ---------------- 电竞选手测试 ---------------- */
     function quizResult(q, scores) {
+      var results = [];
+      if (Array.isArray(q.results)) {
+        results = q.results;
+      } else if (q.results && typeof q.results === "object") {
+        results = Object.keys(q.results).map(function (k) { return Object.assign({ key: k }, q.results[k]); });
+      }
+      if (!results.length) return { key: "", icon: "🎮", name: "未知结果", desc: "", tip: "再测一次吧" };
       var cnt = {};
       scores.forEach(function (s) { cnt[s] = (cnt[s] || 0) + 1; });
-      var best = q.results[0].key, max = -1;
-      q.results.forEach(function (r) { if ((cnt[r.key] || 0) > max) { max = cnt[r.key] || 0; best = r.key; } });
-      return q.results.find(function (r) { return r.key === best; }) || q.results[0];
+      var best = results[0].key, max = -1;
+      results.forEach(function (r) { if ((cnt[r.key] || 0) > max) { max = cnt[r.key] || 0; best = r.key; } });
+      return results.find(function (r) { return r.key === best; }) || results[0];
     }
     function quizHtml(o) {
       var q = o.quiz;
@@ -41,7 +48,7 @@
       var prevHtml = "";
       try {
         var pr = JSON.parse(localStorage.getItem("df-quiz") || "null");
-        if (pr) { var res = quizResult(q, pr); prevHtml = '<div class="quiz-prev">你上次的测试结果：<b>' + res.icon + " " + esc(res.name) + '</b> · <button class="btn ghost sm" id="quizRetake">重新测试</button></div>'; }
+        if (pr) { var res = quizResult(q, pr); prevHtml = '<div class="quiz-prev">你上次的测试结果：<b>' + (res.icon || "🎮") + " " + esc(res.name) + '</b> · <button class="btn ghost sm" id="quizRetake">重新测试</button></div>'; }
       } catch (e) {}
       var qs = q.questions.map(function (Q, i) {
         var opts = Q.options.map(function (op) {
@@ -67,10 +74,10 @@
         var res = quizResult(q, scores);
         try { localStorage.setItem("df-quiz", JSON.stringify(scores)); } catch (e) {}
         document.getElementById("quizResult").innerHTML =
-          '<div class="quiz-result"><div class="qr-icon">' + res.icon + '</div>' +
+          '<div class="quiz-result"><div class="qr-icon">' + (res.icon || "🎮") + '</div>' +
             '<div class="qr-name">' + esc(res.name) + '</div>' +
             '<div class="qr-desc">' + esc(res.desc) + '</div>' +
-            '<div class="qr-tip">💡 ' + esc(res.tip) + '</div>' +
+            '<div class="qr-tip">💡 ' + esc(res.tip || res.suggest || "多练习，战无不胜！") + '</div>' +
             '<div class="quiz-actions"><button class="btn-primary" id="quizShare">复制结果分享</button>' +
             '<button class="btn ghost" id="quizAgain">再测一次</button></div>' +
             '<span class="t-msg" id="quizShareMsg"></span></div>';
