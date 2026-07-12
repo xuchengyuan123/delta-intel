@@ -321,7 +321,13 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-12 14:16",
+      "role": "总管理员",
+      "action": "更新音乐列表（4 首）"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -2239,8 +2245,7 @@
       "type": "qq",
       "songid": "563352993",
       "dur": "03:57",
-      "tag": "黑鹰坠落片尾曲",
-      "cover": ""
+      "tag": "黑鹰坠落片尾曲"
     },
     {
       "title": "DeltaForce (Main Theme)",
@@ -2248,8 +2253,7 @@
       "type": "qq",
       "songid": "",
       "dur": "03:05",
-      "tag": "主题曲",
-      "cover": ""
+      "tag": "主题曲"
     },
     {
       "title": "星河追梦 (Beyond the Stars)",
@@ -2257,8 +2261,7 @@
       "type": "qq",
       "songid": "638957157",
       "dur": "03:36",
-      "tag": "威龙凌霄戍卫皮肤主题曲",
-      "cover": ""
+      "tag": "威龙凌霄戍卫皮肤主题曲"
     },
     {
       "title": "Unbreakable (坚不可摧)",
@@ -2266,8 +2269,7 @@
       "type": "qq",
       "songid": "686819874",
       "dur": "03:20",
-      "tag": "",
-      "cover": ""
+      "tag": "2026年全面战场国际邀请赛主题曲"
     }
   ],
   "title": "三角洲情报台",
