@@ -206,13 +206,35 @@
         '<div class="card"><table class="tbl"><thead><tr><th>干员</th><th>个人任务</th><th>奖励</th></tr></thead><tbody>' + (rows || "<tr><td colspan=3>暂无</td></tr>") + "</tbody></table></div>";
     }
 
-    /* ---------------- 资料库：近战武器 ---------------- */
+    /* ---------------- 资料库：近战武器（数值面板） ---------------- */
     function meleeHtml(o) {
-      var rows = (o.melee || []).map(function (m) {
-        return "<tr><td>" + esc(m.name) + "</td><td class='code-strong'>" + esc(m.dmg) + "</td><td>" + esc(m.speed || "") + "</td><td>" + esc(m.note || "") + "</td></tr>";
-      }).join("");
-      return '<div class="section-title">🔪 近战武器基础数据</div><p class="guide-intro">近战武器伤害与出手速度参考。</p>' +
-        '<div class="card"><table class="tbl"><thead><tr><th>名称</th><th>伤害</th><th>出手</th><th>说明</th></tr></thead><tbody>' + (rows || "<tr><td colspan=4>暂无</td></tr>") + "</tbody></table></div>";
+      var cards = (o.melee || []).map(function (m) {
+        var stats = [
+          { k: '伤害（多段）', v: m.dmgStages || '—' },
+          { k: '护甲伤害', v: m.armorDmg || '—' },
+          { k: '穿甲等级', v: m.penLevel || '—' },
+          { k: '爆头倍率', v: m.headshot || '—' },
+          { k: '装备时移速（奔跑）', v: m.runSpeed || '—' },
+          { k: '装备时移速（步行）', v: m.walkSpeed || '—' },
+          { k: '攻击速度', v: m.attackSpeed || '—' },
+          { k: '攻击范围', v: m.range || '—' }
+        ];
+        var rows = stats.map(function (s) {
+          return '<div class="ml-stat"><span class="ml-stat-k">' + esc(s.k) + '</span><span class="ml-stat-v">' + esc(s.v) + '</span></div>';
+        }).join('');
+        var tags = [m.category, m.tier, m.quality].filter(function (x) { return x; }).map(function (x) { return '<span class="ml-tag">' + esc(x) + '</span>'; }).join('');
+        return '<div class="ml-card">' +
+          '<div class="ml-header">' +
+            '<div class="ml-name">' + esc(m.name) + '</div>' +
+            '<div class="ml-tags">' + tags + '</div>' +
+          '</div>' +
+          '<div class="ml-stats">' + rows + '</div>' +
+          '<div class="ml-desc">' + esc(m.desc || m.note || '') + '</div>' +
+        '</div>';
+      }).join('');
+      return '<div class="section-title">🔪 近战武器 / 刀皮数值面板</div>' +
+        '<p class="guide-intro">每把近战武器的完整数值面板，数据以游戏内为准。空值表示管理员尚未填写。</p>' +
+        '<div class="ml-grid">' + (cards || '<div class="kk-empty">暂无数据</div>') + '</div>';
     }
 
     /* ---------------- 宝藏开箱模拟 ---------------- */

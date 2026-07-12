@@ -321,58 +321,7 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [
-    {
-      "time": "2026-07-12 11:22",
-      "role": "总管理员",
-      "action": "更新近战武器 / 刀皮数值面板（2）"
-    },
-    {
-      "time": "2026-07-12 11:22",
-      "role": "总管理员",
-      "action": "更新近战武器 / 刀皮数值面板（2）"
-    },
-    {
-      "time": "2026-07-12 11:14",
-      "role": "总管理员",
-      "action": "更新近战武器（2）"
-    },
-    {
-      "time": "2026-07-12 11:14",
-      "role": "总管理员",
-      "action": "更新近战武器（0）"
-    },
-    {
-      "time": "2026-07-12 11:08",
-      "role": "总管理员",
-      "action": "更新音乐列表（4 首）"
-    },
-    {
-      "time": "2026-07-12 11:08",
-      "role": "总管理员",
-      "action": "更新音乐列表（4 首）"
-    },
-    {
-      "time": "2026-07-12 11:03",
-      "role": "总管理员",
-      "action": "更新音乐列表（4 首）"
-    },
-    {
-      "time": "2026-07-12 10:56",
-      "role": "总管理员",
-      "action": "更新音乐列表（3 首）"
-    },
-    {
-      "time": "2026-07-12 10:55",
-      "role": "总管理员",
-      "action": "更新音乐列表（3 首）"
-    },
-    {
-      "time": "2026-07-12 10:55",
-      "role": "总管理员",
-      "action": "更新音乐列表（3 首）"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10 裂变",
     "updated": "2026-07-12",
@@ -2619,7 +2568,8 @@
       "type": "qq",
       "songid": "563352993",
       "dur": "03:57",
-      "tag": "黑鹰坠落片尾曲"
+      "tag": "黑鹰坠落片尾曲",
+      "cover": ""
     },
     {
       "title": "DeltaForce (Main Theme)",
@@ -2627,7 +2577,8 @@
       "type": "qq",
       "songid": "",
       "dur": "03:05",
-      "tag": "主题曲"
+      "tag": "主题曲",
+      "cover": ""
     },
     {
       "title": "星河追梦 (Beyond the Stars)",
@@ -2635,7 +2586,8 @@
       "type": "qq",
       "songid": "638957157",
       "dur": "03:36",
-      "tag": "威龙凌霄戍卫皮肤主题曲"
+      "tag": "威龙凌霄戍卫皮肤主题曲",
+      "cover": ""
     },
     {
       "title": "Unbreakable (坚不可摧)",
@@ -2643,7 +2595,8 @@
       "type": "qq",
       "songid": "686819874",
       "dur": "03:20",
-      "tag": ""
+      "tag": "",
+      "cover": ""
     }
   ],
   "title": "三角洲情报台",
@@ -3343,12 +3296,14 @@
   ],
   "melee": [
     {
-      "name": "战术匕首",
-      "category": "",
-      "tier": "",
-      "quality": "",
-      "effect": "",
-      "acquire": "",
+      "name": "利爪-核灰制式",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册 20 级",
+      "limited": false,
+      "note": "工业磨砂灰纯色皮，持刀手感轻量化",
       "dmgStages": "",
       "armorDmg": "",
       "penLevel": "",
@@ -3357,15 +3312,17 @@
       "walkSpeed": "",
       "attackSpeed": "",
       "range": "",
-      "desc": ""
+      "desc": "工业磨砂灰纯色皮，持刀手感轻量化"
     },
     {
-      "name": "黑鹰",
-      "category": "",
-      "tier": "",
-      "quality": "",
-      "effect": "",
-      "acquire": "",
+      "name": "弯刀-辐射浊影",
+      "category": "赛季手册",
+      "tier": "进阶",
+      "quality": "动态流光皮",
+      "effect": "紫色动态辐射流光，挥刀绿色粒子，命中留辐射残影",
+      "acquire": "进阶手册 60 级",
+      "limited": false,
+      "note": "本赛季性价比特效刀",
       "dmgStages": "",
       "armorDmg": "",
       "penLevel": "",
@@ -3374,7 +3331,197 @@
       "walkSpeed": "",
       "attackSpeed": "",
       "range": "",
-      "desc": ""
+      "desc": "本赛季性价比特效刀"
+    },
+    {
+      "name": "匕首-熔核碎片",
+      "category": "赛季手册",
+      "tier": "传说",
+      "quality": "动态流光皮",
+      "effect": "刀身碎裂熔岩动态纹路，挥刀灼烧音效，切刀专属动画",
+      "acquire": "进阶手册 100 级",
+      "limited": false,
+      "note": "顶配传说刀皮",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "顶配传说刀皮"
+    },
+    {
+      "name": "开山刀-厂区工装",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "战术斧-锈蚀核铁",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "蝴蝶刀-银灰极简",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "匕首-绿茵闪击",
+      "category": "足球狂欢限定",
+      "tier": "活动",
+      "quality": "纯色质感皮",
+      "effect": "白绿足球配色，持刀脚底小草特效",
+      "acquire": "传球大师挑战满级兑换",
+      "limited": true,
+      "note": "活动限时",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "活动限时"
+    },
+    {
+      "name": "利爪-临门劲射",
+      "category": "足球狂欢限定",
+      "tier": "活动",
+      "quality": "纯色质感皮",
+      "effect": "橙黑撞色，挥刀足球破空音效",
+      "acquire": "足球鼠鼠代币兑换",
+      "limited": true,
+      "note": "活动限时",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "活动限时"
+    },
+    {
+      "name": "蝴蝶刀-狂欢球影",
+      "category": "足球狂欢限定",
+      "tier": "收藏",
+      "quality": "动态流光皮",
+      "effect": "动态足球转场特效",
+      "acquire": "赛季活动获取",
+      "limited": true,
+      "note": "赛季活动结束直接绝版，收藏品级",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "赛季活动结束直接绝版，收藏品级"
+    },
+    {
+      "name": "战术斧-核蚀烙印",
+      "category": "AZ3核电站掉落",
+      "tier": "机密",
+      "quality": "纯色质感皮",
+      "effect": "刀身腐蚀纹路，攻击附带辐射减益标记",
+      "acquire": "击败毁灭者BOSS概率掉落",
+      "limited": true,
+      "note": "机密专属",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "机密专属"
+    },
+    {
+      "name": "匕首-密闭安检",
+      "category": "AZ3核电站掉落",
+      "tier": "机密",
+      "quality": "纯色质感皮",
+      "effect": "哑光金属质感",
+      "acquire": "红卡房保险箱极低概率掉落",
+      "limited": true,
+      "note": "小众绝版刀皮",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "小众绝版刀皮"
+    },
+    {
+      "name": "利爪-晴空极寒",
+      "category": "体验服专属",
+      "tier": "限定",
+      "quality": "动态流光皮",
+      "effect": "液氮主题蓝色冷凝特效",
+      "acquire": "仅体验服测试账号获取",
+      "limited": true,
+      "note": "正式服无获取渠道",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "正式服无获取渠道"
     }
   ],
   "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",

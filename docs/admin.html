@@ -273,12 +273,12 @@
 
     /* ===== data.json 读写 + 操作日志 ===== */
     function getDataObj() {
-      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(false) })
+      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(true) })
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (j) { dataSha = j.sha; return { obj: JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha: j.sha }; });
     }
     function getLatestSha() {
-      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(false) })
+      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(true) })
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (j) { dataSha = j.sha; return j.sha; });
     }
@@ -614,6 +614,7 @@
       c.innerHTML =
         '<div class="panel-card"><h3>🎵 音乐列表（QQ音乐式）</h3>' +
           '<p class="panel-tip">每行一首。QQ音乐：在 <b>QQ音乐网页版</b> 打开歌曲 → 分享 → 复制链接，链接里 <code>songid=</code> 后的纯数字即 songid。填好后前台用 QQ音乐外链播放器在页面内直接播放。</p>' +
+          '<div id="mLoadErr" class="msg err" style="margin-bottom:10px;display:none"></div>' +
           '<table class="item-table" id="mTbl"><thead><tr><th>标题</th><th>艺人</th><th>类型</th><th>songid</th><th>时长</th><th>标签</th><th class="col-act">操作</th></tr></thead><tbody></tbody></table>' +
           '<div class="row"><button class="btn role-c sm" id="mAdd">＋ 添加一行</button></div>' +
           '<div class="row"><button class="btn role-c" id="mSave">保存音乐列表</button><span class="msg" id="mMsg"></span></div></div>';
@@ -635,22 +636,30 @@
         });
       }
       function render() { c.querySelector("#mTbl tbody").innerHTML = rows.map(rowHtml).join(""); bind(); }
+      function showLoadErr(e) {
+        var el = c.querySelector("#mLoadErr");
+        el.style.display = "block";
+        el.textContent = "❌ 加载失败：" + (e && e.message ? e.message : e) + "（请检查 Token 是否已填写且未过期）";
+      }
       getDataObj().then(function (d) {
         rows = (d.obj.music || []).slice();
         if (!rows.length) rows = [{ title: "", artist: "三角洲行动", type: "qq", songid: "", dur: "", tag: "" }];
         render();
-      }).catch(function () {});
+      }).catch(function (e) { showLoadErr(e); render(); });
       c.querySelector("#mAdd").onclick = function () { rows.push({ title: "", artist: "三角洲行动", type: "qq", songid: "", dur: "", tag: "" }); render(); };
       c.querySelector("#mSave").onclick = function () {
         var msg = c.querySelector("#mMsg");
+        msg.className = "msg"; msg.textContent = "读取数据中…";
         var collected = [];
         c.querySelectorAll("#mTbl tbody tr").forEach(function (tr) {
           collected.push({ title: tr.querySelector(".m-title").value.trim(), artist: tr.querySelector(".m-artist").value.trim(), type: tr.querySelector(".m-type").value.trim(), songid: tr.querySelector(".m-songid").value.trim(), dur: tr.querySelector(".m-dur").value.trim(), tag: tr.querySelector(".m-tag").value.trim() });
         });
+        var valid = collected.filter(function (x) { return x.title; });
+        if (!valid.length) { msg.className = "msg err"; msg.textContent = "❌ 至少填写一首歌曲标题"; return; }
         getDataObj().then(function (d) {
-          d.obj.music = collected.filter(function (x) { return x.title; });
-          return putDataObj(d.obj, "更新音乐列表（" + d.obj.music.length + " 首）", msg);
-        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+          d.obj.music = valid;
+          return putDataObj(d.obj, "更新音乐列表（" + valid.length + " 首）", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + (e && e.message ? e.message : e); });
       };
     }
 
@@ -1240,9 +1249,26 @@
     function mountOpTask(c) { tablePanel(c, { key: 'opTasks', icon: '🪖', title: '干员任务', sub: '维护前台「资料库·干员任务」。',
       cols: [{ f: 'op', label: '干员' }, { f: 'task', label: '任务' }, { f: 'reward', label: '奖励' }],
       addRow: function () { return { op: '', task: '', reward: '' }; }, keep: function (x) { return x.op; } }); }
-    function mountMelee(c) { tablePanel(c, { key: 'melee', icon: '🔪', title: '近战武器', sub: '维护前台「资料库·近战武器」。',
-      cols: [{ f: 'name', label: '名称' }, { f: 'dmg', label: '伤害', type: 'number' }, { f: 'speed', label: '出手' }, { f: 'note', label: '说明' }],
-      addRow: function () { return { name: '', dmg: 0, speed: '', note: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountMelee(c) { tablePanel(c, { key: 'melee', icon: '🔪', title: '近战武器 / 刀皮数值面板', sub: '维护前台「资料库·近战武器」的数值面板，数据以游戏内为准，不要编造。',
+      cols: [
+        { f: 'name', label: '名称' },
+        { f: 'category', label: '分类' },
+        { f: 'tier', label: '档位' },
+        { f: 'quality', label: '品质' },
+        { f: 'effect', label: '特效' },
+        { f: 'acquire', label: '获取方式' },
+        { f: 'dmgStages', label: '伤害(多段)' },
+        { f: 'armorDmg', label: '护甲伤害' },
+        { f: 'penLevel', label: '穿甲等级' },
+        { f: 'headshot', label: '爆头倍率' },
+        { f: 'runSpeed', label: '奔跑移速' },
+        { f: 'walkSpeed', label: '步行移速' },
+        { f: 'attackSpeed', label: '攻击速度' },
+        { f: 'range', label: '攻击范围' },
+        { f: 'desc', label: '描述' }
+      ],
+      addRow: function () { return { name: '', category: '', tier: '', quality: '', effect: '', acquire: '', dmgStages: '', armorDmg: '', penLevel: '', headshot: '', runSpeed: '', walkSpeed: '', attackSpeed: '', range: '', desc: '' }; },
+      keep: function (x) { return x.name; } }); }
 
     /* ============ 活动物品需求（实时 API） ============ */
     function mountEventItems(c) {

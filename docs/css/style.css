@@ -1006,15 +1006,51 @@ html.compact .field { margin-bottom: 8px; }
 .seg-btn { transition:.12s; }
 .section-title { letter-spacing:.2px; }
 
-/* ===== 新手速览 ===== */
-.guide-modules { display:flex; flex-direction:column; gap:18px; }
-.gd-module { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
-.gd-module-h { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; margin-bottom:14px; color:var(--text); }
-.gd-module-ico { font-size:22px; }
-.gd-cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px; }
-.gd-card { background:var(--bg-soft); border:1px solid var(--border); border-radius:10px; padding:14px; }
-.gd-card-title { font-weight:700; font-size:14px; margin-bottom:8px; color:var(--accent-2); }
-.gd-card-text { font-size:13px; color:var(--muted); line-height:1.7; }
+/* ===== 新手速览（KK日报式：侧边栏 + 列表） ===== */
+.gd-layout { display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start; }
+.gd-sidebar { position:sticky; top:74px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; max-height:calc(100vh - 90px); overflow-y:auto; }
+.gd-side-group { margin-bottom:14px; }
+.gd-side-group:last-child { margin-bottom:0; }
+.gd-side-title { font-size:12px; font-weight:700; color:var(--muted); letter-spacing:.5px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.gd-nav { display:flex; flex-direction:column; gap:2px; }
+.gd-nav-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; color:var(--text); font-size:13px; text-decoration:none; cursor:pointer; transition:.12s; }
+.gd-nav-item:hover { background:var(--bg-soft); color:var(--accent-2); }
+.gd-nav-item.active { background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-2); font-weight:700; }
+.gd-main { min-width:0; }
+.gd-hero { margin-bottom:20px; }
+.gd-hero h1 { font-size:24px; font-weight:800; margin:0 0 8px; display:flex; align-items:center; gap:10px; }
+.gd-hero p { color:var(--muted); font-size:14px; line-height:1.7; margin:0; }
+.gd-body { display:flex; flex-direction:column; gap:20px; }
+.gd-section { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+.gd-section-h { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; margin:0 0 14px; color:var(--text); }
+.gd-section-ico { font-size:22px; }
+.gd-rows { display:flex; flex-direction:column; }
+.gd-row { display:grid; grid-template-columns:180px 1fr; gap:14px; padding:12px 0; border-bottom:1px dashed var(--border); font-size:13px; line-height:1.7; }
+.gd-row:last-child { border-bottom:none; padding-bottom:0; }
+.gd-row-k { font-weight:700; color:var(--accent-2); }
+.gd-row-v { color:var(--muted); }
+@media (orientation: portrait) and (max-width: 768px) {
+  .gd-layout { grid-template-columns:1fr; }
+  .gd-sidebar { position:static; max-height:none; }
+  .gd-row { grid-template-columns:1fr; gap:4px; }
+}
+
+/* ===== 近战武器 / 刀皮数值面板 ===== */
+.ml-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
+.ml-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.ml-header { background:var(--bg-soft); padding:14px 16px; border-bottom:1px solid var(--border); }
+.ml-name { font-size:16px; font-weight:800; color:var(--text); margin-bottom:6px; }
+.ml-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.ml-tag { font-size:11px; color:var(--muted); background:var(--bg); border:1px solid var(--border); padding:2px 8px; border-radius:6px; }
+.ml-stats { display:flex; flex-direction:column; }
+.ml-stat { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-bottom:1px dashed var(--border); font-size:13px; }
+.ml-stat:last-child { border-bottom:none; }
+.ml-stat-k { color:var(--muted); }
+.ml-stat-v { color:var(--text); font-weight:700; font-family:ui-monospace, Menlo, Consolas, monospace; }
+.ml-desc { padding:12px 16px; font-size:13px; color:var(--muted); line-height:1.7; border-top:1px solid var(--border); background:var(--bg-soft); }
+@media (orientation: portrait) and (max-width: 768px) {
+  .ml-grid { grid-template-columns:1fr; }
+}
 
 /* ===== 电竞选手测试 ===== */
 .quiz-wrap { max-width:680px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }

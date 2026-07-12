@@ -410,9 +410,9 @@
   }
   function renderMapCards(arr) {
     return arr.map(function (m) {
-      return '<div class="kk-map"><div class="kk-map-name">' + esc(m.name) + '</div>' +
+      return '<div class="kk-map" title="' + esc(m.full || m.short || "") + '"><div class="kk-map-name">' + esc(m.name) + '</div>' +
         '<div class="kk-map-code">' + esc(m.code) + '</div>' +
-        '<div class="kk-map-date">' + esc(m.date || "今日") + '</div></div>';
+        '<div class="kk-map-date">' + esc(m.short || m.date || "今日") + '</div></div>';
     }).join("") || '<div class="kk-empty">暂无</div>';
   }
   function kkItemsBlock() {
@@ -505,7 +505,7 @@
             if (list && list.length) {
               var grid = document.getElementById("kkMapGrid");
               var status = document.getElementById("kkMapStatus");
-              if (grid) grid.innerHTML = renderMapCards(list.map(function (m) { return { name: m.name, code: m.code, date: m.location || "今日" }; }));
+              if (grid) grid.innerHTML = renderMapCards(list.map(function (m) { return { name: m.name, code: m.code, short: m.shortLocation || "今日", full: m.location }; }));
               if (status) {
                 var meta = mp.meta();
                 status.innerHTML = '共 ' + list.length + ' 张地图 · ' + esc(meta.updateDate || '实时接口已更新');
@@ -631,7 +631,7 @@
           $(go.Shape, { stroke: "#6b7280", strokeWidth: 2 }));
         diagram.model = $(go.GraphLinksModel, {
           nodeKeyProperty: "key", linkKeyProperty: "key",
-          nodes: c.nodes || [], links: c.links || [],
+          nodeDataArray: c.nodes || [], linkDataArray: c.links || [],
         });
       },
     },

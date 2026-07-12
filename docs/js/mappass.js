@@ -26,8 +26,15 @@
     return (d && d.mapPass) || { enabled: true, url: DEFAULT_URL };
   }
 
+  function shortenLocation(s) {
+    s = String(s || "").trim();
+    if (!s) return "—";
+    var cut = s.split(/[。，；;]/)[0].trim();
+    if (cut.length > 22) cut = cut.slice(0, 22) + "…";
+    return cut || "—";
+  }
+
   function load(force) {
-    var c = cfg();
     if (c.enabled === false) return Promise.resolve(null);
     var url = c.url || DEFAULT_URL;
     if (!force && cache) return Promise.resolve(cache);
@@ -45,11 +52,13 @@
       .then(function (j) {
         var passwords = (j && j.data && j.data.passwords) || [];
         var arr = passwords.map(function (it) {
+          var loc = (it.location_info && it.location_info.description) || "";
           return {
             name: it.map_name || "",
             code: it.password || "",
             fullText: it.full_text || "",
-            location: (it.location_info && it.location_info.description) || "",
+            location: loc,
+            shortLocation: shortenLocation(loc),
             images: (it.location_info && it.location_info.images) || []
           };
         });

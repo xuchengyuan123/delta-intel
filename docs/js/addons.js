@@ -13,20 +13,71 @@
 
   function getData() { return (window.DF && window.DF.getData && window.DF.getData()) || {}; }
 
-  /* ---------- 新手速览 ---------- */
+  /* ---------- 新手速览（KK日报式：侧边栏 + 列表条目） ---------- */
   function guideHtml() {
     var d = getData().guides || {};
-    var modules = (d.modules || []).map(function (m) {
-      var cards = (m.cards || []).map(function (c) {
-        return '<div class="gd-card"><div class="gd-card-title">' + esc(c.title) + '</div><div class="gd-card-text">' + esc(c.text) + '</div></div>';
-      }).join('') || '<div class="kk-empty">暂无卡片</div>';
-      return '<div class="gd-module">' +
-        '<div class="gd-module-h"><span class="gd-module-ico">' + esc(m.icon) + '</span>' + esc(m.title) + '</div>' +
-        '<div class="gd-cards">' + cards + '</div></div>';
+    var modules = d.modules || [];
+    var navItems = modules.map(function (m, i) {
+      return '<a class="gd-nav-item" href="#gd-mod-' + i + '">' + esc(m.icon || "•") + ' ' + esc(m.title) + '</a>';
+    }).join('');
+    var libItems = [
+      { ico: '🧰', label: '工具箱总览', route: 'tools' },
+      { ico: '📦', label: '活动物品需求', route: 'eventitems' },
+      { ico: '🗺️', label: '地图密码', route: 'maps' },
+      { ico: '💹', label: '实时物价', route: 'prices' }
+    ].map(function (it) {
+      return '<a class="gd-nav-item" data-route="' + it.route + '">' + it.ico + ' ' + it.label + '</a>';
+    }).join('');
+    var main = modules.map(function (m, i) {
+      var rows = (m.cards || []).map(function (c) {
+        return '<div class="gd-row">' +
+          '<div class="gd-row-k">' + esc(c.title) + '</div>' +
+          '<div class="gd-row-v">' + esc(c.text) + '</div>' +
+        '</div>';
+      }).join('') || '<div class="kk-empty">暂无条目</div>';
+      return '<section class="gd-section" id="gd-mod-' + i + '">' +
+        '<h2 class="gd-section-h"><span class="gd-section-ico">' + esc(m.icon || "") + '</span>' + esc(m.title) + '</h2>' +
+        '<div class="gd-rows">' + rows + '</div>' +
+      '</section>';
     }).join('') || '<div class="kk-empty">暂无新手速览数据</div>';
-    return '<div class="section-title">📘 新手速览</div>' +
-      '<p class="guide-intro">' + esc(d.intro || "从零上手《三角洲行动》，按模块分卡片查看。") + '</p>' +
-      '<div class="guide-modules">' + modules + '</div>';
+    return '<div class="gd-layout">' +
+      '<aside class="gd-sidebar">' +
+        '<div class="gd-side-group">' +
+          '<div class="gd-side-title">📘 新手攻略</div>' +
+          '<nav class="gd-nav">' + navItems + '</nav>' +
+        '</div>' +
+        '<div class="gd-side-group">' +
+          '<div class="gd-side-title">🧰 常用资料</div>' +
+          '<nav class="gd-nav">' + libItems + '</nav>' +
+        '</div>' +
+      '</aside>' +
+      '<main class="gd-main">' +
+        '<div class="gd-hero">' +
+          '<h1>📘 新手攻略</h1>' +
+          '<p>' + esc(d.intro || "从零上手《三角洲行动》。内容分模块组织，数据随官方版本更新，以游戏内为准。") + '</p>' +
+        '</div>' +
+        '<div class="gd-body">' + main + '</div>' +
+      '</main>' +
+    '</div>';
+  }
+  function guideInit() {
+    var c = document.querySelector('.gd-layout');
+    if (!c) return;
+    c.querySelectorAll('.gd-nav-item[data-route]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var r = a.getAttribute('data-route');
+        if (window.DF && window.DF.navigate) window.DF.navigate(r);
+      });
+    });
+    c.querySelectorAll('.gd-nav-item[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var id = a.getAttribute('href').slice(1);
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   /* ---------- 电竞选手测试 ---------- */
@@ -121,7 +172,7 @@
   }
 
   function reg(D) {
-    D.VIEWS.guides = { html: guideHtml, init: function () {} };
+    D.VIEWS.guides = { html: guideHtml, init: guideInit };
     D.VIEWS.quiz = { html: quizHtml, init: quizInit };
     D.VIEWS.tools = { html: toolsHtml, init: function () {} };
     D.VIEWS.feedback = { html: feedbackHtml, init: function () {} };
