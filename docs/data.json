@@ -265,10 +265,21 @@
   },
   "eventItems": {
     "title": "活动物品需求（研发部门·集市）",
-    "period": "",
+    "period": "2026/07/10 - 2026/07/17",
     "api": "",
-    "note": "管理员在后台维护活动物品名称后，前台会自动调用免费实时价格接口（caiweilv/DeltaForcePrice）匹配当前交易行价格，无需手动填写；也可填写自定义 API 地址直接覆盖。",
-    "items": []
+    "note": "管理员在后台维护活动物品名称后，前台会自动调用免费实时价格接口（caiweilv/DeltaForcePrice）匹配当前交易行价格；若实时源中无该物品，则显示理想售价。",
+    "items": [
+      {
+        "name": "9V电池",
+        "ideal": 14872,
+        "cur": 40548
+      },
+      {
+        "name": "摩卡咖啡壶",
+        "ideal": 86419,
+        "cur": 200119
+      }
+    ]
   },
   "materials": [
     {
@@ -2552,48 +2563,30 @@
   ],
   "music": [
     {
-      "title": "OST 合集（S8/S9 全配乐）",
-      "artist": "三角洲行动",
+      "title": "Into the Never (归)",
+      "artist": "三角洲行动 / LUMi",
       "type": "qq",
-      "songid": "",
-      "dur": "1:26:21",
-      "tag": "合集",
+      "songid": "563352993",
+      "dur": "03:57",
+      "tag": "黑鹰坠落片尾曲",
       "cover": ""
     },
     {
-      "title": "永不回头 Perforation（殊死一搏）",
-      "artist": "贯穿原声带",
+      "title": "DeltaForce (Main Theme)",
+      "artist": "Zio",
       "type": "qq",
       "songid": "",
-      "dur": "06:31",
-      "tag": "战斗",
-      "cover": ""
-    },
-    {
-      "title": "大厅 BGM",
-      "artist": "三角洲行动",
-      "type": "qq",
-      "songid": "",
-      "dur": "02:57",
-      "tag": "大厅",
-      "cover": ""
-    },
-    {
-      "title": "攀升 / 临界点 Rise",
-      "artist": "临界原作者带",
-      "type": "qq",
-      "songid": "",
-      "dur": "04:50",
-      "tag": "战斗",
-      "cover": ""
-    },
-    {
-      "title": "庇护者行动 主题曲 Fight",
-      "artist": "S2 主题曲",
-      "type": "qq",
-      "songid": "",
-      "dur": "04:16",
+      "dur": "03:05",
       "tag": "主题曲",
+      "cover": ""
+    },
+    {
+      "title": "星河追梦 (Beyond the Stars)",
+      "artist": "三角洲行动 / 黄宗辉",
+      "type": "qq",
+      "songid": "",
+      "dur": "03:36",
+      "tag": "威龙凌霄戍卫皮肤主题曲",
       "cover": ""
     }
   ],
