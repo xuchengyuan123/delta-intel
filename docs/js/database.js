@@ -20,6 +20,19 @@
   }
   function fmt(n) { return Number(n || 0).toLocaleString(); }
 
+  function groupBy(arr, key, order) {
+    var groups = {};
+    arr.forEach(function (r) { var k = r[key] || "其他"; (groups[k] = groups[k] || []).push(r); });
+    var keys = Object.keys(groups);
+    if (order) {
+      keys.sort(function (a, b) {
+        var ia = order.indexOf(a), ib = order.indexOf(b);
+        if (ia === -1) ia = 999; if (ib === -1) ib = 999;
+        return ia - ib;
+      });
+    }
+    return { keys: keys, groups: groups };
+  }
   function rack(title, cols, rows) {
     if (!rows.length) return '<div class="card"><p style="color:var(--muted)">暂无数据，管理员可在后台「资料管理员」维护。</p></div>';
     var head = cols.map(function (c) { return "<th>" + c[0] + "</th>"; }).join("");
@@ -27,12 +40,19 @@
       return "<tr>" + cols.map(function (c) {
         var v = r[c[1]];
         var cls = c[2] || "";
-        if (c[1] === "profit" || c[1] === "cur" || c[1] === "value" || c[1] === "price") cls += " profit-up";
+        if (c[1] === "profit" || c[1] === "cur" || c[1] === "value" || c[1] === "price" || c[1] === "cost") cls += " profit-up";
         return '<td class="' + cls.trim() + '">' + (v == null || v === "" ? "—" : (typeof v === "number" ? fmt(v) : esc(v))) + "</td>";
       }).join("") + "</tr>";
     }).join("");
     return '<div class="card" style="padding:0;overflow:auto"><table class="tbl">' +
       "<thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  function tierRack(title, cols, rows, groupKey, order) {
+    if (!rows.length) return '<div class="card"><p style="color:var(--muted)">暂无数据，管理员可在后台「资料管理员」维护。</p></div>';
+    var g = groupBy(rows, groupKey, order);
+    return g.keys.map(function (k) {
+      return '<div class="section-title" style="font-size:16px;margin:16px 0 8px">' + esc(k) + '</div>' + rack(k, cols, g.groups[k]);
+    }).join("");
   }
 
   function withData(fn) { return function () { return fn(DATAH()); }; }
@@ -43,8 +63,9 @@
     _D = D;
     D.VIEWS.armors = { html: withData(function () {
       return '<div class="section-title">🛡 防具基础数据一览</div>' +
-        rack("防具", [["名称", "name"], ["类型", "type"], ["稀有度", "rarity"], ["护甲", "armor", "r-common"], ["耐久", "dura"], ["减伤", "dr"], ["移动", "mob"], ["简介", "desc"]],
-          D.getData().armors || []);
+        '<p class="guide-intro">按《三角洲行动》护甲等级（1～6 级）分组，数据含耐久、减伤、移动惩罚与简要评价。</p>' +
+        tierRack("防具", [["名称", "name"], ["类型", "type"], ["稀有度", "rarity"], ["护甲", "armor", "r-common"], ["耐久", "dura"], ["减伤", "dr"], ["移动", "mob"], ["简介", "desc"]],
+          D.getData().armors || [], "tier", ["Ⅰ级", "Ⅱ级", "Ⅲ级", "Ⅳ级", "Ⅴ级", "Ⅵ级", "—"]);
     }) };
     D.VIEWS.scopes = { html: withData(function () {
       return '<div class="section-title">🔭 瞄具开镜样式一览</div>' +
@@ -58,8 +79,9 @@
     }) };
     D.VIEWS.upgrades = { html: withData(function () {
       return '<div class="section-title">⬆ 特勤处升级花销</div>' +
-        rack("升级", [["项目", "name"], ["等级", "level"], ["花费", "cost", "profit-up"], ["回报", "return"], ["说明", "desc"]],
-          D.getData().upgrades || []);
+        '<p class="guide-intro">按设施分组展示升级所需哈夫币、回报与解锁材料。训练中心/靶场满级 7 级，其余设施满级 4 级。</p>' +
+        tierRack("升级", [["项目", "name"], ["等级", "level"], ["花费", "cost", "profit-up"], ["回报", "return"], ["说明", "desc"]],
+          D.getData().upgrades || [], "name", ["训练中心", "靶场", "工作台", "制药台", "防具台", "技术中心"]);
     }) };
     D.VIEWS.expansion = { html: withData(function () {
       return '<div class="section-title">📦 扩容箱兑换价格</div>' +

@@ -79,22 +79,33 @@
   }
 
   /* ---------------- 伤害模拟器 ---------------- */
-  function dmgOut(w, prot, dist) {
-    var penF = (w.pen >= prot) ? 1 : (prot > 0 ? w.pen / prot : 1);
+  function bulletPen(level) {
+    // 子弹等级 1~6 对应穿透力 10~60，等级高于护甲防护时更易全额伤害
+    return Math.max(1, Math.min(6, level || 1)) * 10;
+  }
+  function dmgOut(w, prot, dist, bulletLevel) {
+    var pen = bulletPen(bulletLevel);
+    var penF = (pen >= prot) ? 1 : (prot > 0 ? pen / prot : 1);
     var rangeF = 1;
     if (dist > w.range) rangeF = Math.max(0.4, 1 - ((dist - w.range) / 10) * 0.08);
-    return { penF: penF, rangeF: rangeF, out: w.dmg * penF * rangeF };
+    return { pen: pen, penF: penF, rangeF: rangeF, out: w.dmg * penF * rangeF };
   }
-  function weaponReport(w, prot, dist, hp) {
-    var r = dmgOut(w, prot, dist);
+  function weaponReport(w, prot, dist, hp, bulletLevel) {
+    var r = dmgOut(w, prot, dist, bulletLevel);
     var dps = r.out * (w.rof / 60);
     var ttk = r.out > 0 ? hp / dps : 0;
     var shots = r.out > 0 ? Math.ceil(hp / r.out) : 0;
     return { r: r, dps: dps, ttk: ttk, shots: shots };
   }
+  function bulletLevelOpts(sel) {
+    var html = '';
+    for (var i = 1; i <= 6; i++) { html += '<option value="' + i + '"' + (i === (sel || 1) ? ' selected' : '') + '>' + i + '级子弹</option>'; }
+    return html;
+  }
   function armorHtml2(D) {
     var g = getData(D);
     return '<div class="sim-row"><label>目标护甲</label><select id="tgtArmor">' + opt(g.armors, 3) + "</select></div>" +
+      '<div class="sim-row"><label>子弹等级</label><select id="bulletLevel">' + bulletLevelOpts(3) + "</select></div>" +
       '<div class="sim-row"><label>目标生命值</label><input type="number" id="tgtHealth" value="100" min="1"></div>' +
       '<div class="sim-row"><label>交战距离 (m)</label><input type="number" id="tgtDist" value="40" min="0"></div>';
   }
@@ -118,27 +129,29 @@
     var a = g.armors[+document.getElementById("tgtArmor").value];
     var hp = +document.getElementById("tgtHealth").value || 100;
     var dist = +document.getElementById("tgtDist").value || 0;
+    var bulletLevel = +document.getElementById("bulletLevel").value || 1;
     var prot = a.protection;
-    var rA = weaponReport(wA, prot, dist, hp);
+    var rA = weaponReport(wA, prot, dist, hp, bulletLevel);
     function row(w, r) {
       return "<tr><td>" + w.name + "</td>" +
+        '<td style="text-align:right">' + bulletLevel + '级</td>' +
         '<td style="text-align:right">' + w.dmg + "</td>" +
         '<td style="text-align:right">' + Math.round(r.out * 10) / 10 + "</td>" +
         '<td style="text-align:right">' + Math.round(r.dps) + "</td>" +
         '<td style="text-align:right">' + (r.ttk > 0 ? (Math.round(r.ttk * 100) / 100) + " s" : "—") + "</td>" +
         '<td style="text-align:right">' + r.shots + "</td></tr>";
     }
-    var html = '<table class="tbl"><thead><tr><th>武器</th><th style="text-align:right">裸伤</th><th style="text-align:right">实伤</th><th style="text-align:right">DPS</th><th style="text-align:right">TTK</th><th style="text-align:right">射击数</th></tr></thead><tbody>' +
+    var html = '<table class="tbl"><thead><tr><th>武器</th><th style="text-align:right">子弹</th><th style="text-align:right">裸伤</th><th style="text-align:right">实伤</th><th style="text-align:right">DPS</th><th style="text-align:right">TTK</th><th style="text-align:right">射击数</th></tr></thead><tbody>' +
       row(wA, rA);
     if (wB) {
-      var rB = weaponReport(wB, prot, dist, hp);
+      var rB = weaponReport(wB, prot, dist, hp, bulletLevel);
       html += row(wB, rB);
       html += "</tbody></table>";
       var winner = rA.ttk === 0 ? "A（瞬杀）" : rB.ttk === 0 ? "B（瞬杀）" : (rA.ttk < rB.ttk ? (wA.name + " 更快") : (rA.ttk > rB.ttk ? (wB.name + " 更快") : "持平"));
       html += '<div class="sim-kpis"><div class="kpi"><div class="num">' + winner + '</div><div class="label">击杀速度对比</div></div>' +
         '<div class="kpi"><div class="num">' + Math.round(rA.r.penF * 100) + "% / " + Math.round((wB ? rB.r.penF * 100 : 0)) + '%</div><div class="label">穿甲效率 A / B</div></div></div>';
     } else {
-      html += "</tbody></table><p class='sim-note'>实伤 = 裸伤 × 穿甲系数（护甲值 vs 穿甲）× 距离衰减。护甲值 " + prot + "，距离 " + dist + "m。</p>";
+      html += "</tbody></table><p class='sim-note'>实伤 = 裸伤 × 穿甲系数（子弹穿透 " + bulletPen(bulletLevel) + " vs 护甲值 " + prot + "）× 距离衰减。距离 " + dist + "m。</p>";
     }
     document.getElementById("dmgResult").innerHTML = html;
   }
@@ -158,7 +171,7 @@
     D.VIEWS.sim_damage = {
       html: function () { return damageHtml(D); },
       init: function () {
-        ["wA", "wB", "tgtArmor", "tgtHealth", "tgtDist"].forEach(function (id) {
+        ["wA", "wB", "tgtArmor", "bulletLevel", "tgtHealth", "tgtDist"].forEach(function (id) {
           document.getElementById(id).addEventListener("input", function () { damageCalc(D); });
           document.getElementById(id).addEventListener("change", function () { damageCalc(D); });
         });

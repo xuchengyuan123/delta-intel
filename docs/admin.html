@@ -153,8 +153,7 @@
           <input id="tokenInput" type="password" placeholder="粘贴 Token" />
         </div>
         <div class="login-field">
-          <label>选择管理员角色</label>
-          <div class="login-roles" id="rolePicker"></div>
+          <div class="lg-hint">总管理员登录后拥有全部面板权限；若需创建/管理分管理员，请登录后进入「分管理员管理」。</div>
         </div>
       </div>
       <div class="lg-pane" data-pane="worker">
@@ -434,6 +433,7 @@
 
     function renderRolePicker() {
       var box = document.getElementById("rolePicker");
+      if (!box) return;
       box.innerHTML = Object.keys(ROLES).map(function (k) {
         var r = ROLES[k];
         var on = k === activeRole ? " active" : "";
@@ -532,6 +532,7 @@
         .then(function (r) { return r.json(); })
         .then(function (u) {
           if (u && u.login) {
+            activeRole = "super";
             setRole(activeRole);
             err.textContent = "";
             enterShell(u.login);
@@ -629,22 +630,63 @@
         c.innerHTML = '<div class="status" style="color:#ff5b5b">只有总管理员可管理分管理员账号。</div>';
         return;
       }
-      var roleOpts = Object.keys(ROLES).filter(function (k) { return k !== "super"; }).map(function (k) {
-        return '<option value="' + k + '">' + ROLES[k].name + " (" + k + ")</option>";
-      }).join("");
-      roleOpts = '<option value="subadmin">自定义分管理员 (subadmin)</option>' + roleOpts;
+
+      var selectedSaRole = "tasks";
+      var subRoles = Object.keys(ROLES).filter(function (k) { return k !== "super"; });
+
+      function roleCardsHtml() {
+        return '<div class="login-roles" id="saRoleCards" style="margin-bottom:12px">' + subRoles.map(function (k) {
+          var r = ROLES[k];
+          var on = k === selectedSaRole ? " active" : "";
+          return '<label class="login-role' + on + '" data-role="' + k + '" style="cursor:pointer">' +
+            '<input type="radio" name="sarole" value="' + k + '"' + (on ? " checked" : "") + '>' +
+            '<span class="dot" style="background:' + r.color + '"></span>' + r.icon + " " + r.name + "</label>";
+        }).join("") + '</div><div class="panel-tip" id="saRoleDesc" style="margin-top:0"></div>';
+      }
+      function updateRoleDesc() {
+        var r = ROLES[selectedSaRole];
+        var descEl = document.getElementById("saRoleDesc");
+        if (!descEl || !r) return;
+        var panelNames = r.panels.map(function (p) { var P = PANELS[p]; return P ? P.icon + " " + P.label : p; }).join("、");
+        descEl.innerHTML = '<b>' + r.icon + " " + r.name + '</b> 可管理：' + panelNames;
+      }
+
       c.innerHTML =
-        '<div class="panel-tip">创建分管理员账号（写入 Cloudflare Worker 的 KV，密码经 PBKDF2 哈希存储）。分管理员随后可用「邮箱/手机号 + 密码或验证码」登录本后台，权限由所选角色决定。</div>' +
-        '<div class="sa-form">' +
-          '<div class="login-field"><label>邮箱（必填）</label><input id="saEmail" placeholder="subadmin@example.com"></div>' +
-          '<div class="login-field"><label>密码（≥6 位）</label><input id="saPw" type="password" placeholder="密码"></div>' +
-          '<div class="login-field"><label>手机号（可选，用于手机号登录）</label><input id="saPhone" placeholder="13800000000"></div>' +
-          '<div class="login-field"><label>分配角色</label><select id="saRole">' + roleOpts + '</select></div>' +
-          '<button class="btn" id="saCreate">创建分管理员</button>' +
-          '<div class="msg" id="saMsg"></div>' +
+        '<div class="panel-card" style="margin-bottom:16px">' +
+          '<h3>📖 分管理员使用说明</h3>' +
+          '<div class="panel-tip">' +
+            '<p><b>1. 什么是分管理员？</b><br>总管理员可创建多个分管理员账号，每个账号只能进入指定模块，避免误改其它数据。例如：美术管理员只能改美术、音乐管理员只能改音乐。</p>' +
+            '<p><b>2. 登录方式</b><br>分管理员在后台登录页切换到「分管理员·账号」标签，输入<b>邮箱或手机号</b> + <b>密码</b>，或点击「获取验证码」用验证码免密登录。</p>' +
+            '<p><b>3. 如何创建账号</b><br>在下方填写邮箱、密码（≥6 位）、可选手机号，点选上方角色卡片，然后点击「创建分管理员」。账号信息写入 Cloudflare Worker 的 KV。</p>' +
+            '<p><b>4. 先决条件</b><br>必须已部署并填写 Cloudflare Worker 地址；Worker 需配置 USERS、SESSIONS、CODES 三个 KV 命名空间，以及 EmailJS 等 Secret。</p>' +
+            '<p><b>5. 安全提醒</b><br>总管理员的 GitHub Token 与分管理员的会话令牌都只存在本浏览器，不会上传到第三方服务器。建议用完点右上角「退出」。</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="panel-card">' +
+          '<h3>➕ 创建分管理员</h3>' +
+          '<div class="panel-tip">选择角色卡片后填写账号信息，即可创建。不同角色对应不同后台模块权限。</div>' +
+          '<div class="sa-form">' +
+            '<div class="login-field"><label>分配角色（点击选择）</label>' + roleCardsHtml() + '</div>' +
+            '<div class="login-field"><label>邮箱（必填）</label><input id="saEmail" placeholder="subadmin@example.com"></div>' +
+            '<div class="login-field"><label>密码（≥6 位）</label><input id="saPw" type="password" placeholder="密码"></div>' +
+            '<div class="login-field"><label>手机号（可选，用于手机号登录）</label><input id="saPhone" placeholder="13800000000"></div>' +
+            '<button class="btn" id="saCreate">创建分管理员</button>' +
+            '<div class="msg" id="saMsg"></div>' +
+          '</div>' +
         '</div>' +
         '<h3 style="margin-top:18px">现有账号</h3>' +
         '<div id="saList"><div class="status">加载中…</div></div>';
+
+      // 绑定角色卡片点击
+      document.getElementById("saRoleCards").querySelectorAll(".login-role").forEach(function (el) {
+        el.addEventListener("click", function () {
+          selectedSaRole = el.getAttribute("data-role");
+          document.getElementById("saRoleCards").querySelectorAll(".login-role").forEach(function (x) { x.classList.remove("active"); });
+          el.classList.add("active");
+          updateRoleDesc();
+        });
+      });
+      updateRoleDesc();
 
       function loadList() {
         var list = document.getElementById("saList");
@@ -653,8 +695,9 @@
           var us = (j.users || []);
           if (!us.length) { list.innerHTML = '<div class="status">暂无账号。</div>'; return; }
           list.innerHTML = '<div class="ui-role-grid">' + us.map(function (u) {
+            var r = ROLES[u.role] || { name: u.role, icon: "🛡", color: "#8a7bff" };
             return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.email) +
-              "<br><small style=\"color:var(--muted)\">" + (u.phone || "无手机") + " · " + esc(u.role) + "</small></div>" +
+              "<br><small style=\"color:var(--muted)\">" + (u.phone || "无手机") + " · " + r.icon + " " + esc(r.name) + "</small></div>" +
               (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') + "</div>";
           }).join("") + "</div>";
         }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
@@ -664,7 +707,7 @@
         var email = document.getElementById("saEmail").value.trim();
         var pw = document.getElementById("saPw").value;
         var phone = document.getElementById("saPhone").value.trim();
-        var role = document.getElementById("saRole").value;
+        var role = selectedSaRole;
         var msg = document.getElementById("saMsg");
         if (!email || !pw || pw.length < 6) { msg.className = "msg err"; msg.textContent = "邮箱必填，密码至少 6 位。"; return; }
         msg.className = "msg"; msg.textContent = "创建中…";

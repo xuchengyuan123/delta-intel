@@ -717,9 +717,9 @@
               else if (m && m.count) {
                 var top = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 5);
                 body.innerHTML = '最新 ' + m.count + ' 项交易行价格<br>' + top.map(function (x) { return '<span class="lp-mini">' + esc(x.name) + ' <b>' + fmt(x.price) + '</b></span>'; }).join("");
-              } else { body.textContent = "正在加载实时物价…"; }
+              } else { body.textContent = m && m.count === 0 ? "暂无数据" : "正在加载实时物价…"; }
             }
-            // 高价格浮动材料：取实时价格 top4 高价（可排除子弹/枪械等，优先材料相关）
+            // 高价格浮动材料：数据源没有独立的「材料」分类，改为展示实时价格 Top 6 高价物品（多为头盔/护甲/背包/钥匙等高价值装备）
             var mb = document.getElementById("kkMaterialsBody");
             if (mb) {
               var meta = lp.meta();
@@ -727,21 +727,21 @@
                 mb.innerHTML = '<div class="kk-empty">实时源暂不可用：' + esc(meta.error) + '</div>';
               } else {
                 var all = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
-                // 优先选分类含"材料"/"原料"/"工具"/"零件"；否则取 top4
-                var mats = all.filter(function (x) { var c = String(x.cat || ""); return c.indexOf("材料") > -1 || c.indexOf("原料") > -1 || c.indexOf("工具") > -1 || c.indexOf("零件") > -1; }).slice(0, 4);
-                if (!mats.length) mats = all.slice(0, 4);
+                var mats = all.slice(0, 6);
                 mb.innerHTML = renderMaterialsLive(mats);
               }
             }
-            // 热门子弹：取实时价格中分类含"弹"的前十
+            // 热门子弹：实时数据源中子弹按口径分类（如 5.56x45mm、9x19mm），不是「弹」字，改用口径模式识别
             var bb = document.getElementById("kkBulletsBody");
             if (bb) {
               var meta2 = lp.meta();
               if (meta2 && meta2.error) {
                 bb.innerHTML = '<div class="kk-empty">实时源暂不可用：' + esc(meta2.error) + '</div>';
               } else {
-                var bls = lp.list().filter(function (x) { var c = String(x.cat || ""); return c.indexOf("弹") > -1 || c.indexOf("Bullet") > -1; })
-                  .sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 10);
+                var bls = lp.list().filter(function (x) {
+                  var c = String(x.cat || "");
+                  return /mm|Gauge|Magnum|ACP|AE|R$|复合弓箭矢/.test(c);
+                }).sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 10);
                 bb.innerHTML = renderBulletsLive(bls);
               }
             }
