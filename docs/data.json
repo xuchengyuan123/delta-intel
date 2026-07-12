@@ -323,6 +323,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-12 11:22",
+      "role": "总管理员",
+      "action": "更新近战武器 / 刀皮数值面板（2）"
+    },
+    {
       "time": "2026-07-12 11:14",
       "role": "总管理员",
       "action": "更新近战武器（2）"
@@ -3334,15 +3339,37 @@
   "melee": [
     {
       "name": "战术匕首",
-      "dmg": 0,
-      "speed": "",
-      "note": ""
+      "category": "",
+      "tier": "",
+      "quality": "",
+      "effect": "",
+      "acquire": "",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": ""
     },
     {
       "name": "黑鹰",
-      "dmg": 0,
-      "speed": "",
-      "note": ""
+      "category": "",
+      "tier": "",
+      "quality": "",
+      "effect": "",
+      "acquire": "",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": ""
     }
   ],
   "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",
