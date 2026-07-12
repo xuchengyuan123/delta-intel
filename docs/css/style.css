@@ -1005,3 +1005,51 @@ html.compact .field { margin-bottom: 8px; }
 .task-search input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(25,195,166,.15); }
 .seg-btn { transition:.12s; }
 .section-title { letter-spacing:.2px; }
+
+/* ===== 新手速览 ===== */
+.guide-modules { display:flex; flex-direction:column; gap:18px; }
+.gd-module { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+.gd-module-h { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; margin-bottom:14px; color:var(--text); }
+.gd-module-ico { font-size:22px; }
+.gd-cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px; }
+.gd-card { background:var(--bg-soft); border:1px solid var(--border); border-radius:10px; padding:14px; }
+.gd-card-title { font-weight:700; font-size:14px; margin-bottom:8px; color:var(--accent-2); }
+.gd-card-text { font-size:13px; color:var(--muted); line-height:1.7; }
+
+/* ===== 电竞选手测试 ===== */
+.quiz-wrap { max-width:680px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+.quiz-progress { font-size:13px; color:var(--muted); margin-bottom:12px; }
+.quiz-q { font-size:18px; font-weight:700; margin-bottom:20px; line-height:1.5; }
+.quiz-opts { display:flex; flex-direction:column; gap:10px; }
+.quiz-opt { text-align:left; padding:14px 16px; background:var(--bg-soft); border:1px solid var(--border); border-radius:10px; color:var(--text); cursor:pointer; font-size:14px; transition:.15s; }
+.quiz-opt:hover { border-color:var(--accent); background:var(--bg-elev); }
+.quiz-result { text-align:center; padding:20px; }
+.quiz-result-icon { font-size:48px; margin-bottom:10px; }
+.quiz-result-role { font-size:24px; font-weight:800; color:var(--accent); margin-bottom:10px; }
+.quiz-result-desc { font-size:15px; color:var(--text); margin-bottom:12px; line-height:1.7; }
+.quiz-result-suggest { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.quiz-retry { padding:10px 24px; background:var(--accent-2); color:#fff; border:0; border-radius:8px; cursor:pointer; font-size:14px; }
+
+/* ===== 工具箱 ===== */
+.tool-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px; }
+.tool-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.tool-card-h { font-size:16px; font-weight:700; margin-bottom:12px; color:var(--accent); }
+.tool-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.tool-row:last-child { border-bottom:0; }
+.tool-row span { color:var(--muted); }
+.tool-row b { color:var(--text); margin-right:4px; }
+
+/* ===== 反馈页 ===== */
+.fb-wrap { max-width:720px; margin:40px auto; padding:20px; }
+.fb-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
+.fb-card h2 { margin:0 0 16px; font-size:20px; color:var(--accent); }
+.fb-card p { line-height:1.8; color:var(--text); margin:8px 0; }
+.fb-card a { color:var(--accent-2); text-decoration:none; }
+.fb-card a:hover { text-decoration:underline; }
+.fb-option { display:flex; align-items:center; gap:12px; padding:14px 16px; border:1px solid var(--border); border-radius:8px; margin:10px 0; background:var(--bg-soft); cursor:pointer; transition:.15s; }
+.fb-option:hover { border-color:var(--accent); }
+.fb-option .ico { font-size:24px; }
+.fb-option .meta { flex:1; }
+.fb-option .title { font-weight:600; color:var(--text); }
+.fb-option .sub { font-size:13px; color:var(--muted); margin-top:2px; }
+.fb-back { display:inline-block; margin-top:20px; padding:10px 18px; background:var(--accent); color:#fff; border-radius:6px; text-decoration:none; }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>网站反馈 - 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .fb-wrap{max-width:720px;margin:40px auto;padding:20px}
+    .fb-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+    .fb-card h2{margin:0 0 16px;font-size:20px;color:var(--accent)}
+    .fb-card p{line-height:1.8;color:var(--text);margin:8px 0}
+    .fb-card a{color:var(--accent-2);text-decoration:none}
+    .fb-card a:hover{text-decoration:underline}
+    .fb-option{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:8px;margin:10px 0;background:var(--bg-soft);cursor:pointer;transition:.15s}
+    .fb-option:hover{border-color:var(--accent)}
+    .fb-option .ico{font-size:24px}
+    .fb-option .meta{flex:1}
+    .fb-option .title{font-weight:600;color:var(--text)}
+    .fb-option .sub{font-size:13px;color:var(--muted);margin-top:2px}
+    .fb-back{display:inline-block;margin-top:20px;padding:10px 18px;background:var(--accent);color:#fff;border-radius:6px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="fb-wrap">
+    <div class="fb-card">
+      <h2>💬 三角洲情报台 · 统一反馈入口</h2>
+      <p>我们想把所有反馈集中到一个地方，避免微信群、QQ、B站私信、邮件到处散落。下面是几种推荐方案，请选择一个你最方便的渠道：</p>
+    </div>
+
+    <div class="fb-card">
+      <h2>方案 A：腾讯问卷（推荐，零成本）</h2>
+      <div class="fb-option">
+        <span class="ico">📋</span>
+        <div class="meta">
+          <div class="title">腾讯问卷收集表</div>
+          <div class="sub">表单数据自动汇总，支持图片/附件，可导出 Excel，国内访问最快。</div>
+        </div>
+      </div>
+      <p>管理员可在 <a href="https://wj.qq.com" target="_blank" rel="noopener">wj.qq.com</a> 免费创建问卷，把链接填到下面「集中地址」即可。</p>
+    </div>
+
+    <div class="fb-card">
+      <h2>方案 B：飞书多维表格</h2>
+      <div class="fb-option">
+        <span class="ico">📊</span>
+        <div class="meta">
+          <div class="title">飞书多维表格 + 表单视图</div>
+          <div class="sub">可自动推送到群，支持多人协作处理，适合有运营团队的站点。</div>
+        </div>
+      </div>
+      <p>创建表单视图后，把公开填写链接填到「集中地址」。</p>
+    </div>
+
+    <div class="fb-card">
+      <h2>方案 C：GitHub Issues</h2>
+      <div class="fb-option">
+        <span class="ico">🐙</span>
+        <div class="meta">
+          <div class="title">GitHub Issues 公开反馈</div>
+          <div class="sub">适合技术型站点，可贴截图、打标签、追踪修复进度；但国内访问可能较慢。</div>
+        </div>
+      </div>
+      <p>需要先把仓库公开，并把 Issues 链接填到「集中地址」。</p>
+    </div>
+
+    <div class="fb-card">
+      <h2>方案 D：企业微信群 / 微信群</h2>
+      <div class="fb-option">
+        <span class="ico">💬</span>
+        <div class="meta">
+          <div class="title">微信群 / 企业微信群收集</div>
+          <div class="sub">最接地气，玩家可直接聊天；但反馈难以归档和检索，需要人工整理。</div>
+        </div>
+      </div>
+      <p>把群二维码或邀请链接填到「集中地址」。</p>
+    </div>
+
+    <div class="fb-card">
+      <h2>当前集中地址（管理员配置）</h2>
+      <p>管理员可在后台「网站反馈」面板配置最终跳转地址。当前默认展示本页，等管理员选定方案后统一替换。</p>
+      <p>如果你有紧急反馈，也可以直接发邮件到：<a href="mailto:feedback@delta-intel.local">feedback@delta-intel.local</a>（请管理员在后台替换为真实邮箱）。</p>
+    </div>
+
+    <a class="fb-back" href="index.html">← 返回情报台</a>
+  </div>
+</body>
+</html>

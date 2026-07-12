@@ -185,6 +185,28 @@
   /* ---------- 复用片段 ---------- */
   function gradeClass(g) { return "r-" + (g || "common"); }
 
+  // 优先取实时数据源的最新时间，避免首页“每日更新”永远卡死在 data.json 的静态 updatedAt
+  function latestUpdateText() {
+    var ts = 0;
+    var src = "data.json";
+    if (window.DF && window.DF.mapPass) {
+      var m = window.DF.mapPass.meta();
+      if (m && m.ts && m.ts > ts) { ts = m.ts; src = "地图密码 API"; }
+    }
+    if (window.DF && window.DF.livePrice) {
+      var m = window.DF.livePrice.meta();
+      if (m && m.ts && m.ts > ts) { ts = m.ts; src = "实时物价 API"; }
+    }
+    if (!ts && DATA && DATA.updatedAt) { ts = new Date(DATA.updatedAt).getTime(); }
+    if (!ts || ts <= 0) return "同步中…";
+    return new Date(ts).toLocaleString("zh-CN") + " · " + src;
+  }
+
+  function updateHeroTime() {
+    var el = document.getElementById("kkHeroTime");
+    if (el) el.textContent = latestUpdateText();
+  }
+
   function topItemsTable() {
     var rows = (DATA.items || []).map(function (i) {
       return "<tr>" +
@@ -467,7 +489,7 @@
       html: function () {
         return '<div class="kk-hero"><div class="kk-hero-t"><h1>三角洲情报台</h1>' +
           '<p>每日密码 · 产物利润 · 材料价格 · 一屏看全</p></div>' +
-          '<div class="kk-hero-u">每日更新 · ' + (DATA.updatedAt ? new Date(DATA.updatedAt).toLocaleString("zh-CN") : "加载中") + '</div></div>' +
+          '<div class="kk-hero-u" id="kkHeroTime">每日更新 · 同步中…</div></div>' +
           homeTaskStrip() +
           '<div class="kk-board">' +
             kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() + kkLivePriceBlock() +
@@ -476,6 +498,7 @@
       init: function () {
         // 首页加载并注入实时数据：地图密码、密码门、实时物价 top5、活动物品价格
         function tryUpdate() {
+          updateHeroTime();
           if (window.DF && window.DF.mapPass) {
             var mp = window.DF.mapPass;
             var list = mp.list();
@@ -647,7 +670,8 @@
               }
             }).catch(function () { resolveAndRender(); });
         } else {
-          if (lp && lp.ready() && lp.ready().items.length) resolveAndRender();
+          var lp = window.DF && window.DF.livePrice ? window.DF.livePrice : null;
+          if (lp && lp.ready() && lp.ready().items && lp.ready().items.length) resolveAndRender();
           else if (window.DF && window.DF.livePrice) window.DF.livePrice.load(true).then(resolveAndRender);
           if (window.DF && window.DF.livePrice) window.DF.livePrice.onChange(resolveAndRender);
         }

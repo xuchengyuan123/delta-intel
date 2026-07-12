@@ -313,10 +313,10 @@
   "adminLog": [],
   "tasks": {
     "season": "S10 裂变",
-    "updated": "2026-07-11",
+    "updated": "2026-07-12",
     "search": "",
-    "note": "S10「裂变」赛季（2026-06-26 开启）。3×3 任务分三大板块：赛季主线任务、收集者委托、命运契约。标注「烽火地带」的任务需在烽火地带模式完成。",
-    "source": "S10 任务体系（命运契约7个/收集者委托/4阶段主线）来自 ali213 游侠 S10 任务站：https://app.ali213.net/zt/sjzxd/s10sjrw/ （与 18183/7724 等多家攻略交叉核对，契约按周逐步解锁，不同攻略列出的子集略有差异，以该站全量为准）",
+    "note": "S10「裂变」赛季（2026-06-26 开启）。3×3 任务分四大阶段主线 + 星级支线 + 收集者委托 + 命运契约。数据来自 ali213/7724/18183 等多家攻略站交叉核对，以游戏内实际为准。",
+    "source": "S10 任务体系来自 youxiabc.com、ali213.net、7724.com、18183.com 等攻略站交叉核对；命运契约按周逐步解锁。",
     "groups": [
       {
         "id": "g_main",
@@ -375,279 +375,811 @@
           },
           {
             "id": "m8",
-            "title": "配给运用作战",
-            "content": "第一阶段·赛季支线：天空、救赎和希望",
+            "title": "深度定制-1",
+            "content": "第一阶段·赛季支线：深度定制",
             "done": false,
             "open": false
           },
           {
             "id": "m9",
-            "title": "天空·救赎和希望",
-            "content": "第一阶段·赛季支线：天空、救赎和希望",
+            "title": "深度定制-2",
+            "content": "第一阶段·赛季支线：深度定制",
             "done": false,
             "open": false
           },
           {
             "id": "m10",
-            "title": "战略转进",
-            "content": "第一阶段·赛季支线：天空、救赎和希望",
+            "title": "深度定制-3",
+            "content": "第一阶段·赛季支线：深度定制",
             "done": false,
             "open": false
           },
           {
             "id": "m11",
-            "title": "保障有力",
-            "content": "第一阶段·赛季支线：天空、救赎和希望",
+            "title": "深度定制-4",
+            "content": "第一阶段·赛季支线：深度定制",
             "done": false,
             "open": false
           },
           {
             "id": "m12",
+            "title": "深度定制-5",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m13",
+            "title": "夜幕中的老鼠",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m14",
+            "title": "洗消车危机",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m15",
+            "title": "生死时速",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m16",
+            "title": "亦敌亦友",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m17",
+            "title": "谎言与真心",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m18",
+            "title": "战略转进-1",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m19",
+            "title": "战略转进-2",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m20",
+            "title": "战略转进-3",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m21",
+            "title": "战略转进-4",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m22",
+            "title": "战略转进-5",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m23",
+            "title": "保障有力·配件",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m24",
+            "title": "保障有力·防护",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m25",
+            "title": "保障有力·医疗",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m26",
+            "title": "保障有力·火力",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m27",
+            "title": "保障有力·磐石",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m28",
             "title": "数据洪流",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m13",
+            "id": "m29",
             "title": "混乱诗篇",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m14",
+            "id": "m30",
             "title": "沸点",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m15",
+            "id": "m31",
             "title": "辐射初探",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m16",
+            "id": "m32",
             "title": "恐惧",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m17",
+            "id": "m33",
             "title": "链式反应",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m18",
+            "id": "m34",
             "title": "对弈",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m19",
+            "id": "m35",
             "title": "守夜人",
             "content": "第二阶段·赛季主线：分裂的真相",
             "done": false,
             "open": false
           },
           {
-            "id": "m20",
-            "title": "披坚执锐",
-            "content": "第二阶段·赛季支线",
+            "id": "m36",
+            "title": "统治力",
+            "content": "第二阶段·赛季支线：战斗专家",
             "done": false,
             "open": false
           },
           {
-            "id": "m21",
-            "title": "阿萨拉的启明星",
-            "content": "第二阶段·赛季支线",
+            "id": "m37",
+            "title": "锋线前卫",
+            "content": "第二阶段·赛季支线：战斗专家",
             "done": false,
             "open": false
           },
           {
-            "id": "m22",
-            "title": "石与花",
-            "content": "第二阶段·赛季支线",
+            "id": "m38",
+            "title": "抵近射击",
+            "content": "第二阶段·赛季支线：战斗专家",
             "done": false,
             "open": false
           },
           {
-            "id": "m23",
-            "title": "无名梦魇",
-            "content": "第二阶段·赛季支线",
+            "id": "m39",
+            "title": "咬紧牙关",
+            "content": "第二阶段·赛季支线：战斗专家",
             "done": false,
             "open": false
           },
           {
-            "id": "m24",
-            "title": "搜索与歼灭",
-            "content": "第二阶段·赛季支线",
+            "id": "m40",
+            "title": "观光客",
+            "content": "第二阶段·赛季支线：战斗专家",
             "done": false,
             "open": false
           },
           {
-            "id": "m25",
-            "title": "控制与保障",
-            "content": "第二阶段·赛季支线",
+            "id": "m41",
+            "title": "阿萨拉飞行员-1",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
             "done": false,
             "open": false
           },
           {
-            "id": "m26",
-            "title": "博物强识·基础收集",
-            "content": "第二阶段·赛季支线",
+            "id": "m42",
+            "title": "阿萨拉飞行员-2",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
             "done": false,
             "open": false
           },
           {
-            "id": "m27",
-            "title": "清洁工作",
-            "content": "第二阶段·赛季支线",
+            "id": "m43",
+            "title": "阿萨拉飞行员-3",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
             "done": false,
             "open": false
           },
           {
-            "id": "m28",
+            "id": "m44",
+            "title": "阿萨拉飞行员-4",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m45",
+            "title": "阿萨拉飞行员-5",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m46",
+            "title": "石与花-1",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m47",
+            "title": "石与花-2",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m48",
+            "title": "石与花-3",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m49",
+            "title": "石与花-4",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m50",
+            "title": "石与花-5",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m51",
+            "title": "搜索与歼灭-1",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m52",
+            "title": "搜索与歼灭-2",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m53",
+            "title": "搜索与歼灭-3",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m54",
+            "title": "搜索与歼灭-4",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m55",
+            "title": "搜索与歼灭-5",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m56",
+            "title": "控制与保障-1",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m57",
+            "title": "控制与保障-2",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m58",
+            "title": "控制与保障-3",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m59",
+            "title": "控制与保障-4",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m60",
+            "title": "控制与保障-5",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m61",
+            "title": "博物强识-1",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m62",
+            "title": "博物强识-2",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m63",
+            "title": "博物强识-3",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m64",
+            "title": "博物强识-4",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m65",
+            "title": "博物强识-5",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m66",
+            "title": "清道夫-1",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m67",
+            "title": "清道夫-2",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m68",
+            "title": "清道夫-3",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m69",
+            "title": "清道夫-4",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m70",
+            "title": "清道夫-5",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m71",
             "title": "脑机校准",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m29",
+            "id": "m72",
             "title": "中子风暴",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m30",
+            "id": "m73",
             "title": "审判",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m31",
+            "id": "m74",
             "title": "暗流",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m32",
+            "id": "m75",
             "title": "凡人之躯",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m33",
+            "id": "m76",
             "title": "雨中泪",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m34",
+            "id": "m77",
             "title": "绝地标杆",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m35",
+            "id": "m78",
             "title": "第三次求救",
             "content": "第三阶段·赛季主线：聚变无声",
             "done": false,
             "open": false
           },
           {
-            "id": "m36",
-            "title": "战斗专家·金枪客",
-            "content": "第三阶段·赛季支线",
+            "id": "m79",
+            "title": "金枪客-1",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
             "done": false,
             "open": false
           },
           {
-            "id": "m37",
-            "title": "战斗专家·狙击精英",
-            "content": "第三阶段·赛季支线",
+            "id": "m80",
+            "title": "金枪客-2",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
             "done": false,
             "open": false
           },
           {
-            "id": "m38",
-            "title": "宝石湾在悲鸣",
-            "content": "第三阶段·赛季支线",
+            "id": "m81",
+            "title": "金枪客-3",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
             "done": false,
             "open": false
           },
           {
-            "id": "m39",
-            "title": "战斗专家·区域猎手",
-            "content": "第三阶段·赛季支线",
+            "id": "m82",
+            "title": "金枪客-4",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
             "done": false,
             "open": false
           },
           {
-            "id": "m40",
-            "title": "机器人在行动",
-            "content": "第三阶段·赛季支线",
+            "id": "m83",
+            "title": "金枪客-5",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
             "done": false,
             "open": false
           },
           {
-            "id": "m41",
+            "id": "m84",
+            "title": "金枪客-6",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m85",
+            "title": "金枪客-7",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m86",
+            "title": "狙击精英-1",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m87",
+            "title": "狙击精英-2",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m88",
+            "title": "狙击精英-3",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m89",
+            "title": "狙击精英-4",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m90",
+            "title": "狙击精英-5",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m91",
+            "title": "红区",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m92",
+            "title": "英雄遗孀",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m93",
+            "title": "铁幕之后",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m94",
+            "title": "幸存者",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m95",
+            "title": "辐射余波",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m96",
+            "title": "区域猎手·行动开始",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m97",
+            "title": "区域猎手·AZ3",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m98",
+            "title": "区域猎手·巴别塔",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m99",
+            "title": "区域猎手·中心区",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m100",
+            "title": "我心永恒",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m101",
+            "title": "核电站遇袭",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m102",
+            "title": "三方会晤",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m103",
+            "title": "逃脱艺术·自掏腰包",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m104",
             "title": "逃脱艺术·金蝉脱壳",
-            "content": "第三阶段·赛季支线",
+            "content": "第三阶段·赛季支线：逃脱艺术",
             "done": false,
             "open": false
           },
           {
-            "id": "m42",
+            "id": "m105",
+            "title": "逃脱艺术·接力棒",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m106",
+            "title": "逃脱艺术·大干一票",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m107",
+            "title": "逃脱艺术·唯我独尊",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m108",
+            "title": "精致人生-1",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m109",
+            "title": "精致人生-2",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m110",
+            "title": "精致人生-3",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m111",
+            "title": "精致人生-4",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m112",
+            "title": "精致人生-5",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m113",
+            "title": "拾荒者-1",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m114",
+            "title": "拾荒者-2",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m115",
+            "title": "拾荒者-3",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m116",
+            "title": "拾荒者-4",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m117",
+            "title": "拾荒者-5",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m118",
             "title": "突入禁区",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
             "open": false
           },
           {
-            "id": "m43",
+            "id": "m119",
             "title": "猫鼠游戏",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
             "open": false
           },
           {
-            "id": "m44",
+            "id": "m120",
             "title": "加速进化",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
             "open": false
           },
           {
-            "id": "m45",
+            "id": "m121",
             "title": "人工干预",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
             "open": false
           },
           {
-            "id": "m46",
+            "id": "m122",
             "title": "决战前夕",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
             "open": false
           },
           {
-            "id": "m47",
+            "id": "m123",
             "title": "相变如初",
             "content": "第四阶段·赛季主线：心聚变",
             "done": false,
@@ -663,21 +1195,21 @@
         "items": [
           {
             "id": "c1",
-            "title": "灵眼3/7弹道计算狙击镜 ×1",
+            "title": "灵眼 3/7 弹道计算狙击镜 ×1",
             "content": "特勤处·技术中心",
             "done": false,
             "open": false
           },
           {
             "id": "c2",
-            "title": "5.8x42mm DVC12子弹 ×1",
+            "title": "5.8x42mm DVC12 子弹 ×1",
             "content": "特勤处·工作台",
             "done": false,
             "open": false
           },
           {
             "id": "c3",
-            "title": "6.8x51mm HYBRID子弹 ×2",
+            "title": "6.8x51mm HYBRID 子弹 ×2",
             "content": "特勤处·工作台",
             "done": false,
             "open": false
@@ -733,7 +1265,7 @@
           },
           {
             "id": "c11",
-            "title": "Wednesday手机 ×1",
+            "title": "Wednesday 手机 ×1",
             "content": "电子/情报",
             "done": false,
             "open": false
@@ -776,49 +1308,49 @@
         "items": [
           {
             "id": "f1",
-            "title": "南征北战",
+            "title": "征服标杆",
             "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
             "done": false,
             "open": false
           },
           {
             "id": "f2",
-            "title": "观光客·沉默锋芒",
-            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
-            "done": false,
-            "open": false
-          },
-          {
-            "id": "f3",
-            "title": "勤俭持家",
-            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
-            "done": false,
-            "open": false
-          },
-          {
-            "id": "f4",
             "title": "异尘余生",
             "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
             "done": false,
             "open": false
           },
           {
-            "id": "f5",
-            "title": "终局联系",
-            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
-            "done": false,
-            "open": false
-          },
-          {
-            "id": "f6",
+            "id": "f3",
             "title": "擒贼擒王·新变量",
             "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
             "done": false,
             "open": false
           },
           {
+            "id": "f4",
+            "title": "勤俭持家",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f5",
+            "title": "南征北战",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f6",
+            "title": "观光客·沉默锋芒",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
             "id": "f7",
-            "title": "征服标杆",
+            "title": "终局联系",
             "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
             "done": false,
             "open": false
@@ -2305,12 +2837,12 @@
     "intro": "从零上手《三角洲行动》。内容分模块组织，每个模块下是要点卡片。数据随官方版本更新，以游戏内为准。",
     "modules": [
       {
-        "title": "入门准备",
+        "title": "基础机制",
         "icon": "🎒",
         "cards": [
           {
             "title": "选对干员",
-            "text": "新手首选全能突击红狼（T0，开荒稳）；组排必带蜂医续航，露娜/骇爪拿信息。"
+            "text": "新手首选全能突击红狼（T0，开荒稳）；组排必带蜂医/蝶续航，露娜/骇爪拿信息。"
           },
           {
             "title": "先赚钱再开图",
@@ -2323,6 +2855,10 @@
           {
             "title": "看懂任务区域",
             "text": "标「烽火地带」的任务要去烽火地带完成，排位/攻防不统计进度。"
+          },
+          {
+            "title": "护甲与血量",
+            "text": "护甲有耐久，打光后受击扣血；不同等级护甲对同级/低级子弹有减免。"
           }
         ]
       },
@@ -2330,6 +2866,10 @@
         "title": "地图与搜刮",
         "icon": "🗺️",
         "cards": [
+          {
+            "title": "地图选择",
+            "text": "零号大坝适合新手熟图；长弓溪谷开阔好搜；航天/巴克什高收益高风险；AZ3 新图带辐射机制。"
+          },
           {
             "title": "胸挂怎么选",
             "text": "突击位轻型 6 槽；搜索位重型 10 槽；医疗位多医疗槽。"
@@ -2344,34 +2884,38 @@
           },
           {
             "title": "容器产出",
-            "text": "工具箱/武器箱/医疗箱/电子箱各有固定产出，见「实用工具」。"
+            "text": "工具箱/武器箱/医疗箱/电子箱各有固定产出，见「工具箱」资料。"
           }
         ]
       },
       {
-        "title": "养成路线",
-        "icon": "🏭",
+        "title": "撤离与赚钱",
+        "icon": "💰",
         "cards": [
           {
-            "title": "特勤处升级",
-            "text": "1→2(5万)…4→5(80万) 解锁全部设施，越高越省材料。"
+            "title": "撤离点机制",
+            "text": "部分撤离点需等待倒计时、携带道具或缴纳费用；提前占位别急。"
           },
           {
-            "title": "扩容箱",
-            "text": "小型 +10 / 中型 +20 / 大型 +40 格，仓库不够再买。"
+            "title": "交易行倒卖",
+            "text": "关注高价格浮动材料（如镜头、盒装挂耳咖啡）的低谷/高峰，低买高卖。"
           },
           {
-            "title": "瞄具挑选",
-            "text": "近战红点/全息，中远 2x/4x，远距 8x；按枪械射程配。"
+            "title": "特勤处产物",
+            "text": "按小时利润排产：工作台子弹、制药台医疗、防具台背心。"
           },
           {
-            "title": "洗消舱（AZ3）",
-            "text": "新赛季针对辐射机制，提升辐射耐受与消退速度。"
+            "title": "任务奖励",
+            "text": "赛季任务、命运契约、收集者委托奖励丰厚，优先推进。"
+          },
+          {
+            "title": "资源循环",
+            "text": "舔包→卖交易行→买改件→再战，形成正循环。"
           }
         ]
       },
       {
-        "title": "战斗要点",
+        "title": "战斗与枪配",
         "icon": "⚔️",
         "cards": [
           {
@@ -2379,16 +2923,72 @@
             "text": "游荡者 / 精英兵 / BOSS（钢铁、渡鸦等），注意血量与护甲。"
           },
           {
+            "title": "子弹等级",
+            "text": "高等级子弹才能穿透高等级护甲；低级子弹打高级甲会刮痧。"
+          },
+          {
+            "title": "瞄具挑选",
+            "text": "近战红点/全息，中远 2x/4x，远距 8x；按枪械射程配。"
+          },
+          {
+            "title": "改枪思路",
+            "text": "先堆后坐控制，再补人机功效，最后根据地图补射程/腰射。"
+          },
+          {
             "title": "周常可叠加",
             "text": "进度跨对局累加，不用单局硬扛，几局凑满即可。"
+          }
+        ]
+      },
+      {
+        "title": "干员与技能",
+        "icon": "🧑‍⚕️",
+        "cards": [
+          {
+            "title": "突击位",
+            "text": "红狼/威龙/疾风/无名：主打主动开点、绕后收割、房区拉扯。"
           },
           {
-            "title": "撤离技巧",
-            "text": "部分撤离点需等待倒计时或携带道具，提前占位别急。"
+            "title": "支援位",
+            "text": "蜂医/蝶：续航与复活，蝶可远程无人机救人，团队容错核心。"
           },
           {
-            "title": "资源循环",
-            "text": "舔包→卖交易行→买改件→再战，形成正循环。"
+            "title": "工程位",
+            "text": "深蓝/牧羊人：阵地防守、声波陷阱、电磁护盾，据点守点无解。"
+          },
+          {
+            "title": "侦查位",
+            "text": "露娜/骇爪：拿信息、探测敌人位置，适合指挥与架枪。"
+          },
+          {
+            "title": "技能配合",
+            "text": "烟雾掩护转点、手炮逼走位、大招集火，沟通比枪法更重要。"
+          }
+        ]
+      },
+      {
+        "title": "避坑指南",
+        "icon": "🚧",
+        "cards": [
+          {
+            "title": "别硬刚 AI",
+            "text": "精英兵和 BOSS 伤害很高，没把握先绕开。"
+          },
+          {
+            "title": "别贪包",
+            "text": "撤离失败等于白给，安全箱满了该走就走。"
+          },
+          {
+            "title": "注意辐射",
+            "text": "AZ3 地图有辐射区，穿戴/携带抗辐射装备或走洗消舱。"
+          },
+          {
+            "title": "组队语音",
+            "text": "报点、报人数、报装备，信息共享能大幅降低翻车率。"
+          },
+          {
+            "title": "版本更新",
+            "text": "赛季调整频繁，关注公告和 KK日报/本站的更新速览。"
           }
         ]
       }
@@ -2504,36 +3104,28 @@
         ]
       }
     ],
-    "results": [
-      {
-        "key": "指挥",
-        "name": "战术指挥型",
-        "icon": "🎯",
-        "desc": "你是队伍的大脑，擅长控图、读节奏、用信息碾压对手。",
-        "tip": "推荐干员：牧羊人、深蓝、蜂医；多沟通、多标点。"
+    "results": {
+      "指挥": {
+        "name": "战场指挥官",
+        "desc": "你擅长读图、控节奏，是队伍里最冷静的头脑。",
+        "suggest": "多和突击/狙击沟通，把信息变成击杀。"
       },
-      {
-        "key": "突击",
-        "name": "正面强攻型",
-        "icon": "🔥",
-        "desc": "你享受刚枪与突破，是打开局面的尖刀。",
-        "tip": "推荐干员：红狼、威龙、疾风；练好身法与对枪。"
+      "突击": {
+        "name": "正面猛男",
+        "desc": "你信奉枪法即真理，喜欢强开局面。",
+        "suggest": "先学会卡位，再学会什么时候不该冲。"
       },
-      {
-        "key": "渗透",
-        "name": "暗影渗透型",
-        "icon": "🌑",
-        "desc": "你偏好绕后、沉默、出其不意，是残局收割机。",
-        "tip": "推荐干员：无名、骇爪、银翼；善用信息差抓单。"
+      "渗透": {
+        "name": "幽灵刺客",
+        "desc": "你绕后、抓单、断节奏，对手永远不知道你在哪里。",
+        "suggest": "保持耐心，信息比击杀更重要。"
       },
-      {
-        "key": "狙击",
-        "name": "远程统治型",
-        "icon": "🎯",
-        "desc": "你用枪线与耐心统治战场，一枪改写局势。",
-        "tip": "推荐干员：露娜、回响、98K；卡点要稳、听声辨位。"
+      "狙击": {
+        "name": "远程死神",
+        "desc": "你善于架枪、控视野，一枪改变战局。",
+        "suggest": "练习预瞄与身位，别给对面反拉机会。"
       }
-    ]
+    }
   },
   "gunBuilds": [
     {
