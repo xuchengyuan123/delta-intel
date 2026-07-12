@@ -2,7 +2,7 @@
  * 策略：关键页面/JS/CSS 永远网络优先，确保新版一上传就生效；
  * 图片/字体等可缓存优先。每次大版本更新请同步修改 CACHE 名称。
  */
-const CACHE = "delta-intel-v6";
+const CACHE = "delta-intel-v8";
 const ASSETS = [
   ".",
   "index.html",

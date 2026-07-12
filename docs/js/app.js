@@ -220,7 +220,7 @@
     });
 
     // 绑定路由点击
-    menuEl.querySelectorAll(".menu-item[data-route]").forEach(function (el) {
+    menuEl.querySelectorAll(".menu-item[data-route], .menu-item-plain[data-route]").forEach(function (el) {
       el.addEventListener("click", function () { navigate(el.getAttribute("data-route")); });
     });
   }
@@ -564,6 +564,158 @@
     }).join("");
   }
 
+  /* ---------- 赛季任务图谱（KK日报式思维导图） ---------- */
+  var TASK_COLORS = {
+    g_phase1: "#3a7bd5",
+    g_phase2: "#7b2cbf",
+    g_phase3: "#ffb300",
+    g_phase4: "#e63946",
+    g_collector: "#2ecc71",
+    g_fate: "#ff6b6b"
+  };
+  function taskGroupColor(gid) { return TASK_COLORS[gid] || "#19c3a6"; }
+  function taskGroupType(g) {
+    if (g.type) return g.type;
+    if (g.id === "g_collector") return "收集者委托";
+    if (g.id === "g_fate") return "命运契约";
+    if (g.id && g.id.indexOf("g_phase") === 0) return "赛季主线";
+    return g.name;
+  }
+  function taskDoneKey() {
+    return "df-tasks-done-" + ((DATA && DATA.tasks && DATA.tasks.season) || "S10");
+  }
+  function getTaskDone(id) {
+    try { var map = JSON.parse(localStorage.getItem(taskDoneKey()) || "{}"); return !!map[id]; }
+    catch (e) { return false; }
+  }
+  function setTaskDone(id, done) {
+    try {
+      var key = taskDoneKey();
+      var map = JSON.parse(localStorage.getItem(key) || "{}");
+      if (done) map[id] = true; else delete map[id];
+      localStorage.setItem(key, JSON.stringify(map));
+    } catch (e) {}
+  }
+  function renderTaskTree(group) {
+    if (!window.go) {
+      var tree = document.getElementById("taskTree");
+      if (tree) tree.innerHTML = '<p style="padding:20px;color:var(--muted)">GoJS 未加载，请联网后刷新。</p>';
+      return;
+    }
+    var $ = go.GraphObject.make;
+    var color = taskGroupColor(group.id);
+    if (window.__taskDiagram) { window.__taskDiagram.div = null; window.__taskDiagram = null; }
+    var diagram = $(go.Diagram, "taskTree", {
+      background: "transparent",
+      initialAutoScale: go.AutoScale.UniformToFit,
+      padding: 24,
+      layout: $(go.TreeLayout, { angle: 0, layerSpacing: 44, nodeSpacing: 18, alignment: go.TreeLayout.AlignmentStart }),
+      "animationManager.isEnabled": false
+    });
+    diagram.linkTemplate = $(go.Link, { routing: go.Routing.Orthogonal, corner: 8, curve: go.Curve.JumpOver },
+      $(go.Shape, { strokeWidth: 2 }, new go.Binding("stroke", "color"))
+    );
+    diagram.nodeTemplate = $(go.Node, "Auto", {
+        cursor: "pointer",
+        selectionAdorned: false,
+        click: function(e, node) { if (node.data && !node.data.isRoot) showTaskModal(node.data); }
+      },
+      $(go.Shape, "RoundedRectangle", { parameter1: 8, strokeWidth: 2 },
+        new go.Binding("fill", "fill"),
+        new go.Binding("stroke", "stroke")
+      ),
+      $(go.Panel, "Vertical", { margin: 10 },
+        $(go.Panel, "Horizontal", { stretch: go.GraphObject.Horizontal, margin: new go.Margin(0, 0, 4, 0) },
+          $(go.TextBlock, { font: "bold 10px 'Microsoft YaHei',sans-serif", stroke: color, maxSize: new go.Size(100, NaN) },
+            new go.Binding("text", "badge")
+          ),
+          $(go.Panel, "Horizontal", { stretch: go.GraphObject.Horizontal }),
+          $(go.TextBlock, { font: "12px 'Microsoft YaHei',sans-serif", stroke: "#9ca3af" },
+            new go.Binding("text", "icon")
+          )
+        ),
+        $(go.TextBlock, { font: "bold 13px 'Microsoft YaHei',sans-serif", stroke: "#e6e9ef", maxSize: new go.Size(150, NaN), wrap: go.TextBlock.WrapFit, textAlign: "center" },
+          new go.Binding("text", "text")
+        )
+      )
+    );
+    window.__taskDiagram = diagram;
+    var nodes = [], links = [];
+    var rootKey = "root:" + group.id;
+    nodes.push({ key: rootKey, text: group.name, isRoot: true, badge: "", icon: "", fill: color, stroke: color, data: null });
+    var prev = rootKey;
+    (group.items || []).forEach(function(it) {
+      var done = getTaskDone(it.id);
+      nodes.push({
+        key: it.id,
+        text: it.title,
+        badge: taskGroupType(group),
+        icon: done ? "✅" : "▼",
+        fill: done ? "rgba(46,204,113,.15)" : "#1f242d",
+        stroke: done ? "#2ecc71" : color,
+        color: color,
+        data: it
+      });
+      links.push({ from: prev, to: it.id, color: color });
+      prev = it.id;
+    });
+    diagram.model = new go.GraphLinksModel(nodes, links);
+  }
+  function showTaskModal(nodeData) {
+    if (!nodeData || !nodeData.data) return;
+    var it = nodeData.data;
+    var groups = (DATA && DATA.tasks && DATA.tasks.groups) || [];
+    var g = null;
+    for (var i = 0; i < groups.length; i++) {
+      if ((groups[i].items || []).some(function(x) { return x.id === it.id; })) { g = groups[i]; break; }
+    }
+    var type = g ? taskGroupType(g) : "赛季任务";
+    var color = g ? taskGroupColor(g.id) : "#19c3a6";
+    var done = getTaskDone(it.id);
+    var goals = (it.goals || []).map(function(x) { return "<li>" + esc(x) + "</li>"; }).join("") || "<li>暂无具体目标</li>";
+    var rewards = (it.reward || "").split(/[、；;]/).filter(function(s) { return s.trim(); }).map(function(x) { return "<li>" + esc(x.trim()) + "</li>"; }).join("") || "<li>暂无</li>";
+    var html = '<div class="task-modal-backdrop" id="taskModalBackdrop">' +
+      '<div class="task-modal">' +
+        '<div class="task-modal-head"><span>任务详情</span><button class="task-modal-close" id="taskModalClose">×</button></div>' +
+        '<div class="task-modal-body">' +
+          '<div class="task-block task-info">' +
+            '<div class="task-row"><label>任务类型</label><span>' + esc(type) + '</span></div>' +
+            '<div class="task-row"><label>任务名称</label><span>' + esc(it.title) + '</span></div>' +
+            '<div class="task-row"><label>任务地图</label><span>' + esc(it.map || "任意地图") + '</span></div>' +
+          '</div>' +
+          '<div class="task-block task-goals"><div class="task-block-title">任务目标</div><ul>' + goals + '</ul></div>' +
+          '<div class="task-block task-reward"><div class="task-block-title">任务奖励</div><ul>' + rewards + '</ul></div>' +
+          (it.note ? '<div class="task-block task-note">' + esc(it.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="task-modal-foot">' +
+          '<button class="btn-mark' + (done ? " done" : "") + '" id="taskModalMark" style="background:' + color + '">' + (done ? "标记未完成" : "标记完成") + '</button>' +
+          '<button class="btn-ok" id="taskModalOk">确定</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    document.body.insertAdjacentHTML("beforeend", html);
+    var backdrop = document.getElementById("taskModalBackdrop");
+    var close = function() { if (backdrop) backdrop.remove(); };
+    document.getElementById("taskModalClose").addEventListener("click", close);
+    document.getElementById("taskModalOk").addEventListener("click", close);
+    backdrop.addEventListener("click", function(e) { if (e.target === backdrop) close(); });
+    document.getElementById("taskModalMark").addEventListener("click", function() {
+      var newDone = !done;
+      setTaskDone(it.id, newDone);
+      var diagram = window.__taskDiagram;
+      if (diagram && diagram.model) {
+        diagram.model.nodeDataArray.forEach(function(n) {
+          if (n.data && n.data.id === it.id) {
+            diagram.model.setDataProperty(n, "fill", newDone ? "rgba(46,204,113,.15)" : "#1f242d");
+            diagram.model.setDataProperty(n, "stroke", newDone ? "#2ecc71" : color);
+            diagram.model.setDataProperty(n, "icon", newDone ? "✅" : "▼");
+          }
+        });
+      }
+      close();
+    });
+  }
+
   /* ---------- 视图 ---------- */
   var VIEWS = {
     home: {
@@ -766,55 +918,43 @@
     tasks: {
       html: function () {
         var tasks = DATA.tasks || {};
-        var groups = (tasks.groups || []).filter(function (g) {
-          return g.id === "g_main" || g.id === "g_collector" || g.id === "g_fate";
-        });
-        var order = { g_main: 0, g_collector: 1, g_fate: 2 };
+        var groups = (tasks.groups || []).filter(function (g) { return g.id && g.id.indexOf("g_") === 0; });
+        var order = { g_phase1: 0, g_phase2: 1, g_phase3: 2, g_phase4: 3, g_collector: 4, g_fate: 5 };
         groups.sort(function (a, b) { return (order[a.id] || 9) - (order[b.id] || 9); });
         if (!groups.length) {
           return '<div class="section-title">赛季任务 / 综合挑战手册</div>' +
             '<div class="card"><p style="color:var(--muted)">暂无任务数据。管理员可在后台 ' +
             '<a href="admin.html">admin.html</a> 维护赛季任务、挑战手册。</p></div>';
         }
-        var q = (tasks.search || "").toLowerCase();
-        var cols = groups.map(function (g) {
-          var items = (g.items || []).filter(function (it) {
-            if (!q) return true;
-            return (it.title + " " + (it.content || "")).toLowerCase().indexOf(q) > -1;
-          });
-          var body = items.map(function (it) {
-            return '<div class="tci' + (it.done ? " done" : "") + '" data-id="' + esc(it.id) + '" role="button" tabindex="0">' +
-              '<span class="tci-cb">' + (it.done ? "✅" : "⭕") + '</span>' +
-              '<span class="tci-title">' + esc(it.title) + '</span>' +
-              (it.content ? '<span class="tci-tag">' + esc(it.content) + '</span>' : '') +
-            '</div>';
-          }).join("") || '<div class="kk-empty">无匹配任务</div>';
-          return '<div class="task-col"><div class="task-col-h ' + (g.cls || "") + '">' + esc(g.name) +
-            '<span class="task-col-n">' + items.length + '</span></div><div class="task-col-body">' + body + '</div></div>';
+        var tabs = groups.map(function (g, idx) {
+          return '<button class="task-tab' + (idx === 0 ? " active" : "") + '" data-tab="' + idx + '">' + esc(g.name) + '</button>';
         }).join("");
         return '<div class="section-title">赛季任务 / 综合挑战手册 <span class="count-badge">' + esc(tasks.season || "S10") + '</span></div>' +
           (tasks.note ? '<p class="guide-intro">' + esc(tasks.note) + '</p>' : '') +
-          '<div class="task-search"><input type="text" id="taskSearch" placeholder="搜索任务…" value="' + esc(tasks.search || "") + '" /></div>' +
-          '<div class="task-cols">' + cols + '</div>';
+          '<div class="task-tabs">' + tabs + '</div>' +
+          '<div class="task-panel active">' +
+            '<div class="task-tree-h" id="taskTreeTitle">' + esc(groups[0].name) + '</div>' +
+            '<div id="taskTree" class="task-tree-diagram"></div>' +
+          '</div>';
       },
       init: function () {
-        var searchInput = document.getElementById("taskSearch");
-        if (searchInput) searchInput.addEventListener("input", function () {
-          DATA.tasks.search = searchInput.value;
-          render("tasks");
+        var tasks = DATA.tasks || {};
+        var groups = (tasks.groups || []).filter(function (g) { return g.id && g.id.indexOf("g_") === 0; });
+        var order = { g_phase1: 0, g_phase2: 1, g_phase3: 2, g_phase4: 3, g_collector: 4, g_fate: 5 };
+        groups.sort(function (a, b) { return (order[a.id] || 9) - (order[b.id] || 9); });
+        if (!groups.length) return;
+        var tabs = document.querySelectorAll(".task-tab");
+        var title = document.getElementById("taskTreeTitle");
+        function show(idx) {
+          tabs.forEach(function (b, i) { b.classList.toggle("active", i === idx); });
+          if (title) title.textContent = groups[idx].name;
+          renderTaskTree(groups[idx]);
+        }
+        tabs.forEach(function (btn) {
+          btn.addEventListener("click", function () { show(+btn.getAttribute("data-tab")); });
         });
-        document.querySelectorAll(".tci").forEach(function (el) {
-          function toggle() {
-            var id = el.getAttribute("data-id"), found = false;
-            (DATA.tasks.groups || []).forEach(function (g) {
-              (g.items || []).forEach(function (it) { if (it.id === id) { it.done = !it.done; found = true; } });
-            });
-            if (found) render("tasks");
-          }
-          el.addEventListener("click", toggle);
-          el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
-        });
-      },
+        show(0);
+      }
     },
     changelog: {
       html: function () { return changelogHtml(); },
@@ -883,7 +1023,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=2").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=8").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
