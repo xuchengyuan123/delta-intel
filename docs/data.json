@@ -321,7 +321,13 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-12 10:49",
+      "role": "总管理员",
+      "action": "更新音乐列表（3 首）"
+    }
+  ],
   "tasks": {
     "season": "S10 裂变",
     "updated": "2026-07-12",
@@ -2568,8 +2574,7 @@
       "type": "qq",
       "songid": "563352993",
       "dur": "03:57",
-      "tag": "黑鹰坠落片尾曲",
-      "cover": ""
+      "tag": "黑鹰坠落片尾曲"
     },
     {
       "title": "DeltaForce (Main Theme)",
@@ -2577,17 +2582,15 @@
       "type": "qq",
       "songid": "",
       "dur": "03:05",
-      "tag": "主题曲",
-      "cover": ""
+      "tag": "主题曲"
     },
     {
       "title": "星河追梦 (Beyond the Stars)",
       "artist": "三角洲行动 / 黄宗辉",
-      "type": "qq",
-      "songid": "",
+      "type": "link",
+      "songid": "638957157",
       "dur": "03:36",
-      "tag": "威龙凌霄戍卫皮肤主题曲",
-      "cover": ""
+      "tag": "威龙凌霄戍卫皮肤主题曲"
     }
   ],
   "title": "三角洲情报台",
