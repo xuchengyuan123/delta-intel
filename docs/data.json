@@ -323,6 +323,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-12 10:46",
+      "role": "总管理员",
+      "action": "更新音乐列表（3 首）"
+    },
+    {
       "time": "2026-07-12 10:43",
       "role": "总管理员",
       "action": "更新音乐列表（3 首）"
@@ -2592,8 +2597,8 @@
     {
       "title": "星河追梦 (Beyond the Stars)",
       "artist": "三角洲行动 / 黄宗辉",
-      "type": "link",
-      "songid": "https://y.qq.com/n/ryqq_v2/player",
+      "type": "qq",
+      "songid": "638957157",
       "dur": "03:36",
       "tag": "威龙凌霄戍卫皮肤主题曲"
     }
