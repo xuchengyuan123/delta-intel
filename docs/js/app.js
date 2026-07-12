@@ -722,18 +722,28 @@
             // 高价格浮动材料：取实时价格 top4 高价（可排除子弹/枪械等，优先材料相关）
             var mb = document.getElementById("kkMaterialsBody");
             if (mb) {
-              var all = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
-              // 优先选分类含"材料"/"原料"/"工具"/"零件"；否则取 top4
-              var mats = all.filter(function (x) { var c = String(x.cat || ""); return c.indexOf("材料") > -1 || c.indexOf("原料") > -1 || c.indexOf("工具") > -1 || c.indexOf("零件") > -1; }).slice(0, 4);
-              if (!mats.length) mats = all.slice(0, 4);
-              mb.innerHTML = renderMaterialsLive(mats);
+              var meta = lp.meta();
+              if (meta && meta.error) {
+                mb.innerHTML = '<div class="kk-empty">实时源暂不可用：' + esc(meta.error) + '</div>';
+              } else {
+                var all = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
+                // 优先选分类含"材料"/"原料"/"工具"/"零件"；否则取 top4
+                var mats = all.filter(function (x) { var c = String(x.cat || ""); return c.indexOf("材料") > -1 || c.indexOf("原料") > -1 || c.indexOf("工具") > -1 || c.indexOf("零件") > -1; }).slice(0, 4);
+                if (!mats.length) mats = all.slice(0, 4);
+                mb.innerHTML = renderMaterialsLive(mats);
+              }
             }
             // 热门子弹：取实时价格中分类含"弹"的前十
             var bb = document.getElementById("kkBulletsBody");
             if (bb) {
-              var bls = lp.list().filter(function (x) { var c = String(x.cat || ""); return c.indexOf("弹") > -1 || c.indexOf("Bullet") > -1; })
-                .sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 10);
-              bb.innerHTML = renderBulletsLive(bls);
+              var meta2 = lp.meta();
+              if (meta2 && meta2.error) {
+                bb.innerHTML = '<div class="kk-empty">实时源暂不可用：' + esc(meta2.error) + '</div>';
+              } else {
+                var bls = lp.list().filter(function (x) { var c = String(x.cat || ""); return c.indexOf("弹") > -1 || c.indexOf("Bullet") > -1; })
+                  .sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 10);
+                bb.innerHTML = renderBulletsLive(bls);
+              }
             }
             // 活动物品需求：从实时价格自动匹配
             var evBody = document.getElementById("kkEventsBody");
@@ -750,7 +760,15 @@
         }
         tryUpdate();
         if (window.DF && window.DF.mapPass) window.DF.mapPass.onChange(tryUpdate);
-        if (window.DF && window.DF.livePrice) window.DF.livePrice.onChange(tryUpdate);
+        if (window.DF && window.DF.livePrice) {
+          window.DF.livePrice.onChange(tryUpdate);
+        } else {
+          // liveprice.js 在 app.js 之后加载；等它注册完成后再尝试更新并绑定监听
+          window.addEventListener("df:liveprice", function () {
+            if (window.DF && window.DF.livePrice) window.DF.livePrice.onChange(tryUpdate);
+            tryUpdate();
+          }, { once: true });
+        }
       }
     },
     maps: {
@@ -994,7 +1012,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=12").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=13").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

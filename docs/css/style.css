@@ -255,7 +255,6 @@ form label input, .code-area {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .menu-toggle { display: inline-flex; }
 }
-.menu-toggle { display: none; }
 @media (min-width: 769px) { .menu-toggle { display: none; } }
 
 /* ===== 任务列表（赛季任务 / 挑战手册）===== */

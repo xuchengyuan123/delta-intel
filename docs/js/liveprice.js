@@ -65,7 +65,9 @@
       .catch(function (e) {
         // 取不到不要伪造；若有旧缓存就退回旧缓存
         if (cache) return cache;
-        return { ts: 0, items: [], map: {}, error: e.message };
+        cache = { ts: 0, items: [], map: {}, error: e.message };
+        listeners.forEach(function (fn) { try { fn(cache); } catch (e) {} });
+        return cache;
       });
   }
 
@@ -168,6 +170,10 @@
     D.MENU.push({ group: "资料库", items: [{ route: "prices", label: "实时物价", ico: "💹" }] });
   }
 
-  if (window.DF) reg(window.DF);
-  else (window.__df_plugins = window.__df_plugins || []).push(reg);
+  if (window.DF) {
+    reg(window.DF);
+    try { window.dispatchEvent(new Event("df:liveprice")); } catch (e) {}
+  } else {
+    (window.__df_plugins = window.__df_plugins || []).push(reg);
+  }
 })();
