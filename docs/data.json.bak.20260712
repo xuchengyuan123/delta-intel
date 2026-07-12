@@ -1,0 +1,3679 @@
+{
+  "maps": [],
+  "items": [
+    {
+      "station": "技术中心",
+      "name": "OLIGHT WARRIOR 3S战术手电",
+      "profit": 5376,
+      "price": 71469,
+      "sell": "晚上11点",
+      "craftMin": 20,
+      "grade": "rare"
+    },
+    {
+      "station": "工作台",
+      "name": "5.8x42mm DBP10",
+      "profit": 36325,
+      "price": 1988,
+      "sell": "晚上11点",
+      "craftMin": 5,
+      "grade": "common"
+    },
+    {
+      "station": "制药台",
+      "name": "战地医疗箱",
+      "profit": 9387,
+      "price": 192681,
+      "sell": "晚上11点",
+      "craftMin": 45,
+      "grade": "epic"
+    },
+    {
+      "station": "防具台",
+      "name": "精英防弹背心",
+      "profit": 29376,
+      "price": 365130,
+      "sell": "晚上11点",
+      "craftMin": 60,
+      "grade": "legend"
+    },
+    {
+      "station": "工作台",
+      "name": "7.62x39mm PS",
+      "profit": 18200,
+      "price": 45200,
+      "sell": "晚上8点",
+      "craftMin": 8,
+      "grade": "rare"
+    }
+  ],
+  "bullets": [
+    {
+      "name": "5.45x39mm BT",
+      "profit": 54782
+    },
+    {
+      "name": "9x19mm RIP",
+      "profit": 33098
+    },
+    {
+      "name": "5.56x45mm M855A1",
+      "profit": 29271
+    },
+    {
+      "name": "5.7x28mm R37.F",
+      "profit": 24288
+    },
+    {
+      "name": "12 Gauge 8.5mm鹿弹",
+      "profit": 18870
+    },
+    {
+      "name": ".300 BLK V-Max",
+      "profit": 18433
+    },
+    {
+      "name": ".45 ACP RIP",
+      "profit": 16899
+    },
+    {
+      "name": ".357 Magnum 鼠弹",
+      "profit": 6786
+    },
+    {
+      "name": "12 Gauge独头 RIP",
+      "profit": 6045
+    }
+  ],
+  "craft": {
+    "nodes": [
+      {
+        "key": "p_vest",
+        "text": "精英防弹背心",
+        "station": "防具台",
+        "cat": "product"
+      },
+      {
+        "key": "p_med",
+        "text": "战地医疗箱",
+        "station": "制药台",
+        "cat": "product"
+      },
+      {
+        "key": "p_light",
+        "text": "OLIGHT战术手电",
+        "station": "技术中心",
+        "cat": "product"
+      },
+      {
+        "key": "p_ammo",
+        "text": "5.8x42mm DBP10",
+        "station": "工作台",
+        "cat": "product"
+      },
+      {
+        "key": "m_poly",
+        "text": "聚乙烯纤维",
+        "cat": "material"
+      },
+      {
+        "key": "m_ceramic",
+        "text": "陶瓷插板",
+        "cat": "material"
+      },
+      {
+        "key": "m_kevlar",
+        "text": "凯夫拉纤维",
+        "cat": "material"
+      },
+      {
+        "key": "m_bandage",
+        "text": "医用绷带",
+        "cat": "material"
+      },
+      {
+        "key": "m_sedative",
+        "text": "镇静剂",
+        "cat": "material"
+      },
+      {
+        "key": "m_alubox",
+        "text": "铝合金箱",
+        "cat": "material"
+      },
+      {
+        "key": "m_battery",
+        "text": "电池",
+        "cat": "material"
+      },
+      {
+        "key": "m_alu",
+        "text": "铝合金",
+        "cat": "material"
+      },
+      {
+        "key": "m_optic",
+        "text": "光学镜片",
+        "cat": "material"
+      },
+      {
+        "key": "m_case",
+        "text": "弹壳",
+        "cat": "material"
+      },
+      {
+        "key": "m_powder",
+        "text": "发射药",
+        "cat": "material"
+      },
+      {
+        "key": "m_bullet",
+        "text": "弹头",
+        "cat": "material"
+      },
+      {
+        "key": "m_aluingot",
+        "text": "铝合金锭",
+        "cat": "material"
+      },
+      {
+        "key": "m_aluore",
+        "text": "铝矿",
+        "cat": "material"
+      },
+      {
+        "key": "m_polymer",
+        "text": "聚合物",
+        "cat": "material"
+      },
+      {
+        "key": "m_oil",
+        "text": "原油",
+        "cat": "material"
+      }
+    ],
+    "links": [
+      {
+        "from": "p_vest",
+        "to": "m_poly"
+      },
+      {
+        "from": "p_vest",
+        "to": "m_ceramic"
+      },
+      {
+        "from": "p_vest",
+        "to": "m_kevlar"
+      },
+      {
+        "from": "p_med",
+        "to": "m_bandage"
+      },
+      {
+        "from": "p_med",
+        "to": "m_sedative"
+      },
+      {
+        "from": "p_med",
+        "to": "m_alubox"
+      },
+      {
+        "from": "p_light",
+        "to": "m_battery"
+      },
+      {
+        "from": "p_light",
+        "to": "m_alu"
+      },
+      {
+        "from": "p_light",
+        "to": "m_optic"
+      },
+      {
+        "from": "p_ammo",
+        "to": "m_case"
+      },
+      {
+        "from": "p_ammo",
+        "to": "m_powder"
+      },
+      {
+        "from": "p_ammo",
+        "to": "m_bullet"
+      },
+      {
+        "from": "m_alubox",
+        "to": "m_alu"
+      },
+      {
+        "from": "m_alu",
+        "to": "m_aluingot"
+      },
+      {
+        "from": "m_aluingot",
+        "to": "m_aluore"
+      },
+      {
+        "from": "m_poly",
+        "to": "m_polymer"
+      },
+      {
+        "from": "m_polymer",
+        "to": "m_oil"
+      }
+    ]
+  },
+  "eventItems": {
+    "title": "活动物品需求（研发部门·集市）",
+    "period": "2026/07/10 - 2026/07/17",
+    "api": "",
+    "note": "管理员在后台维护活动物品名称后，前台会自动调用免费实时价格接口（caiweilv/DeltaForcePrice）匹配当前交易行价格；若实时源中无该物品，则显示理想售价。",
+    "items": [
+      {
+        "name": "9V电池",
+        "ideal": 14872,
+        "cur": 40548
+      },
+      {
+        "name": "摩卡咖啡壶",
+        "ideal": 86419,
+        "cur": 200119
+      }
+    ]
+  },
+  "materials": [
+    {
+      "name": "镜头",
+      "cur": 267691,
+      "min": 165946,
+      "max": 337306,
+      "buy": "凌晨1点",
+      "sell": "上午8点"
+    },
+    {
+      "name": "移动电缆",
+      "cur": 229491,
+      "min": 178191,
+      "max": 302391,
+      "buy": "下午2点",
+      "sell": "上午8点"
+    },
+    {
+      "name": "盒装挂耳咖啡",
+      "cur": 359482,
+      "min": 337557,
+      "max": 377022,
+      "buy": "凌晨0点",
+      "sell": "晚上10点"
+    },
+    {
+      "name": "特种钢",
+      "cur": 35637,
+      "min": 18962,
+      "max": 39087,
+      "buy": "下午3点",
+      "sell": "上午9点"
+    }
+  ],
+  "site": {
+    "name": "三角洲情报台",
+    "afdianUrl": "https://ifdian.net/a/delta-intel",
+    "accent2": "#19c3a6",
+    "art": {}
+  },
+  "adminLog": [],
+  "tasks": {
+    "season": "S10 裂变",
+    "updated": "2026-07-12",
+    "search": "",
+    "note": "S10「裂变」赛季（2026-06-26 开启）。3×3 任务分四大阶段主线 + 星级支线 + 收集者委托 + 命运契约。数据来自 ali213/7724/18183 等多家攻略站交叉核对，以游戏内实际为准。",
+    "source": "S10 任务体系来自 youxiabc.com、ali213.net、7724.com、18183.com 等攻略站交叉核对；命运契约按周逐步解锁。",
+    "groups": [
+      {
+        "id": "g_main",
+        "name": "赛季主线任务",
+        "cls": "col-main",
+        "open": true,
+        "items": [
+          {
+            "id": "m1",
+            "title": "蜕变之初",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m2",
+            "title": "恢复训练",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m3",
+            "title": "生存收集",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m4",
+            "title": "幽灵频段",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m5",
+            "title": "石棺之下",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m6",
+            "title": "困兽",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m7",
+            "title": "乌姆河之家",
+            "content": "第一阶段·赛季主线：昨日再临",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m8",
+            "title": "深度定制-1",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m9",
+            "title": "深度定制-2",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m10",
+            "title": "深度定制-3",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m11",
+            "title": "深度定制-4",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m12",
+            "title": "深度定制-5",
+            "content": "第一阶段·赛季支线：深度定制",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m13",
+            "title": "夜幕中的老鼠",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m14",
+            "title": "洗消车危机",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m15",
+            "title": "生死时速",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m16",
+            "title": "亦敌亦友",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m17",
+            "title": "谎言与真心",
+            "content": "第一阶段·赛季支线：夜幕中的老鼠",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m18",
+            "title": "战略转进-1",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m19",
+            "title": "战略转进-2",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m20",
+            "title": "战略转进-3",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m21",
+            "title": "战略转进-4",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m22",
+            "title": "战略转进-5",
+            "content": "第一阶段·赛季支线：战略转进",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m23",
+            "title": "保障有力·配件",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m24",
+            "title": "保障有力·防护",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m25",
+            "title": "保障有力·医疗",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m26",
+            "title": "保障有力·火力",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m27",
+            "title": "保障有力·磐石",
+            "content": "第一阶段·赛季支线：保障有力",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m28",
+            "title": "数据洪流",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m29",
+            "title": "混乱诗篇",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m30",
+            "title": "沸点",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m31",
+            "title": "辐射初探",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m32",
+            "title": "恐惧",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m33",
+            "title": "链式反应",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m34",
+            "title": "对弈",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m35",
+            "title": "守夜人",
+            "content": "第二阶段·赛季主线：分裂的真相",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m36",
+            "title": "统治力",
+            "content": "第二阶段·赛季支线：战斗专家",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m37",
+            "title": "锋线前卫",
+            "content": "第二阶段·赛季支线：战斗专家",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m38",
+            "title": "抵近射击",
+            "content": "第二阶段·赛季支线：战斗专家",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m39",
+            "title": "咬紧牙关",
+            "content": "第二阶段·赛季支线：战斗专家",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m40",
+            "title": "观光客",
+            "content": "第二阶段·赛季支线：战斗专家",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m41",
+            "title": "阿萨拉飞行员-1",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m42",
+            "title": "阿萨拉飞行员-2",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m43",
+            "title": "阿萨拉飞行员-3",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m44",
+            "title": "阿萨拉飞行员-4",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m45",
+            "title": "阿萨拉飞行员-5",
+            "content": "第二阶段·赛季支线：阿萨拉飞行员",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m46",
+            "title": "石与花-1",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m47",
+            "title": "石与花-2",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m48",
+            "title": "石与花-3",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m49",
+            "title": "石与花-4",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m50",
+            "title": "石与花-5",
+            "content": "第二阶段·赛季支线：石与花",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m51",
+            "title": "搜索与歼灭-1",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m52",
+            "title": "搜索与歼灭-2",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m53",
+            "title": "搜索与歼灭-3",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m54",
+            "title": "搜索与歼灭-4",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m55",
+            "title": "搜索与歼灭-5",
+            "content": "第二阶段·赛季支线：搜索与歼灭",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m56",
+            "title": "控制与保障-1",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m57",
+            "title": "控制与保障-2",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m58",
+            "title": "控制与保障-3",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m59",
+            "title": "控制与保障-4",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m60",
+            "title": "控制与保障-5",
+            "content": "第二阶段·赛季支线：控制与保障",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m61",
+            "title": "博物强识-1",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m62",
+            "title": "博物强识-2",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m63",
+            "title": "博物强识-3",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m64",
+            "title": "博物强识-4",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m65",
+            "title": "博物强识-5",
+            "content": "第二阶段·赛季支线：博物强识",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m66",
+            "title": "清道夫-1",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m67",
+            "title": "清道夫-2",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m68",
+            "title": "清道夫-3",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m69",
+            "title": "清道夫-4",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m70",
+            "title": "清道夫-5",
+            "content": "第二阶段·赛季支线：清道夫",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m71",
+            "title": "脑机校准",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m72",
+            "title": "中子风暴",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m73",
+            "title": "审判",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m74",
+            "title": "暗流",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m75",
+            "title": "凡人之躯",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m76",
+            "title": "雨中泪",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m77",
+            "title": "绝地标杆",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m78",
+            "title": "第三次求救",
+            "content": "第三阶段·赛季主线：聚变无声",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m79",
+            "title": "金枪客-1",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m80",
+            "title": "金枪客-2",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m81",
+            "title": "金枪客-3",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m82",
+            "title": "金枪客-4",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m83",
+            "title": "金枪客-5",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m84",
+            "title": "金枪客-6",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m85",
+            "title": "金枪客-7",
+            "content": "第三阶段·赛季支线：战斗专家·金枪客",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m86",
+            "title": "狙击精英-1",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m87",
+            "title": "狙击精英-2",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m88",
+            "title": "狙击精英-3",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m89",
+            "title": "狙击精英-4",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m90",
+            "title": "狙击精英-5",
+            "content": "第三阶段·赛季支线：战斗专家·狙击精英",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m91",
+            "title": "红区",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m92",
+            "title": "英雄遗孀",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m93",
+            "title": "铁幕之后",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m94",
+            "title": "幸存者",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m95",
+            "title": "辐射余波",
+            "content": "第三阶段·赛季支线：红区",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m96",
+            "title": "区域猎手·行动开始",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m97",
+            "title": "区域猎手·AZ3",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m98",
+            "title": "区域猎手·巴别塔",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m99",
+            "title": "区域猎手·中心区",
+            "content": "第三阶段·赛季支线：区域猎手",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m100",
+            "title": "我心永恒",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m101",
+            "title": "核电站遇袭",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m102",
+            "title": "三方会晤",
+            "content": "第三阶段·赛季支线：我心永恒",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m103",
+            "title": "逃脱艺术·自掏腰包",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m104",
+            "title": "逃脱艺术·金蝉脱壳",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m105",
+            "title": "逃脱艺术·接力棒",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m106",
+            "title": "逃脱艺术·大干一票",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m107",
+            "title": "逃脱艺术·唯我独尊",
+            "content": "第三阶段·赛季支线：逃脱艺术",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m108",
+            "title": "精致人生-1",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m109",
+            "title": "精致人生-2",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m110",
+            "title": "精致人生-3",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m111",
+            "title": "精致人生-4",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m112",
+            "title": "精致人生-5",
+            "content": "第三阶段·赛季支线：精致人生",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m113",
+            "title": "拾荒者-1",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m114",
+            "title": "拾荒者-2",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m115",
+            "title": "拾荒者-3",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m116",
+            "title": "拾荒者-4",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m117",
+            "title": "拾荒者-5",
+            "content": "第三阶段·赛季支线：拾荒者",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m118",
+            "title": "突入禁区",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m119",
+            "title": "猫鼠游戏",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m120",
+            "title": "加速进化",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m121",
+            "title": "人工干预",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m122",
+            "title": "决战前夕",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "m123",
+            "title": "相变如初",
+            "content": "第四阶段·赛季主线：心聚变",
+            "done": false,
+            "open": false
+          }
+        ]
+      },
+      {
+        "id": "g_collector",
+        "name": "收集者委托",
+        "cls": "col-collector",
+        "open": true,
+        "items": [
+          {
+            "id": "c1",
+            "title": "灵眼 3/7 弹道计算狙击镜 ×1",
+            "content": "特勤处·技术中心",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c2",
+            "title": "5.8x42mm DVC12 子弹 ×1",
+            "content": "特勤处·工作台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c3",
+            "title": "6.8x51mm HYBRID 子弹 ×2",
+            "content": "特勤处·工作台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c4",
+            "title": "精密护甲维修包 ×1",
+            "content": "特勤处·制药台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c5",
+            "title": "战地医疗箱 ×2",
+            "content": "特勤处·制药台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c6",
+            "title": "高级护甲维修组合 ×3",
+            "content": "特勤处·制药台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c7",
+            "title": "重型突击背心 ×1",
+            "content": "特勤处·防具台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c8",
+            "title": "黑鹰野战胸挂 ×2",
+            "content": "特勤处·防具台",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c9",
+            "title": "加密路由器 ×2",
+            "content": "电子/情报",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c10",
+            "title": "电子干扰器 ×3",
+            "content": "电子/情报",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c11",
+            "title": "Wednesday 手机 ×1",
+            "content": "电子/情报",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c12",
+            "title": "微型燃料棒 ×1",
+            "content": "能源/燃料",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c13",
+            "title": "便携燃料瓶 ×1",
+            "content": "能源/燃料",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c14",
+            "title": "军事通行证 ×1",
+            "content": "其他物资",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "c15",
+            "title": "输液加温器 ×1",
+            "content": "其他物资",
+            "done": false,
+            "open": false
+          }
+        ]
+      },
+      {
+        "id": "g_fate",
+        "name": "命运契约",
+        "cls": "col-fate",
+        "open": true,
+        "items": [
+          {
+            "id": "f1",
+            "title": "征服标杆",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f2",
+            "title": "异尘余生",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f3",
+            "title": "擒贼擒王·新变量",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f4",
+            "title": "勤俭持家",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f5",
+            "title": "南征北战",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f6",
+            "title": "观光客·沉默锋芒",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          },
+          {
+            "id": "f7",
+            "title": "终局联系",
+            "content": "完成 2 项解锁 3×3 安全箱（炫彩外观需 7 项全完成）",
+            "done": false,
+            "open": false
+          }
+        ]
+      }
+    ]
+  },
+  "weapons": [
+    {
+      "name": "AKM（示例）",
+      "dmg": 40,
+      "rof": 600,
+      "pen": 40,
+      "range": 60,
+      "ammo": "7.62x39"
+    },
+    {
+      "name": "M4A1（示例）",
+      "dmg": 31,
+      "rof": 780,
+      "pen": 35,
+      "range": 55,
+      "ammo": "5.56x45"
+    },
+    {
+      "name": "ASVAL（示例）",
+      "dmg": 34,
+      "rof": 900,
+      "pen": 50,
+      "range": 35,
+      "ammo": "9x39"
+    },
+    {
+      "name": "M250（示例）",
+      "dmg": 45,
+      "rof": 650,
+      "pen": 55,
+      "range": 80,
+      "ammo": "7.62x51"
+    },
+    {
+      "name": "K416（示例）",
+      "dmg": 33,
+      "rof": 820,
+      "pen": 38,
+      "range": 58,
+      "ammo": "5.56x45"
+    },
+    {
+      "name": "SR-25（示例）",
+      "dmg": 80,
+      "rof": 60,
+      "pen": 58,
+      "range": 150,
+      "ammo": "7.62x51"
+    },
+    {
+      "name": "M700（示例）",
+      "dmg": 95,
+      "rof": 45,
+      "pen": 60,
+      "range": 200,
+      "ammo": "7.62x51"
+    },
+    {
+      "name": "Vector（示例）",
+      "dmg": 27,
+      "rof": 1100,
+      "pen": 28,
+      "range": 30,
+      "ammo": "9x19"
+    }
+  ],
+  "armors": [
+    {
+      "name": "Ⅰ级 轻型战术背心（示例）",
+      "durability": 50,
+      "protection": 22,
+      "tier": "Ⅰ级",
+      "repairable": true,
+      "material": "芳纶"
+    },
+    {
+      "name": "Ⅱ级 标准防弹衣（示例）",
+      "durability": 70,
+      "protection": 32,
+      "tier": "Ⅱ级",
+      "repairable": true,
+      "material": "陶瓷"
+    },
+    {
+      "name": "Ⅲ级 重型防弹衣（示例）",
+      "durability": 95,
+      "protection": 45,
+      "tier": "Ⅲ级",
+      "repairable": true,
+      "material": "复合陶瓷"
+    },
+    {
+      "name": "Ⅳ级 精英防弹背心（示例）",
+      "durability": 120,
+      "protection": 58,
+      "tier": "Ⅳ级",
+      "repairable": true,
+      "material": "聚乙烯+陶瓷"
+    },
+    {
+      "name": "Ⅵ级 顶级防弹衣（示例）",
+      "durability": 150,
+      "protection": 70,
+      "tier": "Ⅵ级",
+      "repairable": true,
+      "material": "复合插板"
+    },
+    {
+      "name": "无护甲（裸血）",
+      "durability": 0,
+      "protection": 0,
+      "tier": "—",
+      "repairable": false,
+      "material": "—"
+    }
+  ],
+  "operators": [
+    {
+      "name": "红狼",
+      "realname": "凯·席尔瓦",
+      "role": "突击",
+      "skill": "手炮 · 常驻机动",
+      "skillDesc": "常驻移速 / 开镜 / 滑铲三重加成，手炮近距离爆发，击杀重置全部被动。",
+      "desc": "全能均衡突击，全赛季通用 T0，新手开荒首选。",
+      "stats": {
+        "机动": 92,
+        "生存": 82,
+        "火力": 88,
+        "辅助": 55
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "威龙",
+      "realname": "王宇昊",
+      "role": "突击",
+      "skill": "喷气推进 + 虎蹲炮/磁吸炸弹",
+      "skillDesc": "喷气突进快速转点、全额坠伤减免；虎蹲炮范围爆炸、磁吸炸弹可穿掩体打击。",
+      "desc": "立体机动突击，地形战神，攻坚破点兼备。",
+      "stats": {
+        "机动": 88,
+        "生存": 78,
+        "火力": 86,
+        "辅助": 50
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "疾风",
+      "realname": "克莱尔·安·拜尔斯",
+      "role": "突击",
+      "skill": "战术翻滚 + 回溯锚点",
+      "skillDesc": "连续战术翻滚规避子弹，大招放置回溯锚点，倒地后自动复活自救。",
+      "desc": "容错突击，残局翻盘核心，适合先锋探点。",
+      "stats": {
+        "机动": 90,
+        "生存": 74,
+        "火力": 80,
+        "辅助": 55
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "无名",
+      "realname": "埃利·德·蒙贝尔",
+      "role": "突击",
+      "skill": "流荧集群无人机 + 隐身",
+      "skillDesc": "释放无人机干扰视野 / 听觉 / 生命上限，大招进入隐身状态绕后收割。",
+      "desc": "渗透型突击，克制抱团推进，残局收割机器。",
+      "stats": {
+        "机动": 84,
+        "生存": 72,
+        "火力": 85,
+        "辅助": 60
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "乌鲁鲁",
+      "realname": "",
+      "role": "突击",
+      "skill": "爆炸道具 + 临时掩体",
+      "skillDesc": "大范围爆炸分割战场、堵桥卡点，快速搭建临时掩体分割敌方阵型。",
+      "desc": "阵地封锁突击，功能性极强，整活二创多。",
+      "stats": {
+        "机动": 70,
+        "生存": 86,
+        "火力": 82,
+        "辅助": 60
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "比特",
+      "realname": "",
+      "role": "突击",
+      "skill": "巡逻机械蜘蛛 + 弹道稳定",
+      "skillDesc": "被动提升远距离弹道稳定性，部署巡逻机械蜘蛛限制敌人移动。",
+      "desc": "阿萨拉本土突击，中距离持续压制，适配开阔地图。",
+      "stats": {
+        "机动": 76,
+        "生存": 80,
+        "火力": 84,
+        "辅助": 50
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "银翼",
+      "realname": "兰登·哈里森",
+      "role": "突击",
+      "skill": "钩爪位移 + 空中打击",
+      "skillDesc": "钩爪实现高空位移，空中完成打击，适合地形复杂的航天 / 山区地图。",
+      "desc": "高操作上限突击，非常规点位之王。",
+      "stats": {
+        "机动": 86,
+        "生存": 70,
+        "火力": 82,
+        "辅助": 48
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "露娜",
+      "realname": "金卢娜",
+      "role": "侦察",
+      "skill": "探测箭矢 + 电击箭",
+      "skillDesc": "探测箭 200 米扫描标记敌人 / 陷阱，电击箭范围伤害 + 麻痹，大招透视共享信息。",
+      "desc": "全能侦察，信息 + 输出双在线，路人组队必备。",
+      "stats": {
+        "机动": 86,
+        "生存": 72,
+        "火力": 78,
+        "辅助": 72
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "骇爪",
+      "realname": "麦晓雯",
+      "role": "侦察",
+      "skill": "信号破译器 + 巡飞器",
+      "skillDesc": "X 技能扫描前方 60 米内最多 6 个电子信号并显示轨迹线；闪光巡飞器致盲、数据飞刀沉默打断。",
+      "desc": "信息之王，容错极高，跑刀猛攻双适配。",
+      "stats": {
+        "机动": 82,
+        "生存": 70,
+        "火力": 68,
+        "辅助": 80
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "回响",
+      "realname": "卢克·埃弗利",
+      "role": "侦察",
+      "skill": "声纹感知 + 次声波干扰",
+      "skillDesc": "声纹感知监听敌人脚步 / 换弹声；四颗次声波干扰道具封锁敌方视野与沟通。",
+      "desc": "S9 新干员，T0 级侦察，信息获取断层领先。",
+      "stats": {
+        "机动": 80,
+        "生存": 74,
+        "火力": 65,
+        "辅助": 85
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蜂医",
+      "realname": "罗伊·斯米",
+      "role": "支援",
+      "skill": "激素枪 + 治疗烟雾",
+      "skillDesc": "V/G 技能释放长烟与短烟，X 大招给自己扎针回血；激素枪远程追踪治疗，治疗烟高效救援。",
+      "desc": "团队基石，最强烟位，组排续航核心。",
+      "stats": {
+        "机动": 72,
+        "生存": 84,
+        "火力": 55,
+        "辅助": 95
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蛊",
+      "realname": "佐娅·庞琴科娃",
+      "role": "支援",
+      "skill": "流荧无人机 + 致盲毒雾",
+      "skillDesc": "V 放小型无人机增开镜 / 移速，G 致盲烟雾，X 集群无人机造成伤害并缓慢掉血，增益队友。",
+      "desc": "化学作战专家，增益与干扰兼顾的团战控场。",
+      "stats": {
+        "机动": 74,
+        "生存": 76,
+        "火力": 65,
+        "辅助": 90
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蝶",
+      "realname": "莉娜·范德梅尔",
+      "role": "支援",
+      "skill": "仿生蝴蝶群 + 纳米粉尘",
+      "skillDesc": "仿生蝴蝶群无人机自动救援倒地队友，纳米医疗粉尘持续回血，遥控烟雾加速 / 减速。",
+      "desc": "远程救援型支援，持久战与兜底救援强。",
+      "stats": {
+        "机动": 70,
+        "生存": 80,
+        "火力": 50,
+        "辅助": 92
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "深蓝",
+      "realname": "阿列克谢·彼得罗夫",
+      "role": "工程",
+      "skill": "防爆盾 + 电磁护盾",
+      "skillDesc": "重型防爆套装大幅减伤，防爆盾击退后方敌人；主动释放全屏电磁护盾，喷枪切割维修。",
+      "desc": "重装工程，正面抗压与阵地构建顶尖。",
+      "stats": {
+        "机动": 58,
+        "生存": 95,
+        "火力": 70,
+        "辅助": 72
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "牧羊人",
+      "realname": "泰瑞·缪萨",
+      "role": "工程",
+      "skill": "声波陷阱 + 震慑无人机",
+      "skillDesc": "部署声波陷阱减速 / 穿透伤害；大招声波无人机范围震撼减速、模糊视野；被动减振降低全队爆伤。",
+      "desc": "防御之王，区域封锁与守点无解。",
+      "stats": {
+        "机动": 62,
+        "生存": 90,
+        "火力": 68,
+        "辅助": 85
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    }
+  ],
+  "weaponCodex": [
+    {
+      "name": "AKM",
+      "type": "突击步枪",
+      "ammo": "7.62x39",
+      "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M4A1",
+      "type": "突击步枪",
+      "ammo": "5.56x45",
+      "desc": "稳定好上手，新手到进阶都合适的全能步枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "98K",
+      "type": "狙击枪",
+      "ammo": "7.62x54R",
+      "desc": "经典栓动狙，远距离一枪一个的浪漫。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "MP5",
+      "type": "冲锋枪",
+      "ammo": "9x19",
+      "desc": "近距离扫射王者，室内近战称霸。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M870",
+      "type": "霰弹枪",
+      "ammo": "12号",
+      "desc": "贴脸爆发极高，适合守点与突袭。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M249",
+      "type": "机枪",
+      "ammo": "5.56x45",
+      "desc": "持续压制与封锁火力的重火力担当。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "G18",
+      "type": "手枪",
+      "ammo": "9x19",
+      "desc": "高射速副武器，近身应急与补枪好手。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "SVD",
+      "type": "射手步枪",
+      "ammo": "7.62x54R",
+      "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M250",
+      "type": "轻机枪",
+      "ammo": "7.62x51",
+      "desc": "高弹容持续火力，封锁与压制兼备的通用机枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M700",
+      "type": "狙击枪",
+      "ammo": "7.62x51",
+      "desc": "栓动狙，轻便易上手，远距离精准猎杀。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "ASVAL",
+      "type": "突击步枪",
+      "ammo": "9x39",
+      "desc": "一体化消音，近中距隐蔽突袭的利器。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "SR-25",
+      "type": "射手步枪",
+      "ammo": "7.62x51",
+      "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    }
+  ],
+  "music": [
+    {
+      "title": "Into the Never (归)",
+      "artist": "三角洲行动 / LUMi",
+      "type": "qq",
+      "songid": "563352993",
+      "dur": "03:57",
+      "tag": "黑鹰坠落片尾曲",
+      "cover": ""
+    },
+    {
+      "title": "DeltaForce (Main Theme)",
+      "artist": "Zio",
+      "type": "qq",
+      "songid": "",
+      "dur": "03:05",
+      "tag": "主题曲",
+      "cover": ""
+    },
+    {
+      "title": "星河追梦 (Beyond the Stars)",
+      "artist": "三角洲行动 / 黄宗辉",
+      "type": "qq",
+      "songid": "638957157",
+      "dur": "03:36",
+      "tag": "威龙凌霄戍卫皮肤主题曲",
+      "cover": ""
+    },
+    {
+      "title": "Unbreakable (坚不可摧)",
+      "artist": "三角洲行动",
+      "type": "qq",
+      "songid": "686819874",
+      "dur": "03:20",
+      "tag": "",
+      "cover": ""
+    }
+  ],
+  "title": "三角洲情报台",
+  "source": "https://tmini.net/api/sjzmm?type=json",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
+  "rigs": [
+    {
+      "name": "轻型突击胸挂",
+      "slots": 6,
+      "capacity": "18格",
+      "weight": "轻",
+      "desc": "适合突击位，机动高、容量小"
+    },
+    {
+      "name": "战术背心",
+      "slots": 8,
+      "capacity": "24格",
+      "weight": "中",
+      "desc": "均衡之选，攻防兼备"
+    },
+    {
+      "name": "重型胸挂",
+      "slots": 10,
+      "capacity": "30格",
+      "weight": "重",
+      "desc": "搜索位首选，移动较慢"
+    },
+    {
+      "name": "医疗胸挂",
+      "slots": 7,
+      "capacity": "20格",
+      "weight": "中",
+      "desc": "多医疗槽，支援位常用"
+    }
+  ],
+  "keyRooms": [
+    {
+      "map": "零号大坝",
+      "name": "行政楼钥匙房",
+      "key": "行政楼钥匙",
+      "loot": "高价值物资/文件"
+    },
+    {
+      "map": "航天基地",
+      "name": "控制中心钥匙房",
+      "key": "控制中心钥匙",
+      "loot": "电子元件/图纸"
+    },
+    {
+      "map": "巴克什",
+      "name": "金库钥匙房",
+      "key": "金库钥匙",
+      "loot": "现金/金条"
+    },
+    {
+      "map": "潮汐监狱",
+      "name": "狱长办公室",
+      "key": "狱长钥匙",
+      "loot": "武器箱/装备"
+    }
+  ],
+  "upgrades": [
+    {
+      "level": "1 → 2",
+      "cost": "5万",
+      "bonus": "解锁二级工作台"
+    },
+    {
+      "level": "2 → 3",
+      "cost": "12万",
+      "bonus": "解锁三级制作"
+    },
+    {
+      "level": "3 → 4",
+      "cost": "30万",
+      "bonus": "解锁四级制作"
+    },
+    {
+      "level": "4 → 5",
+      "cost": "80万",
+      "bonus": "全部设施满级"
+    }
+  ],
+  "expansion": [
+    {
+      "name": "小型扩容箱",
+      "price": "2万",
+      "capacity": "+10格"
+    },
+    {
+      "name": "中型扩容箱",
+      "price": "6万",
+      "capacity": "+20格"
+    },
+    {
+      "name": "大型扩容箱",
+      "price": "15万",
+      "capacity": "+40格"
+    }
+  ],
+  "scopes": [
+    {
+      "name": "红点瞄具",
+      "type": "近战",
+      "zoom": "1x",
+      "style": "圆点"
+    },
+    {
+      "name": "全息瞄具",
+      "type": "近战",
+      "zoom": "1x",
+      "style": "圆环"
+    },
+    {
+      "name": "2倍镜",
+      "type": "中距",
+      "zoom": "2x",
+      "style": "刻度"
+    },
+    {
+      "name": "4倍镜",
+      "type": "中远",
+      "zoom": "4x",
+      "style": "十字"
+    },
+    {
+      "name": "8倍镜",
+      "type": "远距",
+      "zoom": "8x",
+      "style": "密位"
+    }
+  ],
+  "npc": [
+    {
+      "name": "游荡者",
+      "hp": 120,
+      "armor": 0,
+      "map": "全部地图"
+    },
+    {
+      "name": "精英兵",
+      "hp": 200,
+      "armor": 30,
+      "map": "航天/大坝"
+    },
+    {
+      "name": "BOSS·钢铁",
+      "hp": 1500,
+      "armor": 80,
+      "map": "航天基地"
+    },
+    {
+      "name": "BOSS·渡鸦",
+      "hp": 1800,
+      "armor": 100,
+      "map": "巴克什"
+    }
+  ],
+  "containers": [
+    {
+      "name": "工具箱",
+      "map": "大坝/溪谷",
+      "output": "工具/零件"
+    },
+    {
+      "name": "武器箱",
+      "map": "全部",
+      "output": "武器/配件"
+    },
+    {
+      "name": "医疗箱",
+      "map": "全部",
+      "output": "药品/绷带"
+    },
+    {
+      "name": "电子箱",
+      "map": "航天基地",
+      "output": "电子元件"
+    }
+  ],
+  "scatter": [
+    {
+      "map": "零号大坝",
+      "points": "行政楼1F、水库闸口、港口集装箱"
+    },
+    {
+      "map": "长弓溪谷",
+      "points": "雷达站、信号塔下、村庄仓库"
+    },
+    {
+      "map": "航天基地",
+      "points": "装配车间、控制中心、发射坪"
+    },
+    {
+      "map": "巴克什",
+      "points": "金库、市集、教堂"
+    },
+    {
+      "map": "潮汐监狱",
+      "points": "牢区、厨房、狱长办公室"
+    },
+    {
+      "map": "AZ3核电",
+      "points": "冷却塔、厂房、仓库"
+    }
+  ],
+  "trivia": [
+    {
+      "id": "t1",
+      "title": "撤离点机制",
+      "body": "每个地图有固定撤离点，部分需要满足条件（如倒计时等待、携带指定道具）才会开启。",
+      "tag": "机制"
+    },
+    {
+      "id": "t2",
+      "title": "每日密码门",
+      "body": "地图中的密码门每天刷新密码，可在本站「每日地图密码」查看当日密码。",
+      "tag": "小技巧"
+    },
+    {
+      "id": "t3",
+      "title": "特勤处小时利润",
+      "body": "特勤处制作产物的「小时利润」= 总利润 ÷ 单件耗时 × 60，挑耗时短的更划算。",
+      "tag": "养成"
+    },
+    {
+      "id": "t4",
+      "title": "干员技能搭配",
+      "body": "不同干员拥有位移/治疗/侦察等技能，组队时合理搭配能大幅提升效率。",
+      "tag": "干员"
+    },
+    {
+      "id": "t5",
+      "title": "安全箱规则",
+      "body": "放入安全箱的物品即使阵亡也不会掉落，重要物资请优先放进安全箱。",
+      "tag": "生存"
+    }
+  ],
+  "guides": {
+    "intro": "从零上手《三角洲行动》。内容分模块组织，每个模块下是要点卡片。数据随官方版本更新，以游戏内为准。",
+    "modules": [
+      {
+        "title": "基础机制",
+        "icon": "🎒",
+        "cards": [
+          {
+            "title": "选对干员",
+            "text": "新手首选全能突击红狼（T0，开荒稳）；组排必带蜂医/蝶续航，露娜/骇爪拿信息。"
+          },
+          {
+            "title": "先赚钱再开图",
+            "text": "特勤处挑「小时利润」高的产物刷钱（见特勤处产物），别一上来就硬刚。"
+          },
+          {
+            "title": "安全箱规则",
+            "text": "放进安全箱的物资阵亡不掉落，贵重品优先塞安全箱再撤离。"
+          },
+          {
+            "title": "看懂任务区域",
+            "text": "标「烽火地带」的任务要去烽火地带完成，排位/攻防不统计进度。"
+          },
+          {
+            "title": "护甲与血量",
+            "text": "护甲有耐久，打光后受击扣血；不同等级护甲对同级/低级子弹有减免。"
+          }
+        ]
+      },
+      {
+        "title": "地图与搜刮",
+        "icon": "🗺️",
+        "cards": [
+          {
+            "title": "地图选择",
+            "text": "零号大坝适合新手熟图；长弓溪谷开阔好搜；航天/巴克什高收益高风险；AZ3 新图带辐射机制。"
+          },
+          {
+            "title": "胸挂怎么选",
+            "text": "突击位轻型 6 槽；搜索位重型 10 槽；医疗位多医疗槽。"
+          },
+          {
+            "title": "钥匙房在哪",
+            "text": "行政楼、控制中心、金库、狱长办公室产出高价值物资/文件。"
+          },
+          {
+            "title": "散落物资点",
+            "text": "非钥匙房自然刷新点，跑图顺路就能舔，不抢不卡。"
+          },
+          {
+            "title": "容器产出",
+            "text": "工具箱/武器箱/医疗箱/电子箱各有固定产出，见「工具箱」资料。"
+          }
+        ]
+      },
+      {
+        "title": "撤离与赚钱",
+        "icon": "💰",
+        "cards": [
+          {
+            "title": "撤离点机制",
+            "text": "部分撤离点需等待倒计时、携带道具或缴纳费用；提前占位别急。"
+          },
+          {
+            "title": "交易行倒卖",
+            "text": "关注高价格浮动材料（如镜头、盒装挂耳咖啡）的低谷/高峰，低买高卖。"
+          },
+          {
+            "title": "特勤处产物",
+            "text": "按小时利润排产：工作台子弹、制药台医疗、防具台背心。"
+          },
+          {
+            "title": "任务奖励",
+            "text": "赛季任务、命运契约、收集者委托奖励丰厚，优先推进。"
+          },
+          {
+            "title": "资源循环",
+            "text": "舔包→卖交易行→买改件→再战，形成正循环。"
+          }
+        ]
+      },
+      {
+        "title": "战斗与枪配",
+        "icon": "⚔️",
+        "cards": [
+          {
+            "title": "常见敌人",
+            "text": "游荡者 / 精英兵 / BOSS（钢铁、渡鸦等），注意血量与护甲。"
+          },
+          {
+            "title": "子弹等级",
+            "text": "高等级子弹才能穿透高等级护甲；低级子弹打高级甲会刮痧。"
+          },
+          {
+            "title": "瞄具挑选",
+            "text": "近战红点/全息，中远 2x/4x，远距 8x；按枪械射程配。"
+          },
+          {
+            "title": "改枪思路",
+            "text": "先堆后坐控制，再补人机功效，最后根据地图补射程/腰射。"
+          },
+          {
+            "title": "周常可叠加",
+            "text": "进度跨对局累加，不用单局硬扛，几局凑满即可。"
+          }
+        ]
+      },
+      {
+        "title": "干员与技能",
+        "icon": "🧑‍⚕️",
+        "cards": [
+          {
+            "title": "突击位",
+            "text": "红狼/威龙/疾风/无名：主打主动开点、绕后收割、房区拉扯。"
+          },
+          {
+            "title": "支援位",
+            "text": "蜂医/蝶：续航与复活，蝶可远程无人机救人，团队容错核心。"
+          },
+          {
+            "title": "工程位",
+            "text": "深蓝/牧羊人：阵地防守、声波陷阱、电磁护盾，据点守点无解。"
+          },
+          {
+            "title": "侦查位",
+            "text": "露娜/骇爪：拿信息、探测敌人位置，适合指挥与架枪。"
+          },
+          {
+            "title": "技能配合",
+            "text": "烟雾掩护转点、手炮逼走位、大招集火，沟通比枪法更重要。"
+          }
+        ]
+      },
+      {
+        "title": "避坑指南",
+        "icon": "🚧",
+        "cards": [
+          {
+            "title": "别硬刚 AI",
+            "text": "精英兵和 BOSS 伤害很高，没把握先绕开。"
+          },
+          {
+            "title": "别贪包",
+            "text": "撤离失败等于白给，安全箱满了该走就走。"
+          },
+          {
+            "title": "注意辐射",
+            "text": "AZ3 地图有辐射区，穿戴/携带抗辐射装备或走洗消舱。"
+          },
+          {
+            "title": "组队语音",
+            "text": "报点、报人数、报装备，信息共享能大幅降低翻车率。"
+          },
+          {
+            "title": "版本更新",
+            "text": "赛季调整频繁，关注公告和 KK日报/本站的更新速览。"
+          }
+        ]
+      }
+    ]
+  },
+  "quiz": {
+    "title": "你是哪种三角洲电竞选手？",
+    "sub": "5 道选择题，测出你的战术人格。结果可分享给战友。",
+    "questions": [
+      {
+        "q": "比赛开局你最想做的事？",
+        "options": [
+          {
+            "text": "抢点控图，封锁对手信息",
+            "s": "指挥"
+          },
+          {
+            "text": "正面突破，刚枪对枪",
+            "s": "突击"
+          },
+          {
+            "text": "绕后偷袭，沉默收割",
+            "s": "渗透"
+          },
+          {
+            "text": "架枪架死，一枪一个",
+            "s": "狙击"
+          }
+        ]
+      },
+      {
+        "q": "队伍 0-2 落后，你怎么做？",
+        "options": [
+          {
+            "text": "重排战术，换节奏翻盘",
+            "s": "指挥"
+          },
+          {
+            "text": "带线强开，打对手措手不及",
+            "s": "突击"
+          },
+          {
+            "text": "抓单带节奏，断对方节奏",
+            "s": "渗透"
+          },
+          {
+            "text": "卡死关键枪线，等对手送",
+            "s": "狙击"
+          }
+        ]
+      },
+      {
+        "q": "你最爱的枪械风格？",
+        "options": [
+          {
+            "text": "全能步枪，什么都能干",
+            "s": "指挥"
+          },
+          {
+            "text": "高机动冲锋枪/突击步枪",
+            "s": "突击"
+          },
+          {
+            "text": "消音近战，潜行突袭",
+            "s": "渗透"
+          },
+          {
+            "text": "栓动/连狙，远程压制",
+            "s": "狙击"
+          }
+        ]
+      },
+      {
+        "q": "你的招牌干员是？",
+        "options": [
+          {
+            "text": "牧羊人 / 深蓝（控场防守）",
+            "s": "指挥"
+          },
+          {
+            "text": "红狼 / 威龙（立体强攻）",
+            "s": "突击"
+          },
+          {
+            "text": "无名 / 骇爪（信息渗透）",
+            "s": "渗透"
+          },
+          {
+            "text": "露娜 / 回响（远程侦察）",
+            "s": "狙击"
+          }
+        ]
+      },
+      {
+        "q": "一句你的座右铭？",
+        "options": [
+          {
+            "text": "信息就是胜利",
+            "s": "指挥"
+          },
+          {
+            "text": "进攻是最好的防守",
+            "s": "突击"
+          },
+          {
+            "text": "看不见的威胁最致命",
+            "s": "渗透"
+          },
+          {
+            "text": "一枪定乾坤",
+            "s": "狙击"
+          }
+        ]
+      }
+    ],
+    "results": {
+      "指挥": {
+        "name": "战场指挥官",
+        "desc": "你擅长读图、控节奏，是队伍里最冷静的头脑。",
+        "suggest": "多和突击/狙击沟通，把信息变成击杀。"
+      },
+      "突击": {
+        "name": "正面猛男",
+        "desc": "你信奉枪法即真理，喜欢强开局面。",
+        "suggest": "先学会卡位，再学会什么时候不该冲。"
+      },
+      "渗透": {
+        "name": "幽灵刺客",
+        "desc": "你绕后、抓单、断节奏，对手永远不知道你在哪里。",
+        "suggest": "保持耐心，信息比击杀更重要。"
+      },
+      "狙击": {
+        "name": "远程死神",
+        "desc": "你善于架枪、控视野，一枪改变战局。",
+        "suggest": "练习预瞄与身位，别给对面反拉机会。"
+      }
+    }
+  },
+  "gunBuilds": [
+    {
+      "name": "红狼·近战压制 M4A1",
+      "weapon": "M4A1",
+      "tags": [
+        "突击",
+        "近战"
+      ],
+      "desc": "高机动近战配置，适合房区与巷战。",
+      "attachments": [
+        "红点瞄具",
+        "短枪管",
+        "前握把",
+        "轻枪托",
+        "消焰器",
+        "快速弹匣"
+      ]
+    },
+    {
+      "name": "威龙·立体突破 AK",
+      "weapon": "AKM",
+      "tags": [
+        "突击",
+        "突破"
+      ],
+      "desc": "中距离稳定，配合喷气推进转点。",
+      "attachments": [
+        "4倍镜",
+        "长枪管",
+        "垂直握把",
+        "重型枪托",
+        "补偿器",
+        "扩容弹匣"
+      ]
+    },
+    {
+      "name": "露娜·远程侦察 98K",
+      "weapon": "98K",
+      "tags": [
+        "侦察",
+        "远程"
+      ],
+      "desc": "一枪一个的浪漫，架点首选。",
+      "attachments": [
+        "8倍镜",
+        "狙击枪托",
+        "消音器",
+        "高倍镜座",
+        "重型子弹"
+      ]
+    },
+    {
+      "name": "蜂医·稳健支援 M250",
+      "weapon": "M250",
+      "tags": [
+        "支援",
+        "压制"
+      ],
+      "desc": "持续火力封锁，掩护队友推进。",
+      "attachments": [
+        "4倍镜",
+        "两脚架",
+        "垂直握把",
+        "补偿器",
+        "100发弹链"
+      ]
+    }
+  ],
+  "doorCodes": [],
+  "events": [
+    {
+      "name": "裂变时刻",
+      "period": "06.26 - 07.09",
+      "reward": "AKM 稀有外观 / 图灵砖 / 物流凭证"
+    },
+    {
+      "name": "干员准入认证",
+      "period": "06.26 - 09.03",
+      "reward": "液氮限定时名片 / 动作 / 头像军牌"
+    },
+    {
+      "name": "暑期有米",
+      "period": "06.26 - 09.03",
+      "reward": "活跃代币兑换装备补给 / 制式装备券 / 改件"
+    },
+    {
+      "name": "阿萨拉绿茵场",
+      "period": "至 07.23",
+      "reward": "运动会 / 滋水枪主题武器外观"
+    },
+    {
+      "name": "寻找露小娜",
+      "period": "06.26 - 07.09",
+      "reward": "限藏「露小娜」/ 物流凭证"
+    },
+    {
+      "name": "首领黑卡",
+      "period": "06.26 - 09.03",
+      "reward": "多地图额外掉落首领黑卡，当局可用"
+    },
+    {
+      "name": "AZ3 新地图活动",
+      "period": "06.26 - 07.09",
+      "reward": "AZ3 军牌 / 图灵砖 / 物流凭证"
+    },
+    {
+      "name": "裂变行动",
+      "period": "06.26 起 - 09.03",
+      "reward": "全面战场赛季挑战：涂装 / 徽章 / 图灵砖"
+    }
+  ],
+  "streamer": [
+    {
+      "name": "通用灵敏度",
+      "value": "垂直 45 / 水平 50 / 开镜 38",
+      "note": "新手参考，按手感微调"
+    },
+    {
+      "name": "瞄准镜灵敏度",
+      "value": "红点 42 / 4倍 30 / 8倍 18",
+      "note": "高倍适当调低更稳"
+    },
+    {
+      "name": "准星样式",
+      "value": "中心点 + 细十字",
+      "note": "避免遮挡目标"
+    },
+    {
+      "name": "画质设置",
+      "value": "中画质 + 高帧率优先",
+      "note": "帧数 > 特效"
+    },
+    {
+      "name": "键位建议",
+      "value": "切枪/打药放侧键",
+      "note": "减少手指移动"
+    }
+  ],
+  "opTasks": [
+    {
+      "op": "红狼",
+      "task": "完成 15 次手炮击杀",
+      "reward": "头像框「狼影」"
+    },
+    {
+      "op": "威龙",
+      "task": "虎蹲炮命中 20 次",
+      "reward": "动作「喷气」"
+    },
+    {
+      "op": "露娜",
+      "task": "探测箭标记 50 名敌人",
+      "reward": "名片「夜视」"
+    },
+    {
+      "op": "蜂医",
+      "task": "救援队友 30 次",
+      "reward": "挂饰「蜂巢」"
+    },
+    {
+      "op": "牧羊人",
+      "task": "声波陷阱触发 25 次",
+      "reward": "涂装「牧歌」"
+    }
+  ],
+  "melee": [
+    {
+      "name": "利爪-核灰制式",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册 20 级",
+      "limited": false,
+      "note": "工业磨砂灰纯色皮，持刀手感轻量化",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "工业磨砂灰纯色皮，持刀手感轻量化"
+    },
+    {
+      "name": "弯刀-辐射浊影",
+      "category": "赛季手册",
+      "tier": "进阶",
+      "quality": "动态流光皮",
+      "effect": "紫色动态辐射流光，挥刀绿色粒子，命中留辐射残影",
+      "acquire": "进阶手册 60 级",
+      "limited": false,
+      "note": "本赛季性价比特效刀",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "本赛季性价比特效刀"
+    },
+    {
+      "name": "匕首-熔核碎片",
+      "category": "赛季手册",
+      "tier": "传说",
+      "quality": "动态流光皮",
+      "effect": "刀身碎裂熔岩动态纹路，挥刀灼烧音效，切刀专属动画",
+      "acquire": "进阶手册 100 级",
+      "limited": false,
+      "note": "顶配传说刀皮",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "顶配传说刀皮"
+    },
+    {
+      "name": "开山刀-厂区工装",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "战术斧-锈蚀核铁",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "蝴蝶刀-银灰极简",
+      "category": "赛季手册",
+      "tier": "免费",
+      "quality": "纯色质感皮",
+      "effect": "无特效",
+      "acquire": "免费手册",
+      "limited": false,
+      "note": "纯色皮，仅外观改动",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "纯色皮，仅外观改动"
+    },
+    {
+      "name": "匕首-绿茵闪击",
+      "category": "足球狂欢限定",
+      "tier": "活动",
+      "quality": "纯色质感皮",
+      "effect": "白绿足球配色，持刀脚底小草特效",
+      "acquire": "传球大师挑战满级兑换",
+      "limited": true,
+      "note": "活动限时",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "活动限时"
+    },
+    {
+      "name": "利爪-临门劲射",
+      "category": "足球狂欢限定",
+      "tier": "活动",
+      "quality": "纯色质感皮",
+      "effect": "橙黑撞色，挥刀足球破空音效",
+      "acquire": "足球鼠鼠代币兑换",
+      "limited": true,
+      "note": "活动限时",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "活动限时"
+    },
+    {
+      "name": "蝴蝶刀-狂欢球影",
+      "category": "足球狂欢限定",
+      "tier": "收藏",
+      "quality": "动态流光皮",
+      "effect": "动态足球转场特效",
+      "acquire": "赛季活动获取",
+      "limited": true,
+      "note": "赛季活动结束直接绝版，收藏品级",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "赛季活动结束直接绝版，收藏品级"
+    },
+    {
+      "name": "战术斧-核蚀烙印",
+      "category": "AZ3核电站掉落",
+      "tier": "机密",
+      "quality": "纯色质感皮",
+      "effect": "刀身腐蚀纹路，攻击附带辐射减益标记",
+      "acquire": "击败毁灭者BOSS概率掉落",
+      "limited": true,
+      "note": "机密专属",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "机密专属"
+    },
+    {
+      "name": "匕首-密闭安检",
+      "category": "AZ3核电站掉落",
+      "tier": "机密",
+      "quality": "纯色质感皮",
+      "effect": "哑光金属质感",
+      "acquire": "红卡房保险箱极低概率掉落",
+      "limited": true,
+      "note": "小众绝版刀皮",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "小众绝版刀皮"
+    },
+    {
+      "name": "利爪-晴空极寒",
+      "category": "体验服专属",
+      "tier": "限定",
+      "quality": "动态流光皮",
+      "effect": "液氮主题蓝色冷凝特效",
+      "acquire": "仅体验服测试账号获取",
+      "limited": true,
+      "note": "正式服无获取渠道",
+      "dmgStages": "",
+      "armorDmg": "",
+      "penLevel": "",
+      "headshot": "",
+      "runSpeed": "",
+      "walkSpeed": "",
+      "attackSpeed": "",
+      "range": "",
+      "desc": "正式服无获取渠道"
+    }
+  ],
+  "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",
+  "feedback": {
+    "email": "delta.intel.feedback@example.com",
+    "mailSubject": "三角洲情报台·网站反馈",
+    "formUrl": "",
+    "formEmbed": "",
+    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md",
+    "note": "在后台「代码维护 / 反馈设置」中修改邮箱与第三方表单链接。"
+  },
+  "images": {
+    "images": []
+  },
+  "collectibles": [
+    {
+      "name": "医疗包",
+      "type": "消耗品",
+      "value": 850,
+      "tip": "撤离必带，单格价值稳定"
+    },
+    {
+      "name": "金刚钻",
+      "type": "收集品",
+      "value": 12000,
+      "tip": "高价，可囤"
+    },
+    {
+      "name": "金条",
+      "type": "收集品",
+      "value": 30000,
+      "tip": "最保值兑换物"
+    },
+    {
+      "name": "机密文件",
+      "type": "收集品",
+      "value": 8500,
+      "tip": "任务与高价并存"
+    },
+    {
+      "name": "能量饮料",
+      "type": "消耗品",
+      "value": 420,
+      "tip": "性价比高"
+    }
+  ],
+  "bulletPacks": [
+    {
+      "name": "7.62自选包",
+      "contains": [
+        "7.62x51 M62",
+        "7.62x54R BT"
+      ],
+      "cost": 50000,
+      "price": 78000,
+      "profit": 28000
+    },
+    {
+      "name": "5.56自选包",
+      "contains": [
+        "5.56x45 M855A1",
+        "5.56x45 M995"
+      ],
+      "cost": 36000,
+      "price": 56000,
+      "profit": 20000
+    },
+    {
+      "name": "9mm自选包",
+      "contains": [
+        "9x19 RIP",
+        "9x19 AP"
+      ],
+      "cost": 18000,
+      "price": 32000,
+      "profit": 14000
+    }
+  ],
+  "changelog": [
+    {
+      "date": "2026-07-11",
+      "title": "赛季任务三栏化 + 多板块后台增强",
+      "items": [
+        "赛季任务改为「命运契约 / 收集者 / 赛季主线任务」三栏并列（S10 裂变真实数据，已联网核实）",
+        "近战武器数据清空，留空由管理员填写《三角洲行动》真实近战武器",
+        "图鉴（干员/武器）与改枪方案支持图片上传插入（后台一键上传，前台即时展示）",
+        "新增「活动物品需求」后台面板，可填写 API 接口实现实时刷新；旧数据已清空",
+        "新增「收款照片」后台面板，赞助页（sponsor.html）动态展示收款码",
+        "彻底删除兑换码功能（前台 + 后台 + 数据）"
+      ]
+    },
+    {
+      "date": "2026-07-11",
+      "title": "全站大更新 · 攻略/工具/小知识/安装",
+      "items": [
+        "首页改为 KK日报 式紧凑仪表盘",
+        "干员/武器图鉴点击弹出详情（支持 MP4 技能演示）",
+        "新增资料库：防具/瞄具/NPC/升级/扩容箱/钥匙房/收集品/子弹包",
+        "总管理员可后台编辑「网站更新内容」",
+        "补齐 KK日报 可加功能，地图密码/物价实时更新"
+      ]
+    },
+    {
+      "date": "2026-07-11",
+      "title": "小游戏/音乐台/弹窗上线",
+      "items": [
+        "数字摩斯密码 + 指纹选择小游戏",
+        "音乐台 QQ音乐外链播放",
+        "自动赞助弹窗与更新日志"
+      ]
+    },
+    {
+      "date": "2026-07-10",
+      "title": "首页美化 V3",
+      "items": [
+        "重绘建筑线描卡片",
+        "赛季任务支持搜索与手动维护"
+      ]
+    }
+  ],
+  "sponsor": {
+    "photos": [
+      {
+        "label": "微信收款码",
+        "src": "sponsor-qr.jpg"
+      }
+    ]
+  },
+  "analytics": {
+    "provider": "goatcounter",
+    "siteId": "",
+    "enabled": false
+  },
+  "livePrice": {
+    "enabled": true,
+    "url": "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json",
+    "source": "caiweilv/DeltaForcePrice（GitHub 公开仓库，数据来自《三角洲行动》游戏内交易行真实成交价，每 10 分钟更新；通过 raw.githubusercontent.com 跨域可直连，免费、非官方）"
+  },
+  "mapPass": {
+    "enabled": true,
+    "url": "https://tmini.net/api/sjzmm?type=json",
+    "source": "tmini.net（免费公开接口，每日自动更新三角洲行动各地图密码）"
+  },
+  "_cl": [
+    {
+      "date": "2026-07-12",
+      "items": [
+        "接入 tmini.net 免费地图密码 API，首页/地图视图/密码门速查全部实时",
+        "活动物品需求支持自动从 caiweilv/DeltaForcePrice 实时价格匹配（管理员只需填物品名）",
+        "实时物价入口在首页显示 TOP5 高价预览",
+        "清空旧静态地图密码/密码门示例数据，避免与实时源混淆"
+      ]
+    }
+  ]
+}

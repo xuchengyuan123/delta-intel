@@ -35,6 +35,7 @@
   }
 
   function load(force) {
+    var c = cfg();
     if (c.enabled === false) return Promise.resolve(null);
     var url = c.url || DEFAULT_URL;
     if (!force && cache) return Promise.resolve(cache);
