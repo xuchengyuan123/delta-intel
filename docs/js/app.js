@@ -216,17 +216,21 @@
       "<tbody>" + rows + "</tbody></table></div>";
   }
 
-  function topEventsTable() {
+  function topEventsTable(items) {
     var ev = DATA.eventItems || {};
-    var rows = (ev.items || []).map(function (it) {
-      return "<tr><td>" + esc(it.name) + "</td>" +
-        '<td style="text-align:right">' + fmt(it.cur) + "</td>" +
-        '<td style="text-align:right">' + fmt(it.ideal) + "</td>" +
-        "<td>" + (it.cur > it.ideal ? "高于理想价" : "低于理想价") + "</td></tr>";
+    items = items || (ev.items || []);
+    var rows = items.map(function (it) {
+      var cur = it.cur;
+      var ideal = it.ideal;
+      var priceFrom = it.priceFrom ? '<span class="kk-snap" style="margin-left:6px">实时</span>' : '';
+      return "<tr><td>" + esc(it.name) + priceFrom + "</td>" +
+        '<td style="text-align:right">' + fmt(cur) + "</td>" +
+        '<td style="text-align:right">' + fmt(ideal) + "</td>" +
+        "<td>" + (cur > ideal ? "高于理想价" : "低于理想价") + "</td></tr>";
     }).join("");
     return '<div class="card"><table class="tbl">' +
       "<thead><tr><th>物品</th><th style='text-align:right'>当前售价</th><th style='text-align:right'>理想售价</th><th>提示</th></tr></thead>" +
-      "<tbody>" + rows + "</tbody></table></div>";
+      "<tbody>" + (rows || '<tr><td colspan="4" class="kk-empty">暂无数据</td></tr>') + "</tbody></table></div>";
   }
 
   function topMaterialsTable() {
@@ -378,13 +382,16 @@
 
   /* ---------- KK日报 式紧凑仪表盘板块 ---------- */
   function kkMapBlock() {
-    var cards = (DATA.maps || []).map(function (m) {
+    return '<div class="kk-card"><div class="kk-card-h">🗺 每日地图密码 <span class="kk-api">API 实时</span> <a class="kk-more" href="?viewpage=maps">更多</a></div>' +
+      '<div class="kk-map-grid" id="kkMapGrid">' + renderMapCards((DATA.maps || [])) + '</div>' +
+      '<div class="kk-live-status" id="kkMapStatus">正在拉取最新地图密码…</div></div>';
+  }
+  function renderMapCards(arr) {
+    return arr.map(function (m) {
       return '<div class="kk-map"><div class="kk-map-name">' + esc(m.name) + '</div>' +
         '<div class="kk-map-code">' + esc(m.code) + '</div>' +
         '<div class="kk-map-date">' + esc(m.date || "今日") + '</div></div>';
-    }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🗺 每日地图密码 <a class="kk-more" href="?viewpage=maps">更多</a></div>' +
-      '<div class="kk-map-grid">' + cards + '</div></div>';
+    }).join("") || '<div class="kk-empty">暂无</div>';
   }
   function kkItemsBlock() {
     var list = (DATA.items || []).slice(0, 6);
@@ -398,45 +405,60 @@
     return '<div class="kk-card"><div class="kk-card-h">🛠 特勤处产物（小时利润）</div>' + rows + '</div>';
   }
   function kkMaterialsBlock() {
-    var rows = (DATA.materials || []).slice(0, 4).map(function (m) {
+    return '<div class="kk-card"><div class="kk-card-h">📈 高价格浮动材料 <span class="kk-api">实时</span></div>' +
+      '<div id="kkMaterialsBody"><div class="kk-empty">正在从实时价格源加载…</div></div></div>';
+  }
+  function renderMaterialsLive(arr) {
+    if (!arr || !arr.length) return '<div class="kk-empty">暂无数据</div>';
+    return arr.map(function (m) {
       return '<div class="kk-li"><span class="kk-li-n">' + esc(m.name) + '</span>' +
-        '<span class="kk-li-v">' + fmt(m.cur) + '</span>' +
-        '<span class="kk-li-t">买' + esc(m.buy || "-") + '/卖' + esc(m.sell || "-") + '</span></div>';
+        '<span class="kk-li-v">' + fmt(m.price) + '</span>' +
+        '<span class="kk-li-t">' + esc(m.cat || "实时") + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">📈 高价格浮动材料 <span class="kk-snap">快照</span></div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
   }
   function kkBulletsBlock() {
-    var list = (DATA.bullets || []).slice(0, 10);
-    var rows = list.map(function (b, i) {
+    return '<div class="kk-card"><div class="kk-card-h">🔫 热门子弹价格（前十）<span class="kk-api">实时</span></div>' +
+      '<div id="kkBulletsBody"><div class="kk-empty">正在从实时价格源加载…</div></div></div>';
+  }
+  function renderBulletsLive(arr) {
+    if (!arr || !arr.length) return '<div class="kk-empty">暂无数据</div>';
+    return arr.map(function (b, i) {
       return '<div class="kk-li"><span class="kk-li-i">' + (i + 1) + '</span>' +
         '<span class="kk-li-n">' + esc(b.name) + '</span>' +
-        '<span class="kk-li-v profit-up">' + fmt(b.profit) + '</span></div>';
+        '<span class="kk-li-v">' + fmt(b.price) + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🔫 热门子弹利润（前十）<span class="kk-snap">快照</span></div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
   }
   function kkLivePriceBlock() {
     var c = (DATA.livePrice || {});
     if (c.enabled === false) return "";
     return '<a class="kk-card kk-live" href="?viewpage=prices">' +
       '<div class="kk-card-h">💹 实时物价 <span class="kk-api">实时</span></div>' +
-      '<div class="kk-live-body">游戏内交易行真实成交价，直接调用免费公开接口，可搜索 / 按分类筛选。</div>' +
-      '<div class="kk-live-go">查看实时物价 →</div></a>';
+      '<div class="kk-live-body" id="kkLivePriceBody">正在加载游戏内交易行真实成交价…</div>' +
+      '<div class="kk-live-go" id="kkLivePriceGo">查看实时物价 →</div></a>';
   }
   function kkEventsBlock() {
     var ev = DATA.eventItems || {};
-    var apiTag = ev.api ? ' <span class="kk-api">API实时</span>' : '';
-    var rows = (ev.items || []).map(function (it) {
+    return '<div class="kk-card"><div class="kk-card-h">🎁 活动物品需求 <span class="kk-api">实时价格</span><a class="kk-more" href="?viewpage=eventitems">更多</a></div>' +
+      '<div id="kkEventsBody">' + renderEventRows((ev.items || [])) + '</div></div>';
+  }
+  function renderEventRows(items) {
+    if (!items || !items.length) return '<div class="kk-empty">暂无（后台可维护，开启实时物价后会自动匹配当前价格）</div>';
+    var rows = items.map(function (it) {
       return '<div class="kk-li"><span class="kk-li-n">' + esc(it.name) + '</span>' +
-        '<span class="kk-li-v">' + fmt(it.cur) + '</span></div>';
+        '<span class="kk-li-v" data-ename="' + esc(it.name) + '">' + (it.cur ? fmt(it.cur) : '—') + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🎁 活动物品需求' + apiTag + '<a class="kk-more" href="?viewpage=eventitems">更多</a></div>' + (rows || '<div class="kk-empty">暂无（后台可维护 / 接 API）</div>') + '</div>';
+    return rows;
   }
   function kkDoorBlock() {
-    var rows = (DATA.doorCodes || []).slice(0, 6).map(function (d) {
+    return '<div class="kk-card"><div class="kk-card-h">🔑 密码门速查 <span class="kk-api">API 实时</span></div>' +
+      '<div id="kkDoorBody">' + renderDoorRows((DATA.doorCodes || []).slice(0, 6)) + '</div></div>';
+  }
+  function renderDoorRows(arr) {
+    if (!arr || !arr.length) return '<div class="kk-empty">暂无</div>';
+    return arr.map(function (d) {
       return '<div class="kk-li"><span class="kk-li-n">' + esc(d.map) + '·' + esc(d.location) + '</span>' +
         '<span class="kk-li-v code-strong">' + esc(d.code) + '</span></div>';
     }).join("");
-    return '<div class="kk-card"><div class="kk-card-h">🔑 密码门速查</div>' + (rows || '<div class="kk-empty">暂无</div>') + '</div>';
   }
 
   /* ---------- 视图 ---------- */
@@ -451,6 +473,68 @@
             kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() + kkLivePriceBlock() +
           '</div>';
       },
+      init: function () {
+        // 首页加载并注入实时数据：地图密码、密码门、实时物价 top5、活动物品价格
+        function tryUpdate() {
+          if (window.DF && window.DF.mapPass) {
+            var mp = window.DF.mapPass;
+            var list = mp.list();
+            if (list && list.length) {
+              var grid = document.getElementById("kkMapGrid");
+              var status = document.getElementById("kkMapStatus");
+              if (grid) grid.innerHTML = renderMapCards(list.map(function (m) { return { name: m.name, code: m.code, date: m.location || "今日" }; }));
+              if (status) {
+                var meta = mp.meta();
+                status.innerHTML = '共 ' + list.length + ' 张地图 · ' + esc(meta.updateDate || '实时接口已更新');
+              }
+            }
+            var doorBody = document.getElementById("kkDoorBody");
+            if (doorBody) doorBody.innerHTML = renderDoorRows(list.slice(0, 6).map(function (m) { return { map: m.name, location: m.location || "密码门", code: m.code }; }));
+          }
+          if (window.DF && window.DF.livePrice) {
+            var lp = window.DF.livePrice;
+            var body = document.getElementById("kkLivePriceBody");
+            if (body) {
+              var m = lp.meta();
+              if (m && m.error) { body.textContent = "实时源暂不可用：" + m.error; }
+              else if (m && m.count) {
+                var top = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 5);
+                body.innerHTML = '最新 ' + m.count + ' 项交易行价格<br>' + top.map(function (x) { return '<span class="lp-mini">' + esc(x.name) + ' <b>' + fmt(x.price) + '</b></span>'; }).join("");
+              } else { body.textContent = "正在加载实时物价…"; }
+            }
+            // 高价格浮动材料：取实时价格 top4 高价（可排除子弹/枪械等，优先材料相关）
+            var mb = document.getElementById("kkMaterialsBody");
+            if (mb) {
+              var all = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
+              // 优先选分类含"材料"/"原料"/"工具"/"零件"；否则取 top4
+              var mats = all.filter(function (x) { var c = String(x.cat || ""); return c.indexOf("材料") > -1 || c.indexOf("原料") > -1 || c.indexOf("工具") > -1 || c.indexOf("零件") > -1; }).slice(0, 4);
+              if (!mats.length) mats = all.slice(0, 4);
+              mb.innerHTML = renderMaterialsLive(mats);
+            }
+            // 热门子弹：取实时价格中分类含"弹"的前十
+            var bb = document.getElementById("kkBulletsBody");
+            if (bb) {
+              var bls = lp.list().filter(function (x) { var c = String(x.cat || ""); return c.indexOf("弹") > -1 || c.indexOf("Bullet") > -1; })
+                .sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 10);
+              bb.innerHTML = renderBulletsLive(bls);
+            }
+            // 活动物品需求：从实时价格自动匹配
+            var evBody = document.getElementById("kkEventsBody");
+            if (evBody) {
+              var evItems = (DATA.eventItems || {}).items || [];
+              if (evItems.length) {
+                evBody.innerHTML = renderEventRows(evItems.map(function (it) {
+                  var p = lp.price(it.name);
+                  return { name: it.name, cur: p != null ? p : it.cur };
+                }));
+              }
+            }
+          }
+        }
+        tryUpdate();
+        if (window.DF && window.DF.mapPass) window.DF.mapPass.onChange(tryUpdate);
+        if (window.DF && window.DF.livePrice) window.DF.livePrice.onChange(tryUpdate);
+      }
     },
     maps: {
       html: function () {
@@ -532,26 +616,41 @@
       html: function () {
         var ev = DATA.eventItems || {};
         var note = ev.note ? '<p class="guide-intro">' + esc(ev.note) + "</p>" : "";
-        var apiTag = ev.api ? '<span class="count-badge" style="background:#19c3a6">API 实时</span>' : "";
+        var apiTag = ev.api ? '<span class="count-badge" style="background:#19c3a6">API 实时</span>' : '<span class="count-badge" style="background:#19c3a6">实时价格匹配</span>';
         return '<div class="section-title">' + esc(ev.title || "活动物品需求") + " " + apiTag + "</div>" +
           (ev.period ? '<p class="period">活动时间：' + esc(ev.period) + "</p>" : "") +
           note +
-          (ev.items && ev.items.length ? topEventsTable() : '<div class="card"><p style="color:var(--muted)">暂无数据。管理员可在后台「活动物品需求」面板维护，或填写实时 API 接口地址自动拉取。</p></div>');
+          '<div id="evTableWrap">' + (ev.items && ev.items.length ? topEventsTable() : '<div class="card"><p style="color:var(--muted)">暂无数据。管理员可在后台「活动物品需求」面板维护物品名，系统会自动从免费实时价格接口（caiweilv/DeltaForcePrice）匹配当前交易行价格。</p></div>') + '</div>';
       },
       init: function () {
         var ev = DATA.eventItems || {};
-        if (!ev.api) return;
-        fetch(ev.api + (ev.api.indexOf("?") > -1 ? "&" : "?") + "_=" + Date.now()).then(function (r) { return r.json(); })
-          .then(function (data) {
-            var items = Array.isArray(data) ? data : (data.items || []);
-            if (items && items.length) {
-              ev.items = items.map(function (it) {
-                return { name: it.name || it.物品 || "", cur: +it.cur || +it.当前 || 0, ideal: +it.ideal || +it.理想 || 0 };
-              });
-              var body = document.querySelector("#LAY_preview .card");
-              if (body) { body.outerHTML = topEventsTable(); }
-            }
-          }).catch(function () {});
+        function resolveAndRender() {
+          if (!window.DF || !window.DF.livePrice) return;
+          var lp = window.DF.livePrice;
+          var items = (ev.items || []).map(function (it) {
+            var p = lp.price(it.name);
+            return { name: it.name, cur: p != null ? p : (it.cur || 0), ideal: it.ideal || 0, priceFrom: p != null };
+          });
+          var wrap = document.getElementById("evTableWrap");
+          if (wrap) wrap.innerHTML = topEventsTable(items);
+        }
+        // 如果有自定义 API，先拉取
+        if (ev.api) {
+          fetch(ev.api + (ev.api.indexOf("?") > -1 ? "&" : "?") + "_=" + Date.now()).then(function (r) { return r.json(); })
+            .then(function (data) {
+              var items = Array.isArray(data) ? data : (data.items || []);
+              if (items && items.length) {
+                ev.items = items.map(function (it) {
+                  return { name: it.name || it.物品 || "", cur: +it.cur || +it.当前 || 0, ideal: +it.ideal || +it.理想 || 0 };
+                });
+                resolveAndRender();
+              }
+            }).catch(function () { resolveAndRender(); });
+        } else {
+          if (lp && lp.ready() && lp.ready().items.length) resolveAndRender();
+          else if (window.DF && window.DF.livePrice) window.DF.livePrice.load(true).then(resolveAndRender);
+          if (window.DF && window.DF.livePrice) window.DF.livePrice.onChange(resolveAndRender);
+        }
       },
     },
     materials: {

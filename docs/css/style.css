@@ -970,6 +970,9 @@ html.compact .field { margin-bottom: 8px; }
 .kk-card.kk-live { display:flex; flex-direction:column; cursor:pointer; text-decoration:none; color:inherit; border-color:var(--accent, #19c3a6); }
 .kk-live-body { font-size:13px; color:var(--muted); line-height:1.6; padding:4px 0 8px; }
 .kk-live-go { font-size:13px; color:var(--accent, #19c3a6); font-weight:600; }
+.kk-live-status { font-size:11px; color:var(--muted); margin-top:6px; }
+.lp-mini { display:inline-block; background:var(--bg-soft); border-radius:6px; padding:3px 8px; margin:3px 3px 0 0; font-size:12px; color:var(--text); }
+.lp-mini b { color:var(--accent-2, #4d96ff); margin-left:4px; }
 
 /* ===== 实时物价视图 ===== */
 .lp-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }

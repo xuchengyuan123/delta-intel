@@ -201,7 +201,7 @@
 
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice", "mappass"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
       art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art", "images"] },
@@ -242,7 +242,8 @@
       eventitems: { label: "活动物品需求", icon: "🎁", title: "活动物品需求（实时）", sub: "维护前台「资料库·活动物品需求」的研发集市需求列表，可填写 API 接口实现实时更新。", mount: mountEventItems },
       sponsor: { label: "收款照片", icon: "💝", title: "收款照片管理", sub: "维护赞助页（sponsor.html）展示的收款码 / 收款照片，支持上传图片或填链接。", mount: mountSponsor },
       analytics: { label: "浏览统计", icon: "📊", title: "浏览统计（真实访客数据）", sub: "配置免费第三方统计服务（GoatCounter / Cloudflare），接入真实访客数据；前台「数据中心·浏览数据」嵌入实时看板。不配置则无任何跟踪与假数据。", mount: mountAnalytics },
-      liveprice: { label: "实时物价源", icon: "💹", title: "实时物价接口（真实成交价）", sub: "配置前台「资料库·实时物价」调用的免费公开接口（默认 caiweilv/DeltaForcePrice，游戏内交易行真实成交价）。可关闭或替换为其他兼容 JSON 源。", mount: mountLivePrice }
+      liveprice: { label: "实时物价源", icon: "💹", title: "实时物价接口（真实成交价）", sub: "配置前台「资料库·实时物价」调用的免费公开接口（默认 caiweilv/DeltaForcePrice，游戏内交易行真实成交价）。可关闭或替换为其他兼容 JSON 源。", mount: mountLivePrice },
+      mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass }
     };
 
     var CHANGELOG = [
@@ -445,7 +446,9 @@
           { n: groups, l: "任务分组" }, { n: music, l: "音乐曲目" }, { n: sims, l: "模拟器数据" },
           { n: ops, l: "干员图鉴" }, { n: wcx, l: "武器图鉴" }, { n: (o.trivia || []).length, l: "小知识" },
           { n: gb, l: "改枪方案" }, { n: ev, l: "活动日历" }, { n: evi, l: "活动物品需求" }, { n: gmod, l: "攻略模块" },
-          { n: (o.analytics && o.analytics.enabled && (o.analytics.siteId || "").trim() ? "已启用" : "未配置"), l: "浏览统计" }
+          { n: (o.analytics && o.analytics.enabled && (o.analytics.siteId || "").trim() ? "已启用" : "未配置"), l: "浏览统计" },
+          { n: (o.livePrice && o.livePrice.enabled !== false ? "已启用" : "已关闭"), l: "实时物价" },
+          { n: (o.mapPass && o.mapPass.enabled !== false ? "已启用" : "已关闭"), l: "地图密码 API" }
         ];
         var kpiHtml = '<div class="kpi-grid">' + kpi.map(function (k) {
           return '<div class="kpi-card"><div class="n">' + k.n + '</div><div class="l">' + k.l + "</div></div>";
@@ -1223,7 +1226,7 @@
     function mountEventItems(c) {
       c.innerHTML =
         '<div class="panel-card"><h3>🎁 活动物品需求（实时更新）</h3>' +
-          '<p class="panel-tip">维护研发部门集市的活动物品需求列表。可填写「实时 API 接口地址」，前台与下方「从 API 刷新」将自动拉取最新数据。</p>' +
+          '<p class="panel-tip">维护研发部门集市的活动物品需求名称与理想售价。留空「当前售价」后，前台会自动从免费实时价格接口（caiweilv/DeltaForcePrice）匹配交易行当前价格；也可填写「实时 API 接口地址」直接覆盖数据源。</p>' +
           '<div class="row"><label class="fld-label">接口地址（留空则手动维护）</label><input id="eiApi" placeholder="https://.../eventItems.json"></div>' +
           '<div class="row"><label class="fld-label">标题</label><input id="eiTitle" placeholder="活动物品需求（研发部门·集市）"></div>' +
           '<div class="row"><label class="fld-label">活动周期</label><input id="eiPeriod" placeholder="2026/07/10 - 2026/07/17"></div>' +
@@ -1393,6 +1396,43 @@
             source: "caiweilv/DeltaForcePrice（GitHub 公开仓库，数据来自《三角洲行动》游戏内交易行真实成交价，每 10 分钟更新；通过 raw.githubusercontent.com 跨域可直连，免费、非官方）"
           };
           return putDataObj(d.obj, "更新实时物价接口配置", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    function mountMapPass(c) {
+      c.innerHTML =
+        '<div class="panel-card"><h3>🗺 地图密码接口</h3>' +
+          '<p class="panel-tip">前台「每日地图密码」与「密码门速查」直接调用此免费公开接口，展示每日最新地图密码。默认源为 tmini.net/api/sjzmm（每日自动更新，跨域可直连）。</p>' +
+          '<div class="row"><label class="fld-label">是否启用</label>' +
+            '<label class="switch"><input type="checkbox" id="mpEnabled"><span class="slider"></span></label>' +
+            '<span class="an-hint">关闭则回退到 data.json 中的静态地图密码</span></div>' +
+          '<div class="row"><label class="fld-label">接口地址</label>' +
+            '<input id="mpUrl" placeholder="https://tmini.net/api/sjzmm?type=json" style="width:100%"></div>' +
+          '<div class="row an-help" id="mpHelp"></div>' +
+          '<div class="row"><button class="btn role-c" id="mpSave">保存</button><span class="msg" id="mpMsg"></span></div></div>';
+      function refreshHelp() {
+        var u = c.querySelector("#mpUrl").value;
+        c.querySelector("#mpHelp").innerHTML = u
+          ? "当前接口：" + esc(u) + "（需返回 { data: { passwords: [ { map_name, password, location_info: { description } } ] } }）"
+          : "未填写接口地址，将使用默认源。";
+      }
+      c.querySelector("#mpUrl").addEventListener("input", refreshHelp);
+      getDataObj().then(function (d) {
+        var a = d.obj.mapPass || { enabled: true, url: "https://tmini.net/api/sjzmm?type=json", source: "" };
+        c.querySelector("#mpEnabled").checked = (a.enabled !== false);
+        c.querySelector("#mpUrl").value = a.url || "";
+        refreshHelp();
+      }).catch(function () {});
+      c.querySelector("#mpSave").onclick = function () {
+        var msg = c.querySelector("#mpMsg");
+        getDataObj().then(function (d) {
+          d.obj.mapPass = {
+            enabled: c.querySelector("#mpEnabled").checked,
+            url: c.querySelector("#mpUrl").value.trim() || "https://tmini.net/api/sjzmm?type=json",
+            source: "tmini.net（免费公开接口，每日自动更新三角洲行动各地图密码）"
+          };
+          return putDataObj(d.obj, "更新地图密码接口配置", msg);
         }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
       };
     }

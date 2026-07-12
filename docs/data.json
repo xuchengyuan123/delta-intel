@@ -1,36 +1,5 @@
 {
-  "maps": [
-    {
-      "name": "AZ3核电站",
-      "code": "0510",
-      "date": "2026-07-11 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "6905",
-      "date": "2026-07-11 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "1617",
-      "date": "2026-07-11 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "9441",
-      "date": "2026-07-11 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "7614",
-      "date": "2026-07-11 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "9316",
-      "date": "2026-07-11 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -298,7 +267,7 @@
     "title": "活动物品需求（研发部门·集市）",
     "period": "",
     "api": "",
-    "note": "可在后台填写实时 API 接口地址，前台将自动拉取最新数据；留空则手动维护。",
+    "note": "管理员在后台维护活动物品名称后，前台会自动调用免费实时价格接口（caiweilv/DeltaForcePrice）匹配当前交易行价格，无需手动填写；也可填写自定义 API 地址直接覆盖。",
     "items": []
   },
   "materials": [
@@ -2634,32 +2603,7 @@
       ]
     }
   ],
-  "doorCodes": [
-    {
-      "map": "零号大坝",
-      "location": "行政楼电子门",
-      "code": "示例 0451",
-      "note": "每日刷新，以游戏内/地图密码为准"
-    },
-    {
-      "map": "航天基地",
-      "location": "控制中心门禁",
-      "code": "示例 1980",
-      "note": "机密行动常见"
-    },
-    {
-      "map": "巴克什",
-      "location": "金库密码门",
-      "code": "示例 0521",
-      "note": "需金库钥匙开启"
-    },
-    {
-      "map": "潮汐监狱",
-      "location": "狱长办公室",
-      "code": "示例 0731",
-      "note": "BOSS 房"
-    }
-  ],
+  "doorCodes": [],
   "events": [
     {
       "name": "裂变时刻",
@@ -2998,7 +2942,10 @@
   ],
   "sponsor": {
     "photos": [
-      { "label": "微信收款码", "src": "sponsor-qr.jpg" }
+      {
+        "label": "微信收款码",
+        "src": "sponsor-qr.jpg"
+      }
     ]
   },
   "analytics": {
@@ -3010,5 +2957,21 @@
     "enabled": true,
     "url": "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json",
     "source": "caiweilv/DeltaForcePrice（GitHub 公开仓库，数据来自《三角洲行动》游戏内交易行真实成交价，每 10 分钟更新；通过 raw.githubusercontent.com 跨域可直连，免费、非官方）"
-  }
+  },
+  "mapPass": {
+    "enabled": true,
+    "url": "https://tmini.net/api/sjzmm?type=json",
+    "source": "tmini.net（免费公开接口，每日自动更新三角洲行动各地图密码）"
+  },
+  "_cl": [
+    {
+      "date": "2026-07-12",
+      "items": [
+        "接入 tmini.net 免费地图密码 API，首页/地图视图/密码门速查全部实时",
+        "活动物品需求支持自动从 caiweilv/DeltaForcePrice 实时价格匹配（管理员只需填物品名）",
+        "实时物价入口在首页显示 TOP5 高价预览",
+        "清空旧静态地图密码/密码门示例数据，避免与实时源混淆"
+      ]
+    }
+  ]
 }
