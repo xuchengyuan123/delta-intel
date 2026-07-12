@@ -341,28 +341,7 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [
-    {
-      "time": "2026-07-11 22:28",
-      "role": "总管理员",
-      "action": "更新收款照片（0 张）"
-    },
-    {
-      "time": "2026-07-11 22:27",
-      "role": "总管理员",
-      "action": "更新实时物价接口配置"
-    },
-    {
-      "time": "2026-07-11 22:26",
-      "role": "总管理员",
-      "action": "更新收款照片（1 张）"
-    },
-    {
-      "time": "2026-07-11 22:23",
-      "role": "总管理员",
-      "action": "更新反馈设置"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10 裂变",
     "updated": "2026-07-11",
@@ -2901,11 +2880,12 @@
   ],
   "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",
   "feedback": {
-    "email": "18612602599@163.com",
+    "email": "delta.intel.feedback@example.com",
     "mailSubject": "三角洲情报台·网站反馈",
     "formUrl": "",
     "formEmbed": "",
-    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md"
+    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md",
+    "note": "在后台「代码维护 / 反馈设置」中修改邮箱与第三方表单链接。"
   },
   "images": {
     "images": []
@@ -3017,8 +2997,9 @@
     }
   ],
   "sponsor": {
-    "photos": [],
-    "afdianUrl": "https://ifdian.net/a/delta-intel"
+    "photos": [
+      { "label": "微信收款码", "src": "sponsor-qr.jpg" }
+    ]
   },
   "analytics": {
     "provider": "goatcounter",
