@@ -90,34 +90,80 @@
   /* ---------- 菜单配置 ---------- */
   var DEFAULT = "home";
   var MENU = [
+    { route: "home", label: "首页一图流" },
+    { route: "quiz", label: "DFTI测试" },
     {
-      group: "总览", items: [
-        { route: "home",   label: "首页一图流", ico: "🏠" },
-        { route: "maps",   label: "每日地图密码", ico: "🗺" },
+      group: "S10 赛季", collapsed: true, items: [
+        { route: "tasks",     label: "赛季任务 / 挑战手册", ico: "📋" },
+        { route: "changelog", label: "网站更新速览", ico: "📜" },
+        { route: "eventitems",label: "活动物品需求", ico: "🎁" },
       ],
     },
     {
-      group: "数据", items: [
+      group: "每日热点", collapsed: true, items: [
+        { route: "maps",     label: "每日地图密码", ico: "🗺" },
+        { route: "bullets",  label: "热门子弹利润", ico: "🔫" },
+        { route: "materials",label: "高价格浮动材料", ico: "📈" },
+      ],
+    },
+    {
+      group: "攻略教学", collapsed: true, items: [
+        { route: "guides",   label: "新手速览", ico: "📖" },
+        { route: "trivia",   label: "小知识", ico: "💡" },
+        { route: "gunbuilds",label: "改枪方案", ico: "🔧" },
+        { route: "doorcodes",label: "密码门", ico: "🔑" },
+        { route: "streamer", label: "主播设置", ico: "🎥" },
+        { route: "optasks",  label: "干员任务", ico: "🎯" },
+        { route: "melee",    label: "近战武器", ico: "🗡" },
+      ],
+    },
+    {
+      group: "图鉴数据库", collapsed: true, items: [
+        { route: "operators",   label: "干员图鉴", ico: "🦸" },
+        { route: "weapons",     label: "武器图鉴", ico: "🔫" },
+        { route: "armors",      label: "防具数据", ico: "🛡" },
+        { route: "scopes",      label: "瞄具样式", ico: "🔭" },
+        { route: "npc",         label: "NPC 血量护甲", ico: "👾" },
+        { route: "upgrades",    label: "特勤处升级花销", ico: "⬆️" },
+        { route: "expansion",   label: "扩容箱兑换", ico: "📦" },
+        { route: "keyrooms",    label: "钥匙房", ico: "🗝" },
+        { route: "collectibles",label: "收集品价值", ico: "💎" },
+        { route: "bulletpacks", label: "子弹自选包利润", ico: "📊" },
+      ],
+    },
+    {
+      group: "交易制作", collapsed: true, items: [
+        { route: "prices", label: "实时物价", ico: "💹" },
         { route: "items",  label: "特勤处产物推荐", ico: "🛠" },
-        { route: "bullets",label: "热门子弹利润", ico: "🔫" },
-        { route: "events", label: "活动物品需求", ico: "🎁" },
-        { route: "materials", label: "高价格浮动材料", ico: "📈" },
-      ],
-    },
-    {
-      group: "可视化", items: [
         { route: "craft",  label: "制作树 / 科技树", ico: "🌳" },
       ],
     },
     {
-      group: "资讯", items: [
-        { route: "tasks", label: "赛季任务 / 挑战手册", ico: "📋" },
-        { route: "changelog", label: "网站更新速览", ico: "📜" },
+      group: "活动物资", collapsed: true, items: [
+        { route: "events",  label: "活动日历", ico: "📅" },
+        { route: "treasure",label: "宝藏开箱", ico: "🧰" },
+        { route: "loot",    label: "随机舔包", ico: "🎒" },
+        { route: "scatter", label: "散落物资点", ico: "📍" },
       ],
     },
     {
-      group: "社区", items: [
-        { href: "forum.html", label: "战友论坛", ico: "💬" },
+      group: "模拟分析", collapsed: true, items: [
+        { route: "sim_armor", label: "护甲模拟", ico: "🛡" },
+        { route: "sim_damage",label: "伤害模拟", ico: "💥" },
+        { route: "analytics", label: "数据分析", ico: "📊" },
+      ],
+    },
+    {
+      group: "娱乐工具", collapsed: true, items: [
+        { route: "games",   label: "电竞趣味游戏", ico: "🎮" },
+        { route: "tools",   label: "实用工具", ico: "🧰" },
+        { route: "music",   label: "音乐台", ico: "🎵" },
+        { route: "feedback",label: "意见反馈", ico: "📮" },
+      ],
+    },
+    {
+      group: "网站相关", collapsed: true, items: [
+        { href: "forum.html",   label: "战友论坛", ico: "💬" },
         { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
@@ -141,23 +187,58 @@
   /* ---------- 菜单渲染 ---------- */
   function renderMenu(active) {
     var str = "";
-    MENU.forEach(function (g) {
-      str += '<div class="menu-group">' + esc(g.group) + "</div>";
-      g.items.forEach(function (it) {
-        if (it.href) {
-          str += '<a class="menu-item" href="' + esc(it.href) + '">' +
-                 '<span class="ico">' + it.ico + "</span><span>" + esc(it.label) + "</span></a>";
-        } else {
-          var cls = "menu-item" + (it.route === active ? " active" : "");
-          str += '<div class="' + cls + '" data-route="' + esc(it.route) + '">' +
-                 '<span class="ico">' + it.ico + "</span><span>" + esc(it.label) + "</span></div>";
-        }
-      });
+    MENU.forEach(function (entry, idx) {
+      if (entry.group) {
+        // 如果当前激活路由在该组内，默认展开
+        var hasActive = entry.items.some(function (it) { return it.route === active; });
+        var collapsed = hasActive ? false : entry.collapsed;
+        var arrow = collapsed ? "&#9662;" : "&#9652;";
+        str += '<div class="menu-group-wrap' + (hasActive ? " active-group" : "") + '">' +
+          '<div class="menu-group-toggle" data-idx="' + idx + '">' +
+          '<span>' + esc(entry.group) + '</span><span class="arrow">' + arrow + '</span>' +
+          '</div>' +
+          '<div class="menu-group-items" style="display:' + (collapsed ? "none" : "block") + '">' +
+          renderMenuItems(entry.items, active) +
+          '</div></div>';
+      } else {
+        str += renderMenuItem(entry, active, "menu-item-plain");
+      }
     });
     menuEl.innerHTML = str;
+
+    // 绑定分组折叠
+    menuEl.querySelectorAll(".menu-group-toggle").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var wrap = el.parentElement;
+        var items = wrap.querySelector(".menu-group-items");
+        var arrow = el.querySelector(".arrow");
+        var nowHidden = items.style.display === "none";
+        items.style.display = nowHidden ? "block" : "none";
+        arrow.innerHTML = nowHidden ? "&#9652;" : "&#9662;";
+        wrap.classList.toggle("collapsed", !nowHidden);
+      });
+    });
+
+    // 绑定路由点击
     menuEl.querySelectorAll(".menu-item[data-route]").forEach(function (el) {
       el.addEventListener("click", function () { navigate(el.getAttribute("data-route")); });
     });
+  }
+
+  function renderMenuItems(items, active) {
+    return items.map(function (it) { return renderMenuItem(it, active, "menu-item"); }).join("");
+  }
+
+  function renderMenuItem(it, active, extraCls) {
+    if (it.href) {
+      return '<a class="' + extraCls + '" href="' + esc(it.href) + '">' +
+             (it.ico ? '<span class="ico">' + it.ico + '</span>' : '') +
+             '<span>' + esc(it.label) + "</span></a>";
+    }
+    var cls = extraCls + (it.route === active ? " active" : "");
+    return '<div class="' + cls + '" data-route="' + esc(it.route) + '">' +
+           (it.ico ? '<span class="ico">' + it.ico + '</span>' : '') +
+           '<span>' + esc(it.label) + "</span></div>";
   }
 
   /* ---------- 路由 ---------- */
@@ -740,8 +821,6 @@
     },
   };
 
-  /* 活动物品需求（研发集市）菜单入口，避免与攻略插件的「活动日历」(events) 路由冲突 */
-  MENU.push({ group: "资料库", items: [{ route: "eventitems", label: "活动物品需求", ico: "🎁" }] });
 
   /* ---------- 主题切换（支持 自动跟随系统 / 浅色 / 深色） ---------- */
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
@@ -863,6 +942,9 @@
       document.head.appendChild(s);
     }
   };
+  /* 菜单已在上方 MENU 配置中统一编排（含全部真实路由）；
+     禁用各插件各自 push 的分组，避免重复与混乱 */
+  MENU.push = function () {};
   if (window.__df_ready) { try { window.__df_ready(window.DF); } catch (e) { console.error(e); } }
   if (window.__df_plugins) {
     window.__df_plugins.forEach(function (fn) { try { fn(window.DF); } catch (e) { console.error(e); } });
