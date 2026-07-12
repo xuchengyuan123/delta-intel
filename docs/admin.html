@@ -21,6 +21,7 @@
     .login-card .lg-logo span { color: var(--accent); }
     .login-card .lg-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.7; }
     .login-field { margin-bottom: 16px; }
+    .sa-form { max-width: 440px; }
     .login-field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     .login-field input, .login-field select { width: 100%; padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; box-sizing: border-box; }
     .login-roles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -29,6 +30,14 @@
     .login-role .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .login-role.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-soft)); }
     .login-err { color: #ff5b5b; font-size: 13px; min-height: 18px; margin: 6px 0; }
+    .lg-tabs { display:flex; gap:8px; margin-bottom:14px; }
+    .lg-tabs .tab { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:8px; border-radius:10px; cursor:pointer; font-size:13px; }
+    .lg-tabs .tab.active { background:var(--accent); color:#1a1a1a; border-color:var(--accent); font-weight:700; }
+    .lg-pane { display:none; }
+    .lg-pane.active { display:block; }
+    .lg-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .lg-row input { flex:1; min-width:120px; }
+    .lg-hint { color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.5; }
 
     /* 后台布局 */
     .admin-top { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 56px;
@@ -133,17 +142,42 @@
   <div class="login-wrap" id="loginWrap">
     <div class="login-card">
       <div class="lg-logo">三角洲<span>情报台</span> · 管理后台</div>
-      <div class="lg-sub">用你自己的 GitHub Token（<b>repo 权限</b>）登录。选择你的管理员角色，每个角色只显示自己负责的模块。Token 仅存于本浏览器，绝不上传任何服务器。</div>
-      <div class="login-field">
-        <label>GitHub Token（classic，只勾 repo）</label>
-        <input id="tokenInput" type="password" placeholder="粘贴 Token" />
+      <div class="lg-sub">两种登录方式：<b>总管理员</b>用 GitHub Token（repo 权限）直连仓库；<b>分管理员</b>用邮箱/手机号 + 密码或验证码，提交由 Cloudflare Worker 代理。</div>
+      <div class="lg-tabs">
+        <button class="tab active" data-lg="token">总管理员 · Token</button>
+        <button class="tab" data-lg="worker">分管理员 · 账号</button>
       </div>
-      <div class="login-field">
-        <label>选择管理员角色</label>
-        <div class="login-roles" id="rolePicker"></div>
+      <div class="lg-pane active" data-pane="token">
+        <div class="login-field">
+          <label>GitHub Token（classic，只勾 repo）</label>
+          <input id="tokenInput" type="password" placeholder="粘贴 Token" />
+        </div>
+        <div class="login-field">
+          <label>选择管理员角色</label>
+          <div class="login-roles" id="rolePicker"></div>
+        </div>
+      </div>
+      <div class="lg-pane" data-pane="worker">
+        <div class="login-field">
+          <label>Cloudflare Worker 地址（分管理员登录用）</label>
+          <input id="workerUrl" placeholder="https://你的域名.workers.dev" />
+        </div>
+        <div class="login-field">
+          <label>邮箱或手机号</label>
+          <input id="adminId" placeholder="邮箱或手机号" />
+        </div>
+        <div class="login-field">
+          <label>密码（免密登录可留空）</label>
+          <input id="adminPw" type="password" placeholder="密码" />
+        </div>
+        <div class="login-field lg-row">
+          <input id="adminCode" placeholder="验证码" style="max-width:120px" />
+          <button class="btn sm" id="adminSend">获取验证码</button>
+        </div>
       </div>
       <div class="login-err" id="loginErr"></div>
       <button class="btn" id="loginBtn" style="width:100%">登录</button>
+      <div class="lg-hint" id="loginHint">Token 与分管理员会话仅存在本浏览器，不会上传到第三方服务器。</div>
     </div>
   </div>
 
@@ -178,6 +212,8 @@
     var API = "https://api.github.com";
     var KEY_TOKEN = "di_admin_token";
     var KEY_ROLE = "di_admin_role";
+    var KEY_SESSION = "di_admin_session";
+    var DELTA_API = "";
     var dataSha = "";
 
     /* ===== 仅支持电脑端登录：移动端/触屏设备直接拦截 ===== */
@@ -201,7 +237,7 @@
 
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice", "mappass"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice", "mappass", "subadmins"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
       art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art", "images"] },
@@ -243,7 +279,8 @@
       sponsor: { label: "收款照片", icon: "💝", title: "收款照片管理", sub: "维护赞助页（sponsor.html）展示的收款码 / 收款照片，支持上传图片或填链接。", mount: mountSponsor },
       analytics: { label: "浏览统计", icon: "📊", title: "浏览统计（真实访客数据）", sub: "配置免费第三方统计服务（GoatCounter / Cloudflare），接入真实访客数据；前台「数据中心·浏览数据」嵌入实时看板。不配置则无任何跟踪与假数据。", mount: mountAnalytics },
       liveprice: { label: "实时物价源", icon: "💹", title: "实时物价接口（真实成交价）", sub: "配置前台「资料库·实时物价」调用的免费公开接口（默认 caiweilv/DeltaForcePrice，游戏内交易行真实成交价）。可关闭或替换为其他兼容 JSON 源。", mount: mountLivePrice },
-      mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass }
+      mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass },
+      subadmins: { label: "分管理员管理", icon: "🛡", title: "分管理员账号管理", sub: "创建与查看分管理员账号（写入 Cloudflare Worker 的 KV）。分管理员可用「邮箱/手机号 + 密码或验证码」登录后台。需在「分管理员·账号」标签页以总管理员身份登录 Worker 后使用。", mount: mountSubAdmins }
     };
 
     var CHANGELOG = [
@@ -259,6 +296,22 @@
     function clearToken() { try { localStorage.removeItem(KEY_TOKEN); } catch (e) {} }
     function getRole() { try { return localStorage.getItem(KEY_ROLE) || "super"; } catch (e) { return "super"; } }
     function setRole(r) { try { localStorage.setItem(KEY_ROLE, r); } catch (e) {} }
+    function getWorkerSession() { try { return localStorage.getItem(KEY_SESSION) || ""; } catch (e) { return ""; } }
+    function setWorkerSession(s) { try { localStorage.setItem(KEY_SESSION, s); } catch (e) {} }
+    function clearWorkerSession() { try { localStorage.removeItem(KEY_SESSION); } catch (e) {} }
+    function apiBase() {
+      var ls = "";
+      try { ls = localStorage.getItem("di_worker_url") || ""; } catch (e) {}
+      return (ls || window.DELTA_API || DELTA_API || "").replace(/\/$/, "");
+    }
+    function setWorkerUrl(u) { try { localStorage.setItem("di_worker_url", (u || "").replace(/\/$/, "")); } catch (e) {} }
+    function adminMode() { return getWorkerSession() ? "worker" : (getToken() ? "token" : ""); }
+    function wkFetch(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+      if (getWorkerSession()) opts.headers["Authorization"] = "Bearer " + getWorkerSession();
+      return fetch(apiBase() + path, opts);
+    }
     function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
     function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
     function headers(auth) {
@@ -273,11 +326,18 @@
 
     /* ===== data.json 读写 + 操作日志 ===== */
     function getDataObj() {
+      if (adminMode() === "worker") {
+        return wkFetch("/api/admin/data").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) throw new Error(j.error);
+          return { obj: JSON.parse(j.content) };
+        });
+      }
       return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(true) })
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (j) { dataSha = j.sha; return { obj: JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha: j.sha }; });
     }
     function getLatestSha() {
+      if (adminMode() === "worker") return Promise.resolve("");
       return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(true) })
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (j) { dataSha = j.sha; return j.sha; });
@@ -288,6 +348,12 @@
       obj.adminLog = obj.adminLog || [];
       obj.adminLog.unshift({ time: nowStr(), role: currentRoleName(), action: actionDesc || "更新数据" });
       obj.adminLog = obj.adminLog.slice(0, 120);
+
+      if (adminMode() === "worker") {
+        return wkFetch("/api/admin/data", { method: "PUT", body: JSON.stringify({ content: JSON.stringify(obj, null, 2) }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) { if (j.error) throw new Error(j.error); if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功，网站已更新。"; } });
+      }
 
       function attemptWrite() {
         return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", {
@@ -321,6 +387,10 @@
     /* 上传独立文件（如图片）到仓库，返回可访问的 download_url */
     function putFile(path, base64, message, msgEl) {
       if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "上传中…"; }
+      if (adminMode() === "worker") {
+        return wkFetch("/api/admin/file", { method: "PUT", body: JSON.stringify({ path: path, content: base64, message: message }) })
+          .then(function (r) { return r.json(); }).then(function (j) { if (j.error) throw new Error(j.error); return j.url; });
+      }
       return fetch(API + "/repos/" + REPO + "/contents/" + path, {
         method: "PUT", headers: headers(true),
         body: JSON.stringify({ message: message || "上传文件", content: base64 })
@@ -379,9 +449,82 @@
       });
     }
 
-    document.getElementById("loginBtn").addEventListener("click", function () {
-      var v = document.getElementById("tokenInput").value.trim();
+    /* 初始化：渲染总管理员角色选择 + 预填 Worker 地址 */
+    renderRolePicker();
+    try {
+      var wu = localStorage.getItem("di_worker_url") || "";
+      if (wu && document.getElementById("workerUrl")) document.getElementById("workerUrl").value = wu;
+    } catch (e) {}
+
+    /* tab 切换：总管理员 Token / 分管理员 账号 */
+    document.querySelectorAll(".lg-tabs .tab").forEach(function (t) {
+      t.addEventListener("click", function () {
+        document.querySelectorAll(".lg-tabs .tab").forEach(function (x) { x.classList.remove("active"); });
+        t.classList.add("active");
+        var m = t.getAttribute("data-lg");
+        document.querySelectorAll(".lg-pane").forEach(function (p) {
+          p.classList.toggle("active", p.getAttribute("data-pane") === m);
+        });
+      });
+    });
+
+    /* Worker 地址变更即保存 */
+    var workerUrlInput = document.getElementById("workerUrl");
+    if (workerUrlInput) workerUrlInput.addEventListener("input", function () { setWorkerUrl(workerUrlInput.value.trim()); });
+
+    /* 分管理员：获取验证码（邮箱/手机号） */
+    var adminSendBtn = document.getElementById("adminSend");
+    if (adminSendBtn) adminSendBtn.addEventListener("click", function () {
+      var id = document.getElementById("adminId").value.trim();
       var err = document.getElementById("loginErr");
+      if (!apiBase()) { err.textContent = "请先填写 Worker 地址。"; return; }
+      if (!id) { err.textContent = "请输入邮箱或手机号"; return; }
+      err.textContent = "发送中…";
+      wkFetch("/api/send-code", { method: "POST", body: JSON.stringify({ to: id }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.ok || j.devCode) err.textContent = "验证码已发送（开发模式回显：" + (j.devCode || "") + "）";
+          else err.textContent = (j.error || "发送失败");
+        })
+        .catch(function () { err.textContent = "发送失败，请检查 Worker 地址或网络。"; });
+    });
+
+    /* 登录按钮：按当前 tab 分流 */
+    document.getElementById("loginBtn").addEventListener("click", function () {
+      var err = document.getElementById("loginErr");
+      var activeTab = document.querySelector(".lg-tabs .tab.active");
+      var mode = activeTab ? activeTab.getAttribute("data-lg") : "token";
+
+      /* ===== 分管理员：Worker 账号登录（邮箱/手机号 + 密码 或 验证码） ===== */
+      if (mode === "worker") {
+        setWorkerUrl(document.getElementById("workerUrl") ? document.getElementById("workerUrl").value.trim() : "");
+        var id = document.getElementById("adminId").value.trim();
+        var pw = document.getElementById("adminPw").value;
+        var code = document.getElementById("adminCode").value.trim();
+        if (!apiBase()) { err.textContent = "请先填写 Cloudflare Worker 地址。"; return; }
+        if (!id) { err.textContent = "请输入邮箱或手机号"; return; }
+        if (!pw && !code) { err.textContent = "请输入密码，或先获取验证码后填写。"; return; }
+        err.textContent = "验证中…";
+        var body = { id: id };
+        if (code) { body.email = id; body.code = code; } else { body.password = pw; }
+        wkFetch("/api/admin-login", { method: "POST", body: JSON.stringify(body) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) { err.textContent = j.error; return; }
+            setWorkerSession(j.session);
+            var role = j.role || "subadmin";
+            if (!ROLES[role]) ROLES[role] = { key: role, name: "分管理员", color: "#8a7bff", icon: "🛡", panels: ["dashboard"] };
+            activeRole = role;
+            setRole(role);
+            err.textContent = "";
+            enterShell(j.email || id);
+          })
+          .catch(function () { err.textContent = "登录失败，请检查 Worker 地址或网络。"; });
+        return;
+      }
+
+      /* ===== 总管理员：GitHub Token 直连 ===== */
+      var v = document.getElementById("tokenInput").value.trim();
       if (!v) { err.textContent = "请输入 Token"; return; }
       err.textContent = "验证中…";
       setToken(v);
@@ -456,8 +599,86 @@
     }
 
     document.getElementById("logoutBtn").addEventListener("click", function () {
-      clearToken(); location.reload();
+      if (adminMode() === "worker") {
+        try { wkFetch("/api/logout", { method: "POST" }).catch(function () {}); } catch (e) {}
+        clearWorkerSession();
+      }
+      clearToken();
+      location.reload();
     });
+
+    /* 自动恢复 Worker 登录态（分管理员刷新不必重登） */
+    (function restoreWorker() {
+      if (adminMode() !== "worker" || !apiBase()) return;
+      wkFetch("/api/me").then(function (r) { return r.json(); }).then(function (j) {
+        if (j.error) { clearWorkerSession(); return; }
+        var role = j.role || "subadmin";
+        if (!ROLES[role]) ROLES[role] = { key: role, name: "分管理员", color: "#8a7bff", icon: "🛡", panels: ["dashboard"] };
+        activeRole = role; setRole(role);
+        enterShell(j.email || "");
+      }).catch(function () { clearWorkerSession(); });
+    })();
+
+    /* ============ 分管理员管理 ============ */
+    function mountSubAdmins(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需在「分管理员·账号」标签页以<b>总管理员</b>身份登录 Worker 后使用。请切换到该登录方式，输入您的总管理员邮箱/手机号 + 密码。</div>';
+        return;
+      }
+      if (activeRole !== "super") {
+        c.innerHTML = '<div class="status" style="color:#ff5b5b">只有总管理员可管理分管理员账号。</div>';
+        return;
+      }
+      var roleOpts = Object.keys(ROLES).filter(function (k) { return k !== "super"; }).map(function (k) {
+        return '<option value="' + k + '">' + ROLES[k].name + " (" + k + ")</option>";
+      }).join("");
+      roleOpts = '<option value="subadmin">自定义分管理员 (subadmin)</option>' + roleOpts;
+      c.innerHTML =
+        '<div class="panel-tip">创建分管理员账号（写入 Cloudflare Worker 的 KV，密码经 PBKDF2 哈希存储）。分管理员随后可用「邮箱/手机号 + 密码或验证码」登录本后台，权限由所选角色决定。</div>' +
+        '<div class="sa-form">' +
+          '<div class="login-field"><label>邮箱（必填）</label><input id="saEmail" placeholder="subadmin@example.com"></div>' +
+          '<div class="login-field"><label>密码（≥6 位）</label><input id="saPw" type="password" placeholder="密码"></div>' +
+          '<div class="login-field"><label>手机号（可选，用于手机号登录）</label><input id="saPhone" placeholder="13800000000"></div>' +
+          '<div class="login-field"><label>分配角色</label><select id="saRole">' + roleOpts + '</select></div>' +
+          '<button class="btn" id="saCreate">创建分管理员</button>' +
+          '<div class="msg" id="saMsg"></div>' +
+        '</div>' +
+        '<h3 style="margin-top:18px">现有账号</h3>' +
+        '<div id="saList"><div class="status">加载中…</div></div>';
+
+      function loadList() {
+        var list = document.getElementById("saList");
+        wkFetch("/api/admin/users").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { list.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + "</div>"; return; }
+          var us = (j.users || []);
+          if (!us.length) { list.innerHTML = '<div class="status">暂无账号。</div>'; return; }
+          list.innerHTML = '<div class="ui-role-grid">' + us.map(function (u) {
+            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.email) +
+              "<br><small style=\"color:var(--muted)\">" + (u.phone || "无手机") + " · " + esc(u.role) + "</small></div>" +
+              (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') + "</div>";
+          }).join("") + "</div>";
+        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+      }
+
+      document.getElementById("saCreate").addEventListener("click", function () {
+        var email = document.getElementById("saEmail").value.trim();
+        var pw = document.getElementById("saPw").value;
+        var phone = document.getElementById("saPhone").value.trim();
+        var role = document.getElementById("saRole").value;
+        var msg = document.getElementById("saMsg");
+        if (!email || !pw || pw.length < 6) { msg.className = "msg err"; msg.textContent = "邮箱必填，密码至少 6 位。"; return; }
+        msg.className = "msg"; msg.textContent = "创建中…";
+        wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ email: email, password: pw, phone: phone, role: role }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) { msg.className = "msg err"; msg.textContent = j.error; return; }
+            msg.className = "msg ok"; msg.textContent = "✅ 已创建分管理员（角色：" + (j.role || role) + "）。";
+            loadList();
+          })
+          .catch(function () { msg.className = "msg err"; msg.textContent = "创建失败，请检查 Worker 地址。"; });
+      });
+      loadList();
+    }
 
     /* ============ 总览仪表盘 ============ */
     function mountDashboard(c) {

@@ -168,7 +168,7 @@
         var att = (b.attachments || []).map(function (a) { return '<span class="att-chip">' + esc(a) + "</span>"; }).join("");
         var img = b.image ? '<div class="gb-img"><img src="' + esc(b.image) + '" alt="' + esc(b.name) + '"></div>' : "";
         return '<div class="gb-card">' + img +
-          '<div class="gb-head"><b>' + esc(b.name) + '</b><span class="gb-w">' + esc(b.weapon || "") + '</span></div>' +
+          '<div class="gb-head"><b>' + esc(b.name) + '</b>' + (b.weapon && String(b.name).indexOf(b.weapon) === -1 ? '<span class="gb-w">' + esc(b.weapon) + '</span>' : '') + '</div>' +
           '<div class="gb-tags">' + tags + "</div>" +
           (b.desc ? '<div class="gb-desc">' + esc(b.desc) + "</div>" : "") +
           '<div class="gb-att">' + att + "</div></div>";
@@ -261,7 +261,7 @@
         var box = document.getElementById("trBox").value;
         var n = Math.max(1, Math.min(20, +document.getElementById("trN").value || 1));
         var container = (o.containers || []).find(function (c) { return c.name === box; }) || { output: "未知物资" };
-        var pool = ["传说武器箱", "史诗配件包", "哈夫币×5000", "量子模块", "收集品·金条", "高级护甲维修包", "战术快拆手术包", "空", "空", "普通物资", container.output];
+        var pool = ["金条", "显卡", "镜头", "固态硬盘", "M62子弹×120", "M855A1子弹×120", "PBP子弹×120", "高级护甲维修包", "战术快拆手术包", "绷带×5", "止疼片×3", "空", "空", "普通物资", container.output];
         var res = [];
         for (var i = 0; i < n; i++) res.push(pool[Math.floor(Math.random() * pool.length)]);
         document.getElementById("trResult").innerHTML = res.map(function (r, i) {
@@ -280,7 +280,7 @@
       var btn = document.getElementById("loGo"); if (!btn) return;
       var guns = ["M4A1", "AK-12", "K416", "M7", "AS Val", "AWM", "SR-25", "MP5", "MP7", "M870", "G18", "沙漠之鹰", "P90", "M250"];
       var armor = ["无甲", "3级 TG-H防弹衣", "4级 MK-2战术背心", "5级 重型突击背心", "6级 特里克MAS2.0装甲"];
-      var item = ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器", "破片手雷", "闪光弹", "烟雾弹", "护甲维修包", "工具箱", "安全箱扩容", "防弹插板"];
+      var item = ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器", "护甲维修包", "工具箱", "安全箱扩容", "防弹插板", "5.56x45mm M855A1", "9x19mm PBP", "7.62x51mm M62"];
       btn.addEventListener("click", function () {
         function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
         var bag = [pick(guns), pick(armor), pick(item), pick(item), pick(item)];
