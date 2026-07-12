@@ -804,7 +804,37 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").catch(function () {});
+      navigator.serviceWorker.register("sw.js?v=2").then(function (reg) {
+        reg.addEventListener("updatefound", function () {
+          var newWorker = reg.installing;
+          newWorker.addEventListener("statechange", function () {
+            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+              // 新版 SW 已安装但还在等待，提示用户刷新
+              showUpdateBanner(newWorker);
+            }
+          });
+        });
+      }).catch(function () {});
+    });
+  }
+
+  function showUpdateBanner(worker) {
+    if (document.getElementById("dfUpdateBanner")) return;
+    var b = document.createElement("div");
+    b.id = "dfUpdateBanner";
+    b.className = "install-banner";
+    b.style.background = "linear-gradient(90deg,#2563eb,#06b6d4)";
+    b.innerHTML = '<span class="ib-icon">🚀</span>' +
+      '<span class="ib-text">网站已更新，请刷新页面加载最新版本</span>' +
+      '<button class="ib-btn" id="ibUpdate">立即刷新</button>' +
+      '<button class="ib-close" id="ibUpdateClose">×</button>';
+    document.body.appendChild(b);
+    document.getElementById("ibUpdate").addEventListener("click", function () {
+      if (worker) worker.postMessage("skipWaiting");
+      window.location.reload();
+    });
+    document.getElementById("ibUpdateClose").addEventListener("click", function () {
+      document.getElementById("dfUpdateBanner").remove();
     });
   }
 
