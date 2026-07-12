@@ -277,21 +277,43 @@
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (j) { dataSha = j.sha; return { obj: JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha: j.sha }; });
     }
+    function getLatestSha() {
+      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(false) })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (j) { dataSha = j.sha; return j.sha; });
+    }
     function putDataObj(obj, actionDesc, msgEl) {
       if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "保存中…"; }
       // 写入操作日志
       obj.adminLog = obj.adminLog || [];
       obj.adminLog.unshift({ time: nowStr(), role: currentRoleName(), action: actionDesc || "更新数据" });
       obj.adminLog = obj.adminLog.slice(0, 120);
-      return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", {
-        method: "PUT", headers: headers(true),
-        body: JSON.stringify({ message: "[" + currentRoleName() + "] " + (actionDesc || "更新数据"), content: b64utf8(JSON.stringify(obj, null, 2)), sha: dataSha })
-      }).then(function (r) {
-        if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
-        return r.json();
-      }).then(function (j) {
-        dataSha = j.content.sha;
-        if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功，网站已更新。"; }
+
+      function attemptWrite() {
+        return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", {
+          method: "PUT", headers: headers(true),
+          body: JSON.stringify({ message: "[" + currentRoleName() + "] " + (actionDesc || "更新数据"), content: b64utf8(JSON.stringify(obj, null, 2)), sha: dataSha })
+        }).then(function (r) {
+          if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
+          return r.json();
+        }).then(function (j) {
+          dataSha = j.content.sha;
+          if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功，网站已更新。"; }
+        });
+      }
+
+      return attemptWrite().catch(function (err) {
+        var msg = err && err.message ? err.message : "";
+        if (msg.toLowerCase().indexOf("does not match") > -1 || msg.indexOf("sha") > -1) {
+          if (msgEl) { msgEl.textContent = "检测到远程文件已被修改，正在重新获取最新版本…"; }
+          return getLatestSha().then(function () {
+            if (msgEl) { msgEl.textContent = "已获取最新版本，正在重试保存…"; }
+            return attemptWrite();
+          }).catch(function (e) {
+            throw new Error("重试失败：" + (e && e.message ? e.message : e));
+          });
+        }
+        throw err;
       });
     }
     function currentRoleName() { var r = ROLES[activeRole]; return r ? r.name : "未知"; }
