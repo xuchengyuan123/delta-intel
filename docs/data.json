@@ -321,7 +321,13 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-12 17:41",
+      "role": "总管理员",
+      "action": "更新模拟器数据（护甲19/武器8）"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -1113,285 +1119,152 @@
       "durability": 20,
       "protection": 1,
       "tier": "Ⅰ级",
-      "repairable": true,
       "material": "软质纤维",
-      "type": "半甲",
-      "rarity": "白",
-      "armor": 1,
-      "dura": 20,
-      "dr": "5%",
-      "mob": "无",
-      "desc": "1级甲，新兵过渡装，几乎无防护价值"
+      "repairable": true
     },
     {
       "name": "尼龙防弹衣",
       "durability": 25,
       "protection": 1,
       "tier": "Ⅰ级",
-      "repairable": true,
       "material": "尼龙",
-      "type": "半甲",
-      "rarity": "白",
-      "armor": 1,
-      "dura": 25,
-      "dr": "5%",
-      "mob": "无",
-      "desc": "早期软式防弹衣，只能挡低档弹药"
+      "repairable": true
     },
     {
       "name": "简易防刺服",
       "durability": 30,
       "protection": 2,
       "tier": "Ⅱ级",
-      "repairable": true,
       "material": "芳纶",
-      "type": "半甲",
-      "rarity": "白",
-      "armor": 2,
-      "dura": 30,
-      "dr": "10%",
-      "mob": "无",
-      "desc": "2级入门甲，面对高级弹等同裸奔"
+      "repairable": true
     },
     {
       "name": "TG战术防弹衣",
       "durability": 40,
       "protection": 2,
       "tier": "Ⅱ级",
-      "repairable": true,
       "material": "软质纤维",
-      "type": "半甲",
-      "rarity": "白",
-      "armor": 2,
-      "dura": 40,
-      "dr": "10%",
-      "mob": "无",
-      "desc": "软式内衬，舒适但防弹能力有限"
+      "repairable": true
     },
     {
       "name": "制式防弹背心(阿萨拉蓝甲)",
       "durability": 50,
       "protection": 3,
       "tier": "Ⅲ级",
-      "repairable": true,
       "material": "复合陶瓷",
-      "type": "半甲",
-      "rarity": "蓝",
-      "armor": 3,
-      "dura": 50,
-      "dr": "15%",
-      "mob": "-1%",
-      "desc": "人机常见蓝甲，仅防护胸部，不推荐主动购买"
+      "repairable": true
     },
     {
       "name": "TG-H防弹衣",
       "durability": 75,
       "protection": 3,
       "tier": "Ⅲ级",
-      "repairable": true,
       "material": "复合陶瓷",
-      "type": "全甲",
-      "rarity": "蓝",
-      "armor": 3,
-      "dura": 75,
-      "dr": "18%",
-      "mob": "-3%移速/-1%瞄速",
-      "desc": "3级蓝甲中性价比最高，胸腹全防护"
+      "repairable": true
     },
     {
       "name": "射手战术背心(GTI蓝甲)",
       "durability": 85,
       "protection": 3,
       "tier": "Ⅲ级",
-      "repairable": true,
       "material": "聚乙烯",
-      "type": "全甲",
-      "rarity": "蓝",
-      "armor": 3,
-      "dura": 85,
-      "dr": "18%",
-      "mob": "-4%瞄速/-2%移速",
-      "desc": "蓝甲耐久最高，但负面大、重量沉"
+      "repairable": true
     },
     {
       "name": "武士防弹背心(武士甲)",
       "durability": 80,
       "protection": 4,
       "tier": "Ⅳ级",
-      "repairable": true,
       "material": "陶瓷",
-      "type": "半甲",
-      "rarity": "紫",
-      "armor": 4,
-      "dura": 80,
-      "dr": "22%",
-      "mob": "-5%瞄速/-5%移速",
-      "desc": "紫甲中耐久低、范围小，可从盾兵身上借"
+      "repairable": true
     },
     {
       "name": "DT-AVS防弹衣",
       "durability": 100,
       "protection": 4,
       "tier": "Ⅳ级",
-      "repairable": true,
       "material": "复合插板",
-      "type": "全甲",
-      "rarity": "紫",
-      "armor": 4,
-      "dura": 100,
-      "dr": "24%",
-      "mob": "-4%瞄速/-3%移速",
-      "desc": "负面低、机动好，紫甲折中之选"
+      "repairable": true
     },
     {
       "name": "MK-2战术背心",
       "durability": 110,
       "protection": 4,
       "tier": "Ⅳ级",
-      "repairable": true,
       "material": "复合陶瓷",
-      "type": "全甲",
-      "rarity": "紫",
-      "armor": 4,
-      "dura": 110,
-      "dr": "25%",
-      "mob": "-5%瞄速/-5%移速",
-      "desc": "机密猛攻首选，耐久高、维修损耗适中"
+      "repairable": true
     },
     {
       "name": "HMP特勤防弹衣",
       "durability": 80,
       "protection": 4,
       "tier": "Ⅳ级",
-      "repairable": true,
       "material": "轻型纤维",
-      "type": "半甲",
-      "rarity": "紫",
-      "armor": 4,
-      "dura": 80,
-      "dr": "20%",
-      "mob": "无",
-      "desc": "唯一无负面的紫甲，轻但承伤能力一般"
+      "repairable": true
     },
     {
       "name": "精英防弹背心(牢赛甲)",
       "durability": 95,
       "protection": 5,
       "tier": "Ⅴ级",
-      "repairable": true,
       "material": "复合插板",
-      "type": "全甲",
-      "rarity": "金",
-      "armor": 5,
-      "dura": 95,
-      "dr": "28%",
-      "mob": "-1%移速",
-      "desc": "老赛甲，机动性优秀，耐久在金甲中偏低"
+      "repairable": true
     },
     {
       "name": "FS复合防弹衣",
       "durability": 105,
       "protection": 5,
       "tier": "Ⅴ级",
-      "repairable": true,
       "material": "复合陶瓷",
-      "type": "全甲",
-      "rarity": "金",
-      "armor": 5,
-      "dura": 105,
-      "dr": "30%",
-      "mob": "-5%瞄速/-3%移速",
-      "desc": "属性最均衡的金甲，无明显短板"
+      "repairable": true
     },
     {
       "name": "重型突击背心(GTI金甲)",
       "durability": 125,
       "protection": 5,
       "tier": "Ⅴ级",
-      "repairable": true,
       "material": "重型插板",
-      "type": "重甲",
-      "rarity": "金",
-      "armor": 5,
-      "dura": 125,
-      "dr": "35%",
-      "mob": "-10%瞄速/-5%移速",
-      "desc": "金甲最抗揍，负面大，团队突破首选"
+      "repairable": true
     },
     {
       "name": "Hvk-2防弹衣",
       "durability": 115,
       "protection": 5,
       "tier": "Ⅴ级",
-      "repairable": true,
       "material": "重型插板",
-      "type": "重甲",
-      "rarity": "金",
-      "armor": 5,
-      "dura": 115,
-      "dr": "32%",
-      "mob": "-8%瞄速/-7%移速",
-      "desc": "哈夫克金甲，重且不耐修，两下就碎"
+      "repairable": true
     },
     {
       "name": "金刚防弹衣",
       "durability": 140,
       "protection": 6,
       "tier": "Ⅵ级",
-      "repairable": true,
       "material": "重型插板",
-      "type": "重甲",
-      "rarity": "红",
-      "armor": 6,
-      "dura": 140,
-      "dr": "40%",
-      "mob": "-8%瞄速/-7%移速",
-      "desc": "6级红甲，最硬但最重、维修损耗大"
+      "repairable": true
     },
     {
       "name": "HA-2重型防弹衣",
       "durability": 115,
       "protection": 6,
       "tier": "Ⅵ级",
-      "repairable": true,
       "material": "重型插板",
-      "type": "重甲",
-      "rarity": "红",
-      "armor": 6,
-      "dura": 115,
-      "dr": "38%",
-      "mob": "-3%移速",
-      "desc": "少爷甲，行走的大红，负面相对较轻"
+      "repairable": true
     },
     {
       "name": "特里克MAS2.0装甲",
       "durability": 125,
       "protection": 6,
       "tier": "Ⅵ级",
-      "repairable": true,
       "material": "重型插板",
-      "type": "重甲",
-      "rarity": "红",
-      "armor": 6,
-      "dura": 125,
-      "dr": "40%",
-      "mob": "-6%瞄速/-5%移速",
-      "desc": "6级红甲中最耐修，猛攻哥首选"
+      "repairable": true
     },
     {
       "name": "无护甲(裸血)",
       "durability": 0,
       "protection": 0,
       "tier": "—",
-      "repairable": false,
       "material": "—",
-      "type": "—",
-      "rarity": "—",
-      "armor": 0,
-      "dura": 0,
-      "dr": "0%",
-      "mob": "—",
-      "desc": "无防护，受击直接扣血"
+      "repairable": true
     }
   ],
   "operators": [
@@ -3596,21 +3469,81 @@
     }
   ],
   "opTasks": [
-    { "op": "红狼", "task": "完成 15 次手炮击杀", "reward": "头像框「狼影」" },
-    { "op": "威龙", "task": "虎蹲炮命中 20 次", "reward": "动作「喷气」" },
-    { "op": "露娜", "task": "探测箭标记 50 名敌人", "reward": "名片「夜视」" },
-    { "op": "蜂医", "task": "救援队友 30 次", "reward": "挂饰「蜂巢」" },
-    { "op": "牧羊人", "task": "声波陷阱触发 25 次", "reward": "涂装「牧歌」" },
-    { "op": "乌鲁鲁", "task": "使用复合型燃烧弹累计造成 5000 点伤害", "reward": "挂饰「阵地」" },
-    { "op": "骇爪", "task": "使用信号破译器探测 50 名敌人", "reward": "名片「破译」" },
-    { "op": "蛊", "task": "使用致盲毒雾命中 30 名敌人", "reward": "头像框「流萤」" },
-    { "op": "深蓝", "task": "使用防爆盾抵挡 3000 点伤害", "reward": "挂饰「盾峰」" },
-    { "op": "无名", "task": "静默技能状态下击败 15 名敌人", "reward": "动作「潜行」" },
-    { "op": "疾风", "task": "使用冲刺技能移动 1000 米", "reward": "涂装「疾风」" },
-    { "op": "比特", "task": "使用无人机侦察 30 名敌人", "reward": "挂饰「蜂群」" },
-    { "op": "银翼", "task": "使用喷气背包飞行 500 米", "reward": "名片「银翼」" },
-    { "op": "蝶", "task": "使用治疗无人机救援队友 30 次", "reward": "头像框「蝶变」" },
-    { "op": "回响", "task": "使用回声探测标记 100 名敌人", "reward": "挂饰「回声」" }
+    {
+      "op": "红狼",
+      "task": "完成 15 次手炮击杀",
+      "reward": "头像框「狼影」"
+    },
+    {
+      "op": "威龙",
+      "task": "虎蹲炮命中 20 次",
+      "reward": "动作「喷气」"
+    },
+    {
+      "op": "露娜",
+      "task": "探测箭标记 50 名敌人",
+      "reward": "名片「夜视」"
+    },
+    {
+      "op": "蜂医",
+      "task": "救援队友 30 次",
+      "reward": "挂饰「蜂巢」"
+    },
+    {
+      "op": "牧羊人",
+      "task": "声波陷阱触发 25 次",
+      "reward": "涂装「牧歌」"
+    },
+    {
+      "op": "乌鲁鲁",
+      "task": "使用复合型燃烧弹累计造成 5000 点伤害",
+      "reward": "挂饰「阵地」"
+    },
+    {
+      "op": "骇爪",
+      "task": "使用信号破译器探测 50 名敌人",
+      "reward": "名片「破译」"
+    },
+    {
+      "op": "蛊",
+      "task": "使用致盲毒雾命中 30 名敌人",
+      "reward": "头像框「流萤」"
+    },
+    {
+      "op": "深蓝",
+      "task": "使用防爆盾抵挡 3000 点伤害",
+      "reward": "挂饰「盾峰」"
+    },
+    {
+      "op": "无名",
+      "task": "静默技能状态下击败 15 名敌人",
+      "reward": "动作「潜行」"
+    },
+    {
+      "op": "疾风",
+      "task": "使用冲刺技能移动 1000 米",
+      "reward": "涂装「疾风」"
+    },
+    {
+      "op": "比特",
+      "task": "使用无人机侦察 30 名敌人",
+      "reward": "挂饰「蜂群」"
+    },
+    {
+      "op": "银翼",
+      "task": "使用喷气背包飞行 500 米",
+      "reward": "名片「银翼」"
+    },
+    {
+      "op": "蝶",
+      "task": "使用治疗无人机救援队友 30 次",
+      "reward": "头像框「蝶变」"
+    },
+    {
+      "op": "回响",
+      "task": "使用回声探测标记 100 名敌人",
+      "reward": "挂饰「回声」"
+    }
   ],
   "melee": [
     {
