@@ -573,6 +573,14 @@
     g_collector: "#2ecc71",
     g_fate: "#ff6b6b"
   };
+  function isDarkTheme() { return html.classList.contains("dark"); }
+  function taskNodeFill(done) {
+    return done
+      ? (isDarkTheme() ? "rgba(46,204,113,.18)" : "rgba(46,204,113,.12)")
+      : (isDarkTheme() ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.04)");
+  }
+  function taskNodeTextColor() { return isDarkTheme() ? "#e6e9ef" : "#1f2937"; }
+  function taskNodeMutedColor() { return isDarkTheme() ? "#9ca3af" : "#6b7280"; }
   function taskGroupColor(gid) { return TASK_COLORS[gid] || "#19c3a6"; }
   function taskGroupType(g) {
     if (g.type) return g.type;
@@ -597,20 +605,23 @@
     } catch (e) {}
   }
   function renderTaskTree(group) {
-    if (!window.go) {
-      var tree = document.getElementById("taskTree");
-      if (tree) tree.innerHTML = '<p style="padding:20px;color:var(--muted)">GoJS 未加载，请联网后刷新。</p>';
-      return;
-    }
-    var $ = go.GraphObject.make;
+    try {
+      if (!window.go || !window.go.GraphObject) {
+        var tree = document.getElementById("taskTree");
+        if (tree) tree.innerHTML = '<p style="padding:20px;color:var(--muted)">GoJS 未加载，请联网后刷新。</p>';
+        return;
+      }
+      var $ = go.GraphObject.make;
     var color = taskGroupColor(group.id);
     if (window.__taskDiagram) { window.__taskDiagram.div = null; window.__taskDiagram = null; }
     var diagram = $(go.Diagram, "taskTree", {
       background: "transparent",
-      initialAutoScale: go.AutoScale.UniformToFit,
+      initialContentAlignment: go.Spot.Center,
+      initialAutoScale: go.AutoScale.Uniform,
       padding: 24,
-      layout: $(go.TreeLayout, { angle: 0, layerSpacing: 44, nodeSpacing: 18, alignment: go.TreeLayout.AlignmentStart }),
-      "animationManager.isEnabled": false
+      layout: $(go.TreeLayout, { angle: 0, layerSpacing: 60, nodeSpacing: 22, alignment: go.TreeLayout.AlignmentStart, setsPortSpot: false, setsChildPortSpot: false }),
+      "animationManager.isEnabled": false,
+      "toolManager.hoverDelay": 100
     });
     diagram.linkTemplate = $(go.Link, { routing: go.Routing.Orthogonal, corner: 8, curve: go.Curve.JumpOver },
       $(go.Shape, { strokeWidth: 2 }, new go.Binding("stroke", "color"))
@@ -620,30 +631,31 @@
         selectionAdorned: false,
         click: function(e, node) { if (node.data && !node.data.isRoot) showTaskModal(node.data); }
       },
-      $(go.Shape, "RoundedRectangle", { parameter1: 8, strokeWidth: 2 },
+      $(go.Shape, "RoundedRectangle", { parameter1: 10, strokeWidth: 2 },
         new go.Binding("fill", "fill"),
         new go.Binding("stroke", "stroke")
       ),
-      $(go.Panel, "Vertical", { margin: 10 },
-        $(go.Panel, "Horizontal", { stretch: go.GraphObject.Horizontal, margin: new go.Margin(0, 0, 4, 0) },
-          $(go.TextBlock, { font: "bold 10px 'Microsoft YaHei',sans-serif", stroke: color, maxSize: new go.Size(100, NaN) },
-            new go.Binding("text", "badge")
+      $(go.Panel, "Vertical", { margin: new go.Margin(10, 12, 10, 12), maxSize: new go.Size(160, NaN) },
+        $(go.Panel, "Horizontal", { alignment: go.Spot.Left, margin: new go.Margin(0, 0, 5, 0) },
+          $(go.TextBlock, { font: "bold 10px 'Microsoft YaHei',sans-serif", stroke: "color", maxSize: new go.Size(120, NaN) },
+            new go.Binding("text", "badge"),
+            new go.Binding("stroke", "color")
           ),
-          $(go.Panel, "Horizontal", { stretch: go.GraphObject.Horizontal }),
-          $(go.TextBlock, { font: "12px 'Microsoft YaHei',sans-serif", stroke: "#9ca3af" },
-            new go.Binding("text", "icon")
+          $(go.TextBlock, { font: "12px 'Microsoft YaHei',sans-serif", stroke: "#9ca3af", margin: new go.Margin(0, 0, 0, 6) },
+            new go.Binding("text", "icon"),
+            new go.Binding("stroke", "mutedColor")
           )
         ),
-        $(go.TextBlock, { font: "bold 13px 'Microsoft YaHei',sans-serif", stroke: "#e6e9ef", maxSize: new go.Size(150, NaN), wrap: go.TextBlock.WrapFit, textAlign: "center" },
-          new go.Binding("text", "text")
+        $(go.TextBlock, { font: "bold 13px 'Microsoft YaHei',sans-serif", stroke: "#e6e9ef", maxSize: new go.Size(160, NaN), wrap: go.TextBlock.WrapFit, textAlign: "left" },
+          new go.Binding("text", "text"),
+          new go.Binding("stroke", "textColor")
         )
       )
     );
     window.__taskDiagram = diagram;
     var nodes = [], links = [];
     var rootKey = "root:" + group.id;
-    nodes.push({ key: rootKey, text: group.name, isRoot: true, badge: "", icon: "", fill: color, stroke: color, data: null });
-    var prev = rootKey;
+    nodes.push({ key: rootKey, text: group.name, isRoot: true, badge: "", icon: "", fill: color, stroke: color, color: color, textColor: "#ffffff", mutedColor: "rgba(255,255,255,.7)" });
     (group.items || []).forEach(function(it) {
       var done = getTaskDone(it.id);
       nodes.push({
@@ -651,15 +663,21 @@
         text: it.title,
         badge: taskGroupType(group),
         icon: done ? "✅" : "▼",
-        fill: done ? "rgba(46,204,113,.15)" : "#1f242d",
+        fill: taskNodeFill(done),
         stroke: done ? "#2ecc71" : color,
         color: color,
+        textColor: taskNodeTextColor(),
+        mutedColor: taskNodeMutedColor(),
         data: it
       });
-      links.push({ from: prev, to: it.id, color: color });
-      prev = it.id;
+      links.push({ from: rootKey, to: it.id, color: color });
     });
     diagram.model = new go.GraphLinksModel(nodes, links);
+    } catch (err) {
+      console.error("renderTaskTree error:", err);
+      var tree = document.getElementById("taskTree");
+      if (tree) tree.innerHTML = '<div style="padding:20px;color:#ff6b6b"><p>导图加载失败：' + esc(err && err.message || "未知错误") + '</p><p style="font-size:12px;color:var(--muted)">请刷新重试，或截图控制台报错。</p></div>';
+    }
   }
   function showTaskModal(nodeData) {
     if (!nodeData || !nodeData.data) return;
@@ -1023,7 +1041,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=8").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=10").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
@@ -1094,6 +1112,7 @@
   fetchData()
     .then(function (d) {
       DATA = d;
+      try { window.dispatchEvent(new Event("df:data")); } catch (e) {}
       // 应用界面定制（总管理员在后台设置的全局外观）
       try { applySiteUi(DATA.site); } catch (e) {}
       var ua = document.getElementById("updatedAt");

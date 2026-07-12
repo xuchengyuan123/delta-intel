@@ -111,7 +111,9 @@
 
   /* ---------- 底部迷你条 ---------- */
   function miniBarHtml() {
-    var t = norm(STATE.tracks[STATE.current]);
+    var raw = STATE.tracks[STATE.current];
+    if (!raw) return ""; // 数据尚未加载（无曲目）时不渲染迷你条，避免崩溃
+    var t = norm(raw);
     return '<div id="musicBar" class="music-bar"><div class="mb-cover">' + esc(t.title.slice(0, 1)) + '</div>' +
       '<div class="mb-meta"><div class="mb-title">♪ ' + esc(t.title) + '</div><div class="mb-sub">' + esc(t.artist) + '</div></div>' +
       '<button class="mb-btn" id="mbPrev" title="上一首">⏮</button><button class="mb-btn" id="mbOpen" title="打开音乐台">🎵</button><button class="mb-btn" id="mbNext" title="下一首">⏭</button></div>';
@@ -138,6 +140,15 @@
     D.VIEWS.music = { html: function () { return musicHtml(D); }, init: function () { musicInit(D); } };
     D.MENU.push({ group: "娱乐", items: [{ route: "music", label: "音乐台", ico: "🎵" }] });
   }
-  if (window.DF) { reg(window.DF); buildBar(); }
-  else { (window.__df_plugins = window.__df_plugins || []).push(function (D) { reg(D); }); if (document.readyState !== "loading") buildBar(); else document.addEventListener("DOMContentLoaded", buildBar); }
+  if (window.DF) { reg(window.DF); }
+  else { (window.__df_plugins = window.__df_plugins || []).push(function (D) { reg(D); }); }
+  // 数据加载完成后再构建迷你条（此刻 DATA 才就绪，避免 norm(undefined) 崩溃）
+  window.addEventListener("df:data", function () {
+    try {
+      var d = (window.DF && window.DF.getData && window.DF.getData()) || {};
+      if (!STATE.tracks.length && d.music && d.music.length) STATE.tracks = d.music.map(norm);
+      if (STATE.current >= STATE.tracks.length) STATE.current = 0;
+      buildBar();
+    } catch (e) {}
+  });
 })();

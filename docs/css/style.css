@@ -1149,6 +1149,7 @@ html.compact .field { margin-bottom: 8px; }
 }
 .task-tree-diagram {
   height: 420px;
+  min-height: 260px;
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--radius);

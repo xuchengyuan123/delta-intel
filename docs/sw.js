@@ -1,103 +1,34 @@
-/* 三角洲情报台 Service Worker — 离线缓存静态资源，提升二次访问速度
- * 策略：关键页面/JS/CSS 永远网络优先，确保新版一上传就生效；
- * 图片/字体等可缓存优先。每次大版本更新请同步修改 CACHE 名称。
+/* 三角洲情报台 Service Worker
+ * 策略：纯透传（不缓存任何应用资源），彻底避免「旧缓存导致页面打不开 / 更新不生效」。
+ * 本站数据每日更新（地图密码/实时物价），缓存应用壳反而有害；
+ * 仅保留 SW 以支撑 PWA「添加到主屏幕」，所有请求一律走网络。
+ * 每次大版本更新请同步修改 CACHE 名称。
  */
-const CACHE = "delta-intel-v8";
-const ASSETS = [
-  ".",
-  "index.html",
-  "admin.html",
-  "sponsor.html",
-  "forum.html",
-  "feedback.html",
-  "data.json",
-  "manifest.webmanifest",
-  "icon.svg",
-  "css/style.css",
-  "js/app.js",
-  "js/art.js",
-  "js/crafting.js",
-  "js/simulators.js",
-  "js/games.js",
-  "js/music.js",
-  "js/codex.js",
-  "js/addons.js",
-  "js/guides.js",
-  "js/database.js",
-  "js/feedback.js",
-  "js/analytics.js",
-  "js/liveprice.js",
-  "js/mappass.js"
-];
-
-// 需要实时优先的关键资源（HTML 和 JS/CSS）
-function isNetworkFirst(url) {
-  var u = url;
-  return u.indexOf(".html") > -1 ||
-         u.indexOf(".js") > -1 ||
-         u.indexOf(".css") > -1 ||
-         u.indexOf("data.json") > -1 ||
-         u.indexOf("manifest.webmanifest") > -1;
-}
+const CACHE = "delta-intel-v10";
 
 self.addEventListener("install", function (e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function (c) {
-      return c.addAll(ASSETS).catch(function () {});
-    }).then(function () {
-      self.skipWaiting();
-    })
-  );
+  // 立即接管，不等旧标签关闭，避免「旧 SW 死锁」
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
-    }).then(function () {
-      return self.clients.claim();
-    })
+      return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+    }).then(function () { return self.clients.claim(); })
   );
 });
 
+// 所有请求直接转发到网络，绝不返回任何旧缓存
 self.addEventListener("fetch", function (e) {
-  var req = e.request;
-  if (req.method !== "GET") return;
-
-  // data.json 和 HTML/JS/CSS 永远网络优先，失败再回缓存
-  if (isNetworkFirst(req.url)) {
-    e.respondWith(
-      fetch(req, { cache: "no-store" }).then(function (res) {
-        if (res && res.status === 200 && res.type === "basic") {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () {
-        return caches.match(req);
-      })
-    );
-    return;
-  }
-
-  // 其他资源：缓存优先，后台刷新
+  if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(req).then(function (hit) {
-      var net = fetch(req).then(function (res) {
-        if (res && res.status === 200 && res.type === "basic") {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () { return hit; });
-      return hit || net;
+    fetch(e.request).catch(function () {
+      return new Response("", { status: 504, statusText: "offline" });
     })
   );
 });
 
-// 监听 message，让主页面可以手动要求跳过等待
 self.addEventListener("message", function (e) {
-  if (e.data === "skipWaiting") {
-    self.skipWaiting();
-  }
+  if (e.data === "skipWaiting") self.skipWaiting();
 });
