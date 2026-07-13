@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=22">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=21"></script>
-  <script defer src="js/i18n.js?v=21"></script>
+  <script src="js/art.js?v=22"></script>
+  <script defer src="js/i18n.js?v=22"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -30,6 +30,12 @@
     .login-role input { accent-color: var(--accent); }
     .login-role .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .login-role.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-soft)); }
+    .sa-presets { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+    .sa-preset { background:var(--bg-soft); border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:12px; cursor:pointer; color:var(--text); }
+    .sa-preset:hover { border-color:var(--accent); }
+    .sa-panels { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:6px 10px; max-height:240px; overflow:auto; padding:8px; border:1px solid var(--border); border-radius:10px; background:var(--bg-soft); }
+    .sa-panel { display:flex; align-items:center; gap:6px; font-size:12.5px; cursor:pointer; }
+    .sa-panel input { accent-color:var(--accent); }
     .login-err { color: #ff5b5b; font-size: 13px; min-height: 18px; margin: 6px 0; }
     .lg-tabs { display:flex; gap:8px; margin-bottom:14px; }
     .lg-tabs .tab { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:8px; border-radius:10px; cursor:pointer; font-size:13px; }
@@ -127,6 +133,8 @@
     .ui-role-row .ui-role-name { flex: 1; font-size: 13px; font-weight: 600; }
     .ui-role-row input[type=color] { width: 44px; height: 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; }
     .ui-role-row code { font-size: 12px; color: var(--muted); }
+    .ui-role-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn.role-d { background: #ff5b5b; color: #fff; }
 
     .post { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
     .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
@@ -221,7 +229,8 @@
       code:  { key: "code",  name: "代码维护员",     color: "#2ecc71", icon: "💻", panels: ["code"] },
       opcode:{ key: "opcode",name: "特战干员图鉴管理员", color: "#ff4d6d", icon: "🪖", panels: ["opcode"] },
       wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] },
-      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems"] }
+      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems"] },
+      usermgr: { key: "usermgr", name: "用户管理管理员", color: "#ff8c00", icon: "👥", panels: ["usermgr"] }
     };
     var PANELS = {
       dashboard: { label: "总览 · 数据/操作/日志", icon: "📊", title: "总览仪表盘", sub: "网站浏览数据、管理员操作记录、更新日志。总管理员可在此进入全部模块。", mount: mountDashboard },
@@ -270,12 +279,13 @@
       bullets:    { label: "子弹利润", icon: "🔋", title: "子弹利润", sub: "维护前台「交易数据·子弹利润」。", mount: mountBullets },
       maps:       { label: "地图管理", icon: "🗺", title: "地图管理", sub: "维护前台「地图」列表。", mount: mountMaps },
       announce:   { label: "站内公告", icon: "📢", title: "站内公告 / 运营横幅", sub: "发布全站顶部横幅公告，支持颜色、有效期与启用开关（需以总管理员身份登录 Worker）。", mount: mountAnnounce },
-      ugc:        { label: "用户投稿审核", icon: "📝", title: "用户投稿审核", sub: "查看注册用户提交的攻略/素材投稿，审核通过后在「用户投稿」页公开（需以总管理员身份登录 Worker）。", mount: mountUgc }
+      ugc:        { label: "用户投稿审核", icon: "📝", title: "用户投稿审核", sub: "查看注册用户提交的攻略/素材投稿，审核通过后在「用户投稿」页公开（需以总管理员身份登录 Worker）。", mount: mountUgc },
+      usermgr:    { label: "用户管理", icon: "👥", title: "注册用户管理", sub: "总管理员与「用户管理」分管理员可在此查看 / 禁用 / 删除注册会员（普通用户）。其它分管理员无此入口。", mount: mountUserMgr }
     };
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
     var PANEL_GROUPS = [
-      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access"] },
+      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "usermgr"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images"] },
@@ -515,6 +525,7 @@
           setWorkerSession(j.session);
           var role = j.role || "subadmin";
           if (!ROLES[role]) ROLES[role] = { key: role, name: "分管理员", color: "#8a7bff", icon: "🛡", panels: ["dashboard"] };
+          if (j.panels && j.panels.length) ROLES[role].panels = j.panels;
           activeRole = role;
           setRole(role);
           err.textContent = "";
@@ -615,6 +626,7 @@
         if (j.error) { clearWorkerSession(); return; }
         var role = j.role || "subadmin";
         if (!ROLES[role]) ROLES[role] = { key: role, name: "分管理员", color: "#8a7bff", icon: "🛡", panels: ["dashboard"] };
+        if (j.panels && j.panels.length) ROLES[role].panels = j.panels;
         activeRole = role; setRole(role);
         enterShell(j.email || "");
       }).catch(function () { clearWorkerSession(); });
@@ -666,7 +678,12 @@
           '<h3>➕ 创建分管理员</h3>' +
           '<div class="panel-tip">选择角色卡片后填写账号信息，即可创建。不同角色对应不同后台模块权限。</div>' +
           '<div class="sa-form">' +
-            '<div class="login-field"><label>分配角色（点击选择）</label>' + roleCardsHtml() + '</div>' +
+            '<div class="login-field"><label>分配角色（点击选择；下方可精细勾选面板）</label>' + roleCardsHtml() + '</div>' +
+            '<div class="login-field"><label>可管理面板（多选；点角色卡片会自动勾选其默认面板）</label>' +
+              '<div class="sa-presets" id="saPresets"></div>' +
+              '<div class="sa-panels" id="saPanels"></div>' +
+              '<div class="panel-tip"><a href="javascript:;" id="saSelAll">全选</a> · <a href="javascript:;" id="saClear">清空</a> · 已选 <b id="saCount">0</b> 个面板</div>' +
+            '</div>' +
             '<div class="login-field"><label>邮箱（必填）</label><input id="saEmail" placeholder="subadmin@example.com"></div>' +
             '<div class="login-field"><label>密码（≥6 位）</label><input id="saPw" type="password" placeholder="密码"></div>' +
             '<div class="login-field"><label>手机号（可选，用于手机号登录）</label><input id="saPhone" placeholder="13800000000"></div>' +
@@ -688,6 +705,69 @@
       });
       updateRoleDesc();
 
+      // 构建「可管理面板」多选清单 + 预设按钮
+      var allPanelKeys = Object.keys(PANELS);
+      function buildPanels() {
+        var box = document.getElementById("saPanels");
+        if (!box) return;
+        box.innerHTML = allPanelKeys.map(function (p) {
+          var P = PANELS[p];
+          return '<label class="sa-panel"><input type="checkbox" value="' + p + '" data-panel="' + p + '"> ' + P.icon + " " + P.label + "</label>";
+        }).join("");
+        box.querySelectorAll("input[type=checkbox]").forEach(function (cb) { cb.addEventListener("change", updateCount); });
+      }
+      function buildPresets() {
+        var box = document.getElementById("saPresets");
+        if (!box) return;
+        var keys = Object.keys(ROLES).filter(function (k) { return k !== "super"; });
+        box.innerHTML = keys.map(function (k) {
+          var r = ROLES[k];
+          return '<button type="button" class="sa-preset" data-role="' + k + '" style="border-color:' + r.color + '">' + r.icon + " " + r.name + "</button>";
+        }).join("");
+        box.querySelectorAll(".sa-preset").forEach(function (b) {
+          b.addEventListener("click", function () {
+            selectedSaRole = b.getAttribute("data-role");
+            document.getElementById("saRoleCards").querySelectorAll(".login-role").forEach(function (x) { x.classList.remove("active"); });
+            var card = document.getElementById("saRoleCards").querySelector('.login-role[data-role="' + selectedSaRole + '"]');
+            if (card) { card.classList.add("active"); card.querySelector("input").checked = true; }
+            applyPresetPanels(selectedSaRole);
+          });
+        });
+      }
+      function applyPresetPanels(roleKey) {
+        var r = ROLES[roleKey];
+        var set = (r && r.panels) ? r.panels : [];
+        var box = document.getElementById("saPanels");
+        if (!box) return;
+        box.querySelectorAll("input[type=checkbox]").forEach(function (cb) { cb.checked = set.indexOf(cb.value) >= 0; });
+        updateCount(); updateRoleDesc();
+      }
+      function getCheckedPanels() {
+        var box = document.getElementById("saPanels");
+        if (!box) return [];
+        return Array.prototype.slice.call(box.querySelectorAll("input[type=checkbox]:checked")).map(function (cb) { return cb.value; });
+      }
+      function updateCount() {
+        var el = document.getElementById("saCount");
+        if (el) el.textContent = String(getCheckedPanels().length);
+      }
+      buildPanels();
+      buildPresets();
+      applyPresetPanels(selectedSaRole);
+      // 角色卡片点击时，同步勾选其默认面板
+      document.getElementById("saRoleCards").querySelectorAll(".login-role").forEach(function (el) {
+        el.addEventListener("click", function () { applyPresetPanels(el.getAttribute("data-role")); });
+      });
+      var selAll = document.getElementById("saSelAll");
+      if (selAll) selAll.addEventListener("click", function () {
+        document.getElementById("saPanels").querySelectorAll("input[type=checkbox]").forEach(function (cb) { cb.checked = true; }); updateCount();
+      });
+      var clr = document.getElementById("saClear");
+      if (clr) clr.addEventListener("click", function () {
+        document.getElementById("saPanels").querySelectorAll("input[type=checkbox]").forEach(function (cb) { cb.checked = false; }); updateCount();
+      });
+      updateCount();
+
       function loadList() {
         var list = document.getElementById("saList");
         wkFetch("/api/admin/users").then(function (r) { return r.json(); }).then(function (j) {
@@ -708,10 +788,12 @@
         var pw = document.getElementById("saPw").value;
         var phone = document.getElementById("saPhone").value.trim();
         var role = selectedSaRole;
+        var panels = getCheckedPanels();
+        if (!panels.length) panels = (ROLES[role] && ROLES[role].panels) ? ROLES[role].panels : ["dashboard"];
         var msg = document.getElementById("saMsg");
         if (!email || !pw || pw.length < 6) { msg.className = "msg err"; msg.textContent = "邮箱必填，密码至少 6 位。"; return; }
         msg.className = "msg"; msg.textContent = "创建中…";
-        wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ email: email, password: pw, phone: phone, role: role }) })
+        wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ email: email, password: pw, phone: phone, role: role, panels: panels }) })
           .then(function (r) { return r.json(); })
           .then(function (j) {
             if (j.error) { msg.className = "msg err"; msg.textContent = j.error; return; }
@@ -721,6 +803,64 @@
           .catch(function () { msg.className = "msg err"; msg.textContent = "创建失败，请检查 Worker 地址。"; });
       });
       loadList();
+    }
+
+    /* ============ 注册用户管理（总管理员 / 用户管理分管理员） ============ */
+    function mountUserMgr(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需以管理员身份登录 Worker 后使用。</div>';
+        return;
+      }
+      var owned = (ROLES[activeRole] && ROLES[activeRole].panels) || [];
+      if (activeRole !== "super" && owned.indexOf("usermgr") < 0) {
+        c.innerHTML = '<div class="status" style="color:#ff5b5b">只有总管理员或「用户管理」分管理员可进入此页面。</div>';
+        return;
+      }
+      c.innerHTML =
+        '<div class="panel-card">' +
+          '<h3>👥 注册用户管理</h3>' +
+          '<div class="panel-tip">这里管理网站普通注册会员：可禁用其登录、或删除账号。操作仅影响该用户，不影响分管理员账号。</div>' +
+          '<div id="umStats" class="panel-tip"></div>' +
+          '<div id="umList"><div class="status">加载中…</div></div>' +
+        '</div>';
+
+      function fmtDate(ts) {
+        if (!ts) return "未知";
+        try { return new Date(ts).toLocaleString("zh-CN", { hour12: false }); } catch (e) { return String(ts); }
+      }
+      function load() {
+        wkFetch("/api/admin/members").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + "</div>"; return; }
+          var ms = j.members || [];
+          document.getElementById("umStats").innerHTML = "共 <b>" + ms.length + "</b> 位注册会员。";
+          if (!ms.length) { document.getElementById("umList").innerHTML = '<div class="status">暂无注册用户。</div>'; return; }
+          document.getElementById("umList").innerHTML = '<div class="ui-role-grid">' + ms.map(function (u) {
+            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.name || u.id) +
+              "<br><small style=\"color:var(--muted)\">" + esc(u.id) + " · 注册于 " + fmtDate(u.createdAt) + "</small></div>" +
+              '<div class="ui-role-actions">' +
+                (u.disabled
+                  ? '<button class="btn role-c" data-act="enable" data-id="' + esc(u.id) + '">启用</button>'
+                  : '<button class="btn role-c" data-act="disable" data-id="' + esc(u.id) + '">禁用</button>') +
+                '<button class="btn role-d" data-act="del" data-id="' + esc(u.id) + '">删除</button>' +
+              '</div></div>';
+          }).join("") + "</div>";
+          document.getElementById("umList").querySelectorAll("button[data-act]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var act = b.getAttribute("data-act");
+              var id = b.getAttribute("data-id");
+              if (act === "del" && !confirm("确定删除用户 " + id + "？此操作不可恢复。")) return;
+              var body = act === "del" ? { id: id } : { id: id, disabled: act === "disable" };
+              var method = act === "del" ? "DELETE" : "PUT";
+              b.disabled = true;
+              wkFetch("/api/admin/member", { method: method, body: JSON.stringify(body) })
+                .then(function (r) { return r.json(); })
+                .then(function (j) { if (j.error) alert(j.error); load(); })
+                .catch(function () { alert("操作失败"); b.disabled = false; });
+            });
+          });
+        }).catch(function () { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+      }
+      load();
     }
 
     /* ============ 浏览记录（真实访问数据） ============ */

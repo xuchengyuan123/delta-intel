@@ -12,7 +12,11 @@
 //   POST /api/logout               -> {ok}
 //   GET  /api/me                   -> {role, email}
 //   GET  /api/admin/users          (super)                   -> {users:[{email,phone,role,disabled}]}
-//   POST /api/admin/create-subadmin (super) {email,password,phone,role} -> {ok, role}
+//   POST /api/admin/create-subadmin (super) {email,password,phone,role,panels[]} -> {ok, role, panels[]}
+//   GET  /api/admin/members         (super | 用户管理分管理员)  -> {members:[{id,email,phone,name,disabled,createdAt}]}
+//   PUT  /api/admin/member           (super | 用户管理分管理员)  {id, disabled} -> {ok, disabled}
+//   DELETE /api/admin/member         (super | 用户管理分管理员)  {id} -> {ok}
+//   AI 审核（可选）：配置 AI_API_KEY + AI_API_URL 后，论坛发帖自动 approve/reject，敏感词或异常转人工
 //   GET  /api/admin/data           -> {content:"<json string>"}
 //   PUT  /api/admin/data           {content:"<json string>"} -> {ok}
 //   PUT  /api/admin/file           {path, content(base64), message} -> {url}
@@ -148,9 +152,10 @@ async function getSession(env, req) {
   }
   return s;
 }
-async function createSession(env, email, role) {
+async function createSession(env, email, role, panels) {
   const token = randToken();
   const s = { email, role, exp: Date.now() + 7 * 86400 * 1000 };
+  if (panels && panels.length) s.panels = panels;
   await env.SESSIONS.put("sess:" + token, JSON.stringify(s), { expirationTtl: 7 * 86400 + 60 });
   return token;
 }
@@ -502,25 +507,36 @@ async function adminLogin(env, body) {
   }
   if (!ok) return json({ error: "账号或密码/验证码错误" }, 401);
 
-  const token = await createSession(env, user.email, user.role);
-  return json({ session: token, role: user.role, email: user.email });
+  const panels = (user.panels && user.panels.length) ? user.panels : (DEFAULT_PANELS[user.role] || ["dashboard"]);
+  const token = await createSession(env, user.email, user.role, panels);
+  return json({ session: token, role: user.role, email: user.email, panels });
 }
+
+// 分管理员默认面板（兼容未存 panels 的旧分管理员；前端按角色查；新创建以传来的 panels 为准）
+const DEFAULT_PANELS = {
+  super: ["dashboard","tasks","music","art","sim","code","opcode","wcodex","trivia","uidesign","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","changelog","eventitems","sponsor","analytics","liveprice","mappass","subadmins","site","guides","craft","quiz","materials","rigs","containers","scatter","items","bullets","maps","announce","ugc"],
+  tasks: ["tasks"], music: ["music"], art: ["art","images"], sim: ["sim"], code: ["code"],
+  opcode: ["opcode"], wcodex: ["wcodex"], data: ["gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems"],
+  usermgr: ["usermgr"]
+};
 
 async function createSubadmin(env, body) {
   const email = (body.email || "").trim().toLowerCase();
   const pw = body.password || "";
   const phone = (body.phone || "").trim();
-  const role = body.role || "tasks";
+  const role = body.role || "subadmin";
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "邮箱格式不正确" }, 400);
   if (pw.length < 6) return json({ error: "密码至少 6 位" }, 400);
   if (role === "super") return json({ error: "不能创建总管理员" }, 400);
   if (await getUserById(env, email)) return json({ error: "该邮箱已存在" }, 400);
   if (phone && (await getUserById(env, phone))) return json({ error: "该手机号已存在" }, 400);
 
+  // 面板权限：优先用前端传来的多选；否则按角色回退默认面板（兼容旧分管理员）
+  const panels = (Array.isArray(body.panels) && body.panels.length) ? body.panels : (DEFAULT_PANELS[role] || ["dashboard"]);
   const salt = await newSalt();
   const hash = await hashPassword(pw, salt);
-  await putUser(env, { email, phone, role, salt, hash, disabled: false });
-  return json({ ok: true, role });
+  await putUser(env, { email, phone, role, panels, salt, hash, disabled: false });
+  return json({ ok: true, role, panels });
 }
 
 /* ============ 普通用户：注册 / 登录 ============ */
@@ -733,16 +749,54 @@ async function listActiveAnnounce(env) {
 const UGC_CAP = 500;
 async function getUgcIdx(env) { const r = await env.UGC.get("idx:list"); try { return r ? JSON.parse(r) : []; } catch (e) { return []; } }
 async function setUgcIdx(env, a) { await env.UGC.put("idx:list", JSON.stringify(a)); }
+// 敏感词快速预筛（命中直接转人工；仅做第一道过滤，语义审核交给 AI）
+const SENSITIVE_WORDS = ["傻逼", "操你妈", "fuck", "shit", "广告加微信", "代练接单", "外挂出售", "色情", "赌博", "私彩", "引流", "菠菜", "加我vx", "加我微信", "代充", "刷钻"];
+
+// AI 内容审核（可插拔：配置 AI_API_KEY + AI_API_URL 后生效；未配置/异常/敏感词一律转人工待审）
+// 决策：approve=通过直接公开；reject=违规直接拒；review=转人工
+async function aiModerate(env, title, body) {
+  const text = ((title || "") + " " + (body || "")).toLowerCase();
+  for (const w of SENSITIVE_WORDS) {
+    if (w && text.indexOf(w.toLowerCase()) >= 0) return { decision: "review", reason: "命中敏感词：" + w };
+  }
+  const key = env.AI_API_KEY, url = env.AI_API_URL;
+  if (!key || !url) return { decision: "review", reason: "AI 未配置，转人工待审" };
+  try {
+    const sys = "你是严格的游戏社区内容审核员，只输出一个 JSON 对象，不要任何额外文字。字段：decision(取值 approve|reject|review)，reason(简短中文理由)。approve=正常可公开；reject=广告/辱骂/色情/诈骗/违规，直接拒绝；review=不确定或疑似敏感，转人工审核。";
+    const user = "请审核以下用户投稿：\n标题：" + (title || "") + "\n内容：" + (body || "");
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+      body: JSON.stringify({ model: env.AI_MODEL || "gpt-4o-mini", messages: [{ role: "system", content: sys }, { role: "user", content: user }], temperature: 0 })
+    });
+    if (!r.ok) return { decision: "review", reason: "AI 接口返回 " + r.status + "，转人工" };
+    const j = await r.json().catch(() => null);
+    const content = (j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "";
+    const m = content.match(/\{[\s\S]*\}/);
+    if (!m) return { decision: "review", reason: "AI 返回无法解析，转人工" };
+    let o; try { o = JSON.parse(m[0]); } catch (e) { return { decision: "review", reason: "AI JSON 解析失败，转人工" }; }
+    if (o.decision === "approve" || o.decision === "reject" || o.decision === "review") return { decision: o.decision, reason: o.reason || "" };
+    return { decision: "review", reason: "AI 决策值非法，转人工" };
+  } catch (e) {
+    return { decision: "review", reason: "AI 调用异常：" + (e && e.message ? e.message : e) + "，转人工" };
+  }
+}
+
 async function createUgc(env, body, sess) {
   const title = (body.title || "").trim();
   const text = (body.body || "").trim();
   if (!title) return json({ error: "标题不能为空" }, 400);
   if (!text) return json({ error: "内容不能为空" }, 400);
   const id = genId("u");
-  const rec = { id, author: sess.email, title, category: body.category || "攻略", body: text, status: "pending", createdAt: Date.now(), rejectReason: "" };
+  let status = "pending", rejectReason = "", aiNote = "";
+  const mod = await aiModerate(env, title, text);
+  if (mod.decision === "approve") { status = "approved"; aiNote = "AI 自动通过：" + (mod.reason || ""); }
+  else if (mod.decision === "reject") { status = "rejected"; rejectReason = "AI 自动拒绝：" + (mod.reason || ""); }
+  else { status = "pending"; aiNote = "转人工：" + (mod.reason || ""); }
+  const rec = { id, author: sess.email, title, category: body.category || "攻略", body: text, status, createdAt: Date.now(), rejectReason, aiNote };
   await env.UGC.put("u:" + id, JSON.stringify(rec));
   const idx = await getUgcIdx(env);
-  idx.unshift({ id, author: rec.author, title, category: rec.category, status: "pending", createdAt: rec.createdAt });
+  idx.unshift({ id, author: rec.author, title, category: rec.category, status, createdAt: rec.createdAt });
   if (idx.length > UGC_CAP) idx.length = UGC_CAP;
   await setUgcIdx(env, idx);
   return json({ ok: true, id });
@@ -784,6 +838,41 @@ async function deleteUgc(env, id) {
   const idx = await getUgcIdx(env);
   const next = idx.filter((x) => x.id !== id);
   if (next.length !== idx.length) await setUgcIdx(env, next);
+  return json({ ok: true });
+}
+
+/* ============ 注册用户管理（仅总管理员 / 用户管理分管理员） ============ */
+async function requireUserMgr(env, req) {
+  const s = await requireLogin(env, req);
+  if (s.role === "super") return s;
+  const panels = s.panels || [];
+  if (panels.indexOf("usermgr") < 0) throw new HttpError(403, "需要用户管理权限（仅总管理员或用户管理分管理员可操作）");
+  return s;
+}
+async function listMembers(env) {
+  const users = await allUsers(env);
+  const members = users
+    .filter((u) => u.role === "user")
+    .map((u) => ({ id: (u.email || u.phone || "").toLowerCase(), email: u.email || "", phone: u.phone || "", name: u.name || "", disabled: !!u.disabled, createdAt: u.createdAt || null }))
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  return json({ members });
+}
+async function setMemberDisabled(env, body) {
+  const id = (body.id || "").trim().toLowerCase();
+  if (!id) return json({ error: "缺少用户 id" }, 400);
+  const u = await getUserById(env, id);
+  if (!u || u.role !== "user") return json({ error: "用户不存在" }, 404);
+  u.disabled = !!body.disabled;
+  await putUser(env, u);
+  return json({ ok: true, disabled: u.disabled });
+}
+async function deleteMember(env, body) {
+  const id = (body.id || "").trim().toLowerCase();
+  if (!id) return json({ error: "缺少用户 id" }, 400);
+  const u = await getUserById(env, id);
+  if (!u || u.role !== "user") return json({ error: "用户不存在" }, 404);
+  if (u.email) await env.USERS.delete("u:" + u.email.toLowerCase());
+  if (u.phone) await env.USERS.delete("u:" + u.phone.toLowerCase());
   return json({ ok: true });
 }
 
@@ -910,6 +999,19 @@ async function handle(request, env) {
     if (p === "/api/admin/create-subadmin" && request.method === "POST") {
       await requireSuper(env, request);
       return await createSubadmin(env, body);
+    }
+
+    if (p === "/api/admin/members" && request.method === "GET") {
+      await requireUserMgr(env, request);
+      return await listMembers(env);
+    }
+    if (p === "/api/admin/member" && request.method === "PUT") {
+      await requireUserMgr(env, request);
+      return await setMemberDisabled(env, body);
+    }
+    if (p === "/api/admin/member" && request.method === "DELETE") {
+      await requireUserMgr(env, request);
+      return await deleteMember(env, body);
     }
 
     if (p === "/api/admin/data" && request.method === "GET") {

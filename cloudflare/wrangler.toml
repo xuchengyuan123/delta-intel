@@ -53,19 +53,19 @@ id = "9292c66643eb468e80f5ca4e0a3bfae8"
 #   wrangler kv namespace create AVATARS
 [[kv_namespaces]]
 binding = "ACCESS"
-id = "000000000000000000000000000000a1"
+id = "700f7f9594714f5e925de73e427f656f"
 [[kv_namespaces]]
 binding = "PRESENCE"
-id = "000000000000000000000000000000a2"
+id = "a5ca394b6280420db4dfd9398ab18102"
 [[kv_namespaces]]
 binding = "FRIENDS"
-id = "000000000000000000000000000000a3"
+id = "537527149e604dfbabf1148ebf1d5d60"
 [[kv_namespaces]]
 binding = "MESSAGES"
-id = "000000000000000000000000000000a4"
+id = "1b8d77a2375945cd8db9513530d19632"
 [[kv_namespaces]]
 binding = "AVATARS"
-id = "000000000000000000000000000000a5"
+id = "736a34738aa5405aa3a877a4b2b8b9d8"
 
 # ===== 邮件发送（Cloudflare 自带 MailChannels，免费、无需第三方账号） =====
 # 前提：delta.shopping 已在 Cloudflare 控制台开启 Email Routing 并加好 SPF/DKIM（开启时自动生成）。
@@ -92,6 +92,11 @@ destination_address = "noreply@delta.shopping"
 # 可选：Cloudflare 访问分析（浏览记录页的国家/访问量增强；不配则仅用 Worker 自记日志）
 #   wrangler secret put CF_API_TOKEN     # Cloudflare API Token（需 Zone:Read 权限）
 #   wrangler secret put CF_ZONE_ID       # delta.shopping 的 Zone ID
+#
+# 可选：AI 发帖审核（论坛发帖自动审核；不配则维持人工审核，行为不变）
+#   wrangler secret put AI_API_KEY       # 任意 OpenAI 兼容接口的 API Key（如 OpenAI / DeepSeek）
+#   wrangler secret put AI_API_URL       # 完整 chat completions 地址，如 https://api.openai.com/v1/chat/completions
+#   wrangler secret put AI_MODEL         # 模型名，默认 gpt-4o-mini（如 deepseek-chat）
 
 # ===== 自定义域名（绕过 workers.dev 在大陆被墙，国内可访问） =====
 # 前提：delta.shopping 已在 Cloudflare 添加为站点（NS 已切到 Cloudflare），且 zone 已 Active。
