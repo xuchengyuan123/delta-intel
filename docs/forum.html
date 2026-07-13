@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="stylesheet" href="css/style.css?v=19">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -108,6 +108,7 @@
           <button class="btn ghost sm" id="loginSend">发验证码</button>
         </div>
         <input id="loginCode" placeholder="验证码（留空则用密码登录）" />
+        <div class="devcode" id="loginDevCode" style="display:none"></div>
         <div class="actions">
           <button class="btn" id="loginBtn">登录</button>
         </div>
@@ -149,7 +150,7 @@
     <button class="btn ghost more-btn" id="moreBtn" style="display:none">加载更多</button>
   </div>
 
-  <script defer src="js/site-common.js?v=18"></script>
+  <script defer src="js/site-common.js?v=19"></script>
   <script>
     var API = "https://api.delta.shopping";
     var KT = "di_user_token", KID = "di_user_id", KR = "di_user_role";
@@ -324,7 +325,14 @@
       if (!id) { setMsg("请先填邮箱或手机号"); return; }
       setMsg("正在发送验证码…", true);
       api("/api/user/send-code", { method: "POST", body: JSON.stringify({ to: id, purpose: "login" }) })
-        .then(function (j) { setMsg("验证码已发送（开发模式可能直接显示在提示里）。", true); })
+        .then(function (j) {
+          if (j.devCode) {
+            var dc = document.getElementById("loginDevCode");
+            dc.style.display = "block";
+            dc.innerHTML = "你的验证码：<b>" + esc(j.devCode) + "</b>（已显示在下方，直接填到上面的验证码框即可）";
+          }
+          setMsg(j.devCode ? "验证码已显示在下方 ↓" : "验证码已发送，请查收邮箱。", true);
+        })
         .catch(function (e) { setMsg(e.message || "发送失败"); });
     });
 

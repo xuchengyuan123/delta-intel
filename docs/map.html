@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
   <meta name="description" content="三角洲情报台互动地图 — 多地图切换、缩放拖拽、标点分类筛选、搜索定位">
   <meta name="theme-color" content="#0f1115">
-  <link rel="manifest" href="manifest.webmanifest?v=18">
-  <link rel="icon" href="icon.svg?v=18">
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="manifest" href="manifest.webmanifest?v=19">
+  <link rel="icon" href="icon.svg?v=19">
+  <link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
   <div id="siteAnnounce" class="site-announce"></div>
@@ -37,7 +37,11 @@
           <p class="map-sub">真实三角洲地图 · 可查看物资 · 可讨论 · 登录后可添加标点</p>
         </div>
         <button class="btn sm" id="addModeBtn" title="登录后点击此处，然后在地图上点击即可添加标点">➕ 添加标点</button>
+        <button class="btn sm" id="routeBtn" title="在地图上依次点击添加路线点">🧭 规划路线</button>
+        <button class="btn sm secondary" id="routeClear" style="display:none" title="清除当前地图路线">清除路线</button>
       </div>
+
+      <div class="map-modes" id="mapModes"><!-- JS 注入难度标签筛选 --></div>
 
       <div class="map-tabs" id="mapTabs"><!-- JS 注入地图切换 --></div>
 
@@ -47,6 +51,8 @@
             <input id="mapSearch" placeholder="搜索标点或物资（如：保险箱 / 撤离 / 首领）" />
           </div>
           <div class="map-filters" id="mapFilters"><!-- JS 注入分类开关 --></div>
+          <div class="map-loot-title-row">物资类型筛选（点选，可多选）</div>
+          <div class="map-loot-filters" id="mapLootFilters"><!-- JS 注入物资类型筛选 --></div>
           <div class="map-legend" id="mapLegend">点击标点或列表项查看物资与讨论。</div>
           <div class="map-list" id="mapList"><!-- JS 注入标点列表 --></div>
 
@@ -104,7 +110,7 @@
     </main>
   </div>
 
-  <script src="js/site-common.js?v=18"></script>
-  <script src="js/map.js?v=18"></script>
+  <script src="js/site-common.js?v=19"></script>
+  <script src="js/map.js?v=19"></script>
 </body>
 </html>

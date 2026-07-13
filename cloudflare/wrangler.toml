@@ -6,9 +6,9 @@ compatibility_date = "2024-09-23"
 [vars]
 # 你的 GitHub 仓库（与 admin.html 中的 REPO 一致）
 REPO = "xuchengyuan123/delta-intel"
-# 开发模式：true 时验证码直接回显到后台界面（无需配置邮件服务，适合零预算测试）
-# 正式上线若已接好 EmailJS，可改为 "false"
-DEV_MODE = "true"
+# 开发模式：true 时验证码直接回显（不发信），适合零预算测试/本地联调
+# 已接好发信（MailChannels / EmailJS）后改为 "false"，验证码才会真正发邮件
+DEV_MODE = "false"
 
 # ===== KV 命名空间（先创建，再把 id 填进来） =====
 # 创建命令：
@@ -31,6 +31,25 @@ id = "f2758baa20ab4317a1660c19a15c98ca"
 [[kv_namespaces]]
 binding = "POSTS"
 id = "ea2071ab7ce549bc834eebf2f165e7a7"
+
+[[kv_namespaces]]
+binding = "ANNOUNCE"
+id = "b6a0c65ec3ec48b38267547d89a939cc"
+
+[[kv_namespaces]]
+binding = "UGC"
+id = "fafe07e44ad44ab6a1e3a5b09a592f6a"
+
+[[kv_namespaces]]
+binding = "COMMENTS"
+id = "9292c66643eb468e80f5ca4e0a3bfae8"
+
+# ===== 邮件发送（Cloudflare 自带 MailChannels，免费、无需第三方账号） =====
+# 前提：delta.shopping 已在 Cloudflare 控制台开启 Email Routing 并加好 SPF/DKIM（开启时自动生成）。
+# from 必须是本域名地址（noreply@delta.shopping），且域名已开启邮件路由，否则发送会被拒。
+[[send_email]]
+name = "MAIL"
+destination_address = "noreply@delta.shopping"
 
 # ===== 敏感密钥（不要写在这里！用 wrangler secret put 设置） =====
 # 在 cloudflare/ 目录下依次执行：

@@ -1,6 +1,7 @@
-/* 互动地图（《三角洲行动》真实地图版）
- * 数据驱动：所有地图、标点、物资都在下方 MAPS 中配置。
- * 功能：多地图切换、滚轮缩放、拖拽平移、分类筛选、搜索定位、物资展示、标点讨论、登录用户添加标点。
+/* 互动地图（《三角洲行动》真实地图版 · KK 日报式 2D）
+ * 数据驱动：所有地图、标点、物资、路线都在下方 MAPS / LOOT_TYPES 中配置。
+ * 功能：多地图切换、难度标签筛选、分类筛选、物资类型筛选、滚轮缩放、拖拽平移、
+ *       搜索定位、分层切换、标点物资展示、标点讨论、登录用户添加标点、路线规划。
  */
 (function () {
   "use strict";
@@ -16,82 +17,115 @@
     event:   { label: "事件",   color: "#9b59b6", icon: "⚡" }
   };
 
-  // 物资分类（参考用户提供的物资图标）
+  // 物资分类（对齐 KK 日报 一图流细则）
   var LOOT_TYPES = [
-    { id: "safe",     name: "保险箱", icon: "🔒" },
-    { id: "server",   name: "服务器", icon: "💻" },
-    { id: "weapon",   name: "武器箱", icon: "🔫" },
-    { id: "ammo",     name: "弹药箱", icon: "🧨" },
-    { id: "tool",     name: "工具柜", icon: "🧰" },
-    { id: "medical",  name: "医疗物资", icon: "🧰" },
-    { id: "bag",      name: "背包/登山包", icon: "🎒" },
-    { id: "nest",     name: "鸟窝", icon: "🪺" },
-    { id: "trash",    name: "垃圾桶", icon: "🗑" },
-    { id: "computer", name: "电脑/机箱", icon: "🖥" },
-    { id: "high",     name: "高级储物箱", icon: "💼" },
-    { id: "key",      name: "钥匙/房卡", icon: "🗝" }
+    { id: "safe",      name: "保险箱",     icon: "🔒" },
+    { id: "safe_s",    name: "小保险箱",   icon: "🔐" },
+    { id: "server",    name: "服务器",     icon: "💻" },
+    { id: "pc",        name: "电脑机箱",   icon: "🖥" },
+    { id: "weapon",    name: "武器箱",     icon: "🔫" },
+    { id: "weapon_l",  name: "大武器箱",   icon: "🔫" },
+    { id: "ammo",      name: "弹药箱",     icon: "🧨" },
+    { id: "tool",      name: "工具柜",     icon: "🧰" },
+    { id: "box",       name: "收纳盒",     icon: "📦" },
+    { id: "cloth",     name: "一件衣服",   icon: "👕" },
+    { id: "medkit",    name: "军用医疗包", icon: "⛑" },
+    { id: "med",       name: "医疗物资堆", icon: "🩹" },
+    { id: "bag",       name: "旅行包",     icon: "🎒" },
+    { id: "case",      name: "手提箱",     icon: "💼" },
+    { id: "locker",    name: "储物柜",     icon: "🗄" },
+    { id: "safe_h",    name: "高级储物箱", icon: "💎" },
+    { id: "drawer",    name: "抽屉柜",     icon: "🗃" },
+    { id: "climb",     name: "登山包",     icon: "🎒" },
+    { id: "express",   name: "快递箱",     icon: "📭" },
+    { id: "airbox",    name: "航空储物箱", icon: "✈" },
+    { id: "trash",     name: "垃圾桶",     icon: "🗑" },
+    { id: "wild",      name: "野外物资箱", icon: "📦" },
+    { id: "stash",     name: "藏匿物",     icon: "💰" },
+    { id: "suitcase",  name: "高级旅行箱", icon: "🧳" },
+    { id: "coin",      name: "金币堆",     icon: "🪙" },
+    { id: "card",      name: "通用房卡",   icon: "🗝" }
   ];
 
-  // ===== 真实地图数据（替换为游戏截图） =====
+  // ===== 真实地图数据（底图为游戏截图） =====
   var MAPS = [
     {
       id: "dam",
       name: "零号大坝",
-      tag: "烽火地带 · 常规",
+      tag: "烽火地带",
+      mode: "常规",
       image: "maps/dam-aerial.jpg",
       floors: null,
       points: [
-        { x: 22, y: 30, cat: "spawn",   title: "出生点 A", desc: "西侧公路出生，靠近行政辖区。" },
-        { x: 70, y: 25, cat: "spawn",   title: "出生点 B", desc: "东侧游客中心出生。" },
-        { x: 40, y: 55, cat: "loot",    title: "行政辖区·保险箱", desc: "主楼二层，需房卡开启。", loot: ["保险箱", "服务器", "高级储物箱"] },
-        { x: 55, y: 62, cat: "loot",    title: "水泥厂·武器箱", desc: "厂区中央集装箱堆。", loot: ["武器箱", "弹药箱", "工具柜"] },
+        { x: 20, y: 28, cat: "spawn",   title: "出生点 A", desc: "西侧公路出生，靠近行政辖区。" },
+        { x: 72, y: 24, cat: "spawn",   title: "出生点 B", desc: "东侧游客中心出生。" },
+        { x: 40, y: 52, cat: "loot",    title: "行政辖区·主保险箱", desc: "主楼二层，需房卡开启。", loot: ["保险箱", "服务器", "高级储物箱"] },
+        { x: 36, y: 60, cat: "loot",    title: "行政辖区·抽屉柜", desc: "办公区，常出房卡。", loot: ["抽屉柜", "小保险箱", "通用房卡"] },
+        { x: 56, y: 60, cat: "loot",    title: "水泥厂·武器箱", desc: "厂区中央集装箱堆。", loot: ["武器箱", "大武器箱", "弹药箱"] },
+        { x: 48, y: 44, cat: "loot",    title: "主变电站·服务器", desc: "高价值区，守卫多。", loot: ["服务器", "电脑机箱", "工具柜"] },
+        { x: 64, y: 70, cat: "loot",    title: "游客中心·储物柜", desc: "大厅与休息区。", loot: ["储物柜", "手提箱", "一件衣服"] },
+        { x: 30, y: 74, cat: "loot",    title: "管道区域·野外箱", desc: "管网夹层。", loot: ["野外物资箱", "收纳盒", "工具柜"] },
+        { x: 50, y: 82, cat: "loot",    title: "大坝底·藏匿物", desc: "暗格，随机刷金币。", loot: ["藏匿物", "金币堆", "高级旅行箱"] },
         { x: 33, y: 70, cat: "extract", title: "常规撤离点", desc: "大坝下方码头，直接撤离。" },
-        { x: 80, y: 72, cat: "extract", title: "付费撤离点", desc: "消耗筹码 / 现金撤离。" },
-        { x: 50, y: 38, cat: "boss",    title: "首领·阿萨拉卫队", desc: "行政辖区附近巡逻。" },
-        { x: 62, y: 48, cat: "event",   title: "坠机事件", desc: "随机刷新，物资丰厚。", loot: ["高级储物箱", "武器箱"] }
+        { x: 82, y: 74, cat: "extract", title: "付费撤离点", desc: "消耗筹码 / 现金撤离。" },
+        { x: 58, y: 38, cat: "boss",    title: "首领·阿萨拉卫队", desc: "行政辖区附近巡逻。" },
+        { x: 62, y: 50, cat: "event",   title: "坠机事件", desc: "随机刷新，物资丰厚。", loot: ["高级储物箱", "武器箱", "医疗物资堆"] }
       ]
     },
     {
       id: "dam-detail",
       name: "零号大坝（局部）",
       tag: "详情视图",
+      mode: "常规",
       image: "maps/dam-detail-1.jpg",
       floors: null,
       points: [
-        { x: 50, y: 50, cat: "loot", title: "主变电站", desc: "高价值区域，常有保险箱。", loot: ["保险箱", "服务器"] }
+        { x: 50, y: 46, cat: "loot", title: "主变电站机房", desc: "服务器机柜，高价值。", loot: ["服务器", "电脑机箱", "保险箱"] },
+        { x: 30, y: 64, cat: "loot", title: "集装箱堆", desc: "武器箱与弹药。", loot: ["武器箱", "弹药箱", "大武器箱"] },
+        { x: 70, y: 30, cat: "extract", title: "侧门撤离", desc: "小概率撤离点。" }
       ]
     },
     {
       id: "building",
-      name: "分层建筑",
+      name: "行政辖区（分层）",
       tag: "室内 · 1F-4F",
+      mode: "常规",
       image: "maps/building-floors.jpg",
       floors: [
-        { name: "1F", image: "maps/building-floors.jpg", points: [{ x: 50, y: 50, cat: "loot", title: "一楼大厅物资", desc: "前台附近。", loot: ["工具柜", "垃圾桶"] }] },
-        { name: "2F", image: "maps/building-floors.jpg", points: [{ x: 45, y: 45, cat: "loot", title: "二楼办公室", desc: "抽屉柜 + 电脑。", loot: ["电脑/机箱", "高级储物箱"] }] },
-        { name: "3F", image: "maps/building-floors.jpg", points: [{ x: 55, y: 40, cat: "loot", title: "三楼机房", desc: "服务器机柜。", loot: ["服务器"] }] },
-        { name: "4F", image: "maps/building-floors.jpg", points: [{ x: 50, y: 35, cat: "boss", title: "楼顶首领", desc: "狙击手/重甲首领。" }] }
+        { name: "1F", image: "maps/building-floors.jpg", points: [{ x: 50, y: 54, cat: "loot", title: "一楼大厅前台", desc: "前台抽屉 + 储物柜。", loot: ["抽屉柜", "储物柜", "通用房卡"] }] },
+        { name: "2F", image: "maps/building-floors.jpg", points: [{ x: 46, y: 46, cat: "loot", title: "二楼办公室", desc: "电脑与高级箱。", loot: ["电脑机箱", "高级储物箱", "保险箱"] }] },
+        { name: "3F", image: "maps/building-floors.jpg", points: [{ x: 56, y: 40, cat: "loot", title: "三楼机房", desc: "服务器机柜。", loot: ["服务器", "电脑机箱"] }] },
+        { name: "4F", image: "maps/building-floors.jpg", points: [{ x: 50, y: 34, cat: "boss", title: "楼顶首领", desc: "狙击手 / 重甲首领驻守。", loot: ["保险箱"] }] }
       ]
     },
     {
       id: "nuclear",
       name: "核电站",
-      tag: "烽火地带 · 机密",
+      tag: "烽火地带",
+      mode: "机密",
       image: "maps/nuclear-site.jpg",
       floors: null,
       points: [
-        { x: 50, y: 45, cat: "loot", title: "反应堆周边", desc: "辐射区边缘，高价值物资。", loot: ["高级储物箱", "工具柜", "医疗物资"] },
-        { x: 30, y: 30, cat: "spawn", title: "西侧出生点", desc: "靠近废料处理厂。" },
-        { x: 75, y: 60, cat: "extract", title: "水下撤离点", desc: "条件撤离。" },
-        { x: 55, y: 35, cat: "boss", title: "首领·RBMK", desc: "反应堆核心区域。" }
+        { x: 50, y: 42, cat: "loot",    title: "反应堆核心·高级箱", desc: "辐射区边缘，极高价值。", loot: ["高级储物箱", "保险箱", "藏匿物"] },
+        { x: 34, y: 30, cat: "loot",    title: "控制室·服务器", desc: "控制台 + 服务器。", loot: ["服务器", "电脑机箱", "工具柜"] },
+        { x: 66, y: 56, cat: "loot",    title: "医疗站", desc: "军用医疗物资。", loot: ["军用医疗包", "医疗物资堆", "收纳盒"] },
+        { x: 44, y: 66, cat: "loot",    title: "武器库", desc: "大武器箱集中地。", loot: ["大武器箱", "武器箱", "弹药箱"] },
+        { x: 24, y: 36, cat: "loot",    title: "废料区·野外箱", desc: "边缘随机物资。", loot: ["野外物资箱", "快递箱"] },
+        { x: 30, y: 28, cat: "spawn",   title: "西侧出生点", desc: "靠近废料处理厂。" },
+        { x: 76, y: 62, cat: "extract", title: "水下撤离点", desc: "条件撤离。" },
+        { x: 55, y: 34, cat: "boss",    title: "首领·RBMK", desc: "反应堆核心区域。" }
       ]
     }
   ];
 
   // ===== 状态 =====
-  var state = { map: null, floor: 0, scale: 1, tx: 0, ty: 0, filters: {}, sel: null, q: "", addMode: false };
-  var layer, stage, popup, myMarkers = [];
-  var MY_KEY = "di_map_markers";
+  var state = {
+    map: null, floor: 0, scale: 1, tx: 0, ty: 0,
+    filters: {}, modes: {}, lootFilter: {}, sel: null, q: "",
+    addMode: false, routeMode: false
+  };
+  var layer, stage, popup, myMarkers = [], routes = {};
+  var MY_KEY = "di_map_markers", ROUTE_KEY = "di_map_routes";
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -104,27 +138,58 @@
     try { myMarkers = JSON.parse(localStorage.getItem(MY_KEY) || "[]"); } catch (e) { myMarkers = []; }
   }
   function saveMyMarkers() { try { localStorage.setItem(MY_KEY, JSON.stringify(myMarkers)); } catch (e) {} }
+  function loadRoutes() {
+    try { routes = JSON.parse(localStorage.getItem(ROUTE_KEY) || "{}"); } catch (e) { routes = {}; }
+  }
+  function saveRoutes() { try { localStorage.setItem(ROUTE_KEY, JSON.stringify(routes)); } catch (e) {} }
 
   function init() {
     layer = $("mapLayer"); stage = $("mapStage"); popup = $("mapPopup");
-    loadMyMarkers();
+    loadMyMarkers(); loadRoutes();
     Object.keys(CATS).forEach(function (k) { state.filters[k] = true; });
+    MAPS.forEach(function (m) { state.modes[m.mode] = true; });
+    renderModes();
     renderTabs();
     renderFilters();
+    renderLootFilters();
     loadMap(MAPS[0]);
     bindEvents();
     renderAddMode();
+    renderRouteMode();
+  }
+
+  function visibleMaps() {
+    return MAPS.filter(function (m) { return state.modes[m.mode]; });
+  }
+
+  function renderModes() {
+    var box = $("mapModes"); if (!box) return; box.innerHTML = "";
+    var modes = [];
+    MAPS.forEach(function (m) { if (modes.indexOf(m.mode) < 0) modes.push(m.mode); });
+    modes.forEach(function (mode) {
+      var b = document.createElement("button");
+      b.className = "map-mode" + (state.modes[mode] ? " active" : "");
+      b.textContent = mode;
+      b.addEventListener("click", function () {
+        state.modes[mode] = !state.modes[mode];
+        if (!visibleMaps().length) state.modes[mode] = true; // 至少留一个
+        renderModes(); renderTabs();
+      });
+      box.appendChild(b);
+    });
   }
 
   function renderTabs() {
     var box = $("mapTabs"); box.innerHTML = "";
-    MAPS.forEach(function (m) {
+    visibleMaps().forEach(function (m) {
       var b = document.createElement("button");
       b.className = "map-tab" + (state.map === m ? " active" : "");
       b.innerHTML = '<span class="mt-name">' + esc(m.name) + '</span><span class="mt-tag">' + esc(m.tag || "") + "</span>";
       b.addEventListener("click", function () { loadMap(m); });
       box.appendChild(b);
     });
+    // 当前地图可能被模式过滤掉，则切到第一个可见
+    if (!visibleMaps().some(function (m) { return m === state.map; }) && visibleMaps()[0]) loadMap(visibleMaps()[0]);
   }
 
   function renderFilters() {
@@ -141,21 +206,38 @@
     });
   }
 
+  function renderLootFilters() {
+    var box = $("mapLootFilters"); if (!box) return; box.innerHTML = "";
+    LOOT_TYPES.forEach(function (l) {
+      var b = document.createElement("button");
+      b.className = "map-loot-filter" + (state.lootFilter[l.name] ? " active" : "");
+      b.innerHTML = (l.icon ? l.icon + " " : "") + esc(l.name);
+      b.addEventListener("click", function () {
+        if (state.lootFilter[l.name]) delete state.lootFilter[l.name];
+        else state.lootFilter[l.name] = true;
+        renderLootFilters(); renderMarkers(); renderList();
+      });
+      box.appendChild(b);
+    });
+  }
+
   function loadMap(m) {
     state.map = m; state.floor = 0; state.scale = 1; state.tx = 0; state.ty = 0; state.sel = null;
     renderTabs();
     renderFloors();
     applyTransform();
     renderMarkers();
+    renderRoute();
     renderList();
     hidePopup();
-    $("mapLegend").textContent = "点击标点或列表项查看物资/讨论；登录后可在地图上右键添加标点。";
+    $("mapLegend").textContent = state.routeMode
+      ? "路线规划中：在地图上依次点击添加路线点；点路线点可删除。"
+      : "点击标点或列表项查看物资与讨论；登录后可在地图上点击添加标点。";
   }
 
   function currentPoints() {
     var m = state.map; if (!m) return [];
     var base = m.floors && m.floors[state.floor] ? m.floors[state.floor].points || [] : m.points || [];
-    // 追加用户自定义标点（仅当前地图）
     var my = myMarkers.filter(function (p) { return p.mapId === m.id && p.floor == state.floor; });
     return base.concat(my);
   }
@@ -175,7 +257,7 @@
         b.textContent = f.name;
         b.addEventListener("click", function () {
           state.floor = i; state.scale = 1; state.tx = 0; state.ty = 0;
-          applyTransform(); renderMarkers(); renderList(); renderFloors();
+          applyTransform(); renderMarkers(); renderRoute(); renderList(); renderFloors();
         });
         box.appendChild(b);
       });
@@ -197,11 +279,20 @@
     }
   }
 
+  function matchFilters(p) {
+    if (!state.filters[p.cat]) return false;
+    if (Object.keys(state.lootFilter).length) {
+      var loot = p.loot || [];
+      if (!loot.some(function (l) { return state.lootFilter[l]; })) return false;
+    }
+    return true;
+  }
+
   function renderMarkers() {
     setImage();
     Array.prototype.slice.call(layer.querySelectorAll(".map-marker")).forEach(function (n) { n.remove(); });
-    currentPoints().forEach(function (p, i) {
-      if (!state.filters[p.cat]) return;
+    currentPoints().forEach(function (p) {
+      if (!matchFilters(p)) return;
       var cat = CATS[p.cat] || CATS.loot;
       var mk = document.createElement("button");
       mk.className = "map-marker cat-" + p.cat + (p.isUser ? " user" : "");
@@ -213,13 +304,16 @@
       mk.addEventListener("click", function (e) { e.stopPropagation(); selectPoint(p); });
       layer.appendChild(mk);
     });
+    renderRoute();
   }
 
   function renderList() {
     var box = $("mapList"); box.innerHTML = "";
-    var pts = currentPoints().filter(function (p) { return state.filters[p.cat]; });
+    var pts = currentPoints().filter(matchFilters);
     var q = state.q.trim().toLowerCase();
-    if (q) pts = pts.filter(function (p) { return (p.title + " " + (p.desc || "") + " " + (p.loot || []).join(" ")).toLowerCase().indexOf(q) >= 0; });
+    if (q) pts = pts.filter(function (p) {
+      return (p.title + " " + (p.desc || "") + " " + (p.loot || []).join(" ")).toLowerCase().indexOf(q) >= 0;
+    });
     if (!pts.length) { box.innerHTML = '<p class="map-empty">无匹配标点</p>'; return; }
     var groups = {};
     pts.forEach(function (p) { (groups[p.cat] = groups[p.cat] || []).push(p); });
@@ -252,22 +346,17 @@
     $("popupTitle").textContent = p.title;
     $("popupDesc").textContent = p.desc || "";
 
-    // 物资列表
     var lootBox = $("popupLoot");
     if (p.loot && p.loot.length) {
       lootBox.innerHTML = p.loot.map(function (l) { return '<span class="map-loot-pill">' + esc(l) + '</span>'; }).join("");
       lootBox.style.display = "";
     } else {
-      lootBox.style.display = "none";
-      lootBox.innerHTML = "";
+      lootBox.style.display = "none"; lootBox.innerHTML = "";
     }
 
-    // 讨论区
     var cmtBox = $("popupComments");
-    cmtBox.style.display = "none";
-    cmtBox.innerHTML = '';
+    cmtBox.style.display = "none"; cmtBox.innerHTML = '';
 
-    // 讨论按钮
     $("popupDiscuss").onclick = function () {
       cmtBox.style.display = cmtBox.style.display === "none" ? "" : "none";
       if (cmtBox.style.display !== "none" && cmtBox.innerHTML === '') {
@@ -276,7 +365,6 @@
       }
     };
 
-    // 删除我的标点
     var delBtn = $("popupDelete");
     if (p.isUser) {
       delBtn.style.display = "";
@@ -326,6 +414,14 @@
     btn.textContent = state.addMode ? "✏️ 添加中…" : "➕ 添加标点";
     btn.classList.toggle("active", state.addMode);
   }
+  function renderRouteMode() {
+    var btn = $("routeBtn");
+    if (!btn) return;
+    btn.textContent = state.routeMode ? "🧭 路线中…" : "🧭 规划路线";
+    btn.classList.toggle("active", state.routeMode);
+    var clr = $("routeClear");
+    if (clr) clr.style.display = (routes[state.map ? state.map.id : ""] && routes[state.map.id].length) ? "" : "none";
+  }
 
   function openAddForm(pt) {
     var form = $("addMarkerForm");
@@ -361,13 +457,58 @@
     $("addMarkerForm").style.display = "none";
     renderMarkers(); renderList(); selectPoint(marker, true);
 
-    // 同时提交 UGC 供管理员审核
     if (DC.api && DC.isLogin && DC.isLogin()) {
       DC.api("/api/ugc", { method: "POST", body: JSON.stringify({
         title: "地图标点补充：" + title,
         body: "地图：" + state.map.name + "\n坐标：(" + x + ", " + y + ")\n分类：" + (CATS[cat] && CATS[cat].label) + "\n描述：" + desc + "\n物资：" + loot.join("、"),
         type: "map-marker"
       }) }).then(function () { console.log("标点已提交审核"); }).catch(function (e) { console.error("UGC 提交失败", e); });
+    }
+  }
+
+  // ===== 路线规划 =====
+  function addWaypoint(pt) {
+    var id = state.map.id;
+    if (!routes[id]) routes[id] = [];
+    routes[id].push({ x: pt.x, y: pt.y });
+    saveRoutes(); renderRoute(); renderRouteMode();
+  }
+  function removeWaypoint(i) {
+    var id = state.map.id;
+    if (routes[id]) { routes[id].splice(i, 1); saveRoutes(); renderRoute(); renderRouteMode(); }
+  }
+  function clearRoute() {
+    var id = state.map.id;
+    routes[id] = []; saveRoutes(); renderRoute(); renderRouteMode();
+  }
+  function renderRoute() {
+    if (!layer) return;
+    var svg = layer.querySelector(".map-route");
+    if (!svg) {
+      svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "map-route");
+      svg.setAttribute("viewBox", "0 0 100 100");
+      svg.setAttribute("preserveAspectRatio", "none");
+      layer.appendChild(svg);
+    }
+    svg.innerHTML = "";
+    Array.prototype.slice.call(layer.querySelectorAll(".map-waypoint")).forEach(function (n) { n.remove(); });
+    var r = (state.map && routes[state.map.id]) || [];
+    if (r.length) {
+      var pl = document.createElementNS(svg.namespaceURI, "polyline");
+      pl.setAttribute("points", r.map(function (p) { return p.x + "," + p.y; }).join(" "));
+      pl.setAttribute("class", "route-line");
+      pl.setAttribute("vector-effect", "non-scaling-stroke");
+      svg.appendChild(pl);
+      r.forEach(function (p, i) {
+        var w = document.createElement("div");
+        w.className = "map-waypoint";
+        w.style.left = p.x + "%"; w.style.top = p.y + "%";
+        w.textContent = i + 1;
+        w.title = "点击删除此路线点";
+        w.addEventListener("click", function (e) { e.stopPropagation(); removeWaypoint(i); });
+        layer.appendChild(w);
+      });
     }
   }
 
@@ -378,23 +519,32 @@
     $("popupClose").addEventListener("click", hidePopup);
     $("mapSearch").addEventListener("input", function (e) { state.q = e.target.value; renderList(); });
 
-    $("addModeBtn").addEventListener("click", function () { state.addMode = !state.addMode; renderAddMode(); });
+    $("addModeBtn").addEventListener("click", function () {
+      state.addMode = !state.addMode;
+      if (state.addMode) { state.routeMode = false; renderRouteMode(); }
+      renderAddMode();
+    });
+    $("routeBtn").addEventListener("click", function () {
+      state.routeMode = !state.routeMode;
+      if (state.routeMode) { state.addMode = false; renderAddMode(); }
+      renderRouteMode();
+      $("mapLegend").textContent = state.routeMode
+        ? "路线规划中：在地图上依次点击添加路线点；点路线点可删除。"
+        : "点击标点或列表项查看物资与讨论；登录后可在地图上点击添加标点。";
+    });
+    $("routeClear").addEventListener("click", clearRoute);
     $("addMarkerCancel").addEventListener("click", function () { $("addMarkerForm").style.display = "none"; });
     $("addMarkerSubmit").addEventListener("click", submitMarker);
 
-    // 滚轮缩放
-    stage.addEventListener("wheel", function (e) {
-      e.preventDefault();
-      zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
-    }, { passive: false });
+    stage.addEventListener("wheel", function (e) { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
 
-    // 鼠标拖拽平移
     var dragging = false, sx = 0, sy = 0, stx = 0, sty = 0;
     stage.addEventListener("mousedown", function (e) {
       if (state.addMode) {
-        var pt = clientToPercent(e);
-        openAddForm(pt); state.addMode = false; renderAddMode();
-        return;
+        var pt = clientToPercent(e); openAddForm(pt); state.addMode = false; renderAddMode(); return;
+      }
+      if (state.routeMode) {
+        var rp = clientToPercent(e); addWaypoint(rp); return;
       }
       dragging = true; sx = e.clientX; sy = e.clientY; stx = state.tx; sty = state.ty;
     });
@@ -404,7 +554,6 @@
     });
     window.addEventListener("mouseup", function () { dragging = false; });
 
-    // 触摸拖拽
     stage.addEventListener("touchstart", function (e) {
       if (e.touches.length === 1) { dragging = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY; stx = state.tx; sty = state.ty; }
     }, { passive: true });
@@ -415,9 +564,11 @@
     }, { passive: false });
     stage.addEventListener("touchend", function () { dragging = false; });
 
-    // 点击空白处关闭弹窗
     stage.addEventListener("click", function (e) {
-      if (e.target === stage || e.target === layer) hidePopup();
+      if (e.target === stage || e.target === layer) {
+        if (state.routeMode) { var rp = clientToPercent(e); addWaypoint(rp); }
+        else hidePopup();
+      }
     });
   }
 
