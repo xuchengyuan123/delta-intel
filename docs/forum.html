@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/style.css?v=21">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -76,6 +76,7 @@
     <div class="forum-head">
       <span class="logo">三角洲<span class="logo-accent">情报台</span> · 战友论坛</span>
       <a class="back" href="index.html">← 返回首页</a>
+      <a class="back" href="friends.html" style="margin-left:8px">🧑‍🤝‍🧑 好友</a>
     </div>
     <p class="forum-tip">用本站账号登录即可发帖、回复。看帖无需登录。帖子由 <code>api.delta.shopping</code> 后端存储，全站（含大陆）可访问。</p>
 
@@ -97,6 +98,8 @@
       <div class="oauth-box">
         <button class="btn qq-btn" id="qqLoginBtn" type="button" style="background:#12b7f5;color:#fff;border:none;display:none;">🔵 使用 QQ 登录</button>
         <p class="note" style="display:none">QQ 登录需在 <a href="https://connect.qq.com" target="_blank" rel="noopener">QQ 互联</a> 实名注册应用并配置后端后开放（当前暂未开通）。</p>
+        <button class="btn wx-btn" id="wxLoginBtn" type="button" style="background:#07c160;color:#fff;border:none;display:none;">🟢 使用微信登录</button>
+        <p class="note" style="display:none">微信登录需在 <a href="https://open.weixin.qq.com" target="_blank" rel="noopener">微信开放平台</a> 实名注册「网站应用」并配置后端后开放（当前暂未开通）。</p>
       </div>
       <div class="divider" style="text-align:center;color:var(--muted);margin:14px 0;font-size:12px;position:relative;"><span style="background:var(--bg);padding:0 10px;">使用本站账号</span></div>
 
@@ -150,7 +153,8 @@
     <button class="btn ghost more-btn" id="moreBtn" style="display:none">加载更多</button>
   </div>
 
-  <script defer src="js/site-common.js?v=20"></script>
+  <script defer src="js/site-common.js?v=21"></script>
+  <script defer src="js/i18n.js?v=21"></script>
   <script>
     var API = "https://api.delta.shopping";
     var KT = "di_user_token", KID = "di_user_id", KR = "di_user_role";
@@ -418,6 +422,21 @@
             : ("QQ 登录失败：" + qe);
           setMsg(msg, false);
         }
+        var wx = q.get("wx"), wuid = q.get("id"), wur = q.get("role"), wxe = q.get("wx_error");
+        if (wx) {
+          setToken(wx);
+          if (wuid) setId(wuid);
+          if (wur) setRole(wur);
+          history.replaceState(null, "", location.pathname);
+          renderAuth();
+          loadPosts(true);
+        }
+        if (wxe) {
+          var wmsg = wxe === "not_configured"
+            ? "微信登录暂未开通：后端尚未配置微信开放平台 AppID/AppSecret。"
+            : ("微信登录失败：" + wxe);
+          setMsg(wmsg, false);
+        }
       } catch (e) {}
     })();
 
@@ -426,6 +445,12 @@
         var redir = location.origin + "/forum.html";
         location.href = API + "/api/auth/qq?redirect=" + encodeURIComponent(redir);
       } catch (e) { setMsg("跳转 QQ 登录失败"); }
+    });
+
+    document.getElementById("wxLoginBtn").addEventListener("click", function () {
+      try {
+        location.href = API + "/api/auth/wechat?redirect=" + encodeURIComponent(location.origin + "/forum.html");
+      } catch (e) { setMsg("跳转微信登录失败"); }
     });
 
     /* ===== 启动 ===== */

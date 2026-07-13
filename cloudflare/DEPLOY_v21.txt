@@ -1,0 +1,67 @@
+三角洲情报台 · v21 部署说明（2026-07-13）
+=============================================
+
+本次更新内容（已写入前端 docs/ + 后端 cloudflare/worker.js）：
+  ✅ 在线好友系统（全站用户）：好友列表（在线绿点/离线灰点）、搜索加好友、接受/拒绝、点对点私聊
+  ✅ 后台「浏览记录」面板（仅管理员）：真实访客数据——在线用户 / 国家地区分布 / 累计访问；总管理员额外可见含 IP 的明细
+  ✅ 个人主页头像 JPG 上传
+  ✅ 中英双语框架（右下角切换按钮）
+  ✅ 微信登录骨架（前端默认隐藏，配好 AppID/AppSecret 后开放）
+  ✅ 分管理员支持「手机号验证码 + 密码」；总管理员仅密码（不支持验证码）
+  ✅ 后台取消「仅限电脑」限制，手机可登录 + 自适应
+  ✅ 分管理员管理面板确认正常
+
+──────────────────────────────────────
+【第一步】在 Cloudflare 创建 5 个新 KV 命名空间（必须！）
+──────────────────────────────────────
+在 cloudflare/ 目录下依次执行（每条会返回一个 id，是一长串十六进制）：
+  wrangler kv namespace create ACCESS
+  wrangler kv namespace create PRESENCE
+  wrangler kv namespace create FRIENDS
+  wrangler kv namespace create MESSAGES
+  wrangler kv namespace create AVATARS
+
+把返回的 5 个 id 分别填进 cloudflare/wrangler.toml 里对应的占位符：
+  ACCESS   -> "000000000000000000000000000000a1"
+  PRESENCE -> "000000000000000000000000000000a2"
+  FRIENDS  -> "000000000000000000000000000000a3"
+  MESSAGES -> "000000000000000000000000000000a4"
+  AVATARS  -> "000000000000000000000000000000a5"
+（⚠️ 不替换成真实 id 就部署会失败）
+
+──────────────────────────────────────
+【第二步】可选密钥（不配也能跑，对应功能隐藏/降级）
+──────────────────────────────────────
+  wrangler secret put WECHAT_APPID      # 微信网站应用 AppID（配了才开放微信登录）
+  wrangler secret put WECHAT_APPKEY     # 微信网站应用 AppSecret
+  wrangler secret put CF_API_TOKEN      # Cloudflare API Token（Zone:Read），用于浏览记录叠加官方分析
+  wrangler secret put CF_ZONE_ID        # delta.shopping 的 Zone ID
+（已有的 GH_TOKEN / SUPER_EMAIL / SUPER_PASSWORD 不用动）
+
+──────────────────────────────────────
+【第三步】部署后端 Worker
+──────────────────────────────────────
+  cd "C:\Users\徐承远\Desktop\三角洲情报台-上传包\cloudflare"
+  npx wrangler deploy
+部署完验证：
+  curl -s -D - -A "Mozilla/5.0" https://api.delta.shopping/api/announce
+  应看到 HTTP/1.1 200 OK 且响应头含 access-control-allow-origin: *
+
+──────────────────────────────────────
+【第四步】上传前端到 GitHub Pages
+──────────────────────────────────────
+把  三角洲情报台-上传包\docs\  整个文件夹
+覆盖上传到 GitHub 仓库 xuchengyuan123/delta-intel 的 docs/ 目录
+（Pages 源就是 /docs，只传 docs/，不要传别的）
+等 Pages 重建（1–2 分钟），浏览器打开 https://delta.shopping 后 Ctrl+F5 强刷。
+
+──────────────────────────────────────
+【第五步】使用
+──────────────────────────────────────
+- 首页右上角「🧑‍🤝‍🧑 好友」→ 加好友、私聊（需先去论坛登录注册）
+- 后台登录 → 左侧「浏览记录」面板看真实访问数据
+- 个人主页 → 上传头像 JPG
+- 右下角 EN/🇨🇳 按钮切换中英
+- 微信/QQ 登录：前端按钮默认隐藏，配好密钥后自动出现
+
+注：本说明由 AI 生成，部署遇到问题把控制台/终端报错发我即可。

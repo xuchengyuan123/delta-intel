@@ -159,6 +159,11 @@ async function createSession(env, email, role) {
 async function requireLogin(env, req) {
   const s = await getSession(env, req);
   if (!s) throw new HttpError(401, "未登录或会话已过期");
+  try {
+    const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for") || "";
+    const country = (req.cf && req.cf.country) || "";
+    await updatePresence(env, s.email, { ip: ip, country: country });
+  } catch (e) {}
   return s;
 }
 async function requireSuper(env, req) {
@@ -219,6 +224,166 @@ async function ghPutFile(env, path, contentB64, message) {
   }
   const j = await r.json();
   return j.content ? j.content.download_url : null;
+}
+
+/* ============ 扩展存储（KV: ACCESS / PRESENCE / FRIENDS / MESSAGES / AVATARS） ============ */
+async function recordAccess(env, rec) {
+  try {
+    const idx = await env.ACCESS.get("idx:access");
+    const arr = idx ? JSON.parse(idx) : [];
+    arr.unshift(rec);
+    if (arr.length > 2000) arr.length = 2000;
+    await env.ACCESS.put("idx:access", JSON.stringify(arr));
+  } catch (e) {}
+}
+async function updatePresence(env, email, meta) {
+  try {
+    await env.PRESENCE.put("p:" + email.toLowerCase(), JSON.stringify(Object.assign({ ts: Date.now() }, meta || {})));
+  } catch (e) {}
+}
+async function getPresence(env, email) {
+  try { const r = await env.PRESENCE.get("p:" + email.toLowerCase()); return r ? JSON.parse(r) : null; } catch (e) { return null; }
+}
+function isOnline(p) { return !!(p && p.ts && (Date.now() - p.ts) < 5 * 60 * 1000); }
+async function friendKey(env, a, b) { return "fr:" + [a.toLowerCase(), b.toLowerCase()].sort().join("|"); }
+async function putFriend(env, a, b, rec) { await env.FRIENDS.put(await friendKey(env, a, b), JSON.stringify(rec)); }
+async function getFriend(env, a, b) { const r = await env.FRIENDS.get(await friendKey(env, a, b)); return r ? JSON.parse(r) : null; }
+async function delFriend(env, a, b) { await env.FRIENDS.delete(await friendKey(env, a, b)); }
+async function friendListKeys(env) { const list = await env.FRIENDS.list(); return list.keys.map((k) => k.name); }
+async function pushMessage(env, a, b, msg) {
+  const key = "msg:" + (await friendKey(env, a, b)).slice(3);
+  const r = await env.MESSAGES.get(key);
+  const arr = r ? JSON.parse(r) : [];
+  arr.push(msg);
+  if (arr.length > 500) arr.shift();
+  await env.MESSAGES.put(key, JSON.stringify(arr));
+}
+async function getMessages(env, a, b) {
+  const key = "msg:" + (await friendKey(env, a, b)).slice(3);
+  const r = await env.MESSAGES.get(key);
+  return r ? JSON.parse(r) : [];
+}
+function b64decodeBytes(b64) {
+  try {
+    const bin = atob(String(b64).replace(/^data:[^;]+;base64,/, ""));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  } catch (e) { return null; }
+}
+
+/* ============ 访问日志 / 在线状态（管理员） ============ */
+async function listAccess(env, isSuper) {
+  const idx = await env.ACCESS.get("idx:access");
+  const log = idx ? JSON.parse(idx) : [];
+  const plist = await env.PRESENCE.list();
+  const online = [];
+  for (const k of plist.keys) {
+    const rec = JSON.parse(await env.PRESENCE.get(k.name));
+    const email = k.name.slice(2);
+    const u = await getUserById(env, email).catch(function () { return null; });
+    online.push({ id: email, name: u ? (u.name || email) : email, country: rec.country || "", ts: rec.ts, ip: isSuper ? (rec.ip || "") : "" });
+  }
+  const byCountry = {};
+  log.forEach(function (e) { if (e.country) byCountry[e.country] = (byCountry[e.country] || 0) + 1; });
+  const out = { total: log.length, online: online, byCountry: byCountry, generatedAt: Date.now() };
+  if (isSuper) out.log = log.slice(0, 200);
+  return out;
+}
+async function cfAnalytics(env) {
+  if (!env.CF_API_TOKEN || !env.CF_ZONE_ID) return null;
+  try {
+    const url = "https://api.cloudflare.com/client/v4/zones/" + encodeURIComponent(env.CF_ZONE_ID) + "/analytics/dashboard?since=-1440";
+    const r = await fetch(url, { headers: { Authorization: "Bearer " + env.CF_API_TOKEN, "Content-Type": "application/json" } });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const t = j && j.result && j.result.totals;
+    if (!t) return null;
+    return { visits: t.visits, uniques: t.uniques, pageViews: t.pageViews, requests: t.requests, bytes: t.bytes };
+  } catch (e) { return null; }
+}
+
+/* ============ 好友系统 ============ */
+async function searchUsers(env, q, exceptId) {
+  q = (q || "").trim().toLowerCase();
+  if (!q) return [];
+  const list = await env.USERS.list();
+  const out = [];
+  for (const k of list.keys) {
+    if (!k.name.startsWith("u:")) continue;
+    const u = JSON.parse(await env.USERS.get(k.name));
+    const id = (u.email || u.phone || "").toLowerCase();
+    const name = (u.name || "").toLowerCase();
+    if (id === exceptId.toLowerCase() || name === exceptId.toLowerCase()) continue;
+    if (id.includes(q) || name.includes(q)) {
+      out.push({ id: u.email || u.phone, name: u.name || "", avatar: u.avatar || "" });
+      if (out.length >= 20) break;
+    }
+  }
+  return out;
+}
+async function friendView(env, me) {
+  const keys = await friendListKeys(env);
+  const friends = [], incoming = [], outgoing = [];
+  for (const key of keys) {
+    const parts = key.slice(3).split("|");
+    const other = parts[0] === me.toLowerCase() ? parts[1] : (parts[1] === me.toLowerCase() ? parts[0] : null);
+    if (!other) continue;
+    const rec = JSON.parse(await env.FRIENDS.get(key));
+    const u = await getUserById(env, other).catch(function () { return null; });
+    const p = await getPresence(env, other);
+    const item = { id: other, name: u ? (u.name || other) : other, avatar: u ? (u.avatar || "") : "", online: isOnline(p), lastSeen: p ? p.ts : null, status: rec.status, from: rec.from };
+    if (rec.status === "accepted") friends.push(item);
+    else if (rec.from === me.toLowerCase()) outgoing.push(item);
+    else incoming.push(item);
+  }
+  return { friends: friends, incoming: incoming, outgoing: outgoing };
+}
+
+/* ============ 微信登录（OAuth2 骨架；配置 WECHAT_APPID / WECHAT_APPKEY 后启用，前端默认隐藏） ============ */
+async function wxAuthStart(env, url) {
+  const appid = env.WECHAT_APPID, secret = env.WECHAT_APPKEY;
+  const frontend = url.searchParams.get("redirect") || (url.origin.replace(/^https?:\/\/api\./, "https://") + "/forum.html");
+  if (!appid || !secret) {
+    const sep = frontend.includes("?") ? "&" : "?";
+    return Response.redirect(frontend + sep + "wx_error=not_configured", 302);
+  }
+  const state = randToken();
+  await env.CODES.put("wxstate:" + state, frontend, { expirationTtl: 600 });
+  const cb = url.origin + "/api/auth/wechat/callback";
+  const authUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=" + encodeURIComponent(appid) +
+    "&redirect_uri=" + encodeURIComponent(cb) + "&response_type=code&scope=snsapi_login&state=" + state;
+  return Response.redirect(authUrl, 302);
+}
+async function wxAuthCallback(env, url) {
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const appid = env.WECHAT_APPID, secret = env.WECHAT_APPKEY;
+  let frontend = url.origin.replace(/^https?:\/\/api\./, "https://") + "/forum.html";
+  if (code && state && appid && secret) {
+    const saved = await env.CODES.get("wxstate:" + state);
+    if (saved) { await env.CODES.delete("wxstate:" + state); frontend = saved; }
+    try {
+      const tokUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + encodeURIComponent(appid) +
+        "&secret=" + encodeURIComponent(secret) + "&code=" + encodeURIComponent(code) + "&grant_type=authorization_code";
+      const tok = await (await fetch(tokUrl)).json();
+      if (tok && tok.access_token && tok.openid) {
+        const uiUrl = "https://api.weixin.qq.com/sns/userinfo?access_token=" + encodeURIComponent(tok.access_token) + "&openid=" + encodeURIComponent(tok.openid);
+        const ui = await (await fetch(uiUrl)).json().catch(function () { return {}; });
+        const wid = "wx:" + tok.openid;
+        let user = await getUserById(env, wid);
+        if (!user) {
+          user = { email: wid, phone: "", role: "user", oauth: "wechat", name: ui.nickname || "微信用户", avatar: ui.headimgurl || "", disabled: false };
+          await putUser(env, user);
+        }
+        const token = await createSession(env, wid, "user");
+        const sep = frontend.includes("?") ? "&" : "?";
+        return Response.redirect(frontend + sep + "token=" + encodeURIComponent(token) + "&id=" + encodeURIComponent(user.name || "微信用户") + "&role=user", 302);
+      }
+    } catch (e) {}
+  }
+  const sep = frontend.includes("?") ? "&" : "?";
+  return Response.redirect(frontend + sep + "wx_error=auth_failed", 302);
 }
 
 /* ============ 业务逻辑 ============ */
@@ -321,6 +486,10 @@ async function adminLogin(env, body) {
   if (!id) return json({ error: "缺少账号" }, 400);
   const user = await getUserById(env, id);
   if (!user || user.disabled) return json({ error: "账号不存在或已禁用" }, 401);
+  // 总管理员仅支持密码登录，不支持验证码
+  if (user.role === "super" && body.code) {
+    return json({ error: "总管理员仅支持密码登录，不支持验证码" }, 400);
+  }
 
   let ok = false;
   if (body.code) {
@@ -695,6 +864,17 @@ async function handle(request, env) {
     return json({ error: "请求体不是合法 JSON" }, 400);
   }
 
+  /* 访问日志：记录页面与 API 请求（跳过 css/js/图片等静态资源） */
+  try {
+    const skipStatic = /\.(css|js|svg|jpg|jpeg|png|gif|ico|woff2?|ttf|json|webmanifest)$/i.test(p);
+    if (!skipStatic) {
+      const ua = request.headers.get("user-agent") || "";
+      const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
+      const country = (request.cf && request.cf.country) || "";
+      await recordAccess(env, { ts: Date.now(), ip: ip, country: country, path: p, ua: ua });
+    }
+  } catch (e) {}
+
   try {
     if (p === "/api/send-code" && request.method === "POST") return await sendCode(env, body);
     if (p === "/api/admin-login" && request.method === "POST") return await adminLogin(env, body);
@@ -712,7 +892,11 @@ async function handle(request, env) {
     if (p === "/api/me" && request.method === "GET") {
       const s = await getSession(env, request);
       if (!s) return json({ error: "未登录" }, 401);
-      return json({ role: s.role, email: s.email });
+      const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
+      const country = (request.cf && request.cf.country) || "";
+      await updatePresence(env, s.email, { ip: ip, country: country });
+      const u = await getUserById(env, s.email);
+      return json({ role: s.role, email: s.email, name: u ? (u.name || "") : "", avatar: u ? (u.avatar || "") : "" });
     }
 
     if (p === "/api/admin/users" && request.method === "GET") {
@@ -843,6 +1027,101 @@ async function handle(request, env) {
     if (p === "/api/search" && request.method === "GET") {
       return await searchContent(env, url.searchParams.get("q") || "");
     }
+
+    /* —— 访问日志（仅后台管理员；总管理员看完整含 IP，分管理员看汇总与国家分布） —— */
+    if (p === "/api/admin/access" && request.method === "GET") {
+      const s = await requireStaff(env, request);
+      const data = await listAccess(env, s.role === "super");
+      const cf = await cfAnalytics(env);
+      if (cf) data.cloudflare = cf;
+      return json(data);
+    }
+
+    /* —— 好友系统（登录用户） —— */
+    if (p === "/api/friends" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      return json(await friendView(env, s.email));
+    }
+    if (p === "/api/friends/search" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      return json({ users: await searchUsers(env, url.searchParams.get("q") || "", s.email) });
+    }
+    if (p === "/api/friends/request" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      const to = (body.to || "").trim().toLowerCase();
+      if (!to) return json({ error: "请填写对方账号" }, 400);
+      if (to === s.email.toLowerCase()) return json({ error: "不能添加自己为好友" }, 400);
+      if (await getFriend(env, s.email, to)) return json({ error: "已存在好友关系或请求" }, 400);
+      if (!(await getUserById(env, to))) return json({ error: "该用户不存在" }, 400);
+      await putFriend(env, s.email, to, { status: "pending", from: s.email.toLowerCase(), at: Date.now() });
+      return json({ ok: true });
+    }
+    if (p === "/api/friends/respond" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      const from = (body.from || "").trim().toLowerCase();
+      const action = (body.action || "").trim();
+      const rec = await getFriend(env, s.email, from);
+      if (!rec) return json({ error: "请求不存在" }, 404);
+      if (rec.from !== s.email.toLowerCase()) return json({ error: "无权操作该请求" }, 403);
+      if (action === "accept") { rec.status = "accepted"; await putFriend(env, s.email, from, rec); return json({ ok: true }); }
+      if (action === "reject") { await delFriend(env, s.email, from); return json({ ok: true }); }
+      return json({ error: "操作无效" }, 400);
+    }
+    if (p.startsWith("/api/friends/") && p.length > "/api/friends/".length) {
+      const s = await requireLogin(env, request);
+      const id = decodeURIComponent(p.slice("/api/friends/".length));
+      await delFriend(env, s.email, id);
+      return json({ ok: true });
+    }
+
+    /* —— 私聊（仅好友间） —— */
+    if (p === "/api/messages" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      const withId = (url.searchParams.get("with") || "").trim();
+      if (!withId) return json({ error: "缺少 with" }, 400);
+      const fr = await getFriend(env, s.email, withId);
+      if (!fr || fr.status !== "accepted") return json({ error: "你们还不是好友" }, 403);
+      return json({ messages: await getMessages(env, s.email, withId) });
+    }
+    if (p === "/api/messages" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      const to = (body.to || "").trim();
+      const text = (body.text || "").trim();
+      if (!to || !text) return json({ error: "缺少收件人或内容" }, 400);
+      const fr = await getFriend(env, s.email, to);
+      if (!fr || fr.status !== "accepted") return json({ error: "你们还不是好友，无法私聊" }, 403);
+      const msg = { from: s.email.toLowerCase(), to: to.toLowerCase(), text: text, ts: Date.now() };
+      await pushMessage(env, s.email, to, msg);
+      return json({ ok: true, message: msg });
+    }
+
+    /* —— 头像上传（JPG，存 KV）与读取 —— */
+    if (p === "/api/user/avatar" && request.method === "PUT") {
+      const s = await requireLogin(env, request);
+      const img = body.image || "";
+      const m = String(img).match(/^data:([^;]+);base64,(.+)$/);
+      if (!m) return json({ error: "头像格式不正确（需图片 base64）" }, 400);
+      const ct = m[1] || "image/jpeg";
+      const bin = b64decodeBytes(m[2]);
+      if (!bin || bin.length > 2 * 1024 * 1024) return json({ error: "头像过大（限 2MB）" }, 400);
+      await env.AVATARS.put("av:" + s.email.toLowerCase(), bin, { metadata: { contentType: ct } });
+      const url2 = url.origin + "/api/user/avatar/" + encodeURIComponent(s.email);
+      const u = await getUserById(env, s.email);
+      if (u) { u.avatar = url2; await putUser(env, u); }
+      return json({ ok: true, url: url2 });
+    }
+    if (p.startsWith("/api/user/avatar/") && request.method === "GET") {
+      const id = decodeURIComponent(p.slice("/api/user/avatar/".length));
+      const bin = await env.AVATARS.get("av:" + id.toLowerCase(), "arrayBuffer");
+      if (!bin) return new Response("Not Found", { status: 404 });
+      const meta = await env.AVATARS.getWithMetadata("av:" + id.toLowerCase());
+      const ct = (meta && meta.metadata && meta.metadata.contentType) || "image/jpeg";
+      return new Response(bin, { headers: { "Content-Type": ct, ...CORS } });
+    }
+
+    /* —— 微信登录（OAuth2 骨架；配置 WECHAT_APPID / WECHAT_APPKEY 后启用，前端默认隐藏） —— */
+    if (p === "/api/auth/wechat" && request.method === "GET") return await wxAuthStart(env, url);
+    if (p === "/api/auth/wechat/callback" && request.method === "GET") return await wxAuthCallback(env, url);
 
     return json({ error: "Not Found" }, 404);
   } catch (e) {

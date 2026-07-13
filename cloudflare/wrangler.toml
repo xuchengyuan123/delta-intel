@@ -44,6 +44,29 @@ id = "fafe07e44ad44ab6a1e3a5b09a592f6a"
 binding = "COMMENTS"
 id = "9292c66643eb468e80f5ca4e0a3bfae8"
 
+# ===== 新增 KV（访问日志 / 在线状态 / 好友 / 私聊 / 头像） =====
+# 创建命令（逐条执行，把返回的 id 替换下面的占位符）：
+#   wrangler kv namespace create ACCESS
+#   wrangler kv namespace create PRESENCE
+#   wrangler kv namespace create FRIENDS
+#   wrangler kv namespace create MESSAGES
+#   wrangler kv namespace create AVATARS
+[[kv_namespaces]]
+binding = "ACCESS"
+id = "000000000000000000000000000000a1"
+[[kv_namespaces]]
+binding = "PRESENCE"
+id = "000000000000000000000000000000a2"
+[[kv_namespaces]]
+binding = "FRIENDS"
+id = "000000000000000000000000000000a3"
+[[kv_namespaces]]
+binding = "MESSAGES"
+id = "000000000000000000000000000000a4"
+[[kv_namespaces]]
+binding = "AVATARS"
+id = "000000000000000000000000000000a5"
+
 # ===== 邮件发送（Cloudflare 自带 MailChannels，免费、无需第三方账号） =====
 # 前提：delta.shopping 已在 Cloudflare 控制台开启 Email Routing 并加好 SPF/DKIM（开启时自动生成）。
 # from 必须是本域名地址（noreply@delta.shopping），且域名已开启邮件路由，否则发送会被拒。
@@ -61,6 +84,14 @@ destination_address = "noreply@delta.shopping"
 #   wrangler secret put EMAILJS_SERVICE_ID
 #   wrangler secret put EMAILJS_TEMPLATE_ID
 #   wrangler secret put EMAILJS_PUBLIC_KEY
+#
+# 可选：微信登录（前端默认隐藏，配置后才开放）
+#   wrangler secret put WECHAT_APPID     # 微信开放平台「网站应用」AppID
+#   wrangler secret put WECHAT_APPKEY    # 微信开放平台「网站应用」AppSecret
+#
+# 可选：Cloudflare 访问分析（浏览记录页的国家/访问量增强；不配则仅用 Worker 自记日志）
+#   wrangler secret put CF_API_TOKEN     # Cloudflare API Token（需 Zone:Read 权限）
+#   wrangler secret put CF_ZONE_ID       # delta.shopping 的 Zone ID
 
 # ===== 自定义域名（绕过 workers.dev 在大陆被墙，国内可访问） =====
 # 前提：delta.shopping 已在 Cloudflare 添加为站点（NS 已切到 Cloudflare），且 zone 已 Active。

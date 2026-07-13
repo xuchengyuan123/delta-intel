@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>个人主页 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/style.css?v=21">
   <style>
     .field { margin-bottom: 10px; }
     .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
@@ -43,7 +43,13 @@
         </div>
       </div>
       <div class="field"><label>昵称</label><input id="edName" placeholder="昵称（最多 30 字）" /></div>
-      <div class="field"><label>头像链接</label><input id="edAvatar" placeholder="https://… 图片 URL" /></div>
+      <div class="field"><label>头像链接</label><input id="edAvatar" placeholder="https://… 图片 URL" />
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <input type="file" accept="image/*" id="avatarFile" />
+          <button id="avatarUploadBtn" class="btn ghost sm">上传头像</button>
+          <img id="avatarPreview" alt="预览" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--border);display:none" />
+        </div>
+      </div>
       <div class="field"><label>个人简介</label><textarea id="edBio" placeholder="一句话介绍自己（最多 300 字）"></textarea></div>
       <div class="row" style="display:flex;gap:8px"><button class="btn" id="saveBtn">保存资料</button></div>
 
@@ -56,7 +62,7 @@
     </div>
   </div>
 
-  <script src="js/site-common.js?v=20"></script>
+  <script src="js/site-common.js?v=21"></script>
   <script>
     var D = window.DeltaCommon;
     function setMsg(html, ok) {
@@ -113,6 +119,29 @@
         });
       }).catch(function () { box.innerHTML = '<div class="status err">帖子加载失败</div>'; });
     }
+
+    document.getElementById("avatarUploadBtn").addEventListener("click", function () {
+      var file = document.getElementById("avatarFile").files[0];
+      if (!file) { setMsg("请选择图片"); return; }
+      if (!file.type || file.type.indexOf("image/") !== 0) { setMsg("仅支持图片文件"); return; }
+      if (file.size > 2 * 1024 * 1024) { setMsg("图片过大（限 2MB）"); return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var dataURL = reader.result;
+        D.uploadAvatar(dataURL).then(function (j) {
+          if (j && j.ok) {
+            document.getElementById("edAvatar").value = j.url;
+            var prev = document.getElementById("avatarPreview");
+            prev.src = j.url; prev.style.display = "inline-block";
+            setMsg("头像已上传，点保存生效", true);
+          } else {
+            setMsg((j && j.error) || "上传失败");
+          }
+        }).catch(function (e) { setMsg((e && e.message) || "上传失败"); });
+      };
+      reader.onerror = function () { setMsg("读取图片失败"); };
+      reader.readAsDataURL(file);
+    });
 
     document.getElementById("saveBtn").addEventListener("click", function () {
       var name = document.getElementById("edName").value.trim();

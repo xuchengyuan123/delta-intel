@@ -5,7 +5,7 @@
  *  - GitHub API 等跨域请求 → 直接走网络
  * 每次大版本更新请同步修改 CACHE 名称与 HTML 里的 sw.js?v= 版本。
  */
-const CACHE = "delta-intel-v20";
+const CACHE = "delta-intel-v21";
 const SHELL = [
   "index.html",
   "forum.html",

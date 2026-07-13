@@ -98,9 +98,24 @@
     load();
   }
 
+  /* ===== 好友 / 私聊 / 头像 / 在线状态 ===== */
+  function me() { return api("/api/me", { method: "GET" }); }
+  function friends() { return api("/api/friends", { method: "GET" }); }
+  function friendSearch(q) { return api("/api/friends/search?q=" + encodeURIComponent(q || ""), { method: "GET" }); }
+  function friendRequest(to) { return api("/api/friends/request", { method: "POST", body: JSON.stringify({ to: to }) }); }
+  function friendRespond(from, action) { return api("/api/friends/respond", { method: "POST", body: JSON.stringify({ from: from, action: action }) }); }
+  function friendRemove(id) { return api("/api/friends/" + encodeURIComponent(id), { method: "DELETE" }); }
+  function messages(withId) { return api("/api/messages?with=" + encodeURIComponent(withId), { method: "GET" }); }
+  function sendMessage(to, text) { return api("/api/messages", { method: "POST", body: JSON.stringify({ to: to, text: text }) }); }
+  function uploadAvatar(dataUrl) { return api("/api/user/avatar", { method: "PUT", body: JSON.stringify({ image: dataUrl }) }); }
+  function poll(fn, ms) { if (typeof fn !== "function") return null; var t = setInterval(fn, ms || 20000); fn(); return t; }
+
   window.DeltaCommon = {
     API: API, api: api, getToken: getToken, getId: getId, getRole: getRole, isLogin: isLogin,
-    esc: esc, fmt: fmt, renderAnnouncements: renderAnnouncements, mountComments: mountComments
+    esc: esc, fmt: fmt, renderAnnouncements: renderAnnouncements, mountComments: mountComments,
+    me: me, friends: friends, friendSearch: friendSearch, friendRequest: friendRequest,
+    friendRespond: friendRespond, friendRemove: friendRemove, messages: messages,
+    sendMessage: sendMessage, uploadAvatar: uploadAvatar, poll: poll
   };
 
   // 页面加载后自动渲染公告横幅

@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/style.css?v=21">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=20"></script>
+  <script src="js/art.js?v=21"></script>
+  <script defer src="js/i18n.js?v=21"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -208,24 +209,7 @@
     var DELTA_API = "";
     var dataSha = "";
 
-    /* ===== 仅支持电脑端登录：移动端/触屏设备直接拦截 ===== */
-    function isMobileDevice() {
-      var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      var small = window.innerWidth < 1024;
-      var touch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
-      return coarse || (small && touch);
-    }
-    if (isMobileDevice()) {
-      document.body.innerHTML =
-        '<div class="mobile-block">' +
-          '<div class="mb-icon">💻</div>' +
-          '<h1>管理后台仅支持电脑端</h1>' +
-          '<p>为保障账号与数据安全，三角洲情报台管理后台仅允许在电脑（桌面）浏览器上登录使用。</p>' +
-          '<p class="mb-hint">请使用 Windows / macOS / Linux 电脑上的 Chrome、Edge、Firefox 等桌面浏览器打开本页面。</p>' +
-          '<a class="mb-back" href="index.html">← 返回网站首页</a>' +
-        "</div>";
-      return;
-    }
+    /* ===== 移动端支持：管理员可在手机浏览器登录与使用（已取消「仅限电脑」限制） ===== */
 
     /* ===== 角色定义 ===== */
     var ROLES = {
@@ -273,6 +257,7 @@
       liveprice: { label: "实时物价源", icon: "💹", title: "实时物价接口（真实成交价）", sub: "配置前台「资料库·实时物价」调用的免费公开接口（默认 caiweilv/DeltaForcePrice，游戏内交易行真实成交价）。可关闭或替换为其他兼容 JSON 源。", mount: mountLivePrice },
       mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass },
       subadmins: { label: "分管理员管理", icon: "🛡", title: "分管理员账号管理", sub: "创建与查看分管理员账号（写入 Cloudflare Worker 的 KV）。分管理员可用「邮箱/手机号 + 密码或验证码」登录后台。需在「分管理员·账号」标签页以总管理员身份登录 Worker 后使用。", mount: mountSubAdmins },
+      access:   { label: "浏览记录", icon: "📡", title: "浏览记录（真实访问数据）", sub: "仅管理员可见。展示真实访客数据：谁在线、谁访问、来自哪些国家/地区。数据来自 Cloudflare Worker 自记日志（可选叠加 Cloudflare Analytics）。", mount: mountAccess },
       site:       { label: "站点设置", icon: "⚙", title: "站点设置（站名/赞助/主题色）", sub: "维护全站基础信息：站名、赞助链接、辅助主题色。保存后前台即时生效。", mount: mountSite },
       guides:     { label: "新手攻略", icon: "🧭", title: "新手攻略管理", sub: "维护前台「新手攻略」的引导语与各模块卡片。", mount: mountGuides },
       craft:      { label: "制作树", icon: "🌲", title: "制作树管理", sub: "维护前台「制作树」的节点（产物/材料）与连线。", mount: mountCraft },
@@ -290,7 +275,7 @@
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
     var PANEL_GROUPS = [
-      { name: "总览与账号",   panels: ["dashboard", "subadmins"] },
+      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images"] },
@@ -736,6 +721,67 @@
           .catch(function () { msg.className = "msg err"; msg.textContent = "创建失败，请检查 Worker 地址。"; });
       });
       loadList();
+    }
+
+    /* ============ 浏览记录（真实访问数据） ============ */
+    function mountAccess(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需以管理员身份登录 Worker 后使用。</div>';
+        return;
+      }
+      var isSuper = activeRole === "super";
+      function dot(online) { return '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:' + (online ? "#3ddc84" : "#888") + '"></span>'; }
+      function render(data) {
+        data = data || {};
+        var online = data.online || [];
+        var byCountry = data.byCountry || {};
+        var cf = data.cloudflare;
+        var html = "";
+        html += '<div class="panel-card" style="margin-bottom:14px"><h3>📡 实时概览</h3><div class="sa-form" style="display:flex;gap:18px;flex-wrap:wrap">';
+        html += '<div><div style="font-size:24px;font-weight:700;color:var(--accent)">' + online.length + '</div><div class="panel-tip">当前在线</div></div>';
+        html += '<div><div style="font-size:24px;font-weight:700">' + (data.total || 0) + '</div><div class="panel-tip">累计访问记录</div></div>';
+        if (cf) {
+          html += '<div><div style="font-size:24px;font-weight:700">' + (cf.visits || 0) + '</div><div class="panel-tip">Cloudflare 访问量(24h)</div></div>';
+          html += '<div><div style="font-size:24px;font-weight:700">' + (cf.uniques || 0) + '</div><div class="panel-tip">独立访客(24h)</div></div>';
+        }
+        html += '</div></div>';
+        var countries = Object.keys(byCountry).sort(function (a, b) { return byCountry[b] - byCountry[a]; });
+        if (countries.length) {
+          html += '<div class="panel-card" style="margin-bottom:14px"><h3>🌍 访问来源国家/地区</h3><div class="ui-role-grid">';
+          html += countries.map(function (k) {
+            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(k) + '</div><div style="color:var(--accent);font-weight:700">' + byCountry[k] + '</div></div>';
+          }).join("");
+          html += '</div></div>';
+        }
+        if (online.length) {
+          html += '<div class="panel-card" style="margin-bottom:14px"><h3>🟢 在线用户</h3><div class="ui-role-grid">';
+          html += online.map(function (u) {
+            return '<div class="ui-role-row"><div class="ui-role-name">' + dot(true) + esc(u.name || u.id) +
+              '<br><small style="color:var(--muted)">' + esc(u.country || "未知地区") + (u.ip && isSuper ? " · " + esc(u.ip) : "") + '</small></div></div>';
+          }).join("");
+          html += '</div></div>';
+        }
+        if (isSuper && data.log && data.log.length) {
+          html += '<div class="panel-card"><h3>📜 访问明细（仅总管理员可见，含 IP）</h3><div style="max-height:360px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--muted)"><th style="padding:4px 6px">时间</th><th style="padding:4px 6px">IP</th><th style="padding:4px 6px">国家</th><th style="padding:4px 6px">路径</th></tr></thead><tbody>';
+          html += data.log.map(function (e) {
+            return '<tr style="border-top:1px solid var(--border)"><td style="padding:4px 6px">' + fmt(e.ts) + '</td><td style="padding:4px 6px">' + esc(e.ip || "") + '</td><td style="padding:4px 6px">' + esc(e.country || "") + '</td><td style="padding:4px 6px">' + esc(e.path || "") + '</td></tr>';
+          }).join("");
+          html += '</tbody></table></div></div>';
+        } else if (!isSuper) {
+          html += '<div class="panel-tip" style="margin-top:8px">分管理员仅可查看在线与地区汇总；完整 IP 明细仅总管理员可见。</div>';
+        }
+        c.innerHTML = html;
+      }
+      function load() {
+        wkFetch("/api/admin/access").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
+          render(j);
+        }).catch(function () { c.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败，请检查 Worker 地址。</div>'; });
+      }
+      c.innerHTML = '<div class="status">加载中…</div>';
+      load();
+      if (window.__accessTimer) clearInterval(window.__accessTimer);
+      window.__accessTimer = setInterval(load, 20000);
     }
 
     /* ============ 总览仪表盘 ============ */

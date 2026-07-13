@@ -1,0 +1,65 @@
+===== 三角洲情报台 · 重新部署 Worker（修复 CORS 报错）=====
+
+【问题现象】
+浏览器控制台报：
+  Access to fetch at 'https://api.delta.shopping/api/user/profile/me' from origin
+  'https://delta.shopping' has been blocked by CORS policy:
+  No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  /api/announce 同理报错。
+
+【根因】
+线上 Cloudflare Worker 跑的是【旧版本】：
+  - 不认识 /api/announce、/api/user/profile/me、/api/user/login 等新路由
+    → 全部返回 404
+  - 旧版 404 响应没有带 Access-Control-Allow-Origin 头
+    → 浏览器因 CORS 拦截（即使接口其实"通了"）
+==> 前端的 docs/ 代码是正确的（已改好、已调 Worker），问题只在后端 Worker 没部署最新版。
+
+【证据（实测）】
+  curl -s -D - https://api.delta.shopping/api/announce
+  → HTTP/1.1 404 Not Found，响应头里【没有】Access-Control-Allow-Origin
+  （本地 cloudflare/worker.js 里 CORS 常量是 "*"，且 /api/announce
+   等路由都在，说明这份源码是对的，只是没部署上去）
+
+【修复：把 cloudflare/worker.js 重新部署一次】
+
+方式 A · 你有 Node + wrangler（推荐，一条命令）：
+  1) 打开终端，进入 cloudflare 目录：
+       cd "C:\Users\徐承远\Desktop\三角洲情报台-上传包\cloudflare"
+  2) 若还没登录 Cloudflare：
+       npx wrangler login
+     （浏览器会打开，用你的 Cloudflare 邮箱账号授权）
+  3) 部署：
+       npx wrangler deploy
+   （KV 命名空间、Secrets(GH_TOKEN/SUPER_EMAIL/SUPER_PASSWORD 等)、
+     自定义域名 api.delta.shopping 都已配好，wrangler.toml 里写死了，
+     无需重设，直接 deploy 即可）
+
+方式 B · 你没装 Node/wrangler（纯网页）：
+  1) 打开 cloudflare/worker.js，全选复制（Ctrl+A → Ctrl+C）
+  2) 登录 Cloudflare 控制台 → Workers & Pages → 选 delta-intel-auth
+     → 点 "Edit code"（或 Quick Edit）
+  3) 把编辑器里旧代码全部清空，粘贴新 worker.js → Save & Deploy
+  4) 部署后等 10~30 秒生效
+
+【部署后验证（用 Git Bash / 任意终端）】
+  正常应返回 HTTP 200 + JSON + 带 CORS 头：
+  curl -s -D - -A "Mozilla/5.0" https://api.delta.shopping/api/announce
+  看响应头里是否有：
+    access-control-allow-origin: *
+
+  同时验证这几条都应 200/401（带 CORS），而不是 404：
+  curl -s -A "Mozilla/5.0" https://api.delta.shopping/api/user/profile/me
+  curl -s -A "Mozilla/5.0" https://api.delta.shopping/api/forum/posts
+
+【前端要不要动？】
+不用。docs/ 下的 index.html、forum.html、profile.html、admin.html
+都已经改好（无 GitHub Token 登录、无互动地图入口、调 Worker 端点）。
+你之前看到的"Token tab / 地图链接 / 旧登录界面"是浏览器 + Service Worker
+缓存的旧版，部署完 Worker 后，在前台页面按 Ctrl+F5 强制刷新即可看到新版。
+
+【如果你还看到某处 "token" 字样】
+前台 localStorage 里存的 di_user_token 是【本站用户会话令牌】，不是 GitHub
+Token，这是正常的。GitHub Token 登录入口已经从后台和前台都删掉了。
+若仍看到 GitHub Token 输入框，100% 是缓存——强制刷新（Ctrl+F5）或
+F12 → 应用 → 清除 Service Worker / 站点数据，再刷新即可。
