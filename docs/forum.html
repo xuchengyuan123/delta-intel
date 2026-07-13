@@ -93,6 +93,12 @@
         <div class="tab" id="tabReg">注册</div>
       </div>
 
+      <div class="oauth-box">
+        <button class="btn qq-btn" id="qqLoginBtn" type="button" style="background:#12b7f5;color:#fff;border:none;">🔵 使用 QQ 登录</button>
+        <p class="note">QQ 登录需在 <a href="https://connect.qq.com" target="_blank" rel="noopener">QQ 互联</a> 实名注册应用并配置后端后开放（当前暂未开通）。</p>
+      </div>
+      <div class="divider" style="text-align:center;color:var(--muted);margin:14px 0;font-size:12px;position:relative;"><span style="background:var(--bg);padding:0 10px;">或 使用本站账号</span></div>
+
       <!-- 登录表单 -->
       <div id="loginForm">
         <input id="loginId" placeholder="邮箱或手机号" />
@@ -382,6 +388,35 @@
     });
 
     document.getElementById("moreBtn").addEventListener("click", function () { loadPosts(false); });
+
+    /* ===== QQ 登录（OAuth 回调接收） ===== */
+    (function handleQQCallback() {
+      try {
+        var q = new URLSearchParams(location.search);
+        var tk = q.get("token"), uid = q.get("id"), ur = q.get("role"), qe = q.get("qq_error");
+        if (tk) {
+          setToken(tk);
+          if (uid) setId(uid);
+          if (ur) setRole(ur);
+          history.replaceState(null, "", location.pathname);
+          renderAuth();
+          loadPosts(true);
+        }
+        if (qe) {
+          var msg = qe === "not_configured"
+            ? "QQ 登录暂未开通：后端尚未配置 QQ 互联 AppID / AppKey（需在 connect.qq.com 实名注册应用）。"
+            : ("QQ 登录失败：" + qe);
+          setMsg(msg, false);
+        }
+      } catch (e) {}
+    })();
+
+    document.getElementById("qqLoginBtn").addEventListener("click", function () {
+      try {
+        var redir = location.origin + "/forum.html";
+        location.href = API + "/api/auth/qq?redirect=" + encodeURIComponent(redir);
+      } catch (e) { setMsg("跳转 QQ 登录失败"); }
+    });
 
     /* ===== 启动 ===== */
     renderAuth();

@@ -25,7 +25,7 @@
       </div>
       <div class="topbar-right">
         <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
-        <a class="icon-btn" href="forum.html" title="战友论坛" style="display:inline-flex;gap:4px;padding:0 10px;width:auto;"><span>💬</span><span style="font-size:12px;">论坛</span></a>
+        <a class="icon-btn" id="authBtn" href="forum.html" title="登录 / 注册" style="display:inline-flex;gap:4px;padding:0 10px;width:auto;"><span>🔑</span><span id="authBtnText" style="font-size:12px;">登录/注册</span></a>
         <a class="icon-btn" href="admin.html" title="管理后台" style="display:inline-flex;gap:4px;padding:0 10px;width:auto;"><span>🛡</span><span style="font-size:12px;">后台</span></a>
       </div>
     </header>
@@ -64,5 +64,19 @@
   <script defer src="js/analytics.js?v=15"></script>
   <script defer src="js/liveprice.js?v=15"></script>
   <script defer src="js/mappass.js?v=15"></script>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("di_user_token");
+        var id = localStorage.getItem("di_user_id") || "";
+        var txt = document.getElementById("authBtnText");
+        var a = document.getElementById("authBtn");
+        if (t && id) {
+          txt.textContent = id.length > 12 ? id.slice(0, 12) + "…" : id;
+          a.title = "进入论坛 / 退出登录";
+        }
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

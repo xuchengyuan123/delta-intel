@@ -82,6 +82,23 @@ function b64decodeUtf8(b64) {
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return new TextDecoder().decode(bytes);
 }
+// 解析 "k=v&k2=v2"（QQ token 接口返回格式）
+function parseQueryString(str) {
+  const out = {};
+  String(str || "").split("&").forEach(function (kv) {
+    const i = kv.indexOf("=");
+    if (i < 0) return;
+    const k = kv.slice(0, i);
+    const v = kv.slice(i + 1);
+    if (k) out[k] = decodeURIComponent(v.replace(/\+/g, " "));
+  });
+  return out;
+}
+// 从 "callback({ ... })" 文本中提取 openid
+function extractOpenid(text) {
+  const m = String(text || "").match(/["']?openid["']?\s*:\s*["']([^"']+)["']/);
+  return m ? m[1] : null;
+}
 
 /* ============ 用户存储（KV: USERS） ============ */
 async function getUserById(env, id) {
@@ -205,6 +222,63 @@ async function ghPutFile(env, path, contentB64, message) {
 }
 
 /* ============ 业务逻辑 ============ */
+async function qqAuthStart(env, url) {
+  const appid = env.QQ_APPID, appkey = env.QQ_APPKEY;
+  const frontend = url.searchParams.get("redirect") || (url.origin.replace(/^https?:\/\/api\./, "https://") + "/forum.html");
+  if (!appid || !appkey) {
+    const sep = frontend.includes("?") ? "&" : "?";
+    return Response.redirect(frontend + sep + "qq_error=not_configured", 302);
+  }
+  const state = randToken();
+  await env.CODES.put("qqstate:" + state, frontend, { expirationTtl: 600 });
+  const cb = url.origin + "/api/auth/qq/callback";
+  const authUrl = "https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=" +
+    encodeURIComponent(appid) + "&redirect_uri=" + encodeURIComponent(cb) +
+    "&state=" + state + "&scope=get_user_info";
+  return Response.redirect(authUrl, 302);
+}
+
+async function qqAuthCallback(env, url) {
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const appid = env.QQ_APPID, appkey = env.QQ_APPKEY;
+  let frontend = url.origin.replace(/^https?:\/\/api\./, "https://") + "/forum.html";
+  if (code && state && appid && appkey) {
+    const saved = await env.CODES.get("qqstate:" + state);
+    if (saved) { await env.CODES.delete("qqstate:" + state); frontend = saved; }
+    if (saved) {
+      try {
+        const tokenUrl = "https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id=" +
+          encodeURIComponent(appid) + "&client_secret=" + encodeURIComponent(appkey) +
+          "&code=" + encodeURIComponent(code) + "&redirect_uri=" + encodeURIComponent(url.origin + "/api/auth/qq/callback");
+        const tokText = await (await fetch(tokenUrl)).text();
+        const at = parseQueryString(tokText).access_token;
+        if (at) {
+          const meText = await (await fetch("https://graph.qq.com/oauth2.0/me?access_token=" + encodeURIComponent(at))).text();
+          const openid = extractOpenid(meText);
+          if (openid) {
+            const uiResp = await fetch("https://graph.qq.com/user/get_user_info?access_token=" +
+              encodeURIComponent(at) + "&oauth_consumer_key=" + encodeURIComponent(appid) + "&openid=" + encodeURIComponent(openid));
+            const ui = await uiResp.json().catch(function () { return {}; });
+            const qid = "qq:" + openid;
+            let user = await getUserById(env, qid);
+            if (!user) {
+              user = { email: qid, phone: "", role: "user", oauth: "qq", name: ui.nickname || "QQ用户", avatar: ui.figureurl_qq_1 || ui.figureurl || "", disabled: false };
+              await putUser(env, user);
+            }
+            const token = await createSession(env, qid, "user");
+            const sep = frontend.includes("?") ? "&" : "?";
+            return Response.redirect(frontend + sep + "token=" + encodeURIComponent(token) +
+              "&id=" + encodeURIComponent(user.name || "QQ用户") + "&role=user", 302);
+          }
+        }
+      } catch (e) {}
+    }
+  }
+  const sep = frontend.includes("?") ? "&" : "?";
+  return Response.redirect(frontend + sep + "qq_error=auth_failed", 302);
+}
+
 async function sendCode(env, body) {
   await ensureSuper(env);
   const to = (body.to || "").trim().toLowerCase();
@@ -503,6 +577,10 @@ async function handle(request, env) {
         return await deletePost(env, pid, s);
       }
     }
+
+    /* —— QQ 登录（OAuth2 骨架；需在 Cloudflare 配置 QQ_APPID / QQ_APPKEY 后启用）—— */
+    if (p === "/api/auth/qq" && request.method === "GET") return await qqAuthStart(env, url);
+    if (p === "/api/auth/qq/callback" && request.method === "GET") return await qqAuthCallback(env, url);
 
     return json({ error: "Not Found" }, 404);
   } catch (e) {
