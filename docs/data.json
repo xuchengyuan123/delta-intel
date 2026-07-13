@@ -114,81 +114,97 @@
       {
         "key": "m_poly",
         "text": "聚乙烯纤维",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_ceramic",
         "text": "陶瓷插板",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_kevlar",
         "text": "凯夫拉纤维",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_bandage",
         "text": "医用绷带",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_sedative",
         "text": "镇静剂",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_alubox",
         "text": "铝合金箱",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_battery",
         "text": "电池",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_alu",
         "text": "铝合金",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_optic",
         "text": "光学镜片",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_case",
         "text": "弹壳",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_powder",
         "text": "发射药",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_bullet",
         "text": "弹头",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_aluingot",
         "text": "铝合金锭",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_aluore",
         "text": "铝矿",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_polymer",
         "text": "聚合物",
+        "station": "",
         "cat": "material"
       },
       {
         "key": "m_oil",
         "text": "原油",
+        "station": "",
         "cat": "material"
       }
     ],
@@ -322,6 +338,11 @@
     "art": {}
   },
   "adminLog": [
+    {
+      "time": "2026-07-13 15:19",
+      "role": "总管理员",
+      "action": "更新制作树（20 节点）"
+    },
     {
       "time": "2026-07-13 15:13",
       "role": "总管理员",
