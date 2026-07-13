@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>互动地图 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="description" content="三角洲情报台互动地图 — 多地图切换、缩放拖拽、标点分类筛选、搜索定位">
+  <meta name="theme-color" content="#0f1115">
+  <link rel="manifest" href="manifest.webmanifest?v=17">
+  <link rel="icon" href="icon.svg?v=17">
+  <link rel="stylesheet" href="css/style.css?v=17">
+</head>
+<body>
+  <div id="siteAnnounce" class="site-announce"></div>
+  <div class="layout">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn menu-toggle" id="menuToggle" title="菜单">☰</button>
+        <span class="logo">三角洲<span class="logo-accent">情报台</span></span>
+        <span class="brand-en">DeltaIntel</span>
+      </div>
+      <div class="topbar-right">
+        <a class="icon-btn" href="index.html" title="首页">🏠</a>
+        <a class="icon-btn" href="forum.html" title="论坛">💬</a>
+        <a class="icon-btn" href="ugc.html" title="用户投稿">📝</a>
+        <a class="icon-btn" href="profile.html" title="我的主页">👤</a>
+        <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
+        <a class="icon-btn" id="authBtn" href="forum.html" title="登录 / 注册">🔑</a>
+      </div>
+    </header>
+
+    <main class="content map-page">
+      <div class="map-head">
+        <h1>互动地图</h1>
+        <p class="map-sub">仿《三角洲行动》官方地图工具 · 多地图切换 / 滚轮缩放·拖拽平移 / 标点分类筛选 / 搜索定位 / 分层查看</p>
+      </div>
+
+      <div class="map-tabs" id="mapTabs"><!-- JS 注入地图切换 --></div>
+
+      <div class="map-body">
+        <aside class="map-side">
+          <div class="map-search">
+            <input id="mapSearch" placeholder="搜索标点（如：保险箱 / 撤离 / 首领）" />
+          </div>
+          <div class="map-filters" id="mapFilters"><!-- JS 注入分类开关 --></div>
+          <div class="map-legend" id="mapLegend">点击标点或列表项查看详情</div>
+          <div class="map-list" id="mapList"><!-- JS 注入标点列表 --></div>
+        </aside>
+
+        <section class="map-stage" id="mapStage">
+          <div class="map-layer noimg" id="mapLayer"><!-- 底图 + 标点由 JS 注入 --></div>
+          <div class="map-controls">
+            <button id="zoomIn" title="放大">＋</button>
+            <button id="zoomOut" title="缩小">－</button>
+            <button id="zoomReset" title="复位">⟳</button>
+          </div>
+          <div class="map-floors" id="mapFloors"><!-- 分层切换（如有） --></div>
+          <div class="map-popup" id="mapPopup" style="display:none">
+            <button class="map-popup-close" id="popupClose" title="关闭">×</button>
+            <div class="map-popup-cat" id="popupCat"></div>
+            <div class="map-popup-title" id="popupTitle"></div>
+            <div class="map-popup-desc" id="popupDesc"></div>
+          </div>
+          <div class="map-hint">滚轮缩放 · 拖拽平移 · 点击标点看详情</div>
+        </section>
+      </div>
+
+      <p class="map-foot">示例数据，坐标持续完善中。真实地图图与标点请在 <code>js/map.js</code> 的 <code>MAPS</code> 中替换（<code>image</code> 填图片 URL，<code>floors</code> 填分层）。</p>
+    </main>
+  </div>
+
+  <script src="js/site-common.js?v=17"></script>
+  <script src="js/map.js?v=17"></script>
+</body>
+</html>

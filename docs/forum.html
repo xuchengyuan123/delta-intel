@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -95,10 +95,10 @@
       </div>
 
       <div class="oauth-box">
-        <button class="btn qq-btn" id="qqLoginBtn" type="button" style="background:#12b7f5;color:#fff;border:none;">🔵 使用 QQ 登录</button>
-        <p class="note">QQ 登录需在 <a href="https://connect.qq.com" target="_blank" rel="noopener">QQ 互联</a> 实名注册应用并配置后端后开放（当前暂未开通）。</p>
+        <button class="btn qq-btn" id="qqLoginBtn" type="button" style="background:#12b7f5;color:#fff;border:none;display:none;">🔵 使用 QQ 登录</button>
+        <p class="note" style="display:none">QQ 登录需在 <a href="https://connect.qq.com" target="_blank" rel="noopener">QQ 互联</a> 实名注册应用并配置后端后开放（当前暂未开通）。</p>
       </div>
-      <div class="divider" style="text-align:center;color:var(--muted);margin:14px 0;font-size:12px;position:relative;"><span style="background:var(--bg);padding:0 10px;">或 使用本站账号</span></div>
+      <div class="divider" style="text-align:center;color:var(--muted);margin:14px 0;font-size:12px;position:relative;"><span style="background:var(--bg);padding:0 10px;">使用本站账号</span></div>
 
       <!-- 登录表单 -->
       <div id="loginForm">
@@ -111,7 +111,7 @@
         <div class="actions">
           <button class="btn" id="loginBtn">登录</button>
         </div>
-        <p class="note">没有账号？点上方「注册」先用邮箱/手机号+验证码注册。忘记密码可重新注册（同一账号会被覆盖）。</p>
+        <p class="note">没有账号？点上方「注册」先用邮箱 + 验证码注册（手机号验证码暂未开放）。忘记密码可重新注册（同一账号会被覆盖）。</p>
       </div>
 
       <!-- 注册表单 -->
@@ -125,7 +125,7 @@
         <div class="actions">
           <button class="btn" id="regBtn">注册并登录</button>
         </div>
-        <p class="note">注册会向该账号发送验证码。当前为开发模式，验证码会直接显示在下方（正式上线接好邮件/短信后改为真实发送）。</p>
+        <p class="note">注册会向该邮箱发送验证码（若发送失败，验证码会显示在下方）。</p>
         <div class="devcode" id="regDevCode" style="display:none"></div>
       </div>
     </div>
@@ -149,7 +149,7 @@
     <button class="btn ghost more-btn" id="moreBtn" style="display:none">加载更多</button>
   </div>
 
-  <script defer src="js/site-common.js?v=16"></script>
+  <script defer src="js/site-common.js?v=17"></script>
   <script>
     var API = "https://api.delta.shopping";
     var KT = "di_user_token", KID = "di_user_id", KR = "di_user_role";
