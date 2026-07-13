@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=15">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -14,15 +14,30 @@
     .forum-head a.back:hover { color: var(--accent); }
     .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
 
-    .auth-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
-    .auth-bar input { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
-    .auth-bar .who { font-size: 13px; color: var(--muted); }
-    .auth-tip { font-size: 12px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
-    .auth-tip code { background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; }
+    /* 登录态 */
+    .who-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+    .who-bar .me { color: var(--accent); font-weight: 600; }
+
+    /* 认证卡片 */
+    .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tabs .tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; cursor: pointer;
+      background: var(--bg); border: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+    .tabs .tab.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+    .auth-card input { width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
+    .auth-card .row { display: flex; gap: 8px; }
+    .auth-card .row input { margin-bottom: 0; }
+    .auth-card .row button { white-space: nowrap; }
+    .auth-card .actions { display: flex; gap: 8px; margin-top: 10px; }
+    .note { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
+    .note code { background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; }
+    .devcode { margin: 8px 0 0; padding: 8px 10px; background: rgba(255,179,0,0.12);
+      border: 1px solid rgba(255,179,0,0.4); border-radius: 8px; font-size: 13px; color: #ffce6b; }
+    .devcode b { color: #ffb300; font-size: 15px; letter-spacing: 2px; }
+
     .err-box { display: none; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #ff8e8e; line-height: 1.6; }
-    .err-box b { color: #ff6b6b; }
     .ok-box { display: none; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #7fdc83; }
     .ok-box b { color: #4caf50; }
 
@@ -31,14 +46,19 @@
       color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
     .composer textarea { min-height: 80px; resize: vertical; font-family: inherit; }
     .composer .row { display: flex; justify-content: flex-end; gap: 8px; }
+    .login-hint { background: var(--card); border: 1px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+    .login-hint .btn { margin-top: 10px; }
 
     .post { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
     .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .post .pauthor { color: var(--accent); font-weight: 600; }
-    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
-    .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
-    .post .pactions { margin-top: 8px; }
-    .replies { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px; }
+    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; cursor: pointer; }
+    .post .ptitle:hover { color: var(--accent); }
+    .post .psnippet { white-space: pre-wrap; line-height: 1.6; font-size: 14px; color: var(--text); }
+    .post .pactions { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+    .detail { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+    .detail .pbody { white-space: pre-wrap; line-height: 1.7; font-size: 14px; }
+    .replies { margin-top: 10px; }
     .reply { font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .reply .rauthor { color: var(--accent); font-weight: 600; }
     .reply .rbody { white-space: pre-wrap; line-height: 1.5; margin-top: 2px; }
@@ -47,6 +67,7 @@
       color: var(--text); border-radius: 8px; padding: 8px; font-size: 13px; font-family: inherit; box-sizing: border-box; }
     .status { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
     .err { color: #ff6b6b; }
+    .more-btn { display: block; margin: 8px auto 0; }
   </style>
 </head>
 <body>
@@ -55,220 +76,316 @@
       <span class="logo">三角洲<span class="logo-accent">情报台</span> · 战友论坛</span>
       <a class="back" href="index.html">← 返回首页</a>
     </div>
-    <p class="forum-tip">帖子存进本仓库的 GitHub Issues（无需服务器）。<b>看帖不需要登录</b>；发帖/回复需用你自己的 GitHub Token（一次设置，只存在你浏览器里）。</p>
+    <p class="forum-tip">用本站账号登录即可发帖、回复。看帖无需登录。帖子由 <code>api.delta.shopping</code> 后端存储，全站（含大陆）可访问。</p>
 
-    <div class="auth-bar">
-      <span class="who" id="who">未设置 Token</span>
-      <input id="tokenInput" type="password" placeholder="粘贴你的 GitHub Token（发帖用）" />
-      <button class="btn sm" id="saveToken">保存</button>
-      <button class="btn sm" id="testToken" style="background:#4caf50">测试</button>
-      <button class="btn ghost sm" id="clearToken">清除</button>
-    </div>
     <div id="msgBox" class="err-box"></div>
-    <p class="auth-tip">不会生成？看下方步骤。Token 只保存在你的浏览器本地，不经过服务器。</p>
 
-    <div class="composer" id="composer">
-      <input class="title" id="postTitle" placeholder="帖子标题" />
-      <textarea id="postBody" placeholder="说点什么…（支持换行）"></textarea>
-      <div class="row">
-        <button class="btn" id="postBtn">发帖</button>
+    <!-- 已登录 -->
+    <div class="who-bar" id="whoBar" style="display:none">
+      <span class="me" id="whoMe"></span>
+      <button class="btn ghost sm" id="logoutBtn">退出登录</button>
+    </div>
+
+    <!-- 未登录：认证卡片 -->
+    <div class="auth-card" id="authCard">
+      <div class="tabs">
+        <div class="tab active" id="tabLogin">登录</div>
+        <div class="tab" id="tabReg">注册</div>
+      </div>
+
+      <!-- 登录表单 -->
+      <div id="loginForm">
+        <input id="loginId" placeholder="邮箱或手机号" />
+        <div class="row">
+          <input id="loginPw" type="password" placeholder="密码" />
+          <button class="btn ghost sm" id="loginSend">发验证码</button>
+        </div>
+        <input id="loginCode" placeholder="验证码（留空则用密码登录）" />
+        <div class="actions">
+          <button class="btn" id="loginBtn">登录</button>
+        </div>
+        <p class="note">没有账号？点上方「注册」先用邮箱/手机号+验证码注册。忘记密码可重新注册（同一账号会被覆盖）。</p>
+      </div>
+
+      <!-- 注册表单 -->
+      <div id="regForm" style="display:none">
+        <input id="regId" placeholder="邮箱或手机号" />
+        <div class="row">
+          <input id="regCode" placeholder="验证码" />
+          <button class="btn ghost sm" id="regSend">发送验证码</button>
+        </div>
+        <input id="regPw" type="password" placeholder="设置密码（至少 6 位）" />
+        <div class="actions">
+          <button class="btn" id="regBtn">注册并登录</button>
+        </div>
+        <p class="note">注册会向该账号发送验证码。当前为开发模式，验证码会直接显示在下方（正式上线接好邮件/短信后改为真实发送）。</p>
+        <div class="devcode" id="regDevCode" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- 发帖 -->
+    <div id="composerWrap">
+      <div class="composer" id="composer">
+        <input class="title" id="postTitle" placeholder="帖子标题" />
+        <textarea id="postBody" placeholder="说点什么…（支持换行）"></textarea>
+        <div class="row">
+          <button class="btn" id="postBtn">发帖</button>
+        </div>
+      </div>
+      <div class="login-hint" id="loginHint" style="display:none">
+        登录后即可发帖、回复。
+        <br><button class="btn" id="gotoLogin">去登录</button>
       </div>
     </div>
 
     <div id="posts"><div class="status">加载中…</div></div>
+    <button class="btn ghost more-btn" id="moreBtn" style="display:none">加载更多</button>
   </div>
 
   <script>
-    var REPO = "xuchengyuan123/delta-intel";
-    var LABEL = "💬 论坛";
-    var API = "https://api.github.com";
-    var KEY = "di_forum_token";
+    var API = "https://api.delta.shopping";
+    var KT = "di_user_token", KID = "di_user_id", KR = "di_user_role";
 
-    function getToken() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
-    function setToken(t) { try { localStorage.setItem(KEY, t); } catch (e) {} }
-    function clearToken() { try { localStorage.removeItem(KEY); } catch (e) {} }
+    function getToken() { try { return localStorage.getItem(KT) || ""; } catch (e) { return ""; } }
+    function setToken(t) { try { localStorage.setItem(KT, t); } catch (e) {} }
+    function getId() { try { return localStorage.getItem(KID) || ""; } catch (e) { return ""; } }
+    function setId(v) { try { localStorage.setItem(KID, v); } catch (e) {} }
+    function getRole() { try { return localStorage.getItem(KR) || ""; } catch (e) { return ""; } }
+    function setRole(v) { try { localStorage.setItem(KR, v); } catch (e) {} }
+    function clearAuth() { try { localStorage.removeItem(KT); localStorage.removeItem(KID); localStorage.removeItem(KR); } catch (e) {} }
 
     function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
-    function fmt(iso) {
-      try { var d = new Date(iso); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
+    function fmt(ts) {
+      try { var d = new Date(ts); if (isNaN(d)) return "";
+        return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
       catch (e) { return ""; }
-    }
-    function headers(needAuth) {
-      var h = { "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
-      if (needAuth) { var t = getToken(); if (t) h["Authorization"] = "Bearer " + t; }
-      return h;
-    }
-
-    function updateWho() {
-      var t = getToken();
-      document.getElementById("who").textContent = t ? "已设置 Token ✓" : "未设置 Token";
-      document.getElementById("tokenInput").value = "";
-      setMsg("");
     }
 
     function setMsg(html, ok) {
       var box = document.getElementById("msgBox");
       if (!html) { box.style.display = "none"; box.className = "err-box"; return; }
-      box.innerHTML = html;
-      box.className = ok ? "ok-box" : "err-box";
-      box.style.display = "block";
+      box.innerHTML = html; box.className = ok ? "ok-box" : "err-box"; box.style.display = "block";
     }
+    function showError(msg) { var p = document.getElementById("posts"); p.innerHTML = '<div class="status err">' + esc(msg) + "</div>"; }
 
-    function explainError(msg) {
-      if (!msg) return msg;
-      if (msg.indexOf("Bad credentials") >= 0) return "<b>Token 无效或已过期</b>：请重新生成 Token，确保复制完整，不要多复制空格。";
-      if (msg.indexOf("Resource not accessible by personal access token") >= 0) {
-        return "<b>Token 没有 Issues 写入权限</b>。你用的是 Fine-grained token，需要：<br>" +
-          "1) Repository access 选择 <code>xuchengyuan123/delta-intel</code><br>" +
-          "2) Permissions → Issues → 勾选 <b>Read and write</b><br>" +
-          "或者更简单：改用 Classic token，只勾选 <code>repo</code> 权限。";
-      }
-      if (msg.indexOf("Not Found") >= 0) return "仓库或接口不存在，请检查仓库名称是否正确。";
-      if (msg.indexOf("rate limit") >= 0 || msg.indexOf("API rate limit") >= 0) return "GitHub 接口请求太频繁，请稍后再试。";
-      return msg;
-    }
-
-    function showError(msg) {
-      var p = document.getElementById("posts");
-      p.innerHTML = '<div class="status err">' + esc(msg) + "</div>";
-    }
-
-    function loadComments(issueNumber, container) {
-      fetch(API + "/repos/" + REPO + "/issues/" + issueNumber + "/comments", { headers: headers(false) })
-        .then(function (r) { return r.json(); })
-        .then(function (list) {
-          if (!Array.isArray(list)) return;
-          var html = "";
-          list.forEach(function (c) {
-            html += '<div class="reply"><span class="rauthor">' + esc(c.user && c.user.login) + "</span> · " + fmt(c.created_at) +
-                    '<div class="rbody">' + esc(c.body) + "</div></div>";
-          });
-          if (!list.length) html = '<div class="reply" style="color:var(--muted)">还没有回复，来抢沙发～</div>';
-          container.innerHTML = html;
-        })
-        .catch(function () {});
-    }
-
-    function renderPosts(issues) {
-      var p = document.getElementById("posts");
-      if (!issues.length) { p.innerHTML = '<div class="status">还没有帖子，发第一帖吧！</div>'; return; }
-      var html = "";
-      issues.forEach(function (it) {
-        if (it.pull_request) return; // 跳过 PR
-        var num = it.number;
-        html += '<div class="post" data-num="' + num + '">' +
-          '<div class="pmeta"><span class="pauthor">' + esc(it.user && it.user.login) + "</span><span>" + fmt(it.created_at) + "</span>" +
-          "<span>💬 " + (it.comments || 0) + "</span></div>" +
-          '<div class="ptitle">' + esc(it.title) + "</div>" +
-          '<div class="pbody">' + esc(it.body || "") + "</div>" +
-          '<div class="pactions"><button class="btn ghost sm act-reply">回复</button></div>' +
-          '<div class="replies" id="replies-' + num + '"><div class="status">加载回复…</div></div>' +
-          "</div>";
-      });
-      p.innerHTML = html;
-      // 绑定回复 + 加载评论
-      issues.forEach(function (it) {
-        if (it.pull_request) return;
-        loadComments(it.number, document.getElementById("replies-" + it.number));
-        var postEl = p.querySelector('.post[data-num="' + it.number + '"]');
-        if (!postEl) return;
-        postEl.querySelector(".act-reply").addEventListener("click", function () {
-          var box = postEl.querySelector(".reply-box");
-          if (box) { box.remove(); return; }
-          if (!getToken()) { alert("发回复需要先设置 GitHub Token（看顶部）。"); return; }
-          var wrap = document.createElement("div");
-          wrap.className = "reply-box";
-          wrap.innerHTML = '<textarea placeholder="回复内容…"></textarea><div style="margin-top:6px;text-align:right"><button class="btn sm do-reply">发送回复</button></div>';
-          postEl.appendChild(wrap);
-          wrap.querySelector(".do-reply").addEventListener("click", function () {
-            var txt = wrap.querySelector("textarea").value.trim();
-            if (!txt) return;
-            fetch(API + "/repos/" + REPO + "/issues/" + it.number + "/comments", {
-              method: "POST",
-              headers: headers(true),
-              body: JSON.stringify({ body: txt })
-            }).then(function (r) {
-              if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
-              loadComments(it.number, document.getElementById("replies-" + it.number));
-              wrap.remove();
-              setMsg("回复成功。", true);
-            }).catch(function (e) { setMsg(explainError(e.message || e)); });
-          });
+    function api(path, opts) {
+      opts = opts || {};
+      opts.headers = opts.headers || {};
+      opts.headers["Content-Type"] = "application/json";
+      var t = getToken();
+      if (t) opts.headers["Authorization"] = "Bearer " + t;
+      return fetch(API + path, opts).then(function (r) {
+        return r.json().catch(function () { return { error: "服务器返回异常" }; }).then(function (j) {
+          if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+          return j;
         });
       });
     }
 
-    function loadPosts() {
-      var p = document.getElementById("posts");
-      p.innerHTML = '<div class="status">加载中…</div>';
-      fetch(API + "/repos/" + REPO + "/issues?labels=" + encodeURIComponent(LABEL) + "&state=all&sort=created&direction=desc&per_page=50", { headers: headers(false) })
-        .then(function (r) {
-          if (r.status === 403) throw new Error("读取频率超限（GitHub 公共接口每分钟有限额），稍后再刷新。");
-          return r.json();
+    /* ===== 登录态渲染 ===== */
+    function renderAuth() {
+      var t = getToken(), id = getId(), role = getRole();
+      var logged = !!t;
+      document.getElementById("whoBar").style.display = logged ? "flex" : "none";
+      document.getElementById("authCard").style.display = logged ? "none" : "block";
+      document.getElementById("composer").style.display = logged ? "block" : "none";
+      document.getElementById("loginHint").style.display = logged ? "none" : "block";
+      if (logged) {
+        var rlabel = role === "super" ? "总管理员" : role === "tasks" ? "分管理员" : "用户";
+        document.getElementById("whoMe").textContent = "你好，" + id + "（" + rlabel + "）";
+      }
+    }
+
+    /* ===== 论坛帖子 ===== */
+    var state = { posts: [], offset: 0, limit: 20, openId: null };
+
+    function renderList() {
+      var box = document.getElementById("posts");
+      if (!state.posts.length) { box.innerHTML = '<div class="status">还没有帖子，发第一帖吧！</div>'; document.getElementById("moreBtn").style.display = "none"; return; }
+      var html = "";
+      state.posts.forEach(function (it) {
+        html += '<div class="post" data-id="' + esc(it.id) + '">' +
+          '<div class="pmeta"><span class="pauthor">' + esc(it.author) + "</span><span>" + fmt(it.createdAt) + "</span><span>💬 " + (it.replyCount || 0) + "</span></div>" +
+          '<div class="ptitle" data-id="' + esc(it.id) + '">' + esc(it.title) + "</div>" +
+          '<div class="psnippet">' + esc(it.snippet || "") + "</div>" +
+          '<div class="pactions"><button class="btn ghost sm act-toggle" data-id="' + esc(it.id) + '">查看 / 回复</button></div>' +
+          '<div class="detail" id="detail-' + esc(it.id) + '" style="display:none"></div>' +
+          "</div>";
+      });
+      box.innerHTML = html;
+      document.getElementById("moreBtn").style.display = (state.posts.length >= state.offset + state.limit) ? "block" : "none";
+      bindPosts();
+    }
+
+    function bindPosts() {
+      document.querySelectorAll(".ptitle, .act-toggle").forEach(function (el) {
+        el.addEventListener("click", function () {
+          var id = el.getAttribute("data-id");
+          var det = document.getElementById("detail-" + id);
+          if (det.style.display === "none") { openPost(id); } else { det.style.display = "none"; det.innerHTML = ""; }
+        });
+      });
+    }
+
+    function openPost(id) {
+      var det = document.getElementById("detail-" + id);
+      det.innerHTML = '<div class="status">加载中…</div>'; det.style.display = "block";
+      api("/api/forum/posts/" + encodeURIComponent(id), { method: "GET" }).then(function (j) {
+        var p = j.post;
+        if (!p) { det.innerHTML = '<div class="status err">帖子不存在或已删除</div>'; return; }
+        var me = getId(), role = getRole();
+        var canDelete = (p.author === me) || role === "super" || role === "tasks";
+        var html = '<div class="pbody">' + esc(p.body) + "</div>";
+        html += '<div class="replies" id="replies-' + esc(id) + '"><div class="status">加载回复…</div></div>';
+        if (canDelete) html += '<div style="margin-top:8px"><button class="btn ghost sm act-del" data-id="' + esc(id) + '">删除本帖</button></div>';
+        if (getToken()) html += '<div class="reply-box"><textarea id="rb-' + esc(id) + '" placeholder="回复内容…"></textarea><div style="margin-top:6px;text-align:right"><button class="btn sm do-reply" data-id="' + esc(id) + '">发送回复</button></div></div>';
+        det.innerHTML = html;
+        loadReplies(id);
+        var del = det.querySelector(".act-del");
+        if (del) del.addEventListener("click", function () { deletePost(id); });
+        var rb = det.querySelector(".do-reply");
+        if (rb) rb.addEventListener("click", function () {
+          var txt = document.getElementById("rb-" + id).value.trim();
+          if (!txt) { setMsg("回复内容不能为空"); return; }
+          api("/api/forum/posts/" + encodeURIComponent(id) + "/reply", { method: "POST", body: JSON.stringify({ body: txt }) })
+            .then(function () { document.getElementById("rb-" + id).value = ""; setMsg("回复成功。", true); loadReplies(id); bumpReplyCount(id); })
+            .catch(function (e) { setMsg(e.message || "回复失败"); });
+        });
+      }).catch(function (e) { det.innerHTML = '<div class="status err">' + esc(e.message || "加载失败") + "</div>"; });
+    }
+
+    function loadReplies(id) {
+      var box = document.getElementById("replies-" + id);
+      if (!box) return;
+      api("/api/forum/posts/" + encodeURIComponent(id), { method: "GET" }).then(function (j) {
+        var list = (j.post && j.post.replies) || [];
+        if (!list.length) { box.innerHTML = '<div class="reply" style="color:var(--muted)">还没有回复，来抢沙发～</div>'; return; }
+        var html = "";
+        list.forEach(function (c) {
+          html += '<div class="reply"><span class="rauthor">' + esc(c.author) + "</span> · " + fmt(c.createdAt) +
+            '<div class="rbody">' + esc(c.body) + "</div></div>";
+        });
+        box.innerHTML = html;
+      }).catch(function () {});
+    }
+
+    function bumpReplyCount(id) {
+      var it = state.posts.find(function (x) { return x.id === id; });
+      if (it) { it.replyCount = (it.replyCount || 0) + 1; renderList(); openPost(id); }
+    }
+
+    function deletePost(id) {
+      if (!confirm("确定删除这篇帖子？")) return;
+      api("/api/forum/posts/" + encodeURIComponent(id), { method: "DELETE" }).then(function () {
+        setMsg("帖子已删除。", true);
+        state.posts = state.posts.filter(function (x) { return x.id !== id; });
+        renderList();
+      }).catch(function (e) { setMsg(e.message || "删除失败"); });
+    }
+
+    function loadPosts(reset) {
+      if (reset) { state.offset = 0; state.posts = []; }
+      document.getElementById("posts").innerHTML = '<div class="status">加载中…</div>';
+      api("/api/forum/posts?limit=" + state.limit + "&offset=" + state.offset, { method: "GET" })
+        .then(function (j) {
+          var list = j.posts || [];
+          state.posts = state.posts.concat(list);
+          state.offset += list.length;
+          renderList();
         })
-        .then(function (list) { renderPosts(Array.isArray(list) ? list : []); })
         .catch(function (e) { showError(e.message || "加载失败"); });
     }
 
-    document.getElementById("saveToken").addEventListener("click", function () {
-      var v = document.getElementById("tokenInput").value.trim();
-      if (!v) { alert("请输入 Token"); return; }
-      setToken(v); updateWho(); setMsg("<b>Token 已保存</b>（仅存于本浏览器）。建议点<b>测试</b>按钮确认权限。", true);
-    });
-    document.getElementById("testToken").addEventListener("click", function () {
-      var v = document.getElementById("tokenInput").value.trim() || getToken();
-      if (!v) { setMsg("先输入或保存一个 Token 再测试。"); return; }
-      setMsg("正在测试 Token 权限…", true);
-      fetch(API + "/repos/" + REPO, { headers: { "Accept": "application/vnd.github+json", "Authorization": "Bearer " + v } })
-        .then(function (r) {
-          if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "测试失败"); });
-          return r.json();
-        })
-        .then(function (repo) {
-          // 再测试 Issues 写权限：尝试创建并立即关闭一个 issue（只读仓库会报错）
-          return fetch(API + "/repos/" + REPO + "/issues", {
-            method: "POST",
-            headers: { "Accept": "application/vnd.github+json", "Content-Type": "application/json", "Authorization": "Bearer " + v },
-            body: JSON.stringify({ title: "Token 权限测试", body: "这是一条自动测试帖子，请忽略。", labels: [LABEL] })
-          }).then(function (r) {
-            if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "没有写入权限"); });
-            return r.json();
-          }).then(function (issue) {
-            // 关闭测试帖子
-            fetch(API + "/repos/" + REPO + "/issues/" + issue.number, {
-              method: "PATCH",
-              headers: { "Accept": "application/vnd.github+json", "Content-Type": "application/json", "Authorization": "Bearer " + v },
-              body: JSON.stringify({ state: "closed" })
-            }).catch(function () {});
-            setMsg("<b>Token 正常</b>：可以读取仓库，也可以发 Issue。现在可以发帖/回复了。", true);
-          });
-        })
-        .catch(function (e) { setMsg(explainError(e.message || e)); });
-    });
-    document.getElementById("clearToken").addEventListener("click", function () {
-      clearToken(); updateWho();
-    });
-    document.getElementById("postBtn").addEventListener("click", function () {
-      var t = document.getElementById("postTitle").value.trim();
-      var b = document.getElementById("postBody").value.trim();
-      if (!getToken()) { setMsg("发帖需要先设置 GitHub Token（在顶部输入框粘贴后点保存）。"); return; }
-      if (!t || !b) { alert("标题和内容都要填。"); return; }
-      setMsg("正在发帖…", true);
-      fetch(API + "/repos/" + REPO + "/issues", {
-        method: "POST",
-        headers: headers(true),
-        body: JSON.stringify({ title: t, body: b, labels: [LABEL] })
-      }).then(function (r) {
-        if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "发帖失败"); });
-        document.getElementById("postTitle").value = "";
-        document.getElementById("postBody").value = "";
-        setMsg("发帖成功！", true);
-        loadPosts();
-      }).catch(function (e) { setMsg(explainError(e.message || e)); });
+    /* ===== 认证交互 ===== */
+    function switchTab(which) {
+      var isLogin = which === "login";
+      document.getElementById("tabLogin").classList.toggle("active", isLogin);
+      document.getElementById("tabReg").classList.toggle("active", !isLogin);
+      document.getElementById("loginForm").style.display = isLogin ? "block" : "none";
+      document.getElementById("regForm").style.display = isLogin ? "none" : "block";
+    }
+    document.getElementById("tabLogin").addEventListener("click", function(){ switchTab("login"); });
+    document.getElementById("tabReg").addEventListener("click", function(){ switchTab("reg"); });
+    document.getElementById("gotoLogin").addEventListener("click", function(){
+      document.getElementById("authCard").scrollIntoView({behavior:"smooth"});
+      switchTab("login");
     });
 
-    updateWho();
-    loadPosts();
+    document.getElementById("loginSend").addEventListener("click", function () {
+      var id = document.getElementById("loginId").value.trim();
+      if (!id) { setMsg("请先填邮箱或手机号"); return; }
+      setMsg("正在发送验证码…", true);
+      api("/api/user/send-code", { method: "POST", body: JSON.stringify({ to: id, purpose: "login" }) })
+        .then(function (j) { setMsg("验证码已发送（开发模式可能直接显示在提示里）。", true); })
+        .catch(function (e) { setMsg(e.message || "发送失败"); });
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", function () {
+      var id = document.getElementById("loginId").value.trim();
+      var pw = document.getElementById("loginPw").value;
+      var code = document.getElementById("loginCode").value.trim();
+      if (!id) { setMsg("请填邮箱或手机号"); return; }
+      if (!pw && !code) { setMsg("请填密码或验证码"); return; }
+      setMsg("登录中…", true);
+      var body = { id: id };
+      if (code) body.code = code; else body.password = pw;
+      api("/api/user/login", { method: "POST", body: JSON.stringify(body) })
+        .then(function (j) { setToken(j.session); setId(j.id); setRole(j.role); renderAuth(); setMsg("登录成功，欢迎回来！", true); loadPosts(true); })
+        .catch(function (e) { setMsg(e.message || "登录失败"); });
+    });
+
+    document.getElementById("regSend").addEventListener("click", function () {
+      var id = document.getElementById("regId").value.trim();
+      if (!id) { setMsg("请先填邮箱或手机号"); return; }
+      setMsg("正在发送验证码…", true);
+      api("/api/user/send-code", { method: "POST", body: JSON.stringify({ to: id, purpose: "register" }) })
+        .then(function (j) {
+          if (j.devCode) {
+            var dc = document.getElementById("regDevCode");
+            dc.style.display = "block";
+            dc.innerHTML = "测试验证码：<b>" + esc(j.devCode) + "</b>（开发模式回显；正式上线后改为邮件/短信发送）";
+          }
+          setMsg("验证码已发送。", true);
+        })
+        .catch(function (e) { setMsg(e.message || "发送失败"); });
+    });
+
+    document.getElementById("regBtn").addEventListener("click", function () {
+      var id = document.getElementById("regId").value.trim();
+      var code = document.getElementById("regCode").value.trim();
+      var pw = document.getElementById("regPw").value;
+      if (!id || !code || !pw) { setMsg("账号、验证码、密码都要填"); return; }
+      setMsg("注册中…", true);
+      api("/api/user/register", { method: "POST", body: JSON.stringify({ id: id, code: code, password: pw }) })
+        .then(function (j) { setToken(j.session); setId(j.id); setRole(j.role); renderAuth(); setMsg("注册成功，已自动登录！", true); loadPosts(true); })
+        .catch(function (e) { setMsg(e.message || "注册失败"); });
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      api("/api/logout", { method: "POST" }).catch(function(){});
+      clearAuth(); renderAuth(); setMsg("已退出登录。", true);
+    });
+
+    document.getElementById("postBtn").addEventListener("click", function () {
+      var title = document.getElementById("postTitle").value.trim();
+      var body = document.getElementById("postBody").value.trim();
+      if (!title || !body) { setMsg("标题和内容都要填"); return; }
+      setMsg("发帖中…", true);
+      api("/api/forum/posts", { method: "POST", body: JSON.stringify({ title: title, body: body }) })
+        .then(function (j) {
+          document.getElementById("postTitle").value = "";
+          document.getElementById("postBody").value = "";
+          setMsg("发帖成功！", true);
+          loadPosts(true);
+        })
+        .catch(function (e) { setMsg(e.message || "发帖失败"); });
+    });
+
+    document.getElementById("moreBtn").addEventListener("click", function () { loadPosts(false); });
+
+    /* ===== 启动 ===== */
+    renderAuth();
+    loadPosts(true);
   </script>
 </body>
 </html>

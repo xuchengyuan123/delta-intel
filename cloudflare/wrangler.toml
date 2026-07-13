@@ -1,0 +1,53 @@
+name = "delta-intel-auth"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+# ===== 非敏感变量（可提交到仓库） =====
+[vars]
+# 你的 GitHub 仓库（与 admin.html 中的 REPO 一致）
+REPO = "xuchengyuan123/delta-intel"
+# 开发模式：true 时验证码直接回显到后台界面（无需配置邮件服务，适合零预算测试）
+# 正式上线若已接好 EmailJS，可改为 "false"
+DEV_MODE = "true"
+
+# ===== KV 命名空间（先创建，再把 id 填进来） =====
+# 创建命令：
+#   wrangler kv namespace create USERS
+#   wrangler kv namespace create SESSIONS
+#   wrangler kv namespace create CODES
+# 把每条命令返回的 id（一长串十六进制）替换下面的占位符
+[[kv_namespaces]]
+binding = "USERS"
+id = "7ea73e28fb0b4ba7a4a9798d36313aca"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "ee320939d3714e9c98ecce4f40ac90e2"
+
+[[kv_namespaces]]
+binding = "CODES"
+id = "f2758baa20ab4317a1660c19a15c98ca"
+
+[[kv_namespaces]]
+binding = "POSTS"
+id = "ea2071ab7ce549bc834eebf2f165e7a7"
+
+# ===== 敏感密钥（不要写在这里！用 wrangler secret put 设置） =====
+# 在 cloudflare/ 目录下依次执行：
+#   wrangler secret put GH_TOKEN        # GitHub Token，需 public_repo 或 repo 权限
+#   wrangler secret put SUPER_EMAIL     # 总管理员登录邮箱（第一次访问会自动建号）
+#   wrangler secret put SUPER_PASSWORD  # 总管理员登录密码（≥6 位）
+#
+# 可选：接 EmailJS 真发信（不接就用 DEV_MODE 回显验证码）
+#   wrangler secret put EMAILJS_SERVICE_ID
+#   wrangler secret put EMAILJS_TEMPLATE_ID
+#   wrangler secret put EMAILJS_PUBLIC_KEY
+
+# ===== 自定义域名（绕过 workers.dev 在大陆被墙，国内可访问） =====
+# 前提：delta.shopping 已在 Cloudflare 添加为站点（NS 已切到 Cloudflare），且 zone 已 Active。
+# 正确写法：[[routes]] + custom_domain=true（注意不是已废弃的 [custom_domain] 顶层块）。
+# wrangler deploy 时会自动：① 建 api.delta.shopping 的 DNS 记录 ② 签发 edge 证书 ③ 把 Worker 绑到该域名。
+[[routes]]
+pattern = "api.delta.shopping"
+custom_domain = true
+zone_name = "delta.shopping"
