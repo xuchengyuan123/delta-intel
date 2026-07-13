@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
   <meta name="description" content="三角洲情报台 DeltaIntel — 每日自动更新的战区情报站">
   <meta name="theme-color" content="#0f1115">
-  <link rel="manifest" href="manifest.webmanifest?v=15">
-  <link rel="apple-touch-icon" href="icon.svg?v=15">
-  <link rel="icon" href="icon.svg?v=15">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="manifest" href="manifest.webmanifest?v=16">
+  <link rel="apple-touch-icon" href="icon.svg?v=16">
+  <link rel="icon" href="icon.svg?v=16">
+  <link rel="stylesheet" href="css/style.css?v=16">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://i.y.qq.com" crossorigin>
   <link rel="dns-prefetch" href="https://api.github.com">
 </head>
 <body>
+  <div id="siteAnnounce" class="site-announce"></div>
   <div class="layout">
     <!-- 顶栏 -->
     <header class="topbar">
@@ -24,6 +25,10 @@
         <span class="brand-en">DeltaIntel</span>
       </div>
       <div class="topbar-right">
+        <input id="topSearch" class="top-search" placeholder="搜索…" aria-label="搜索">
+        <button class="icon-btn" id="topSearchBtn" title="搜索">🔍</button>
+        <a class="icon-btn" href="ugc.html" title="用户投稿" style="padding:0 8px;width:auto;"><span style="font-size:13px;">📝 投稿</span></a>
+        <a class="icon-btn" href="profile.html" title="我的主页" style="padding:0 8px;width:auto;"><span style="font-size:13px;">👤 主页</span></a>
         <button class="icon-btn" id="themeToggle" title="切换明暗">🌓</button>
         <a class="icon-btn" id="authBtn" href="forum.html" title="登录 / 注册" style="display:inline-flex;gap:4px;padding:0 10px;width:auto;"><span>🔑</span><span id="authBtnText" style="font-size:12px;">登录/注册</span></a>
         <a class="icon-btn" href="admin.html" title="管理后台" style="display:inline-flex;gap:4px;padding:0 10px;width:auto;"><span>🛡</span><span style="font-size:12px;">后台</span></a>
@@ -50,20 +55,21 @@
   </div>
 
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script defer src="js/app.js?v=15"></script>
-  <script defer src="js/art.js?v=15"></script>
-  <script defer src="js/crafting.js?v=15"></script>
-  <script defer src="js/simulators.js?v=15"></script>
-  <script defer src="js/games.js?v=15"></script>
-  <script defer src="js/music.js?v=15"></script>
-  <script defer src="js/codex.js?v=15"></script>
-  <script defer src="js/addons.js?v=15"></script>
-  <script defer src="js/guides.js?v=15"></script>
-  <script defer src="js/database.js?v=15"></script>
-  <script defer src="js/feedback.js?v=15"></script>
-  <script defer src="js/analytics.js?v=15"></script>
-  <script defer src="js/liveprice.js?v=15"></script>
-  <script defer src="js/mappass.js?v=15"></script>
+  <script defer src="js/app.js?v=16"></script>
+  <script defer src="js/art.js?v=16"></script>
+  <script defer src="js/crafting.js?v=16"></script>
+  <script defer src="js/simulators.js?v=16"></script>
+  <script defer src="js/games.js?v=16"></script>
+  <script defer src="js/music.js?v=16"></script>
+  <script defer src="js/codex.js?v=16"></script>
+  <script defer src="js/addons.js?v=16"></script>
+  <script defer src="js/guides.js?v=16"></script>
+  <script defer src="js/database.js?v=16"></script>
+  <script defer src="js/feedback.js?v=16"></script>
+  <script defer src="js/analytics.js?v=16"></script>
+  <script defer src="js/liveprice.js?v=16"></script>
+  <script defer src="js/mappass.js?v=16"></script>
+  <script defer src="js/site-common.js?v=16"></script>
   <script>
     (function () {
       try {
@@ -76,6 +82,16 @@
           a.title = "进入论坛 / 退出登录";
         }
       } catch (e) {}
+    })();
+    (function () {
+      function go() {
+        var q = document.getElementById("topSearch").value.trim();
+        if (q) location.href = "search.html?q=" + encodeURIComponent(q);
+      }
+      var btn = document.getElementById("topSearchBtn");
+      if (btn) btn.addEventListener("click", go);
+      var inp = document.getElementById("topSearch");
+      if (inp) inp.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
     })();
   </script>
 </body>

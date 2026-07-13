@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -71,6 +71,7 @@
   </style>
 </head>
 <body>
+  <div id="siteAnnounce" class="site-announce"></div>
   <div class="forum-wrap">
     <div class="forum-head">
       <span class="logo">三角洲<span class="logo-accent">情报台</span> · 战友论坛</span>
@@ -148,6 +149,7 @@
     <button class="btn ghost more-btn" id="moreBtn" style="display:none">加载更多</button>
   </div>
 
+  <script defer src="js/site-common.js?v=16"></script>
   <script>
     var API = "https://api.delta.shopping";
     var KT = "di_user_token", KID = "di_user_id", KR = "di_user_role";
@@ -421,6 +423,21 @@
     /* ===== 启动 ===== */
     renderAuth();
     loadPosts(true);
+
+    /* 搜索跳转：#post-<id> 自动展开对应帖子 */
+    (function handleHash() {
+      var h = location.hash || "";
+      var m = h.match(/^#post-(.+)$/);
+      if (!m) return;
+      var target = m[1];
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries++;
+        var found = state.posts.find(function (x) { return x.id === target; });
+        if (found) { clearInterval(timer); openPost(target); }
+        else if (tries > 10) { clearInterval(timer); }
+      }, 400);
+    })();
   </script>
 </body>
 </html>

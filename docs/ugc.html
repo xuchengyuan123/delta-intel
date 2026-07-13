@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>用户投稿 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css?v=16">
+  <style>
+    .composer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+    .composer input.title, .composer textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
+    .composer textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+    .composer .row { display: flex; justify-content: flex-end; gap: 8px; }
+    .login-hint { background: var(--card); border: 1px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; color: var(--muted); font-size: 14px; }
+    .login-hint .btn { margin-top: 10px; }
+    .err-box { display: none; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #ff8e8e; line-height: 1.6; }
+    .ok-box { display: none; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #7fdc83; }
+    .status { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
+    .err { color: #ff6b6b; }
+    .tag-pending { color: #ffb300; } .tag-approved { color: #2ecc71; } .tag-rejected { color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <div id="siteAnnounce" class="site-announce"></div>
+  <div class="page-wrap">
+    <div class="page-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 用户投稿</span>
+      <a class="back" href="index.html">← 返回首页</a>
+    </div>
+    <p class="page-tip">注册用户可提交攻略 / 素材，审核通过后在此公开展示。看帖无需登录。</p>
+    <div id="msgBox" class="err-box"></div>
+
+    <div id="submitWrap" style="display:none">
+      <div class="composer">
+        <input class="title" id="ugcTitle" placeholder="标题" />
+        <select id="ugcCat">
+          <option value="攻略">攻略</option>
+          <option value="素材">素材</option>
+          <option value="心得">心得</option>
+          <option value="BUG反馈">BUG反馈</option>
+        </select>
+        <textarea id="ugcBody" placeholder="内容…（支持换行）"></textarea>
+        <div class="row"><button class="btn" id="ugcSubmit">提交投稿</button></div>
+      </div>
+      <h3 style="margin:16px 0 8px">我的投稿</h3>
+      <div id="myList"><div class="status">加载中…</div></div>
+    </div>
+
+    <div id="loginHint" class="login-hint" style="display:none">
+      登录后即可投稿。<br><button class="btn" id="gotoLogin">去登录</button>
+    </div>
+
+    <h3 id="pubTitle" style="margin:18px 0 8px">已发布投稿</h3>
+    <div id="ugcList"><div class="status">加载中…</div></div>
+    <div id="ugcDetail" style="display:none; margin-top:14px;"></div>
+  </div>
+
+  <script src="js/site-common.js?v=16"></script>
+  <script>
+    var D = window.DeltaCommon;
+    var cache = {}; // id -> item
+
+    function setMsg(html, ok) {
+      var box = document.getElementById("msgBox");
+      if (!html) { box.style.display = "none"; box.className = "err-box"; return; }
+      box.innerHTML = html; box.className = ok ? "ok-box" : "err-box"; box.style.display = "block";
+    }
+    function showError(msg) { var p = document.getElementById("ugcList"); p.innerHTML = '<div class="status err">' + D.esc(msg) + "</div>"; }
+
+    function renderAuth() {
+      var logged = D.isLogin();
+      document.getElementById("submitWrap").style.display = logged ? "block" : "none";
+      document.getElementById("loginHint").style.display = logged ? "none" : "block";
+      if (logged) loadMy();
+    }
+
+    function loadPublic() {
+      D.api("/api/ugc", { method: "GET" }).then(function (j) {
+        var items = j.items || [];
+        cache = {};
+        items.forEach(function (it) { cache[it.id] = it; });
+        var box = document.getElementById("ugcList");
+        if (!items.length) { box.innerHTML = '<div class="status">暂无已发布投稿。</div>'; return; }
+        box.innerHTML = items.map(function (it) {
+          return '<div class="ugc-card" data-id="' + D.esc(it.id) + '">' +
+            '<span class="ucat">' + D.esc(it.category || "投稿") + '</span>' +
+            '<div class="utitle" data-id="' + D.esc(it.id) + '">' + D.esc(it.title) + '</div>' +
+            '<div class="umeta">' + D.esc(it.author) + ' · ' + D.fmt(it.createdAt) + '</div>' +
+            '<div class="ubody">' + D.esc((it.body || "").slice(0, 160)) + ((it.body || "").length > 160 ? "…" : "") + '</div></div>';
+        }).join("");
+        box.querySelectorAll(".utitle").forEach(function (el) {
+          el.addEventListener("click", function () { openDetail(el.getAttribute("data-id")); });
+        });
+      }).catch(function (e) { showError(e.message || "加载失败"); });
+    }
+
+    function loadMy() {
+      var box = document.getElementById("myList");
+      D.api("/api/ugc/mine", { method: "GET" }).then(function (j) {
+        var items = j.items || [];
+        if (!items.length) { box.innerHTML = '<div class="status">你还没有投稿。</div>'; return; }
+        var label = { pending: "待审核", approved: "已发布", rejected: "已拒绝" };
+        box.innerHTML = items.map(function (it) {
+          return '<div class="ugc-card"><span class="ucat">' + D.esc(it.category || "投稿") + '</span>' +
+            '<div class="utitle">' + D.esc(it.title) + '</div>' +
+            '<div class="umeta">状态：<span class="tag-' + D.esc(it.status) + '">' + (label[it.status] || it.status) + '</span> · ' + D.fmt(it.createdAt) + '</div></div>';
+        }).join("");
+      }).catch(function () {});
+    }
+
+    function openDetail(id) {
+      var it = cache[id];
+      if (!it) return;
+      var det = document.getElementById("ugcDetail");
+      det.style.display = "block";
+      det.scrollIntoView({ behavior: "smooth" });
+      det.innerHTML = '<div class="ugc-card"><span class="ucat">' + D.esc(it.category || "投稿") + '</span>' +
+        '<div class="utitle">' + D.esc(it.title) + '</div>' +
+        '<div class="umeta">' + D.esc(it.author) + ' · ' + D.fmt(it.createdAt) + '</div>' +
+        '<div class="ubody">' + D.esc(it.body) + '</div></div>' +
+        '<h3 style="margin:16px 0 8px">评论</h3><div id="cmtWrap" data-target="ugc:' + D.esc(id) + '"></div>';
+      D.mountComments(document.getElementById("cmtWrap"));
+    }
+
+    document.getElementById("ugcSubmit").addEventListener("click", function () {
+      var title = document.getElementById("ugcTitle").value.trim();
+      var body = document.getElementById("ugcBody").value.trim();
+      var cat = document.getElementById("ugcCat").value;
+      if (!title || !body) { setMsg("标题和内容都要填"); return; }
+      setMsg("提交中…", true);
+      D.api("/api/ugc", { method: "POST", body: JSON.stringify({ title: title, category: cat, body: body }) })
+        .then(function () {
+          document.getElementById("ugcTitle").value = "";
+          document.getElementById("ugcBody").value = "";
+          setMsg("✅ 投稿已提交，审核通过后会公开展示。", true);
+          loadMy();
+        })
+        .catch(function (e) { setMsg(e.message || "提交失败"); });
+    });
+
+    document.getElementById("gotoLogin").addEventListener("click", function () { location.href = "forum.html"; });
+
+    renderAuth();
+    loadPublic();
+
+    /* 搜索跳转：#<id> 自动展开对应投稿 */
+    (function handleHash() {
+      var h = location.hash || "";
+      var id = h.replace(/^#/, "");
+      if (!id) return;
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries++;
+        if (cache[id]) { clearInterval(timer); openDetail(id); }
+        else if (tries > 10) { clearInterval(timer); }
+      }, 400);
+    })();
+  </script>
+</body>
+</html>

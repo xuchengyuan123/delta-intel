@@ -1424,3 +1424,60 @@ html.compact .field { margin-bottom: 8px; }
 .fb-option .title { font-weight:600; color:var(--text); }
 .fb-option .sub { font-size:13px; color:var(--muted); margin-top:2px; }
 .fb-back { display:inline-block; margin-top:20px; padding:10px 18px; background:var(--accent); color:#fff; border-radius:6px; text-decoration:none; }
+
+/* ===== 公告横幅（全站） ===== */
+.site-announce { position: relative; z-index: 60; }
+.ann-bar { display: flex; align-items: center; gap: 10px; padding: 8px 16px; font-size: 13px; line-height: 1.5; color: #fff; }
+.ann-bar.info { background: #2b6cb0; }
+.ann-bar.warn { background: #c05621; }
+.ann-bar.danger { background: #c53030; }
+.ann-bar.ok { background: #2f855a; }
+.ann-bar .ann-text { flex: 1; }
+.ann-bar .ann-close { cursor: pointer; opacity: .85; background: transparent; border: none; color: #fff; font-size: 16px; line-height: 1; padding: 0 4px; }
+.ann-bar .ann-close:hover { opacity: 1; }
+
+/* ===== 顶栏搜索 ===== */
+.top-search { height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: 0 10px; font-size: 13px; width: 150px; outline: none; }
+.top-search:focus { border-color: var(--accent); }
+@media (max-width: 640px) { .top-search { width: 90px; } }
+
+/* ===== 通用页面容器（投稿/搜索/主页） ===== */
+.page-wrap { max-width: 880px; margin: 0 auto; padding: 18px; }
+.page-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.page-head .logo { font-size: 18px; font-weight: 700; }
+.page-head .logo-accent { color: var(--accent); }
+.page-head a.back { color: var(--muted); text-decoration: none; font-size: 13px; }
+.page-head a.back:hover { color: var(--accent); }
+.page-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
+
+/* ===== 评论组件 ===== */
+.cmt-list { margin-top: 6px; }
+.cmt { border-top: 1px solid var(--border); padding: 8px 0; }
+.cmt .cauthor { color: var(--accent); font-weight: 600; font-size: 13px; }
+.cmt .cbody { white-space: pre-wrap; font-size: 14px; line-height: 1.5; margin-top: 2px; }
+.cmt-box { margin-top: 10px; }
+.cmt-box textarea { width: 100%; min-height: 56px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px; font-size: 13px; font-family: inherit; box-sizing: border-box; resize: vertical; }
+.cmt-box textarea:focus { border-color: var(--accent); }
+
+/* ===== 投稿 / 文章 ===== */
+.ugc-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.ugc-card .ucat { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 10px; background: rgba(255,255,255,.08); color: var(--muted); margin-bottom: 6px; }
+.ugc-card .utitle { font-size: 16px; font-weight: 700; margin: 0 0 4px; cursor: pointer; }
+.ugc-card .utitle:hover { color: var(--accent); }
+.ugc-card .umeta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.ugc-card .ubody { white-space: pre-wrap; line-height: 1.7; font-size: 14px; }
+.composer select { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; }
+
+/* ===== 搜索结果 ===== */
+.sr-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; display: block; text-decoration: none; color: inherit; }
+.sr-item:hover { border-color: var(--accent); }
+.sr-item .sr-type { font-size: 11px; padding: 1px 8px; border-radius: 10px; background: rgba(255,255,255,.08); color: var(--muted); margin-right: 6px; }
+.sr-item .sr-title { font-size: 15px; font-weight: 700; color: var(--accent); }
+.sr-item .sr-snippet { color: var(--muted); font-size: 13px; margin-top: 4px; white-space: pre-wrap; }
+
+/* ===== 个人主页 ===== */
+.profile-head { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.profile-head img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--bg); }
+.profile-head .pname { font-size: 18px; font-weight: 700; }
+.profile-head .prole { font-size: 12px; color: var(--muted); }
+.profile-head .pbio { font-size: 13px; color: var(--text); margin-top: 4px; }

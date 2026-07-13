@@ -57,6 +57,9 @@
     .as-item:hover { background: var(--bg-soft); }
     .as-item.active { background: color-mix(in srgb, var(--role) 14%, transparent); border-left-color: var(--role); color: var(--role); font-weight: 700; }
     .as-item .ico { width: 18px; text-align: center; }
+    .side-search { width: calc(100% - 24px); margin: 10px 12px 4px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text); font-size: 13px; box-sizing: border-box; outline: none; }
+    .side-search:focus { border-color: var(--role); }
+    .as-empty { padding: 14px 16px; color: var(--muted); font-size: 13px; }
     .admin-main { padding: 20px; max-width: 1100px; }
     .admin-main h2.am-title { margin: 0 0 4px; font-size: 20px; }
     .admin-main .am-sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
@@ -236,7 +239,7 @@
 
     /* ===== 角色定义 ===== */
     var ROLES = {
-      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice", "mappass", "subadmins"] },
+      super: { key: "super", name: "总管理员",     color: "#ffb300", icon: "👑", panels: ["dashboard", "tasks", "music", "art", "sim", "code", "opcode", "wcodex", "trivia", "uidesign", "gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "changelog", "eventitems", "sponsor", "analytics", "liveprice", "mappass", "subadmins", "site", "guides", "craft", "quiz", "materials", "rigs", "containers", "scatter", "items", "bullets", "maps", "announce", "ugc"] },
       tasks: { key: "tasks", name: "赛季任务管理员", color: "#19c3a6", icon: "📋", panels: ["tasks"] },
       music: { key: "music", name: "音乐管理员",     color: "#a06bff", icon: "🎵", panels: ["music"] },
       art:   { key: "art",   name: "美术管理员",     color: "#ff7a59", icon: "🎨", panels: ["art", "images"] },
@@ -279,8 +282,36 @@
       analytics: { label: "浏览统计", icon: "📊", title: "浏览统计（真实访客数据）", sub: "配置免费第三方统计服务（GoatCounter / Cloudflare），接入真实访客数据；前台「数据中心·浏览数据」嵌入实时看板。不配置则无任何跟踪与假数据。", mount: mountAnalytics },
       liveprice: { label: "实时物价源", icon: "💹", title: "实时物价接口（真实成交价）", sub: "配置前台「资料库·实时物价」调用的免费公开接口（默认 caiweilv/DeltaForcePrice，游戏内交易行真实成交价）。可关闭或替换为其他兼容 JSON 源。", mount: mountLivePrice },
       mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass },
-      subadmins: { label: "分管理员管理", icon: "🛡", title: "分管理员账号管理", sub: "创建与查看分管理员账号（写入 Cloudflare Worker 的 KV）。分管理员可用「邮箱/手机号 + 密码或验证码」登录后台。需在「分管理员·账号」标签页以总管理员身份登录 Worker 后使用。", mount: mountSubAdmins }
+      subadmins: { label: "分管理员管理", icon: "🛡", title: "分管理员账号管理", sub: "创建与查看分管理员账号（写入 Cloudflare Worker 的 KV）。分管理员可用「邮箱/手机号 + 密码或验证码」登录后台。需在「分管理员·账号」标签页以总管理员身份登录 Worker 后使用。", mount: mountSubAdmins },
+      site:       { label: "站点设置", icon: "⚙", title: "站点设置（站名/赞助/主题色）", sub: "维护全站基础信息：站名、赞助链接、辅助主题色。保存后前台即时生效。", mount: mountSite },
+      guides:     { label: "新手攻略", icon: "🧭", title: "新手攻略管理", sub: "维护前台「新手攻略」的引导语与各模块卡片。", mount: mountGuides },
+      craft:      { label: "制作树", icon: "🌲", title: "制作树管理", sub: "维护前台「制作树」的节点（产物/材料）与连线。", mount: mountCraft },
+      quiz:       { label: "小游戏问答", icon: "🎲", title: "小游戏问答管理", sub: "维护前台「你是哪种电竞选手」小测试的题目与结果。", mount: mountQuiz },
+      materials:  { label: "材料物价", icon: "🧪", title: "材料物价", sub: "维护前台「交易数据·材料物价」。", mount: mountMaterials },
+      rigs:       { label: "战术背心", icon: "🦺", title: "战术背心 / 弹挂", sub: "维护前台「装备数据·战术背心」。", mount: mountRigs },
+      containers: { label: "容器产出", icon: "📦", title: "容器产出", sub: "维护前台「养成数据·容器产出」。", mount: mountContainers },
+      scatter:    { label: "散落物资", icon: "🗺", title: "散落物资点", sub: "维护前台「资料库·散落物资点」。", mount: mountScatter },
+      items:      { label: "制作台产出", icon: "🏭", title: "制作台产出", sub: "维护前台「养成数据·制作台产出」。", mount: mountItems },
+      bullets:    { label: "子弹利润", icon: "🔋", title: "子弹利润", sub: "维护前台「交易数据·子弹利润」。", mount: mountBullets },
+      maps:       { label: "地图管理", icon: "🗺", title: "地图管理", sub: "维护前台「地图」列表。", mount: mountMaps },
+      announce:   { label: "站内公告", icon: "📢", title: "站内公告 / 运营横幅", sub: "发布全站顶部横幅公告，支持颜色、有效期与启用开关（需以总管理员身份登录 Worker）。", mount: mountAnnounce },
+      ugc:        { label: "用户投稿审核", icon: "📝", title: "用户投稿审核", sub: "查看注册用户提交的攻略/素材投稿，审核通过后在「用户投稿」页公开（需以总管理员身份登录 Worker）。", mount: mountUgc }
     };
+
+    /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
+    var PANEL_GROUPS = [
+      { name: "总览与账号",   panels: ["dashboard", "subadmins"] },
+      { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign"] },
+      { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
+      { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images"] },
+      { name: "攻略与互动",   panels: ["guides", "craft", "quiz"] },
+      { name: "装备数据",     panels: ["armors", "scopes", "npc", "melee", "rigs"] },
+      { name: "养成与交易",   panels: ["upgrades", "expansion", "keyRooms", "collectibles", "bulletPacks", "eventitems", "materials", "containers", "items", "bullets"] },
+      { name: "地图与物资",   panels: ["maps", "scatter"] },
+      { name: "数据源与工具", panels: ["liveprice", "mappass", "code", "sim"] },
+      { name: "音乐台",       panels: ["music"] }
+    ];
+    var sideSearchVal = "";
 
     var CHANGELOG = [
       { date: "2026-07-11", title: "全站大更新 · 攻略/工具/小知识/安装", items: ["新增「新手攻略」与「三角洲小知识」分享（可点赞/复制/发布）", "新增实用工具：宝藏开箱、随机舔包、散落物资点", "图鉴新增特战干员图鉴与武器图鉴", "音乐台可内嵌B站播放完整歌曲", "小游戏补齐 5 款（摩斯/破译电脑/快速反应/脑机/指纹）", "支持 PWA 安装到桌面、深浅模式跟随系统、手机横竖屏自适应", "后台分级管理员（总/赛季任务/音乐/美术/模拟器/代码/干员图鉴/武器图鉴/小知识）", "后台仅电脑端可登录"] },
@@ -573,18 +604,36 @@
     }
     function renderSide() {
       var r = ROLES[activeRole];
-      var html = "";
-      if (r.panels.length > 1) html += '<div class="as-group">管理模块</div>';
-      r.panels.forEach(function (p) {
-        var P = PANELS[p];
-        html += '<div class="as-item' + (p === activePanel ? " active" : "") + '" data-panel="' + p + '">' +
-          '<span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
+      var owned = r.panels;
+      var kw = (sideSearchVal || "").trim().toLowerCase();
+      var html = '<input id="sideSearch" class="side-search" placeholder="搜索功能…" />';
+      PANEL_GROUPS.forEach(function (g) {
+        var ps = g.panels.filter(function (p) { return owned.indexOf(p) > -1; });
+        if (!ps.length) return;
+        var items = "";
+        ps.forEach(function (p) {
+          var P = PANELS[p]; if (!P) return;
+          if (kw && (P.label + P.title + P.sub).toLowerCase().indexOf(kw) < 0) return;
+          items += '<div class="as-item' + (p === activePanel ? " active" : "") + '" data-panel="' + p + '">' +
+            '<span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
+        });
+        if (!items) return;
+        html += '<div class="as-group">' + g.name + "</div>" + items;
       });
+      if (html === '<input id="sideSearch" class="side-search" placeholder="搜索功能…" />') {
+        html += '<div class="as-empty">没有匹配的功能</div>';
+      }
       var side = document.getElementById("side");
       side.innerHTML = html;
       side.querySelectorAll(".as-item").forEach(function (el) {
         el.addEventListener("click", function () { showPanel(el.getAttribute("data-panel")); });
       });
+      var sb = document.getElementById("sideSearch");
+      if (sb) {
+        sb.value = sideSearchVal;
+        sb.addEventListener("input", function () { sideSearchVal = sb.value; renderSide(); });
+        sb.focus(); var v = sb.value; sb.value = ""; sb.value = v; // 恢复焦点与光标位置
+      }
     }
     function showPanel(p) {
       var P = PANELS[p];
@@ -1787,6 +1836,276 @@
     function mountBulletPacks(c) { tablePanel(c, { key: 'bulletPacks', icon: '📦', title: '子弹自选包利润', sub: '维护前台「交易数据·子弹自选包利润」。',
       cols: [{ f: 'name', label: '名称' }, { f: 'contains', label: '包含', type: 'list' }, { f: 'cost', label: '成本', type: 'number' }, { f: 'price', label: '售价', type: 'number' }, { f: 'profit', label: '利润', type: 'number' }],
       addRow: function () { return { name: '', contains: [], cost: 0, price: 0, profit: 0 }; }, keep: function (x) { return x.name; } }); }
+
+    /* ============ 补全的资料库 / 数据表面板（通用工厂） ============ */
+    function mountMaterials(c) { tablePanel(c, { key: 'materials', icon: '🧪', title: '材料物价', sub: '维护前台「交易数据·材料物价」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'cur', label: '现价', type: 'number' }, { f: 'min', label: '最低', type: 'number' }, { f: 'max', label: '最高', type: 'number' }, { f: 'buy', label: '买价', type: 'number' }, { f: 'sell', label: '卖价', type: 'number' }],
+      addRow: function () { return { name: '', cur: 0, min: 0, max: 0, buy: 0, sell: 0 }; }, keep: function (x) { return x.name; } }); }
+    function mountRigs(c) { tablePanel(c, { key: 'rigs', icon: '🦺', title: '战术背心 / 弹挂', sub: '维护前台「装备数据·战术背心」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'slots', label: '插槽', type: 'number' }, { f: 'capacity', label: '容量', type: 'number' }, { f: 'weight', label: '重量' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', slots: 0, capacity: 0, weight: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountContainers(c) { tablePanel(c, { key: 'containers', icon: '📦', title: '容器产出', sub: '维护前台「养成数据·容器产出」。',
+      cols: [{ f: 'name', label: '容器' }, { f: 'map', label: '地图' }, { f: 'output', label: '产出' }],
+      addRow: function () { return { name: '', map: '', output: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountScatter(c) { tablePanel(c, { key: 'scatter', icon: '🗺', title: '散落物资点', sub: '维护前台「资料库·散落物资点」。',
+      cols: [{ f: 'map', label: '地图' }, { f: 'points', label: '物资点' }],
+      addRow: function () { return { map: '', points: '' }; }, keep: function (x) { return x.map; } }); }
+    function mountItems(c) { tablePanel(c, { key: 'items', icon: '🏭', title: '制作台产出', sub: '维护前台「养成数据·制作台产出」。',
+      cols: [{ f: 'station', label: '制作台' }, { f: 'name', label: '产物' }, { f: 'profit', label: '利润', type: 'number' }, { f: 'price', label: '售价', type: 'number' }, { f: 'sell', label: '卖价', type: 'number' }, { f: 'craftMin', label: '制作分', type: 'number' }, { f: 'grade', label: '品质' }],
+      addRow: function () { return { station: '', name: '', profit: 0, price: 0, sell: 0, craftMin: 0, grade: '' }; }, keep: function (x) { return x.name; } }); }
+    function mountBullets(c) { tablePanel(c, { key: 'bullets', icon: '🔋', title: '子弹利润', sub: '维护前台「交易数据·子弹利润」。',
+      cols: [{ f: 'name', label: '名称' }, { f: 'profit', label: '利润', type: 'number' }],
+      addRow: function () { return { name: '', profit: 0 }; }, keep: function (x) { return x.name; } }); }
+    function mountMaps(c) { tablePanel(c, { key: 'maps', icon: '🗺', title: '地图管理', sub: '维护前台「地图」列表。',
+      cols: [{ f: 'name', label: '地图名' }, { f: 'desc', label: '说明' }],
+      addRow: function () { return { name: '', desc: '' }; }, keep: function (x) { return x.name; } }); }
+
+    /* ============ 站点设置（site） ============ */
+    function mountSite(c) {
+      c.innerHTML = '<div class="panel-card"><h3>⚙ 站点设置</h3>' +
+        '<p class="panel-tip">维护全站基础信息，保存后前台即时生效。</p>' +
+        '<div class="login-field"><label>站点名称</label><input id="stName" placeholder="三角洲情报台"></div>' +
+        '<div class="login-field"><label>赞助链接（爱发电等）</label><input id="stAfdian" placeholder="https://afdian.com/a/xxx"></div>' +
+        '<div class="login-field"><label>辅助主题色</label><input id="stAccent" type="color"></div>' +
+        '<div class="row"><button class="btn role-c" id="stSave">保存</button><span class="msg" id="stMsg"></span></div></div>';
+      getDataObj().then(function (d) {
+        var s = d.obj.site || {};
+        c.querySelector("#stName").value = s.name || "";
+        c.querySelector("#stAfdian").value = s.afdianUrl || "";
+        c.querySelector("#stAccent").value = s.accent2 || "#19c3a6";
+      }).catch(function () {});
+      c.querySelector("#stSave").onclick = function () {
+        var msg = c.querySelector("#stMsg");
+        getDataObj().then(function (d) {
+          d.obj.site = d.obj.site || {};
+          d.obj.site.name = c.querySelector("#stName").value.trim();
+          d.obj.site.afdianUrl = c.querySelector("#stAfdian").value.trim();
+          d.obj.site.accent2 = c.querySelector("#stAccent").value.trim();
+          return putDataObj(d.obj, "更新站点设置", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    /* ============ 新手攻略（guides） ============ */
+    function mountGuides(c) {
+      c.innerHTML = '<div class="panel-card"><h3>🧭 新手攻略</h3>' +
+        '<p class="panel-tip">维护前台「新手攻略」的引导语与各模块卡片。</p>' +
+        '<div class="login-field"><label>引导语（intro）</label><textarea id="gdIntro" rows="3"></textarea></div>' +
+        '<h4 style="margin:14px 0 8px">模块（modules）</h4>' +
+        '<div id="gdMods"></div>' +
+        '<div class="row"><button class="btn role-c sm" id="gdAddMod">＋ 添加模块</button></div>' +
+        '<div class="row"><button class="btn role-c" id="gdSave">保存</button><span class="msg" id="gdMsg"></span></div></div>';
+      var mods = [];
+      function renderMods() {
+        var el = c.querySelector("#gdMods");
+        if (!mods.length) { el.innerHTML = '<div class="status">暂无模块，点“添加模块”。</div>'; return; }
+        el.innerHTML = mods.map(function (m, i) {
+          var cardsHtml = (m.cards || []).map(function (card, j) {
+            return '<div class="gd-card"><input class="gd-ctitle" value="' + esc(card.title || "") + '" placeholder="卡片标题">' +
+              '<textarea class="gd-ctext" rows="2" placeholder="卡片内容">' + esc(card.text || "") + '</textarea>' +
+              '<button class="btn danger sm gd-delcard" data-i="' + i + '" data-j="' + j + '">删卡片</button></div>';
+          }).join("");
+          return '<div class="gd-mod"><div class="row"><input class="gd-mtitle" value="' + esc(m.title || "") + '" placeholder="模块标题"> ' +
+            '<input class="gd-micon" value="' + esc(m.icon || "") + '" placeholder="图标" style="width:60px"> ' +
+            '<button class="btn danger sm gd-delmod" data-i="' + i + '">删模块</button></div>' +
+            '<div class="gd-cards">' + cardsHtml + '</div>' +
+            '<button class="btn role-c sm gd-addcard" data-i="' + i + '">＋ 添加卡片</button></div>';
+        }).join("");
+        el.querySelectorAll(".gd-delmod").forEach(function (b) { b.onclick = function () { mods.splice(+b.getAttribute("data-i"), 1); renderMods(); }; });
+        el.querySelectorAll(".gd-addcard").forEach(function (b) { b.onclick = function () { var i = +b.getAttribute("data-i"); mods[i].cards = mods[i].cards || []; mods[i].cards.push({ title: "", text: "" }); renderMods(); }; });
+        el.querySelectorAll(".gd-delcard").forEach(function (b) { b.onclick = function () { var i = +b.getAttribute("data-i"), j = +b.getAttribute("data-j"); mods[i].cards.splice(j, 1); renderMods(); }; });
+      }
+      getDataObj().then(function (d) {
+        var g = d.obj.guides || {};
+        c.querySelector("#gdIntro").value = g.intro || "";
+        mods = (g.modules || []).map(function (m) { return { title: m.title || "", icon: m.icon || "", cards: (m.cards || []).map(function (x) { return { title: x.title || "", text: x.text || "" }; }) }; });
+        if (!mods.length) mods = [{ title: "", icon: "", cards: [] }];
+        renderMods();
+      }).catch(function () {});
+      c.querySelector("#gdAddMod").onclick = function () { mods.push({ title: "", icon: "", cards: [] }); renderMods(); };
+      c.querySelector("#gdSave").onclick = function () {
+        var msg = c.querySelector("#gdMsg");
+        var collected = mods.map(function (m) {
+          return { title: m.title, icon: m.icon, cards: (m.cards || []).map(function (card) { return { title: card.title, text: card.text }; }).filter(function (card) { return card.title || card.text; }) };
+        }).filter(function (m) { return m.title; });
+        getDataObj().then(function (d) {
+          d.obj.guides = { intro: c.querySelector("#gdIntro").value.trim(), modules: collected };
+          return putDataObj(d.obj, "更新新手攻略（" + collected.length + " 模块）", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    /* ============ 制作树（craft） ============ */
+    function mountCraft(c) {
+      c.innerHTML = '<div class="panel-card"><h3>🌲 制作树</h3>' +
+        '<p class="panel-tip">维护前台「制作树」的节点（产物/材料）与连线。</p>' +
+        '<h4 style="margin:14px 0 8px">节点（nodes）</h4>' +
+        '<div id="cfNodes"></div>' +
+        '<div class="row"><button class="btn role-c sm" id="cfAddNode">＋ 添加节点</button></div>' +
+        '<h4 style="margin:14px 0 8px">连线（links，JSON）</h4>' +
+        '<textarea id="cfLinks" rows="4" placeholder=\'如 [{"from":"m_poly","to":"p_vest"}]\'></textarea>' +
+        '<div class="row"><button class="btn role-c" id="cfSave">保存</button><span class="msg" id="cfMsg"></span></div></div>';
+      var nodes = [];
+      function renderNodes() {
+        var el = c.querySelector("#cfNodes");
+        if (!nodes.length) { el.innerHTML = '<div class="status">暂无节点。</div>'; return; }
+        el.innerHTML = nodes.map(function (n, i) {
+          return '<div class="gd-mod"><div class="row">' +
+            '<input class="cf-key" value="' + esc(n.key || "") + '" placeholder="key" style="width:120px">' +
+            '<input class="cf-text" value="' + esc(n.text || "") + '" placeholder="名称">' +
+            '<input class="cf-station" value="' + esc(n.station || "") + '" placeholder="台(可选)">' +
+            '<input class="cf-cat" value="' + esc(n.cat || "") + '" placeholder="cat">' +
+            '<button class="btn danger sm cf-delnode" data-i="' + i + '">删</button></div></div>';
+        }).join("");
+        el.querySelectorAll(".cf-delnode").forEach(function (b) { b.onclick = function () { nodes.splice(+b.getAttribute("data-i"), 1); renderNodes(); }; });
+      }
+      getDataObj().then(function (d) {
+        var g = d.obj.craft || {};
+        nodes = (g.nodes || []).map(function (n) { return { key: n.key || "", text: n.text || "", station: n.station || "", cat: n.cat || "" }; });
+        if (!nodes.length) nodes = [{ key: "", text: "", station: "", cat: "" }];
+        renderNodes();
+        c.querySelector("#cfLinks").value = JSON.stringify(g.links || [], null, 2);
+      }).catch(function () {});
+      c.querySelector("#cfAddNode").onclick = function () { nodes.push({ key: "", text: "", station: "", cat: "" }); renderNodes(); };
+      c.querySelector("#cfSave").onclick = function () {
+        var msg = c.querySelector("#cfMsg");
+        var collected = nodes.map(function (n) { return { key: n.key, text: n.text, station: n.station, cat: n.cat }; }).filter(function (n) { return n.key && n.text; });
+        var linksText = c.querySelector("#cfLinks").value.trim();
+        var links = [];
+        if (linksText) { try { links = JSON.parse(linksText); } catch (e) { msg.className = "msg err"; msg.textContent = "❌ links 不是合法 JSON"; return; } }
+        getDataObj().then(function (d) {
+          d.obj.craft = { nodes: collected, links: links };
+          return putDataObj(d.obj, "更新制作树（" + collected.length + " 节点）", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    /* ============ 小游戏问答（quiz） ============ */
+    function mountQuiz(c) {
+      c.innerHTML = '<div class="panel-card"><h3>🎲 小游戏问答</h3>' +
+        '<p class="panel-tip">维护前台「你是哪种电竞选手」小测试的题目与结果。</p>' +
+        '<div class="login-field"><label>标题</label><input id="qzTitle"></div>' +
+        '<div class="login-field"><label>副标题</label><input id="qzSub"></div>' +
+        '<h4 style="margin:14px 0 8px">题目（questions）</h4>' +
+        '<div id="qzQs"></div>' +
+        '<div class="row"><button class="btn role-c sm" id="qzAddQ">＋ 添加题目</button></div>' +
+        '<h4 style="margin:14px 0 8px">结果（results，JSON）</h4>' +
+        '<textarea id="qzResults" rows="4"></textarea>' +
+        '<div class="row"><button class="btn role-c" id="qzSave">保存</button><span class="msg" id="qzMsg"></span></div></div>';
+      var qs = [];
+      function renderQs() {
+        var el = c.querySelector("#qzQs");
+        if (!qs.length) { el.innerHTML = '<div class="status">暂无题目。</div>'; return; }
+        el.innerHTML = qs.map(function (q, i) {
+          var opts = (q.options || []).map(function (o, j) {
+            return '<div class="gd-card"><input class="qz-otext" value="' + esc(o.text || "") + '" placeholder="选项文案">' +
+              '<input class="qz-os" value="' + esc(o.s || "") + '" placeholder="s(指挥/突击/渗透/狙击)" style="width:140px">' +
+              '<button class="btn danger sm qz-delopt" data-i="' + i + '" data-j="' + j + '">删</button></div>';
+          }).join("");
+          return '<div class="gd-mod"><div class="row"><input class="qz-q" value="' + esc(q.q || "") + '" placeholder="题目"><button class="btn danger sm qz-delq" data-i="' + i + '">删题</button></div>' +
+            '<div class="gd-cards">' + opts + '</div><button class="btn role-c sm qz-addopt" data-i="' + i + '">＋ 添加选项</button></div>';
+        }).join("");
+        el.querySelectorAll(".qz-delq").forEach(function (b) { b.onclick = function () { qs.splice(+b.getAttribute("data-i"), 1); renderQs(); }; });
+        el.querySelectorAll(".qz-addopt").forEach(function (b) { b.onclick = function () { var i = +b.getAttribute("data-i"); qs[i].options = qs[i].options || []; qs[i].options.push({ text: "", s: "" }); renderQs(); }; });
+        el.querySelectorAll(".qz-delopt").forEach(function (b) { b.onclick = function () { var i = +b.getAttribute("data-i"), j = +b.getAttribute("data-j"); qs[i].options.splice(j, 1); renderQs(); }; });
+      }
+      getDataObj().then(function (d) {
+        var g = d.obj.quiz || {};
+        c.querySelector("#qzTitle").value = g.title || "";
+        c.querySelector("#qzSub").value = g.sub || "";
+        qs = (g.questions || []).map(function (q) { return { q: q.q || "", options: (q.options || []).map(function (o) { return { text: o.text || "", s: o.s || "" }; }) }; });
+        if (!qs.length) qs = [{ q: "", options: [] }];
+        renderQs();
+        c.querySelector("#qzResults").value = JSON.stringify(g.results || [], null, 2);
+      }).catch(function () {});
+      c.querySelector("#qzAddQ").onclick = function () { qs.push({ q: "", options: [] }); renderQs(); };
+      c.querySelector("#qzSave").onclick = function () {
+        var msg = c.querySelector("#qzMsg");
+        var collected = qs.map(function (q) { return { q: q.q, options: (q.options || []).map(function (o) { return { text: o.text, s: o.s }; }).filter(function (o) { return o.text; }) }; }).filter(function (q) { return q.q; });
+        var resText = c.querySelector("#qzResults").value.trim(); var results = [];
+        if (resText) { try { results = JSON.parse(resText); } catch (e) { msg.className = "msg err"; msg.textContent = "❌ results 不是合法 JSON"; return; } }
+        getDataObj().then(function (d) {
+          d.obj.quiz = { title: c.querySelector("#qzTitle").value.trim(), sub: c.querySelector("#qzSub").value.trim(), questions: collected, results: results };
+          return putDataObj(d.obj, "更新小游戏问答（" + collected.length + " 题）", msg);
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    /* ============ 站内公告（Worker KV，需以总管理员登录 Worker） ============ */
+    function mountAnnounce(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需在「分管理员·账号」标签页以<b>总管理员</b>身份登录 Worker 后使用。</div>';
+        return;
+      }
+      c.innerHTML = '<div class="panel-card"><h3>📢 站内公告 / 运营横幅</h3>' +
+        '<p class="panel-tip">发布后，全站（含首页、论坛等）顶部会显示横幅。可设颜色与有效期。</p>' +
+        '<div class="login-field"><label>公告内容</label><textarea id="anText" rows="2" placeholder="如：暑期活动已开始，攻略征集进行中！"></textarea></div>' +
+        '<div class="row"><label class="fld-label" style="margin-right:8px">颜色</label>' +
+        '<select id="anColor"><option value="info">蓝(信息)</option><option value="warn">橙(提醒)</option><option value="danger">红(重要)</option><option value="ok">绿(成功)</option></select>' +
+        '<label class="fld-label" style="margin:0 8px">有效期至</label><input id="anUntil" type="datetime-local"></div>' +
+        '<div class="row"><label><input type="checkbox" id="anActive" checked> 立即启用</label></div>' +
+        '<div class="row"><button class="btn role-c" id="anAdd">发布公告</button><span class="msg" id="anMsg"></span></div>' +
+        '<h4 style="margin:16px 0 8px">现有公告</h4><div id="anList"><div class="status">加载中…</div></div></div>';
+      function load() {
+        var list = c.querySelector("#anList");
+        wkFetch("/api/admin/announce", { method: "GET" }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { list.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
+          var items = j.items || [];
+          if (!items.length) { list.innerHTML = '<div class="status">暂无公告。</div>'; return; }
+          list.innerHTML = items.map(function (a) {
+            return '<div class="ui-role-row"><div><b>' + esc(a.text) + '</b><br><small style="color:var(--muted)">' + (a.active ? "🟢启用" : "⚪停用") + ' · ' + esc(a.color || "") + (a.until ? (" · 至 " + new Date(a.until).toLocaleString()) : "") + '</small></div>' +
+              '<div style="display:flex;gap:6px"><button class="btn sm" data-toggle="' + a.id + '" style="margin:0">' + (a.active ? "停用" : "启用") + '</button><button class="btn danger sm" data-del="' + a.id + '">删</button></div></div>';
+          }).join("");
+          list.querySelectorAll("[data-toggle]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-toggle"); wkFetch("/api/admin/announce/" + id, { method: "PUT", body: JSON.stringify({ active: !b.textContent.includes("启用") }) }).then(function () { load(); }); }; });
+          list.querySelectorAll("[data-del]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-del"); wkFetch("/api/admin/announce/" + id, { method: "DELETE" }).then(function () { load(); }); }; });
+        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+      }
+      c.querySelector("#anAdd").onclick = function () {
+        var msg = c.querySelector("#anMsg");
+        var text = c.querySelector("#anText").value.trim();
+        if (!text) { msg.className = "msg err"; msg.textContent = "请输入公告内容"; return; }
+        var until = c.querySelector("#anUntil").value;
+        var body = { text: text, color: c.querySelector("#anColor").value, active: c.querySelector("#anActive").checked };
+        if (until) body.until = new Date(until).getTime();
+        wkFetch("/api/admin/announce", { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { msg.className = "msg err"; msg.textContent = j.error; return; }
+          msg.className = "msg ok"; msg.textContent = "✅ 已发布"; c.querySelector("#anText").value = ""; load();
+        }).catch(function () { msg.className = "msg err"; msg.textContent = "发布失败"; });
+      };
+      load();
+    }
+
+    /* ============ 用户投稿审核（Worker KV，需以总管理员登录 Worker） ============ */
+    function mountUgc(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需在「分管理员·账号」标签页以<b>总管理员</b>身份登录 Worker 后使用。</div>';
+        return;
+      }
+      c.innerHTML = '<div class="panel-card"><h3>📝 用户投稿审核</h3>' +
+        '<p class="panel-tip">注册用户提交的攻略/素材投稿在此审核，通过后在前台「用户投稿」页公开。</p>' +
+        '<div id="ugList"><div class="status">加载中…</div></div></div>';
+      function load() {
+        var list = c.querySelector("#ugList");
+        wkFetch("/api/admin/ugc", { method: "GET" }).then(function (r) { return r.json(); }).then(function (j) {
+          var items = j.items || [];
+          if (!items.length) { list.innerHTML = '<div class="status">暂无投稿。</div>'; return; }
+          list.innerHTML = items.map(function (u) {
+            var stColor = u.status === "approved" ? "#2ecc71" : (u.status === "rejected" ? "#ff5b5b" : "#ffb300");
+            return '<div class="panel-card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><b>' + esc(u.title) + '</b><span style="color:' + stColor + '">' + esc(u.status) + '</span></div>' +
+              '<div class="panel-tip">作者：' + esc(u.author || "") + ' · 分类：' + esc(u.category || "") + ' · ' + (u.createdAt ? new Date(u.createdAt).toLocaleString() : "") + '</div>' +
+              '<div style="white-space:pre-wrap;max-height:160px;overflow:auto">' + esc(u.body || "") + '</div>' +
+              '<div class="row" style="margin-top:8px">' +
+              (u.status !== "approved" ? '<button class="btn role-c sm" data-approve="' + u.id + '">通过</button>' : '') +
+              (u.status !== "rejected" ? '<button class="btn sm" data-reject="' + u.id + '">拒绝</button>' : '') +
+              '<button class="btn danger sm" data-del="' + u.id + '">删除</button></div></div>';
+          }).join("");
+          list.querySelectorAll("[data-approve]").forEach(function (b) { b.onclick = function () { wkFetch("/api/admin/ugc/" + b.getAttribute("data-approve"), { method: "PUT", body: JSON.stringify({ status: "approved" }) }).then(function () { load(); }); }; });
+          list.querySelectorAll("[data-reject]").forEach(function (b) { b.onclick = function () { wkFetch("/api/admin/ugc/" + b.getAttribute("data-reject"), { method: "PUT", body: JSON.stringify({ status: "rejected" }) }).then(function () { load(); }); }; });
+          list.querySelectorAll("[data-del]").forEach(function (b) { b.onclick = function () { wkFetch("/api/admin/ugc/" + b.getAttribute("data-del"), { method: "DELETE" }).then(function () { load(); }); }; });
+        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+      }
+      load();
+    }
 
     /* ============ 网站更新内容（总管理员编辑，前台「网站更新速览」读取） ============ */
     function mountChangelog(c) {

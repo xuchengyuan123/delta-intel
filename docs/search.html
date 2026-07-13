@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>全站搜索 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css?v=16">
+  <style>
+    .composer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+    .composer input.title { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
+    .composer .row { display: flex; justify-content: flex-end; gap: 8px; }
+    .status { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
+    .err { color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <div id="siteAnnounce" class="site-announce"></div>
+  <div class="page-wrap">
+    <div class="page-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 全站搜索</span>
+      <a class="back" href="index.html">← 返回首页</a>
+    </div>
+    <div class="composer">
+      <input class="title" id="searchInput" placeholder="搜索论坛帖、用户投稿…" />
+      <div class="row"><button class="btn" id="searchBtn">搜索</button></div>
+    </div>
+    <div id="results"><div class="status">输入关键词开始搜索。</div></div>
+  </div>
+
+  <script src="js/site-common.js?v=16"></script>
+  <script>
+    var D = window.DeltaCommon;
+    function doSearch(q) {
+      q = (q || "").trim();
+      if (!q) { document.getElementById("results").innerHTML = '<div class="status">请输入关键词。</div>'; return; }
+      document.getElementById("searchInput").value = q;
+      document.getElementById("results").innerHTML = '<div class="status">搜索中…</div>';
+      D.api("/api/search?q=" + encodeURIComponent(q), { method: "GET" }).then(function (j) {
+        var list = j.results || [];
+        if (!list.length) { document.getElementById("results").innerHTML = '<div class="status">没有找到相关内容。</div>'; return; }
+        document.getElementById("results").innerHTML = list.map(function (r) {
+          var type = r.type === "forum" ? "论坛" : "投稿";
+          return '<a class="sr-item" href="' + D.esc(r.url) + '">' +
+            '<span class="sr-type">' + type + '</span><span class="sr-title">' + D.esc(r.title) + '</span>' +
+            '<div class="sr-snippet">' + (D.esc(r.snippet || "") || D.esc(r.author || "")) + '</div></a>';
+        }).join("");
+      }).catch(function (e) {
+        document.getElementById("results").innerHTML = '<div class="status err">' + D.esc(e.message || "搜索失败") + '</div>';
+      });
+    }
+    document.getElementById("searchBtn").addEventListener("click", function () { doSearch(document.getElementById("searchInput").value); });
+    document.getElementById("searchInput").addEventListener("keydown", function (e) { if (e.key === "Enter") doSearch(this.value); });
+    doSearch(new URLSearchParams(location.search).get("q") || "");
+  </script>
+</body>
+</html>

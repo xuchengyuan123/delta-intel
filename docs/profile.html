@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>个人主页 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css?v=16">
+  <style>
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; box-sizing: border-box; }
+    .field textarea { min-height: 64px; resize: vertical; font-family: inherit; }
+    .err-box { display: none; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #ff8e8e; line-height: 1.6; }
+    .ok-box { display: none; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #7fdc83; }
+    .status { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
+    .err { color: #ff6b6b; }
+    .login-hint { background: var(--card); border: 1px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; color: var(--muted); font-size: 14px; }
+    .login-hint .btn { margin-top: 10px; }
+    .post { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    .post .pmeta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; cursor: pointer; }
+    .post .ptitle:hover { color: var(--accent); }
+    .post .psnippet { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="siteAnnounce" class="site-announce"></div>
+  <div class="page-wrap">
+    <div class="page-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 个人主页</span>
+      <a class="back" href="index.html">← 返回首页</a>
+    </div>
+    <div id="msgBox" class="err-box"></div>
+
+    <div id="viewBox"></div>
+
+    <div id="editBox" style="display:none">
+      <div class="profile-head">
+        <img id="pvAvatar" alt="头像" />
+        <div>
+          <div class="pname" id="pvName"></div>
+          <div class="prole" id="pvRole"></div>
+        </div>
+      </div>
+      <div class="field"><label>昵称</label><input id="edName" placeholder="昵称（最多 30 字）" /></div>
+      <div class="field"><label>头像链接</label><input id="edAvatar" placeholder="https://… 图片 URL" /></div>
+      <div class="field"><label>个人简介</label><textarea id="edBio" placeholder="一句话介绍自己（最多 300 字）"></textarea></div>
+      <div class="row" style="display:flex;gap:8px"><button class="btn" id="saveBtn">保存资料</button></div>
+
+      <h3 style="margin:18px 0 8px">我的帖子</h3>
+      <div id="myPosts"><div class="status">加载中…</div></div>
+    </div>
+
+    <div id="loginHint" class="login-hint" style="display:none">
+      登录后查看并编辑你的个人主页。<br><button class="btn" id="gotoLogin">去登录</button>
+    </div>
+  </div>
+
+  <script src="js/site-common.js?v=16"></script>
+  <script>
+    var D = window.DeltaCommon;
+    function setMsg(html, ok) {
+      var box = document.getElementById("msgBox");
+      if (!html) { box.style.display = "none"; box.className = "err-box"; return; }
+      box.innerHTML = html; box.className = ok ? "ok-box" : "err-box"; box.style.display = "block";
+    }
+
+    function viewProfile(id) {
+      document.getElementById("viewBox").style.display = "block";
+      document.getElementById("editBox").style.display = "none";
+      document.getElementById("loginHint").style.display = "none";
+      var box = document.getElementById("viewBox");
+      box.innerHTML = '<div class="status">加载中…</div>';
+      D.api("/api/user/profile/" + encodeURIComponent(id), { method: "GET" }).then(function (j) {
+        var p = j.profile || {};
+        var roleLabel = p.role === "super" ? "总管理员" : p.role === "user" ? "用户" : (p.role || "用户");
+        box.innerHTML = '<div class="profile-head"><img src="' + D.esc(p.avatar || "") + '" alt="头像" onerror="this.style.visibility=\'hidden\'">' +
+          '<div><div class="pname">' + D.esc(p.name || p.id) + '</div><div class="prole">' + D.esc(roleLabel) + '</div>' +
+          (p.bio ? '<div class="pbio">' + D.esc(p.bio) + '</div>' : '') + '</div></div>';
+      }).catch(function (e) { box.innerHTML = '<div class="status err">' + D.esc(e.message || "加载失败") + '</div>'; });
+    }
+
+    function showMyProfile() {
+      document.getElementById("viewBox").style.display = "none";
+      document.getElementById("editBox").style.display = "block";
+      document.getElementById("loginHint").style.display = "none";
+      D.api("/api/user/profile/me", { method: "GET" }).then(function (j) {
+        var p = j.profile || {};
+        var roleLabel = p.role === "super" ? "总管理员" : p.role === "user" ? "用户" : (p.role || "用户");
+        document.getElementById("pvAvatar").src = p.avatar || "";
+        document.getElementById("pvAvatar").style.visibility = p.avatar ? "visible" : "hidden";
+        document.getElementById("pvName").textContent = p.name || p.id;
+        document.getElementById("pvRole").textContent = roleLabel;
+        document.getElementById("edName").value = p.name || "";
+        document.getElementById("edAvatar").value = p.avatar || "";
+        document.getElementById("edBio").value = p.bio || "";
+        loadMyPosts(p.id);
+      }).catch(function (e) { setMsg(e.message || "加载失败"); });
+    }
+
+    function loadMyPosts(myId) {
+      var box = document.getElementById("myPosts");
+      D.api("/api/forum/posts?limit=100", { method: "GET" }).then(function (j) {
+        var list = (j.posts || []).filter(function (x) { return x.author === myId; });
+        if (!list.length) { box.innerHTML = '<div class="status">你还没有发过帖。</div>'; return; }
+        box.innerHTML = list.map(function (it) {
+          return '<div class="post" data-id="' + D.esc(it.id) + '"><div class="pmeta">' + D.fmt(it.createdAt) + ' · 💬 ' + (it.replyCount || 0) + '</div>' +
+            '<div class="ptitle" data-id="' + D.esc(it.id) + '">' + D.esc(it.title) + '</div>' +
+            '<div class="psnippet">' + D.esc(it.snippet || "") + '</div></div>';
+        }).join("");
+        box.querySelectorAll(".ptitle").forEach(function (el) {
+          el.addEventListener("click", function () { location.href = "forum.html#post-" + el.getAttribute("data-id"); });
+        });
+      }).catch(function () { box.innerHTML = '<div class="status err">帖子加载失败</div>'; });
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", function () {
+      var name = document.getElementById("edName").value.trim();
+      var bio = document.getElementById("edBio").value.trim();
+      var avatar = document.getElementById("edAvatar").value.trim();
+      setMsg("保存中…", true);
+      D.api("/api/user/profile", { method: "PUT", body: JSON.stringify({ name: name, bio: bio, avatar: avatar }) })
+        .then(function () { setMsg("✅ 资料已更新。", true); showMyProfile(); })
+        .catch(function (e) { setMsg(e.message || "保存失败"); });
+    });
+
+    document.getElementById("gotoLogin").addEventListener("click", function () { location.href = "forum.html"; });
+
+    (function init() {
+      var id = new URLSearchParams(location.search).get("id");
+      if (id) { viewProfile(id); return; }
+      if (D.isLogin()) showMyProfile();
+      else { document.getElementById("loginHint").style.display = "block"; }
+    })();
+  </script>
+</body>
+</html>
