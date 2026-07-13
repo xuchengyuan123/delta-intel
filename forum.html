@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>战友论坛 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=12">
   <style>
     .forum-wrap { max-width: 900px; margin: 0 auto; padding: 18px; }
     .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -15,15 +15,16 @@
     .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
 
     .auth-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
     .auth-bar input { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid var(--border);
       color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
     .auth-bar .who { font-size: 13px; color: var(--muted); }
-    .btn { background: var(--accent); color: #fff; border: 0; border-radius: 8px;
-      padding: 8px 14px; font-size: 13px; cursor: pointer; }
-    .btn:hover { filter: brightness(1.08); }
-    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-    .btn.sm { padding: 5px 10px; font-size: 12px; }
+    .auth-tip { font-size: 12px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
+    .auth-tip code { background: rgba(255,255,255,0.08); padding: 1px 4px; border-radius: 4px; }
+    .err-box { display: none; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #ff8e8e; line-height: 1.6; }
+    .err-box b { color: #ff6b6b; }
+    .ok-box { display: none; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.35); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #7fdc83; }
+    .ok-box b { color: #4caf50; }
 
     .composer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
     .composer input.title, .composer textarea { width: 100%; background: var(--bg); border: 1px solid var(--border);
@@ -60,8 +61,11 @@
       <span class="who" id="who">未设置 Token</span>
       <input id="tokenInput" type="password" placeholder="粘贴你的 GitHub Token（发帖用）" />
       <button class="btn sm" id="saveToken">保存</button>
+      <button class="btn sm" id="testToken" style="background:#4caf50">测试</button>
       <button class="btn ghost sm" id="clearToken">清除</button>
     </div>
+    <div id="msgBox" class="err-box"></div>
+    <p class="auth-tip">不会生成？看下方步骤。Token 只保存在你的浏览器本地，不经过服务器。</p>
 
     <div class="composer" id="composer">
       <input class="title" id="postTitle" placeholder="帖子标题" />
@@ -99,6 +103,29 @@
       var t = getToken();
       document.getElementById("who").textContent = t ? "已设置 Token ✓" : "未设置 Token";
       document.getElementById("tokenInput").value = "";
+      setMsg("");
+    }
+
+    function setMsg(html, ok) {
+      var box = document.getElementById("msgBox");
+      if (!html) { box.style.display = "none"; box.className = "err-box"; return; }
+      box.innerHTML = html;
+      box.className = ok ? "ok-box" : "err-box";
+      box.style.display = "block";
+    }
+
+    function explainError(msg) {
+      if (!msg) return msg;
+      if (msg.indexOf("Bad credentials") >= 0) return "<b>Token 无效或已过期</b>：请重新生成 Token，确保复制完整，不要多复制空格。";
+      if (msg.indexOf("Resource not accessible by personal access token") >= 0) {
+        return "<b>Token 没有 Issues 写入权限</b>。你用的是 Fine-grained token，需要：<br>" +
+          "1) Repository access 选择 <code>xuchengyuan123/delta-intel</code><br>" +
+          "2) Permissions → Issues → 勾选 <b>Read and write</b><br>" +
+          "或者更简单：改用 Classic token，只勾选 <code>repo</code> 权限。";
+      }
+      if (msg.indexOf("Not Found") >= 0) return "仓库或接口不存在，请检查仓库名称是否正确。";
+      if (msg.indexOf("rate limit") >= 0 || msg.indexOf("API rate limit") >= 0) return "GitHub 接口请求太频繁，请稍后再试。";
+      return msg;
     }
 
     function showError(msg) {
@@ -164,7 +191,8 @@
               if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "失败"); });
               loadComments(it.number, document.getElementById("replies-" + it.number));
               wrap.remove();
-            }).catch(function (e) { alert("回复失败：" + (e.message || e)); });
+              setMsg("回复成功。", true);
+            }).catch(function (e) { setMsg(explainError(e.message || e)); });
           });
         });
       });
@@ -185,7 +213,37 @@
     document.getElementById("saveToken").addEventListener("click", function () {
       var v = document.getElementById("tokenInput").value.trim();
       if (!v) { alert("请输入 Token"); return; }
-      setToken(v); updateWho(); alert("Token 已保存（仅存于本浏览器）。");
+      setToken(v); updateWho(); setMsg("<b>Token 已保存</b>（仅存于本浏览器）。建议点<b>测试</b>按钮确认权限。", true);
+    });
+    document.getElementById("testToken").addEventListener("click", function () {
+      var v = document.getElementById("tokenInput").value.trim() || getToken();
+      if (!v) { setMsg("先输入或保存一个 Token 再测试。"); return; }
+      setMsg("正在测试 Token 权限…", true);
+      fetch(API + "/repos/" + REPO, { headers: { "Accept": "application/vnd.github+json", "Authorization": "Bearer " + v } })
+        .then(function (r) {
+          if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "测试失败"); });
+          return r.json();
+        })
+        .then(function (repo) {
+          // 再测试 Issues 写权限：尝试创建并立即关闭一个 issue（只读仓库会报错）
+          return fetch(API + "/repos/" + REPO + "/issues", {
+            method: "POST",
+            headers: { "Accept": "application/vnd.github+json", "Content-Type": "application/json", "Authorization": "Bearer " + v },
+            body: JSON.stringify({ title: "Token 权限测试", body: "这是一条自动测试帖子，请忽略。", labels: [LABEL] })
+          }).then(function (r) {
+            if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "没有写入权限"); });
+            return r.json();
+          }).then(function (issue) {
+            // 关闭测试帖子
+            fetch(API + "/repos/" + REPO + "/issues/" + issue.number, {
+              method: "PATCH",
+              headers: { "Accept": "application/vnd.github+json", "Content-Type": "application/json", "Authorization": "Bearer " + v },
+              body: JSON.stringify({ state: "closed" })
+            }).catch(function () {});
+            setMsg("<b>Token 正常</b>：可以读取仓库，也可以发 Issue。现在可以发帖/回复了。", true);
+          });
+        })
+        .catch(function (e) { setMsg(explainError(e.message || e)); });
     });
     document.getElementById("clearToken").addEventListener("click", function () {
       clearToken(); updateWho();
@@ -193,8 +251,9 @@
     document.getElementById("postBtn").addEventListener("click", function () {
       var t = document.getElementById("postTitle").value.trim();
       var b = document.getElementById("postBody").value.trim();
-      if (!getToken()) { alert("发帖需要先设置 GitHub Token（看顶部）。"); return; }
+      if (!getToken()) { setMsg("发帖需要先设置 GitHub Token（在顶部输入框粘贴后点保存）。"); return; }
       if (!t || !b) { alert("标题和内容都要填。"); return; }
+      setMsg("正在发帖…", true);
       fetch(API + "/repos/" + REPO + "/issues", {
         method: "POST",
         headers: headers(true),
@@ -203,8 +262,9 @@
         if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || "发帖失败"); });
         document.getElementById("postTitle").value = "";
         document.getElementById("postBody").value = "";
+        setMsg("发帖成功！", true);
         loadPosts();
-      }).catch(function (e) { alert("发帖失败：" + (e.message || e)); });
+      }).catch(function (e) { setMsg(explainError(e.message || e)); });
     });
 
     updateWho();

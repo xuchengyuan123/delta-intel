@@ -1,0 +1,169 @@
+/* =========================================================
+ * admin-responsive.css — 后台移动端适配
+ * 目标：总管理员 / 分管理员可在手机浏览器登录并修改全站数据，
+ *       不强制使用电脑。窄屏（≤720px）下：登录卡片纵向排列、
+ *       标签栏可横向滚动、表格横向滚动、抽屉/弹窗全屏化。
+ * ========================================================= */
+
+/* ---------- 登录卡片：窄屏纵向堆叠，输入框/按钮占满 ---------- */
+@media (max-width: 720px) {
+  .forum-wrap { padding: 12px 10px; }
+  .forum-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  .auth-card { padding: 12px 10px; }
+  .auth-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .auth-row .who { font-size: 13px; color: var(--muted); }
+  .auth-row input {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;          /* 16px 避免 iOS 聚焦时自动放大 */
+    padding: 12px 10px;
+  }
+  .auth-row button {
+    width: 100%;
+    font-size: 15px;
+    padding: 12px 10px;
+  }
+
+  /* 标签栏横向滚动，不被挤换行 */
+  .admin-tabs, .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+  .admin-tabs .tab, .tabs .tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  /* 卡片内表单字段纵向 */
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .field label { font-size: 13px; color: var(--muted); }
+  .field input, .field textarea { width: 100%; font-size: 16px; padding: 10px; }
+
+  .editor { font-size: 13px; min-height: 240px; }
+
+  .row { flex-wrap: wrap; gap: 8px; }
+  .row .btn { flex: 1 1 auto; }
+
+  /* 账号管理表格：横向滚动容器 */
+  #userList { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .urow {
+    min-width: 640px;          /* 保证列不被压扁，靠外层横向滚动 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .urow .uc { flex: 1 1 0; min-width: 90px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+  .urow .u-email { flex: 2 1 0; min-width: 150px; }
+  .urow .u-time { min-width: 120px; }
+  .urow .u-act-h, .urow .u-act { flex: 0 0 auto; min-width: 120px; }
+  .urow .role-sel { width: 100%; font-size: 12px; }
+  .urow .btn { width: 100%; margin-bottom: 4px; }
+
+  /* 数据表格组件（admin-table.js）：横向滚动 + 固定列在窄屏仍可用 */
+  .at-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .at-table { font-size: 12px; }
+  .at-table th, .at-table td { padding: 8px 10px; white-space: nowrap; }
+  .at-toolbar { flex-wrap: wrap; gap: 6px; }
+  .at-toolbar input, .at-toolbar select { font-size: 14px; }
+
+  /* 抽屉编辑：窄屏全屏覆盖，便于手指操作 */
+  .at-drawer-mask { background: rgba(0,0,0,.5); }
+  .at-drawer {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .at-drawer .at-field { margin-bottom: 12px; }
+  .at-drawer .at-field label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .at-drawer .at-field input,
+  .at-drawer .at-field select,
+  .at-drawer .at-field textarea {
+    width: 100%; font-size: 16px; padding: 10px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .at-drawer .at-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .at-drawer .at-actions .btn { flex: 1 1 auto; font-size: 15px; padding: 12px; }
+
+  /* 列设置弹层在窄屏全宽 */
+  .at-cfg {
+    position: fixed !important;
+    left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important;
+    width: 100% !important; max-width: 100% !important;
+    border-radius: 12px 12px 0 0;
+    max-height: 70vh; overflow-y: auto;
+  }
+
+  /* 图片库网格 */
+  .img-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .img-grid img { width: 100%; height: auto; border-radius: 8px; }
+
+  /* 论坛帖子 */
+  .post { padding: 10px 0; }
+  .post .ptitle { font-size: 14px; }
+  .post .pbody { font-size: 13px; max-height: 120px; overflow: hidden; }
+
+  /* 任务列表 */
+  .task-search input { width: 100%; font-size: 16px; padding: 10px; }
+}
+
+/* 超窄屏（≤420px）进一步压缩 */
+@media (max-width: 420px) {
+  .forum-head .logo { font-size: 16px; }
+  .urow { min-width: 560px; }
+  .img-grid { grid-template-columns: 1fr; }
+}
+
+/* 桌面端：账号管理表格也允许横向滚动以防列过多 */
+@media (min-width: 721px) {
+  #userList { overflow-x: auto; }
+  .urow { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .urow .uc { flex: 1 1 0; min-width: 90px; }
+  .urow .u-email { flex: 2 1 0; }
+  .urow .u-act { flex: 0 0 auto; min-width: 130px; display: flex; gap: 6px; }
+}
+
+/* ---------- 公共登录弹窗（auth.js）移动端适配 ---------- */
+@media (max-width: 720px) {
+  .modal { padding: 0; }
+  .modal-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-body { padding: 16px; }
+  .modal-body .tabs { display: flex; gap: 6px; }
+  .modal-body .tab { flex: 1; font-size: 14px; padding: 10px; }
+  .modal-body form label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  .modal-body form input {
+    width: 100%; font-size: 16px; padding: 12px 10px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .modal-body .auth-send { display: inline-block; font-size: 12px; color: var(--accent); margin-left: 6px; }
+  .modal-body .btn-primary { width: 100%; font-size: 16px; padding: 14px; margin-top: 14px; }
+  .modal-body .auth-code-box { margin-top: 10px; }
+  .modal-body .auth-code-value { font-size: 28px; letter-spacing: 4px; }
+}

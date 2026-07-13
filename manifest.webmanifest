@@ -1,0 +1,12 @@
+{
+  "name": "三角洲情报台 DeltaIntel",
+  "short_name": "情报台",
+  "description": "三角洲行动每日战区情报站",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#ffb300",
+  "icons": [
+    { "src": "https://cdn.jsdelivr.net/gh/twbs/icons@1.11.3/icons/soundwave.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

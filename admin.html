@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>管理后台 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/admin-responsive.css?v=2">
+  <style>
+    .forum-wrap { max-width: 960px; margin: 0 auto; padding: 18px; }
+    .forum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .forum-head .logo { font-size: 18px; font-weight: 700; }
+    .forum-head .logo-accent { color: var(--accent); }
+    .forum-head a.back { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .forum-head a.back:hover { color: var(--accent); }
+    .forum-tip { color: var(--muted); font-size: 13px; margin: 4px 0 14px; line-height: 1.6; }
+
+    .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+    .auth-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .auth-row input { flex: 1; min-width: 160px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+    .who { font-size: 13px; color: var(--muted); }
+
+    .btn { background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; cursor: pointer; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+    .btn.danger { background: #d9534f; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .card h4 { margin: 12px 0 6px; font-size: 14px; }
+    .card .editor { width: 100%; min-height: 320px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 10px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace;
+      box-sizing: border-box; line-height: 1.5; resize: vertical; }
+    .card .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .msg { font-size: 13px; }
+    .msg.ok { color: #7fdc83; }
+    .msg.err { color: #ff6b6b; }
+
+    .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .field label { font-size: 13px; color: var(--muted); }
+    .field input, .field textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box; width: 100%;
+      font-family: inherit; }
+    .field textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
+    .chk { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .hr { border: 0; border-top: 1px dashed var(--border); margin: 14px 0; }
+
+    .post { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .post .pauthor { color: var(--accent); font-weight: 600; }
+    .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+    .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+    .status { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    .task-search input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; }
+    select { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; width: 100%; }
+    .task-admin-group { border: 1px dashed var(--border); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+    .task-admin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .task-admin-name { flex: 1; font-weight: 700; }
+    .task-admin-item { padding: 8px 0 8px 20px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .task-admin-item:last-child { border-bottom: none; }
+    .task-admin-empty { color: var(--muted); font-size: 12px; padding: 4px 0 4px 20px; }
+
+    .admin-tabs { margin-bottom: 14px; flex-wrap: wrap; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* 图片库网格 */
+    .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; }
+    .img-card { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .img-thumb { width: 100%; height: 110px; object-fit: cover; background: var(--bg); display: block; }
+    .img-name { font-size: 12px; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+    .img-used { display: flex; gap: 6px; padding: 0 8px 8px; }
+    .img-used button { flex: 1; font-size: 11px; padding: 4px; }
+    .music-item { display: flex; gap: 10px; align-items: center; padding: 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .music-item:last-child { border-bottom: none; }
+    .music-item .mi-name { flex: 1; min-width: 0; }
+    .ulist { font-size: 13px; }
+    .ulist div { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+    .ulist div:last-child { border-bottom: none; }
+
+    /* ⑧ 账号管理表格 */
+    .urow { display: grid; grid-template-columns: 2.4fr 1.4fr 1.4fr 0.9fr 1.6fr 1.8fr; gap: 10px; align-items: center; padding: 9px 6px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .urow.uhead { font-weight: 700; color: var(--muted); border-bottom: 2px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+    .uc { min-width: 0; overflow: hidden; }
+    .u-email { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .u-time { color: var(--muted); white-space: nowrap; }
+    .u-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .role-sel { padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-soft); color: var(--text); font-size: 12px; max-width: 100%; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .badge.ok { background: rgba(34,197,94,.16); color: #16a34a; }
+    .badge.bad { background: rgba(239,68,68,.16); color: #dc2626; }
+    .btn.danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .btn.danger:hover { background: #b91c1c; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="forum-wrap">
+    <div class="forum-head">
+      <span class="logo">三角洲<span class="logo-accent">情报台</span> · 管理后台</span>
+      <a class="back" href="index.html">← 返回首页</a>
+      <button class="icon-btn" id="langToggle" title="语言 / Language">🌐</button>
+    </div>
+    <p class="forum-tip">管理员登录：<b>总管理员</b>与<b>分管理员</b>统一用「邮箱/手机号 + 密码」登录（<b>总管理员仅支持密码，不支持验证码</b>）；分管理员也可选「邮箱 + 验证码」免密登录。所有 GitHub Token 仅保存在服务端 Worker，<b>绝不会出现在浏览器里</b>。</p>
+
+    <div class="auth-card">
+      <div class="auth-row" id="workerLogin">
+        <span class="who" id="whoWorker">未登录</span>
+        <input id="adminId" placeholder="邮箱或手机号" />
+        <input id="adminPw" type="password" placeholder="密码（总管理员必填）" />
+        <input id="adminCode" placeholder="验证码" style="max-width:110px" />
+        <button class="btn sm" id="adminSend">获取验证码</button>
+        <button class="btn sm" id="adminLoginBtn">登录</button>
+        <button class="btn ghost sm" id="adminLogoutBtn">退出</button>
+      </div>
+    </div>
+
+    <div id="panel" style="display:none">
+      <div class="tabs admin-tabs">
+        <button class="tab active" data-tab="data" data-i18n="tabData">① 数据</button>
+        <button class="tab" data-tab="site" data-i18n="tabSite">② 站点</button>
+        <button class="tab" data-tab="ui" data-i18n="tabUi">③ 界面</button>
+        <button class="tab" data-tab="music" data-i18n="tabMusic">④ 音乐</button>
+        <button class="tab" data-tab="images" data-i18n="tabImages">⑤ 图片库</button>
+        <button class="tab" data-tab="tasks" data-i18n="tabTasks">⑥ 任务</button>
+        <button class="tab" data-tab="forum" data-i18n="tabForum2">⑦ 论坛</button>
+        <button class="tab" data-tab="staff" id="staffTab" style="display:none" data-i18n="tabStaff2">⑧ 账号管理（全平台）</button>
+        <button class="tab" data-tab="tables" data-i18n="tabTables">⑨ 数据表格</button>
+        <button class="tab" data-tab="icons" data-i18n="tabIcons2">⑩ 图标</button>
+        <button class="tab" data-tab="feed" data-i18n="tabFeed2">⑪ 内容</button>
+        <button class="tab" data-tab="sponsors" data-i18n="tabSponsors2">⑫ 赞助名单</button>
+        <button class="tab" data-tab="code" data-i18n="tabCode">⑬ 代码维护</button>
+      </div>
+
+      <!-- ① 数据 -->
+      <div class="tab-pane active" data-pane="data">
+        <div class="card">
+          <h3>① 数据管理（data.json 原始）</h3>
+          <p class="forum-tip">直接编辑下面的 JSON，保存后立即生效。<b>地图密码 + 材料价格 + 活动物品售价每天自动更新</b>；子弹利润 / 特勤处产物利润没有免费接口，你在这里手动改后会被保留。</p>
+          <textarea class="editor" id="dataEditor" spellcheck="false"></textarea>
+          <div class="row">
+            <button class="btn" id="saveData">保存数据</button>
+            <span class="msg" id="dataMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 站点 -->
+      <div class="tab-pane" data-pane="site">
+        <div class="card">
+          <h3>② 站点配置</h3>
+          <p class="forum-tip">填爱发电链接（注册好爱发电后把主页地址贴进来保存即可，赞助页会自动更新）。apiBase 填你的 Cloudflare Worker 地址（分管理员登录 / 用户登录用）。</p>
+          <div class="field"><label>站点名称</label><input id="siteName" placeholder="三角洲情报台" /></div>
+          <div class="field"><label>爱发电链接（Afdian）</label><input id="afdianUrl" placeholder="https://afdian.com/a/你的ID" /></div>
+          <div class="field"><label>登录后端地址（Worker，如 https://xxx.workers.dev）</label><input id="apiBase" placeholder="https://你的worker.workers.dev" /></div>
+          <div class="row"><button class="btn" id="saveSite">保存配置</button><span class="msg" id="siteMsg"></span></div>
+        </div>
+      </div>
+
+      <!-- ③ 界面 -->
+      <div class="tab-pane" data-pane="ui">
+        <div class="card">
+          <h3>③ 界面自定义（总管理员）</h3>
+          <p class="forum-tip">设置站点主题色，保存后全站生效（写入 data.json 的 site.ui，前台自动套用）。留空则使用默认色。</p>
+          <div class="field"><label>主色 accent（如 #ffb300）</label><input id="uiAccent" placeholder="#ffb300" /></div>
+          <div class="field"><label>辅色 accent-2（如 #19c3a6）</label><input id="uiAccent2" placeholder="#19c3a6" /></div>
+          <div class="row"><button class="btn" id="saveUi">保存界面设置</button><span class="msg" id="uiMsg"></span></div>
+        </div>
+      </div>
+
+      <!-- ④ 音乐 -->
+      <div class="tab-pane" data-pane="music">
+        <div class="card">
+          <h3>④ 音乐台（外链播放）</h3>
+          <p class="forum-tip">添加外部播放链接（网易云/QQ音乐外链，或 mp3 直链）。前台「🎵 音乐台」展示，并用右下角悬浮播放器播放（切页不中断）。</p>
+          <div id="musicList"></div>
+          <hr class="hr" />
+          <h4>添加 / 编辑曲目</h4>
+          <input type="hidden" id="mId" />
+          <div class="field"><label>曲名</label><input id="mName" placeholder="曲名" /></div>
+          <div class="field"><label>作者</label><input id="mArtist" placeholder="作者（可选）" /></div>
+          <div class="field"><label>播放链接 url</label><input id="mUrl" placeholder="https://... 或 .mp3 直链" /></div>
+          <div class="row"><button class="btn" id="saveMusic">保存曲目</button><button class="btn ghost" id="newMusic">清空</button><span class="msg" id="musicMsg"></span></div>
+        </div>
+      </div>
+
+      <!-- ⑤ 图片库 -->
+      <div class="tab-pane" data-pane="images">
+        <div class="card">
+          <h3>⑤ 图片库 / 美术素材</h3>
+          <p class="forum-tip">上传图片到仓库 <code>docs/assets/img/</code>，前台可在图鉴等处分发引用。<b>本站为纯静态站，不提供 AI 自动生图</b>（那需要付费接口），这里只做图片上传与整理。</p>
+          <div class="row">
+            <input type="file" id="imgFile" accept="image/*" />
+            <button class="btn" id="imgUpload">上传</button>
+            <span class="msg" id="imgMsg"></span>
+          </div>
+          <div class="img-grid" id="imgGrid"></div>
+        </div>
+      </div>
+
+      <!-- ⑥ 任务 -->
+      <div class="tab-pane" data-pane="tasks">
+        <div class="card">
+          <h3>⑥ 任务管理（赛季任务 / 挑战手册）</h3>
+          <p class="forum-tip">按分组维护可折叠的任务列表。前台「赛季任务 / 挑战手册」菜单会显示这里的数据。</p>
+          <div class="task-search"><input id="taskAdminSearch" placeholder="搜索任务…" /></div>
+          <div id="taskList"><div class="status">加载中…</div></div>
+          <hr class="hr" />
+          <h4>添加分组</h4>
+          <div class="row">
+            <input id="tgName" placeholder="分组名称，例如：行动任务" style="flex:1" />
+            <button class="btn" id="addTaskGroup" type="button">添加分组</button>
+          </div>
+          <span class="msg" id="tgMsg"></span>
+          <hr class="hr" />
+          <h4 id="taskFormTitle">添加任务</h4>
+          <input type="hidden" id="tId" />
+          <div class="field"><label>所属分组</label><select id="tGroup"></select></div>
+          <div class="field"><label>任务标题</label><input id="tTitle" placeholder="例如：第1阶段任务" /></div>
+          <div class="field"><label>任务内容</label><textarea id="tBody" placeholder="具体任务要求、奖励、注意事项…"></textarea></div>
+          <div class="row">
+            <button class="btn" id="saveTask">保存任务</button>
+            <button class="btn ghost" id="newTask" type="button">清空新建</button>
+            <span class="msg" id="tFormMsg"></span>
+          </div>
+          <div class="row"><span class="msg" id="taskMsg"></span></div>
+        </div>
+      </div>
+
+      <!-- ⑦ 论坛 -->
+      <div class="tab-pane" data-pane="forum">
+        <div class="card">
+          <h3>⑦ 论坛管理（标签：💬 论坛）</h3>
+          <div id="posts"><div class="status">加载中…</div></div>
+        </div>
+      </div>
+
+      <!-- ⑧ 分管理员 -->
+      <div class="tab-pane" data-pane="staff">
+        <div class="card">
+          <h3>⑧ 账号管理（全平台）</h3>
+          <p class="forum-tip">管理本站所有账号：修改角色（普通用户 / 分管理员 / 总管理员）、封禁/解封、删除账号。顶部仍可创建分管理员。需以 Worker 账号（邮箱+验证码或密码）登录后才能操作。</p>
+          <div class="field"><label>邮箱</label><input id="saEmail" placeholder="admin2@example.com" /></div>
+          <div class="field"><label>密码（≥6）</label><input id="saPw" type="password" placeholder="分管理员密码" /></div>
+          <div class="field"><label>手机号（可选）</label><input id="saPhone" placeholder="138xxxx" /></div>
+          <div class="row"><button class="btn" id="saCreate">创建分管理员</button><span class="msg" id="saMsg"></span></div>
+          <hr class="hr" />
+          <h4>用户列表</h4>
+          <div class="ulist" id="userList"></div>
+        </div>
+      </div>
+
+      <!-- ⑨ 数据表格（优化版：固定列+横滚+行展开+列显隐+添加行自动保存） -->
+      <div class="tab-pane" data-pane="tables">
+        <div class="card">
+          <h3>⑨ 结构化数据表格</h3>
+          <p class="forum-tip">专为多列数据优化：首列（名称）与尾列（操作）固定，中间横向滚动；点任意行从右侧展开完整编辑抽屉；「⚙ 列设置」可勾选显示列 / 拖拽排序（按表记忆）。修改后点「💾 保存全部」写入。<b>添加一行前会自动保存当前正在编辑的行，不会丢数据。</b></p>
+          <h4>特勤处产物推荐（items）</h4>
+          <div id="tblItems"></div>
+          <hr class="hr" />
+          <h4>热门子弹利润（bullets）</h4>
+          <div id="tblBullets"></div>
+          <hr class="hr" />
+          <h4>高价格浮动材料（materials）</h4>
+          <div id="tblMaterials"></div>
+        </div>
+      </div>
+
+      <!-- ⑩ 图标库（美术管理员上传，替换全站 emoji） -->
+      <div class="tab-pane" data-pane="icons">
+        <div class="card">
+          <h3>⑩ 图标库 / 美术素材（替换全站 emoji）</h3>
+          <p class="forum-tip">上传一张图片并绑定一个“图标键”，前台对应位置就会用图片替换 emoji（没绑定的位置仍显示 emoji）。<b>常用图标键：</b><code>nav:home</code>（首页）、<code>nav:items</code>（特勤处）、<code>nav:craft</code>（制作树）、<code>item:xxx</code>（道具名，如 <code>item:5.45x39mm BT</code>）、<code>link:干员图鉴</code> 等。键名可在前台源码里搜 <code>diIcon("键名"</code> 找到。</p>
+          <div class="row">
+            <input type="file" id="iconFile" accept="image/*" />
+            <input id="iconKey" placeholder="图标键，如 nav:home" style="flex:1;min-width:160px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px" />
+            <button class="btn" id="iconBind">上传并绑定</button>
+            <span class="msg" id="iconMsg"></span>
+          </div>
+          <div id="iconList" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ⑪ 主页内容（视频/攻略/图片） -->
+      <div class="tab-pane" data-pane="feed">
+        <div class="card">
+          <h3>⑪ 主页内容（视频 / 攻略 / 图片）</h3>
+          <p class="forum-tip">在首页一图流顶部展示。视频填 B站/YouTube 链接会自动转成内嵌播放器；图片填图片链接；攻略/资讯填正文。<b>保存后需重新部署静态站才能在前台生效。</b></p>
+          <div id="tblFeed"></div>
+        </div>
+      </div>
+
+      <!-- ⑫ 赞助名单 -->
+      <div class="tab-pane" data-pane="sponsors">
+        <div class="card">
+          <h3>⑫ 赞助名单（首页展示）</h3>
+          <p class="forum-tip">在首页底部「赞助名单」区块展示。头像填图片链接（可在 ⑤图片库 或 ⑩图标 上传后复制链接粘贴到这里）。保存并重新部署后前台生效。</p>
+          <div id="tblSponsors"></div>
+        </div>
+      </div>
+
+      <!-- ⑬ 代码维护（经 Worker 服务端 GH_TOKEN 提交到仓库，docs/ 与 public/ 下的文件/代码都行）-->
+      <div class="tab-pane" data-pane="code">
+        <div class="card">
+          <h3>⑬ 代码维护（全站 docs/、public/ 文件）</h3>
+          <p class="forum-tip">代码维护员可在此直接编辑仓库里的网页/样式/脚本文件。所有写入都经 Worker 服务端 <b>GH_TOKEN</b> 提交到 GitHub（Token 绝不下发浏览器）；保存后 GitHub Pages 会自动重新构建（约 1 分钟生效）。<b>worker.js 不在这里改</b>，改 worker 后请在 Cloudflare 控制台重新部署。</p>
+          <div class="field">
+            <label>目标文件（仅限 docs/ 或 public/ 下，如 docs/map.html、public/css/style.css、public/js/app.js）</label>
+            <input id="codePath" placeholder="docs/map.html" value="docs/data.json" list="codePresets" />
+            <datalist id="codePresets">
+              <option value="docs/data.json"></option>
+              <option value="docs/map.html"></option>
+              <option value="public/index.html"></option>
+              <option value="public/admin.html"></option>
+              <option value="public/css/style.css"></option>
+              <option value="public/js/app.js"></option>
+              <option value="public/js/auth.js"></option>
+              <option value="public/js/i18n.js"></option>
+              <option value="public/sw.js"></option>
+            </datalist>
+          </div>
+          <div class="row">
+            <button class="btn" id="codeLoad">📂 加载</button>
+            <button class="btn primary" id="codeSave">💾 保存到仓库</button>
+            <span id="codeSha" class="forum-tip"></span>
+          </div>
+          <div id="codeMsg" class="msg"></div>
+          <textarea id="codeEditor" class="editor" spellcheck="false" placeholder="点击「加载」读取文件内容…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js?v=1"></script>
+  <script src="js/admin-table.js?v=16"></script>
+  <script>
+    var REPO = "xuchengyuan123/delta-intel";
+    var LABEL = "💬 论坛";
+    var API = "https://api.github.com";
+    var TOKEN_KEY = "di_admin_token";
+    var SESSION_KEY = "di_admin_session";
+    var dataSha = "";
+
+    function getToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+    function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+    function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+    function getWorkerSession() { try { return localStorage.getItem(SESSION_KEY) || ""; } catch (e) { return ""; } }
+    function setWorkerSession(s) { try { localStorage.setItem(SESSION_KEY, s); } catch (e) {} }
+    function clearWorkerSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) {} }
+    function apiBase() {
+      if (window.DELTA_API) return window.DELTA_API.replace(/\/$/, "");
+      return "";
+    }
+    function adminMode() { return getWorkerSession() ? "worker" : ""; }
+    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
+    function nowStr() {
+      var d = new Date(); var p = function (x) { return String(x).padStart(2, "0"); };
+      return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+
+    // 所有后台操作统一走 Worker（Bearer 会话）；GitHub Token 仅存于 Worker 服务端，绝不下发浏览器
+    function wkFetch(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+      if (getWorkerSession()) opts.headers["Authorization"] = "Bearer " + getWorkerSession();
+      return fetch(apiBase() + path, opts);
+    }
+
+    /* ---------- 统一数据读写（全部经 Worker 会话） ---------- */
+    function loadDataObj() {
+      return wkFetch("/api/admin/data").then(function (r) { return r.json(); }).then(function (j) {
+        if (j.error) throw new Error(j.error);
+        return { obj: JSON.parse(j.content) };
+      });
+    }
+    function saveDataObj(obj, msgEl) {
+      msgEl.className = "msg"; msgEl.textContent = "保存中…";
+      return wkFetch("/api/admin/data", { method: "PUT", body: JSON.stringify({ content: JSON.stringify(obj, null, 2) }) })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) throw new Error(j.error);
+          msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功";
+        });
+    }
+    // 上传文件到仓库（经 Worker 的 GH_TOKEN，仅允许 docs/ 与 public/ 路径）
+    function putFile(path, base64, message, msgEl) {
+      if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "上传中…"; }
+      return wkFetch("/api/admin/file", { method: "PUT", body: JSON.stringify({ path: path, content: base64, message: message }) })
+        .then(function (r) { return r.json(); }).then(function (j) { if (j.error) throw new Error(j.error); return j; });
+    }
+
+    /* ---------- 管理员登录（密码 / 验证码，统一走 Worker） ---------- */
+    function updateWorkerWho() {
+      var s = getWorkerSession();
+      document.getElementById("whoWorker").textContent = s ? "已登录 ✓（管理员）" : "未登录";
+    }
+    document.getElementById("adminSend").addEventListener("click", function () {
+      var to = document.getElementById("adminId").value.trim();
+      if (!to) { alert("请先填写邮箱或手机号"); return; }
+      wkFetch("/api/send-code", { method: "POST", body: JSON.stringify({ to: to }) })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          if (j.ok || j.devCode) { alert("验证码已发送" + (j.devCode ? "（开发模式：" + j.devCode + "）" : "，请查收邮件")); }
+          else alert("发送失败：" + (j.error || ""));
+        }).catch(function () { alert("发送失败，请确认 Worker 已部署且 apiBase 正确"); });
+    });
+    document.getElementById("adminLoginBtn").addEventListener("click", function () {
+      var id = document.getElementById("adminId").value.trim();
+      var pw = document.getElementById("adminPw").value;
+      var code = document.getElementById("adminCode").value.trim();
+      if (!id) { alert("请填写邮箱或手机号"); return; }
+      var body;
+      if (code && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(id)) body = { email: id, code: code };
+      else { if (!pw) { alert("请输入密码，或用邮箱+验证码免密登录"); return; } body = { id: id, password: pw }; }
+      wkFetch("/api/admin-login", { method: "POST", body: JSON.stringify(body) })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          if (j.session) { setWorkerSession(j.session); alert("登录成功：" + j.email + "（" + j.role + "）"); afterLogin(j.role); }
+          else alert("登录失败：" + (j.error || ""));
+        }).catch(function () { alert("登录失败，请确认 Worker 已部署"); });
+    });
+    document.getElementById("adminLogoutBtn").addEventListener("click", function () { clearWorkerSession(); afterLogout(); });
+
+    /* ---------- 登录后：显示面板 + 加载 ---------- */
+    function afterLogin(role) {
+      window.DI_ROLE = role || "user";
+      document.getElementById("panel").style.display = "block";
+      var isSuper = (role === "super");
+      document.getElementById("staffTab").style.display = isSuper ? "" : "none";
+      loadAll();
+    }
+    function afterLogout() {
+      document.getElementById("panel").style.display = "none";
+      updateWorkerWho();
+    }
+
+    /* ---------- ① 原始数据 ---------- */
+    function loadData() {
+      loadDataObj().then(function (d) {
+        document.getElementById("dataEditor").value = JSON.stringify(d.obj, null, 2);
+      }).catch(function () {
+        document.getElementById("dataEditor").value = "/* 读取失败，请确认登录态与权限 */";
+      });
+    }
+    document.getElementById("saveData").addEventListener("click", function () {
+      var txt = document.getElementById("dataEditor").value;
+      var msg = document.getElementById("dataMsg");
+      try { JSON.parse(txt); } catch (e) { msg.className = "msg err"; msg.textContent = "JSON 格式错误，未保存：" + e.message; return; }
+      saveDataObj(JSON.parse(txt), msg).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+
+    /* ---------- ② 站点配置 ---------- */
+    function loadSite() {
+      loadDataObj().then(function (d) {
+        var site = d.obj.site || { afdianUrl: "", name: "", apiBase: "" };
+        document.getElementById("siteName").value = site.name || "";
+        document.getElementById("afdianUrl").value = site.afdianUrl || "";
+        document.getElementById("apiBase").value = site.apiBase || "";
+      }).catch(function () {});
+    }
+    document.getElementById("saveSite").addEventListener("click", function () {
+      var msg = document.getElementById("siteMsg");
+      loadDataObj().then(function (d) {
+        d.obj.site = {
+          name: document.getElementById("siteName").value.trim(),
+          afdianUrl: document.getElementById("afdianUrl").value.trim(),
+          apiBase: document.getElementById("apiBase").value.trim()
+        };
+        return saveDataObj(d.obj, msg);
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+
+    /* ---------- ③ 界面自定义 ---------- */
+    function loadUi() {
+      loadDataObj().then(function (d) {
+        var ui = (d.obj.site && d.obj.site.ui) || {};
+        document.getElementById("uiAccent").value = ui.accent || "";
+        document.getElementById("uiAccent2").value = ui.accent2 || "";
+      }).catch(function () {});
+    }
+    document.getElementById("saveUi").addEventListener("click", function () {
+      var msg = document.getElementById("uiMsg");
+      loadDataObj().then(function (d) {
+        d.obj.site = d.obj.site || {};
+        d.obj.site.ui = {
+          accent: document.getElementById("uiAccent").value.trim(),
+          accent2: document.getElementById("uiAccent2").value.trim()
+        };
+        return saveDataObj(d.obj, msg);
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+
+    /* ---------- ④ 音乐管理 ---------- */
+    function loadMusic() {
+      loadDataObj().then(function (d) {
+        var list = d.obj.music || [];
+        var box = document.getElementById("musicList");
+        if (!list.length) { box.innerHTML = '<div class="status">暂无曲目</div>'; return; }
+        box.innerHTML = list.map(function (t, i) {
+          return '<div class="music-item">' +
+            '<span class="mi-name"><b>' + esc(t.name) + '</b> <span style="color:var(--muted)">' + esc(t.artist || "") + '</span><br><span style="color:var(--muted);font-size:11px">' + esc(t.url || "") + '</span></span>' +
+            '<button class="btn sm act-edit-music" data-i="' + i + '">编辑</button>' +
+            '<button class="btn danger sm act-del-music" data-i="' + i + '">删除</button>' +
+          '</div>';
+        }).join("");
+        box.querySelectorAll(".act-edit-music").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var i = parseInt(b.getAttribute("data-i"), 10);
+            var t = (getCurrent().music || [])[i];
+            if (!t) return;
+            document.getElementById("mId").value = i;
+            document.getElementById("mName").value = t.name || "";
+            document.getElementById("mArtist").value = t.artist || "";
+            document.getElementById("mUrl").value = t.url || "";
+            document.getElementById("musicMsg").textContent = "编辑中…";
+          });
+        });
+        box.querySelectorAll(".act-del-music").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("确定删除该曲目？")) return;
+            var i = parseInt(b.getAttribute("data-i"), 10);
+            var obj = getCurrent();
+            obj.music = (obj.music || []).filter(function (_, idx) { return idx !== i; });
+            saveDataObj(obj, document.getElementById("musicMsg")).then(loadMusic);
+          });
+        });
+      }).catch(function () {});
+    }
+    var _cache = null;
+    function getCurrent() { return _cache || {}; }
+    document.getElementById("newMusic").addEventListener("click", function () {
+      document.getElementById("mId").value = "";
+      document.getElementById("mName").value = "";
+      document.getElementById("mArtist").value = "";
+      document.getElementById("mUrl").value = "";
+      document.getElementById("musicMsg").textContent = "";
+    });
+    document.getElementById("saveMusic").addEventListener("click", function () {
+      var msg = document.getElementById("musicMsg");
+      var name = document.getElementById("mName").value.trim();
+      var url = document.getElementById("mUrl").value.trim();
+      if (!name || !url) { msg.className = "msg err"; msg.textContent = "曲名和链接必填"; return; }
+      loadDataObj().then(function (d) {
+        d.obj.music = d.obj.music || [];
+        var id = document.getElementById("mId").value;
+        var item = { name: name, artist: document.getElementById("mArtist").value.trim(), url: url };
+        if (id !== "") d.obj.music[parseInt(id, 10)] = item;
+        else d.obj.music.push(item);
+        return saveDataObj(d.obj, msg).then(loadMusic);
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+
+    /* ---------- ⑤ 图片库 ---------- */
+    function loadImages() {
+      loadDataObj().then(function (d) {
+        var imgs = d.obj.images || [];
+        var grid = document.getElementById("imgGrid");
+        if (!imgs.length) { grid.innerHTML = '<div class="status">暂无图片，上传一张吧</div>'; return; }
+        grid.innerHTML = imgs.map(function (im, i) {
+          return '<div class="img-card">' +
+            '<img class="img-thumb" src="' + esc(im.url) + '" alt="' + esc(im.name) + '" loading="lazy" />' +
+            '<div class="img-name">' + esc(im.name || ("img" + i)) + '</div>' +
+            '<div class="img-used">' +
+              '<button class="btn sm act-copy-img" data-url="' + esc(im.url) + '">复制链接</button>' +
+              '<button class="btn danger sm act-del-img" data-i="' + i + '">删</button>' +
+            '</div></div>';
+        }).join("");
+        grid.querySelectorAll(".act-copy-img").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var u = b.getAttribute("data-url");
+            if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { alert("已复制链接"); });
+            else alert(u);
+          });
+        });
+        grid.querySelectorAll(".act-del-img").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("确定删除该图片记录？（不会删除仓库文件）")) return;
+            var i = parseInt(b.getAttribute("data-i"), 10);
+            loadDataObj().then(function (d2) {
+              d2.obj.images = (d2.obj.images || []).filter(function (_, idx) { return idx !== i; });
+              return saveDataObj(d2.obj, document.getElementById("imgMsg")).then(loadImages);
+            }).catch(function (e) { document.getElementById("imgMsg").className = "msg err"; document.getElementById("imgMsg").textContent = "❌ " + e.message; });
+          });
+        });
+      }).catch(function () {});
+    }
+    document.getElementById("imgUpload").addEventListener("click", function () {
+      var f = document.getElementById("imgFile").files[0];
+      var msg = document.getElementById("imgMsg");
+      if (!f) { msg.className = "msg err"; msg.textContent = "请选择一张图片"; return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = (reader.result || "").split(",")[1];
+        if (!base64) { msg.className = "msg err"; msg.textContent = "读取失败"; return; }
+        var safe = (f.name || "img").replace(/[^\w.\-]/g, "_");
+        var path = "docs/assets/img/" + Date.now() + "_" + safe;
+        putFile(path, base64, "上传图片 " + safe, msg).then(function (res) {
+          var url = res.url || "";
+          if (!url) { msg.className = "msg err"; msg.textContent = "上传未返回链接"; return; }
+          return loadDataObj().then(function (d) {
+            d.obj.images = d.obj.images || [];
+            d.obj.images.push({ name: f.name, url: url });
+            return saveDataObj(d.obj, msg).then(loadImages);
+          });
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+      reader.readAsDataURL(f);
+    });
+
+    /* ---------- ⑥ 任务管理 ---------- */
+    function getTasks(d) { return d.obj.tasks || { search: "", groups: [] }; }
+    function refreshGroupSelect(groups) {
+      var sel = document.getElementById("tGroup");
+      sel.innerHTML = (groups || []).map(function (g) { return '<option value="' + esc(g.id) + '">' + esc(g.name) + "</option>"; }).join("");
+    }
+    function loadTasks() {
+      loadDataObj().then(function (d) {
+        _cache = d.obj;
+        var tasks = getTasks(d);
+        var q = document.getElementById("taskAdminSearch").value.toLowerCase();
+        var box = document.getElementById("taskList");
+        if (!tasks.groups || !tasks.groups.length) { box.innerHTML = '<div class="status">暂无任务分组。在上方添加分组。</div>'; refreshGroupSelect([]); return; }
+        var html = tasks.groups.map(function (g) {
+          var items = (g.items || []).filter(function (it) {
+            if (!q) return true;
+            return (it.title + " " + it.content).toLowerCase().indexOf(q) > -1;
+          });
+          var itemsHtml = items.length ? items.map(function (it) {
+            return '<div class="task-admin-item"><b>' + esc(it.title) + '</b>' + (it.done ? " ✅" : "") +
+              '<div style="color:var(--muted);font-size:12px;margin-top:2px">' + esc(it.content || "") + "</div>" +
+              '<div style="margin-top:4px"><button class="btn sm act-edit-task" data-gid="' + esc(g.id) + '" data-tid="' + esc(it.id) + '">编辑</button>' +
+              '<button class="btn danger sm act-del-task" data-gid="' + esc(g.id) + '" data-tid="' + esc(it.id) + '" style="margin-left:6px">删除</button></div></div>';
+          }).join("") : '<div class="task-admin-empty">该分组暂无任务</div>';
+          return '<div class="task-admin-group"><div class="task-admin-head" data-gid="' + esc(g.id) + '">' +
+            '<span>' + (g.open ? "▾" : "▸") + '</span><span class="task-admin-name">' + esc(g.name) + "</span>" +
+            '<span style="color:var(--muted);font-size:12px">' + items.length + "</span></div>" +
+            '<div class="task-admin-body" style="display:' + (g.open ? "block" : "none") + '">' + itemsHtml + "</div></div>";
+        }).join("");
+        box.innerHTML = html;
+        refreshGroupSelect(tasks.groups);
+        bindTaskAdminEvents();
+      }).catch(function () {});
+    }
+    function bindTaskAdminEvents() {
+      document.querySelectorAll(".task-admin-head").forEach(function (h) {
+        h.addEventListener("click", function () {
+          var gid = h.getAttribute("data-gid");
+          loadDataObj().then(function (d) {
+            var tasks = getTasks(d);
+            var g = tasks.groups.find(function (x) { return x.id === gid; });
+            if (g) { g.open = !g.open; return saveDataObj(d.obj, document.getElementById("taskMsg")); }
+          }).then(function () { loadTasks(); }).catch(function () {});
+        });
+      });
+      document.querySelectorAll(".act-edit-task").forEach(function (b) { b.addEventListener("click", function () { editTask(b.getAttribute("data-gid"), b.getAttribute("data-tid")); }); });
+      document.querySelectorAll(".act-del-task").forEach(function (b) { b.addEventListener("click", function () { delTask(b.getAttribute("data-gid"), b.getAttribute("data-tid")); }); });
+    }
+    function newTask() {
+      document.getElementById("taskFormTitle").textContent = "添加任务";
+      document.getElementById("tId").value = ""; document.getElementById("tTitle").value = ""; document.getElementById("tBody").value = "";
+      document.getElementById("tFormMsg").textContent = "";
+    }
+    function editTask(gid, tid) {
+      loadDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        var t = g && g.items.find(function (x) { return x.id === tid; });
+        if (!t) return;
+        document.getElementById("taskFormTitle").textContent = "编辑任务";
+        document.getElementById("tGroup").value = gid;
+        document.getElementById("tId").value = tid;
+        document.getElementById("tTitle").value = t.title || "";
+        document.getElementById("tBody").value = t.content || "";
+        document.getElementById("tFormMsg").textContent = "编辑中…";
+      }).catch(function () {});
+    }
+    document.getElementById("newTask").addEventListener("click", newTask);
+    document.getElementById("addTaskGroup").addEventListener("click", function () {
+      var name = document.getElementById("tgName").value.trim();
+      var msg = document.getElementById("tgMsg");
+      if (!name) { msg.className = "msg err"; msg.textContent = "请输入分组名称。"; return; }
+      loadDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        tasks.groups = tasks.groups || [];
+        tasks.groups.push({ id: "g" + Date.now(), name: name, open: true, items: [] });
+        d.obj.tasks = tasks;
+        return saveDataObj(d.obj, msg).then(function () { loadTasks(); document.getElementById("tgName").value = ""; });
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+    document.getElementById("saveTask").addEventListener("click", function () {
+      var gid = document.getElementById("tGroup").value;
+      var id = document.getElementById("tId").value;
+      var title = document.getElementById("tTitle").value.trim();
+      var body = document.getElementById("tBody").value.trim();
+      var msg = document.getElementById("tFormMsg");
+      if (!title) { msg.className = "msg err"; msg.textContent = "任务标题必填。"; return; }
+      loadDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        if (!g) throw new Error("分组不存在");
+        g.items = g.items || [];
+        if (id) { var t = g.items.find(function (x) { return x.id === id; }); if (t) { t.title = title; t.content = body; } }
+        else g.items.push({ id: "t" + Date.now(), title: title, content: body, done: false, open: false });
+        d.obj.tasks = tasks;
+        return saveDataObj(d.obj, msg).then(function () { loadTasks(); newTask(); });
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    });
+    function delTask(gid, tid) {
+      if (!confirm("确定删除该任务？")) return;
+      var msg = document.getElementById("taskMsg");
+      loadDataObj().then(function (d) {
+        var tasks = getTasks(d);
+        var g = tasks.groups.find(function (x) { return x.id === gid; });
+        if (g) g.items = (g.items || []).filter(function (x) { return x.id !== tid; });
+        d.obj.tasks = tasks;
+        return saveDataObj(d.obj, msg).then(function () { loadTasks(); newTask(); });
+      }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+    }
+    document.getElementById("taskAdminSearch").addEventListener("input", function () { loadTasks(); });
+
+    /* ---------- ⑦ 论坛 ---------- */
+    function loadPosts() {
+      var box = document.getElementById("posts");
+      box.innerHTML = '<div class="status">加载中…</div>';
+      var p = wkFetch("/api/posts").then(function (r) { return r.json(); }).then(function (j) { return j.posts || []; });
+      p.then(function (list) {
+        if (!list.length) { box.innerHTML = '<div class="status">还没有帖子。</div>'; return; }
+        box.innerHTML = list.map(function (it) {
+          var num = it.number; var closed = it.state === "closed";
+          return '<div class="post" data-num="' + num + '">' +
+            '<div class="pmeta"><span class="pauthor">' + esc(it.user && it.user.login) + "</span><span>" + esc(it.state) + "</span><span>💬 " + (it.comments || 0) + "</span></div>" +
+            '<div class="ptitle">' + esc(it.title) + "</div>" +
+            '<div class="pbody">' + esc(it.body || "") + "</div>" +
+            '<div class="row" style="margin-top:8px">' + (closed ? '<span class="msg">已关闭</span>' : '<button class="btn danger sm act-del" data-num="' + num + '">删除/关闭</button>') + "</div></div>";
+        }).join("");
+        box.querySelectorAll(".act-del").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("确定关闭该帖子（GitHub Issue）？")) return;
+            var num = b.getAttribute("data-num");
+            var req = wkFetch("/api/admin/posts/" + num, { method: "DELETE" });
+            req.then(function (r) { if (!r.ok) throw new Error("失败"); loadPosts(); }).catch(function (e) { alert("操作失败：" + (e.message || e)); });
+          });
+        });
+      }).catch(function () { box.innerHTML = '<div class="status err">加载失败，请确认登录态与权限。</div>'; });
+    }
+
+    /* ---------- ⑧ 分管理员管理 ---------- */
+    document.getElementById("saCreate").addEventListener("click", function () {
+      var msg = document.getElementById("saMsg");
+      var email = document.getElementById("saEmail").value.trim();
+      var pw = document.getElementById("saPw").value;
+      var phone = document.getElementById("saPhone").value.trim();
+      if (!email || pw.length < 6) { msg.className = "msg err"; msg.textContent = "邮箱与密码(≥6)必填"; return; }
+      wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ email: email, password: pw, phone: phone }) })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          if (j.ok) { msg.className = "msg ok"; msg.textContent = "✅ 已创建分管理员 " + email; loadUsers(); }
+          else msg.className = "msg err"; msg.textContent = "❌ " + (j.error || "失败");
+        }).catch(function () { msg.className = "msg err"; msg.textContent = "❌ 请求失败"; });
+    });
+    function roleLabel(r) { return r === "super" ? "总管理员" : r === "subadmin" ? "分管理员" : "普通用户"; }
+    function loadUsers() {
+      var box = document.getElementById("userList");
+      box.innerHTML = '<div class="status">加载中…</div>';
+      wkFetch("/api/admin/users").then(function (r) { return r.json(); }).then(function (j) {
+        if (j.error) { box.innerHTML = '<div class="status">' + esc(j.error) + '</div>'; return; }
+        if (!j.users || !j.users.length) { box.innerHTML = '<div class="status">暂无账号</div>'; return; }
+        var viewerSuper = window.DI_ROLE === "super";
+        var head = '<div class="urow uhead"><div class="uc">邮箱</div><div class="uc">角色</div><div class="uc">手机号</div><div class="uc">状态</div><div class="uc">注册时间</div><div class="uc u-act-h">操作</div></div>';
+        var rows = j.users.map(function (u) {
+          var email = u.email;
+          var isSuper = u.role === "super";
+          var canManage = viewerSuper || !isSuper; // 非总管理员不可管理总管理员账号
+          var roleOpts = ["user", "subadmin", "super"].map(function (r) {
+            return '<option value="' + r + '"' + (r === u.role ? " selected" : "") + ((isSuper && !viewerSuper) ? " disabled" : "") + '>' + roleLabel(r) + '</option>';
+          }).join("");
+          var created = u.createdAt ? new Date(u.createdAt).toLocaleString("zh-CN") : "—";
+          var badge = u.disabled ? '<span class="badge bad">已封禁</span>' : '<span class="badge ok">正常</span>';
+          var actions = canManage
+            ? '<button class="btn sm act-toggle" data-e="' + esc(email) + '" data-act="' + (u.disabled ? "enable" : "disable") + '">' + (u.disabled ? "解封" : "封禁") + '</button>'
+              + (isSuper ? "" : '<button class="btn sm danger act-del" data-e="' + esc(email) + '">删除</button>')
+            : '<span class="muted">—</span>';
+          return '<div class="urow">' +
+            '<div class="uc u-email" title="' + esc(email) + '">' + esc(email) + '</div>' +
+            '<div class="uc"><select class="role-sel" data-e="' + esc(email) + '"' + (canManage ? "" : " disabled") + '>' + roleOpts + '</select></div>' +
+            '<div class="uc">' + esc(u.phone || "—") + '</div>' +
+            '<div class="uc">' + badge + '</div>' +
+            '<div class="uc u-time">' + created + '</div>' +
+            '<div class="uc u-actions">' + actions + '</div>' +
+            '</div>';
+        }).join("");
+        box.innerHTML = head + rows;
+        box.querySelectorAll(".role-sel").forEach(function (s) {
+          s.addEventListener("change", function () {
+            var e = s.getAttribute("data-e");
+            wkFetch("/api/admin/users/" + encodeURIComponent(e), { method: "PATCH", body: JSON.stringify({ role: s.value }) })
+              .then(function (r) { return r.json(); }).then(function (rj) {
+                if (!rj.ok) { alert("修改失败：" + (rj.error || "")); loadUsers(); }
+                else { loadUsers(); }
+              }).catch(function () { alert("请求失败"); });
+          });
+        });
+        box.querySelectorAll(".act-toggle").forEach(function (b) {
+          b.addEventListener("click", function () {
+            wkFetch("/api/admin/users/" + encodeURIComponent(b.getAttribute("data-e")) + "/" + b.getAttribute("data-act"), { method: "POST" })
+              .then(function () { loadUsers(); }).catch(function () {});
+          });
+        });
+        box.querySelectorAll(".act-del").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("确认删除账号 " + b.getAttribute("data-e") + "？此操作不可恢复，该账号的手机号索引也会一并清除。")) return;
+            wkFetch("/api/admin/users/" + encodeURIComponent(b.getAttribute("data-e")), { method: "DELETE" })
+              .then(function (r) { return r.json(); }).then(function (rj) {
+                if (rj.ok) loadUsers(); else alert("删除失败：" + (rj.error || ""));
+              }).catch(function () { alert("请求失败"); });
+          });
+        });
+      }).catch(function () { box.innerHTML = '<div class="status">加载失败（请确认已用 Worker 账号登录）</div>'; });
+    }
+
+    /* ---------- 后台标签页切换 ---------- */
+    document.querySelectorAll(".admin-tabs .tab").forEach(function (t) {
+      t.addEventListener("click", function () {
+        var tab = t.getAttribute("data-tab");
+        document.querySelectorAll(".admin-tabs .tab").forEach(function (x) { x.classList.remove("active"); });
+        t.classList.add("active");
+        document.querySelectorAll(".tab-pane").forEach(function (p) { p.classList.toggle("active", p.getAttribute("data-pane") === tab); });
+        if (tab === "music") loadMusic();
+        if (tab === "images") loadImages();
+        if (tab === "staff") loadUsers();
+        if (tab === "tables") mountTables();
+        if (tab === "icons") loadIcons();
+        if (tab === "feed") mountFeed();
+        if (tab === "sponsors") mountSponsors();
+        if (tab === "code") mountCode();
+      });
+    });
+
+    /* ---------- ⑩ 图标库 ---------- */
+    function loadIcons() {
+      var box = document.getElementById("iconList");
+      loadDataObj().then(function (d) {
+        var icons = d.obj.icons || {};
+        var keys = Object.keys(icons);
+        if (!keys.length) { box.innerHTML = '<div class="status">还没有绑定任何图标。上传一张并填键名即可。</div>'; return; }
+        box.innerHTML = '<div class="img-grid">' + keys.map(function (k) {
+          return '<div class="img-card"><img class="img-thumb" src="' + esc(icons[k]) + '" alt="' + esc(k) + '" />' +
+            '<div class="img-name">' + esc(k) + '</div>' +
+            '<div class="img-used"><button class="btn sm act-copy-ic" data-url="' + esc(icons[k]) + '">复制链接</button>' +
+            '<button class="btn danger sm act-del-ic" data-k="' + esc(k) + '">解绑</button></div></div>';
+        }).join("") + '</div>';
+        box.querySelectorAll(".act-copy-ic").forEach(function (b) {
+          b.addEventListener("click", function () { var u = b.getAttribute("data-url"); if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { alert("已复制"); }); else alert(u); });
+        });
+        box.querySelectorAll(".act-del-ic").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (!confirm("解绑该图标？")) return;
+            var k = b.getAttribute("data-k");
+            loadDataObj().then(function (d2) { d2.obj.icons = d2.obj.icons || {}; delete d2.obj.icons[k]; return saveDataObj(d2.obj, document.getElementById("iconMsg")).then(loadIcons); })
+              .catch(function (e) { document.getElementById("iconMsg").className = "msg err"; document.getElementById("iconMsg").textContent = "❌ " + e.message; });
+          });
+        });
+      }).catch(function () {});
+    }
+    document.getElementById("iconBind").addEventListener("click", function () {
+      var f = document.getElementById("iconFile").files[0];
+      var key = document.getElementById("iconKey").value.trim();
+      var msg = document.getElementById("iconMsg");
+      if (!f) { msg.className = "msg err"; msg.textContent = "请选择图片"; return; }
+      if (!key) { msg.className = "msg err"; msg.textContent = "请填写图标键名（如 nav:home）"; return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = (reader.result || "").split(",")[1];
+        if (!base64) { msg.className = "msg err"; msg.textContent = "读取失败"; return; }
+        var safe = (f.name || "icon").replace(/[^\w.\-]/g, "_");
+        var path = "docs/assets/img/icons/" + Date.now() + "_" + safe;
+        putFile(path, base64, "上传图标 " + safe, msg).then(function (res) {
+          var url = res.url || "";
+          if (!url) { msg.className = "msg err"; msg.textContent = "上传未返回链接"; return; }
+          return loadDataObj().then(function (d) { d.obj.icons = d.obj.icons || {}; d.obj.icons[key] = url; return saveDataObj(d.obj, msg).then(loadIcons); });
+        }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+      reader.readAsDataURL(f);
+    });
+
+    function loadAll() { loadData(); loadSite(); loadUi(); loadTasks(); loadPosts(); }
+
+    /* ---------- ⑨ 结构化数据表格（优化组件） ---------- */
+    function saveArray(key, arr, msgEl) {
+      return loadDataObj().then(function (d) { d.obj[key] = arr; return saveDataObj(d.obj, msgEl); });
+    }
+    var _tablesMounted = false;
+    function mountTables() {
+      if (_tablesMounted || !window.AdminTable) return; _tablesMounted = true;
+      // 特勤处产物
+      document.getElementById("tblItems").appendChild(window.AdminTable.mount({
+        key: "items", titleField: "name",
+        columns: [
+          { field: "name", title: "名称", width: 160, fixed: "left" },
+          { field: "station", title: "工作站", width: 120 },
+          { field: "grade", title: "档位", width: 90 },
+          { field: "price", title: "买入价", width: 100, type: "number" },
+          { field: "sell", title: "卖出价", width: 100, type: "number" },
+          { field: "profit", title: "利润", width: 110, type: "number" },
+          { field: "op", title: "操作", width: 110, fixed: "right", inTable: true, cell: function () { return "✎ 编辑 / 🗑"; } }
+        ],
+        newRow: function () { return { name: "新产物", station: "", grade: "", price: 0, sell: 0, profit: 0 }; },
+        load: function () { return loadDataObj().then(function (d) { return d.obj.items || []; }); },
+        save: function (arr, msgEl) { return saveArray("items", arr, msgEl); }
+      }).el);
+      // 子弹利润
+      document.getElementById("tblBullets").appendChild(window.AdminTable.mount({
+        key: "bullets", titleField: "name",
+        columns: [
+          { field: "name", title: "弹药名称", width: 220, fixed: "left" },
+          { field: "profit", title: "单发利润", width: 120, type: "number" },
+          { field: "op", title: "操作", width: 110, fixed: "right", cell: function () { return "✎ 编辑 / 🗑"; } }
+        ],
+        newRow: function () { return { name: "新弹药", profit: 0 }; },
+        load: function () { return loadDataObj().then(function (d) { return d.obj.bullets || []; }); },
+        save: function (arr, msgEl) { return saveArray("bullets", arr, msgEl); }
+      }).el);
+      // 材料
+      document.getElementById("tblMaterials").appendChild(window.AdminTable.mount({
+        key: "materials", titleField: "name",
+        columns: [
+          { field: "name", title: "材料", width: 150, fixed: "left" },
+          { field: "cur", title: "现价", width: 110, type: "number" },
+          { field: "min", title: "最低", width: 110, type: "number" },
+          { field: "max", title: "最高", width: 110, type: "number" },
+          { field: "buy", title: "建议买入时段", width: 140 },
+          { field: "sell", title: "建议卖出时段", width: 140 },
+          { field: "op", title: "操作", width: 110, fixed: "right", cell: function () { return "✎ 编辑 / 🗑"; } }
+        ],
+        newRow: function () { return { name: "新材料", cur: 0, min: 0, max: 0, buy: "", sell: "" }; },
+        load: function () { return loadDataObj().then(function (d) { return d.obj.materials || []; }); },
+        save: function (arr, msgEl) { return saveArray("materials", arr, msgEl); }
+      }).el);
+    }
+    function mountFeed() {
+      if (!window.AdminTable) return;
+      document.getElementById("tblFeed").appendChild(window.AdminTable.mount({
+        key: "feed", titleField: "title",
+        columns: [
+          { field: "title", title: "标题", width: 200, fixed: "left" },
+          { field: "type", title: "类型", width: 110, type: "select", options: [{ v: "video", l: "视频" }, { v: "guide", l: "攻略" }, { v: "image", l: "图片" }, { v: "text", l: "资讯" }] },
+          { field: "url", title: "链接(B站/YouTube/图片)", width: 240 },
+          { field: "author", title: "作者", width: 120 },
+          { field: "time", title: "时间", width: 130 },
+          { field: "body", title: "正文/简介", width: 280, type: "textarea", inTable: false },
+          { field: "op", title: "操作", width: 110, fixed: "right", cell: function () { return "✎ 编辑 / 🗑"; } }
+        ],
+        newRow: function () { return { title: "新内容", type: "video", url: "", author: "管理员", time: nowStr(), body: "" }; },
+        load: function () { return loadDataObj().then(function (d) { return d.obj.feed || []; }); },
+        save: function (arr, msgEl) { return saveArray("feed", arr, msgEl); }
+      }).el);
+    }
+    function mountSponsors() {
+      if (!window.AdminTable) return;
+      var L = function (k, fb) { return (window.t ? window.t(k, fb) : fb); };
+      document.getElementById("tblSponsors").appendChild(window.AdminTable.mount({
+        key: "sponsors", titleField: "name",
+        columns: [
+          { field: "name", title: L("spName", "名称"), width: 160, fixed: "left" },
+          { field: "avatar", title: L("spAvatar", "头像"), width: 220 },
+          { field: "amount", title: L("spAmount", "金额"), width: 140 },
+          { field: "note", title: L("spNote", "留言"), width: 280, type: "textarea", inTable: false },
+          { field: "op", title: "操作", width: 110, fixed: "right", cell: function () { return "✎ 编辑 / 🗑"; } }
+        ],
+        newRow: function () { return { name: "新赞助者", avatar: "", amount: "", note: "" }; },
+        load: function () { return loadDataObj().then(function (d) { return d.obj.sponsors || []; }); },
+        save: function (arr, msgEl) { return saveArray("sponsors", arr, msgEl); }
+      }).el);
+    }
+    // ⑬ 代码维护：经 Worker 服务端 GH_TOKEN 提交到仓库（docs/ 与 public/ 下文件）
+    function mountCode() {
+      if (window.__codeWired) return;   // 仅绑定一次，避免重复监听
+      window.__codeWired = true;
+      var pathEl = document.getElementById("codePath");
+      var ed = document.getElementById("codeEditor");
+      var msg = document.getElementById("codeMsg");
+      var shaEl = document.getElementById("codeSha");
+      document.getElementById("codeLoad").addEventListener("click", function () {
+        var path = (pathEl.value || "").trim();
+        if (!path) { msg.className = "msg err"; msg.textContent = "请填写目标文件路径（docs/ 或 public/ 下）"; return; }
+        msg.className = "msg"; msg.textContent = "加载中…";
+        wkFetch("/api/admin/file?path=" + encodeURIComponent(path))
+          .then(function (r) { return r.json(); }).then(function (j) {
+            if (j.error) throw new Error(j.error);
+            ed.value = j.content;
+            shaEl.textContent = "sha: " + (j.sha || "").slice(0, 8);
+            msg.className = "msg ok"; msg.textContent = "✅ 已加载 " + path;
+          }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      });
+      document.getElementById("codeSave").addEventListener("click", function () {
+        var path = (pathEl.value || "").trim();
+        if (!path) { msg.className = "msg err"; msg.textContent = "请填写目标文件路径（docs/ 或 public/ 下）"; return; }
+        msg.className = "msg"; msg.textContent = "保存中…";
+        putFile(path, b64utf8(ed.value), "编辑 " + path + " by 代码维护员", msg)
+          .then(function (res) {
+            if (res && res.url) shaEl.textContent = "已提交 ✓";
+            msg.className = "msg ok"; msg.textContent = "✅ 已提交到仓库：" + path + "（GitHub Pages 约 1 分钟重建生效）";
+          }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      });
+    }
+
+    // 初始化
+    updateWorkerWho();
+    var lb = document.getElementById("langToggle");
+    if (lb) lb.addEventListener("click", function () {
+      var cur = (window.getLang && window.getLang()) || "zh";
+      window.setLang(cur === "zh" ? "en" : "zh");
+    });
+    var _sess = getWorkerSession();
+    if (_sess) {
+      wkFetch("/api/me").then(function (r) { return r.json(); }).then(function (j) {
+        if (j && j.role) afterLogin(j.role);
+        else { clearWorkerSession(); updateWorkerWho(); }
+      }).catch(function () { clearWorkerSession(); updateWorkerWho(); });
+    }
+  </script>
+</body>
+</html>
