@@ -1,41 +1,5 @@
 {
-  "maps": [
-    {
-      "name": "彩六联动房",
-      "code": "420",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "AZ3核电站",
-      "code": "6015",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "6001",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "8562",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "9941",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "2488",
-      "date": "2026-07-13 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "9568",
-      "date": "2026-07-13 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -150,97 +114,81 @@
       {
         "key": "m_poly",
         "text": "聚乙烯纤维",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_ceramic",
         "text": "陶瓷插板",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_kevlar",
         "text": "凯夫拉纤维",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_bandage",
         "text": "医用绷带",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_sedative",
         "text": "镇静剂",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_alubox",
         "text": "铝合金箱",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_battery",
         "text": "电池",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_alu",
         "text": "铝合金",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_optic",
         "text": "光学镜片",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_case",
         "text": "弹壳",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_powder",
         "text": "发射药",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_bullet",
         "text": "弹头",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_aluingot",
         "text": "铝合金锭",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_aluore",
         "text": "铝矿",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_polymer",
         "text": "聚合物",
-        "station": "",
         "cat": "material"
       },
       {
         "key": "m_oil",
         "text": "原油",
-        "station": "",
         "cat": "material"
       }
     ],
@@ -373,23 +321,7 @@
     "accent2": "#19c3a6",
     "art": {}
   },
-  "adminLog": [
-    {
-      "time": "2026-07-13 15:19",
-      "role": "总管理员",
-      "action": "更新制作树（20 节点）"
-    },
-    {
-      "time": "2026-07-13 15:13",
-      "role": "总管理员",
-      "action": "更新改枪方案（6）"
-    },
-    {
-      "time": "2026-07-13 15:12",
-      "role": "总管理员",
-      "action": "更新反馈设置"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -2577,7 +2509,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-07-13T08:37:40.877Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
@@ -3484,13 +3416,12 @@
   },
   "gunBuilds": [
     {
-      "name": "近战压制",
+      "name": "红狼·近战压制",
       "weapon": "M4A1",
       "tags": [
         "突击",
         "近战"
       ],
-      "image": "",
       "desc": "高机动近战配置，适合房区与巷战。",
       "attachments": [
         "钛金制退器",
@@ -3505,13 +3436,12 @@
       ]
     },
     {
-      "name": "立体突破",
+      "name": "威龙·立体突破",
       "weapon": "AKM",
       "tags": [
         "突击",
         "突破"
       ],
-      "image": "",
       "desc": "中距离稳定，配合喷气推进转点。",
       "attachments": [
         "堡垒水平",
@@ -3525,13 +3455,12 @@
       ]
     },
     {
-      "name": "远程侦察",
+      "name": "露娜·远程侦察",
       "weapon": "M700",
       "tags": [
         "侦察",
         "远程"
       ],
-      "image": "",
       "desc": "一枪一个的浪漫，架点首选。",
       "attachments": [
         "狙击制退器",
@@ -3543,13 +3472,12 @@
       ]
     },
     {
-      "name": "稳健支援",
+      "name": "蜂医·稳健支援",
       "weapon": "M250",
       "tags": [
         "支援",
         "压制"
       ],
-      "image": "",
       "desc": "持续火力封锁，掩护队友推进。",
       "attachments": [
         "钛金制退器",
@@ -3569,7 +3497,6 @@
         "突击",
         "中距"
       ],
-      "image": "",
       "desc": "堡垒水平+红激光+共振一代，中距泼水稳。",
       "attachments": [
         "堡垒水平",
@@ -3590,7 +3517,6 @@
         "突击",
         "近战"
       ],
-      "image": "",
       "desc": "满改双爆闪，高射速亚音速步枪房区杀手。",
       "attachments": [
         "先进消音器",
@@ -3670,81 +3596,21 @@
     }
   ],
   "opTasks": [
-    {
-      "op": "红狼",
-      "task": "完成 15 次手炮击杀",
-      "reward": "头像框「狼影」"
-    },
-    {
-      "op": "威龙",
-      "task": "虎蹲炮命中 20 次",
-      "reward": "动作「喷气」"
-    },
-    {
-      "op": "露娜",
-      "task": "探测箭标记 50 名敌人",
-      "reward": "名片「夜视」"
-    },
-    {
-      "op": "蜂医",
-      "task": "救援队友 30 次",
-      "reward": "挂饰「蜂巢」"
-    },
-    {
-      "op": "牧羊人",
-      "task": "声波陷阱触发 25 次",
-      "reward": "涂装「牧歌」"
-    },
-    {
-      "op": "乌鲁鲁",
-      "task": "使用复合型燃烧弹累计造成 5000 点伤害",
-      "reward": "挂饰「阵地」"
-    },
-    {
-      "op": "骇爪",
-      "task": "使用信号破译器探测 50 名敌人",
-      "reward": "名片「破译」"
-    },
-    {
-      "op": "蛊",
-      "task": "使用致盲毒雾命中 30 名敌人",
-      "reward": "头像框「流萤」"
-    },
-    {
-      "op": "深蓝",
-      "task": "使用防爆盾抵挡 3000 点伤害",
-      "reward": "挂饰「盾峰」"
-    },
-    {
-      "op": "无名",
-      "task": "静默技能状态下击败 15 名敌人",
-      "reward": "动作「潜行」"
-    },
-    {
-      "op": "疾风",
-      "task": "使用冲刺技能移动 1000 米",
-      "reward": "涂装「疾风」"
-    },
-    {
-      "op": "比特",
-      "task": "使用无人机侦察 30 名敌人",
-      "reward": "挂饰「蜂群」"
-    },
-    {
-      "op": "银翼",
-      "task": "使用喷气背包飞行 500 米",
-      "reward": "名片「银翼」"
-    },
-    {
-      "op": "蝶",
-      "task": "使用治疗无人机救援队友 30 次",
-      "reward": "头像框「蝶变」"
-    },
-    {
-      "op": "回响",
-      "task": "使用回声探测标记 100 名敌人",
-      "reward": "挂饰「回声」"
-    }
+    { "op": "红狼", "task": "完成 15 次手炮击杀", "reward": "头像框「狼影」" },
+    { "op": "威龙", "task": "虎蹲炮命中 20 次", "reward": "动作「喷气」" },
+    { "op": "露娜", "task": "探测箭标记 50 名敌人", "reward": "名片「夜视」" },
+    { "op": "蜂医", "task": "救援队友 30 次", "reward": "挂饰「蜂巢」" },
+    { "op": "牧羊人", "task": "声波陷阱触发 25 次", "reward": "涂装「牧歌」" },
+    { "op": "乌鲁鲁", "task": "使用复合型燃烧弹累计造成 5000 点伤害", "reward": "挂饰「阵地」" },
+    { "op": "骇爪", "task": "使用信号破译器探测 50 名敌人", "reward": "名片「破译」" },
+    { "op": "蛊", "task": "使用致盲毒雾命中 30 名敌人", "reward": "头像框「流萤」" },
+    { "op": "深蓝", "task": "使用防爆盾抵挡 3000 点伤害", "reward": "挂饰「盾峰」" },
+    { "op": "无名", "task": "静默技能状态下击败 15 名敌人", "reward": "动作「潜行」" },
+    { "op": "疾风", "task": "使用冲刺技能移动 1000 米", "reward": "涂装「疾风」" },
+    { "op": "比特", "task": "使用无人机侦察 30 名敌人", "reward": "挂饰「蜂群」" },
+    { "op": "银翼", "task": "使用喷气背包飞行 500 米", "reward": "名片「银翼」" },
+    { "op": "蝶", "task": "使用治疗无人机救援队友 30 次", "reward": "头像框「蝶变」" },
+    { "op": "回响", "task": "使用回声探测标记 100 名敌人", "reward": "挂饰「回声」" }
   ],
   "melee": [
     {
@@ -3940,11 +3806,12 @@
   ],
   "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",
   "feedback": {
-    "email": "18612602599@163.com",
+    "email": "delta.intel.feedback@example.com",
     "mailSubject": "三角洲情报台·网站反馈",
     "formUrl": "",
     "formEmbed": "",
-    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md"
+    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md",
+    "note": "在后台「代码维护 / 反馈设置」中修改邮箱与第三方表单链接。"
   },
   "images": {
     "images": []
