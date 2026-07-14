@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>三角洲图鉴 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css?v=26">
+  <style>
+    :root { --tj-accent: #4d96ff; }
+    body { background: var(--bg); color: var(--text); margin: 0; }
+    .tj-wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 60px; }
+    .tj-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0 14px; }
+    .tj-back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .tj-back:hover { color: var(--tj-accent); }
+    .tj-title { font-size: 22px; font-weight: 800; margin: 0; }
+    .tj-title span { color: var(--tj-accent); }
+    .tj-search { margin-left: auto; flex: 1; min-width: 180px; max-width: 340px; }
+    .tj-search input { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; }
+    .tj-body { display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: start; }
+    .tj-side { background: var(--sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 8px; position: sticky; top: 12px; max-height: calc(100vh - 40px); overflow: auto; }
+    .tj-cat { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 13.5px; color: var(--text); user-select: none; }
+    .tj-cat:hover { background: var(--bg-soft); }
+    .tj-cat.on { background: color-mix(in srgb, var(--tj-accent) 16%, transparent); color: var(--tj-accent); font-weight: 700; }
+    .tj-cat .cnt { font-size: 11px; color: var(--muted); background: var(--bg-soft); border-radius: 999px; padding: 1px 7px; }
+    .tj-cat.on .cnt { color: var(--tj-accent); }
+    .tj-main { min-width: 0; }
+    .tj-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tj-head h2 { margin: 0; font-size: 18px; }
+    .tj-head .sub { color: var(--muted); font-size: 12.5px; }
+    .tj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .tj-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: var(--shadow); transition: transform .12s ease, border-color .12s ease; }
+    .tj-card:hover { transform: translateY(-3px); border-color: var(--tj-accent); }
+    .tj-thumb { height: 120px; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .tj-thumb img { max-height: 110px; max-width: 92%; object-fit: contain; }
+    .tj-grade { position: absolute; right: 8px; top: 8px; font-size: 11px; font-weight: 700; color: #1a1a1a; padding: 2px 8px; border-radius: 999px; }
+    .tj-cap { padding: 8px 10px 10px; }
+    .tj-cap .nm { font-size: 13px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tj-cap .sc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .tj-status { text-align: center; color: var(--muted); padding: 40px 0; }
+    .tj-empty { text-align: center; color: var(--muted); padding: 40px 0; }
+    /* 弹窗 */
+    .tj-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; z-index: 60; padding: 16px; }
+    .tj-modal.on { display: flex; }
+    .tj-mcard { width: min(640px, 96vw); max-height: 90vh; overflow: auto; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; }
+    .tj-mclose { position: absolute; right: 12px; top: 10px; border: 0; background: var(--bg-soft); color: var(--text); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+    .tj-mimg { width: 100%; background: var(--bg-soft); border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 10px; margin-bottom: 12px; }
+    .tj-mimg img { max-width: 100%; max-height: 280px; object-fit: contain; }
+    .tj-mtitle { font-size: 20px; font-weight: 800; margin: 0 0 4px; }
+    .tj-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tj-meta .pill { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--bg-soft); color: var(--muted); }
+    .tj-desc { font-size: 13.5px; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
+    .tj-dl { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .tj-drow { display: flex; gap: 10px; font-size: 13px; border-bottom: 1px dashed var(--border); padding: 6px 0; }
+    .tj-drow .k { color: var(--muted); min-width: 90px; flex-shrink: 0; }
+    .tj-drow .v { color: var(--text); flex: 1; }
+    @media (max-width: 760px) {
+      .tj-body { grid-template-columns: 1fr; }
+      .tj-side { position: static; display: flex; gap: 8px; overflow-x: auto; max-height: none; }
+      .tj-cat { white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tj-wrap">
+    <div class="tj-top">
+      <a class="tj-back" href="index.html">← 返回首页</a>
+      <h1 class="tj-title">三角洲<span>图鉴</span></h1>
+      <div class="tj-search"><input id="tjSearch" placeholder="搜索物品名 / 分类…"></div>
+    </div>
+    <div class="tj-body">
+      <div class="tj-side" id="tjSide"></div>
+      <div class="tj-main">
+        <div class="tj-head" id="tjHead"></div>
+        <div id="tjGrid" class="tj-grid"><div class="tj-status">加载中…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tj-modal" id="tjModal">
+    <div class="tj-mcard">
+      <button class="tj-mclose" id="tjMclose">×</button>
+      <div class="tj-mimg" id="tjMimg"></div>
+      <h2 class="tj-mtitle" id="tjMtitle"></h2>
+      <div class="tj-meta" id="tjMeta"></div>
+      <div class="tj-desc" id="tjMdesc"></div>
+      <div class="tj-dl" id="tjMdetail"></div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+    var DEFAULT_CFG = {
+      enabled: true,
+      source: "https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json",
+      categories: [
+        { key: "collection", name: "收集品", file: "props/collection.json", enabled: true, order: 1 },
+        { key: "key", name: "钥匙", file: "props/key.json", enabled: true, order: 2 },
+        { key: "consume", name: "消耗品", file: "props/consume.json", enabled: true, order: 3 },
+        { key: "mandel", name: "曼德尔砖", file: "props/mandel.json", enabled: true, order: 4 },
+        { key: "gun", name: "枪械", file: "gun/gunRifle.json", enabled: true, order: 5 },
+        { key: "armor", name: "护甲", file: "protect/armor.json", enabled: true, order: 6 },
+        { key: "bag", name: "背包", file: "protect/bag.json", enabled: true, order: 7 },
+        { key: "chest", name: "胸挂", file: "protect/chest.json", enabled: true, order: 8 },
+        { key: "helmet", name: "头盔", file: "protect/helmet.json", enabled: true, order: 9 },
+        { key: "acc", name: "配件(瞄具)", file: "acc/accScope.json", enabled: true, order: 10 }
+      ],
+      featured: []
+    };
+    var GRADE = { 0: "普通", 1: "优良", 2: "精锐", 3: "卓越", 4: "卓越+", 5: "史诗", 6: "传说" };
+    var GRADE_COLOR = { 0: "#9e9e9e", 1: "#5cb85c", 2: "#4a90d2", 3: "#a06bff", 4: "#ff8c00", 5: "#ff5b5b", 6: "#ffb300" };
+
+    var CFG = DEFAULT_CFG, cats = [], cache = {}, kw = "", curKey = "all";
+
+    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function enabledCats() {
+      return (CFG.categories || []).filter(function (c) { return c.enabled; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+    }
+    function fetchCat(cat) {
+      if (cache[cat.key]) return Promise.resolve(cache[cat.key]);
+      var url = CFG.source.replace(/\/$/, "") + "/" + cat.file + "?_=" + Date.now();
+      return fetch(url).then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(function (j) {
+        var list = (j && j.jData && j.jData.data && j.jData.data.data && j.jData.data.data.list) || [];
+        list.forEach(function (it) { it.__cat = cat.name; });
+        cache[cat.key] = list; return list;
+      });
+    }
+    function imgOf(it, big) {
+      var u = big ? (it.pic || it.prePic) : (it.prePic || it.pic);
+      return u || "";
+    }
+    function cardHtml(it) {
+      var img = imgOf(it, false);
+      var imgHtml = img ? '<img src="' + esc(img) + '" alt="' + esc(it.objectName) + '" loading="lazy">' : '<div style="font-size:40px">📦</div>';
+      var g = (it.grade != null) ? it.grade : 0;
+      return '<div class="tj-card" data-id="' + esc(it.objectID) + '">' +
+        '<div class="tj-thumb">' + imgHtml + '<span class="tj-grade" style="background:' + (GRADE_COLOR[g] || "#9e9e9e") + '">' + (GRADE[g] || ("T" + g)) + '</span></div>' +
+        '<div class="tj-cap"><div class="nm">' + esc(it.objectName) + '</div>' +
+        '<div class="sc">' + esc(it.secondClassCN || it.__cat || "") + '</div></div></div>';
+    }
+    function renderGrid(list, title, sub) {
+      document.getElementById("tjHead").innerHTML = '<h2>' + esc(title) + '</h2>' + (sub ? '<span class="sub">' + esc(sub) + '</span>' : '');
+      var grid = document.getElementById("tjGrid");
+      if (!list.length) { grid.innerHTML = '<div class="tj-empty">该分类暂无物品，或加载失败。</div>'; return; }
+      grid.innerHTML = list.map(cardHtml).join("");
+      grid.querySelectorAll(".tj-card").forEach(function (el) {
+        el.onclick = function () { openDetail(el.getAttribute("data-id")); };
+      });
+    }
+    function renderSide() {
+      var html = '<div class="tj-cat' + (curKey === "all" ? " on" : "") + '" data-k="all">全部<span class="cnt">ALL</span></div>';
+      if ((CFG.featured || []).length) {
+        html += '<div class="tj-cat' + (curKey === "featured" ? " on" : "") + '" data-k="featured">★ 精选推荐<span class="cnt">' + CFG.featured.length + '</span></div>';
+      }
+      html += enabledCats().map(function (c) {
+        var n = cache[c.key] ? cache[c.key].length : "·";
+        return '<div class="tj-cat' + (curKey === c.key ? " on" : "") + '" data-k="' + esc(c.key) + '">' + esc(c.name) + '<span class="cnt">' + n + '</span></div>';
+      }).join("");
+      var side = document.getElementById("tjSide");
+      side.innerHTML = html;
+      side.querySelectorAll(".tj-cat").forEach(function (el) {
+        el.onclick = function () { curKey = el.getAttribute("data-k"); renderSide(); select(curKey); };
+      });
+    }
+    function applyKw(list) {
+      if (!kw) return list;
+      return list.filter(function (it) {
+        return (it.objectName + " " + (it.secondClassCN || "") + " " + (it.__cat || "")).toLowerCase().indexOf(kw) > -1;
+      });
+    }
+    function select(key) {
+      var grid = document.getElementById("tjGrid");
+      if (key === "all") {
+        grid.innerHTML = '<div class="tj-status">加载全部物品中…</div>';
+        Promise.all(enabledCats().map(fetchCat)).then(function (arrs) {
+          var all = [].concat.apply([], arrs);
+          renderGrid(applyKw(all), "全部物品", "共 " + all.length + " 件 · 数据来自官方 API");
+          renderSide();
+        }).catch(function () { grid.innerHTML = '<div class="tj-empty" style="color:#ff5b5b">加载失败，请检查网络或稍后重试。</div>'; });
+        return;
+      }
+      if (key === "featured") {
+        var f = (CFG.featured || []).map(function (x) {
+          return { objectName: x.name || ("#" + x.objectID), objectID: x.objectID, prePic: x.pic || "", pic: x.pic || "", grade: x.grade || 0, secondClassCN: x.note || "精选", desc: x.note || "", __feat: true };
+        });
+        renderGrid(applyKw(f), "精选推荐", "由管理员精选");
+        return;
+      }
+      var cat = enabledCats().filter(function (c) { return c.key === key; })[0];
+      if (!cat) return;
+      grid.innerHTML = '<div class="tj-status">加载「' + esc(cat.name) + '」中…</div>';
+      fetchCat(cat).then(function (list) {
+        renderGrid(applyKw(list), cat.name, "共 " + list.length + " 件");
+        renderSide();
+      }).catch(function (e) {
+        grid.innerHTML = '<div class="tj-empty" style="color:#ff5b5b">加载失败：' + esc(e.message) + '</div>';
+      });
+    }
+    function flattenDetail(obj, prefix) {
+      var out = [];
+      if (obj == null) return out;
+      if (Array.isArray(obj)) {
+        obj.forEach(function (it) {
+          if (it && typeof it === "object" && it.value !== undefined) out.push([prefix || "", it.value + (it.batteryValue != null ? "（强度 " + it.batteryValue + "）" : "")]);
+          else if (typeof it === "string") out.push([prefix || "", it]);
+        });
+        return out;
+      }
+      Object.keys(obj).forEach(function (k) {
+        if (k === "batteryColor" || k === "batteryValue") return;
+        var v = obj[k];
+        if (v && typeof v === "object") {
+          if (v.value !== undefined) out.push([k, v.value + (v.batteryValue != null ? "（强度 " + v.batteryValue + "）" : "")]);
+          else out = out.concat(flattenDetail(v, k));
+        } else out.push([k, String(v)]);
+      });
+      return out;
+    }
+    function openDetail(id) {
+      var it = null;
+      // 先从缓存找
+      enabledCats().forEach(function (c) { if (cache[c.key]) cache[c.key].forEach(function (x) { if (String(x.objectID) === String(id)) it = x; }); });
+      if (!it) { // 可能来自精选
+        (CFG.featured || []).forEach(function (x) { if (String(x.objectID) === String(id)) it = { objectName: x.name || ("#" + x.objectID), objectID: x.objectID, prePic: x.pic || "", pic: x.pic || "", grade: x.grade || 0, secondClassCN: x.note || "精选", desc: x.note || "" }; });
+      }
+      if (!it) return;
+      document.getElementById("tjMimg").innerHTML = imgOf(it, true) ? '<img src="' + esc(imgOf(it, true)) + '" alt="' + esc(it.objectName) + '">' : '<div style="font-size:64px">📦</div>';
+      document.getElementById("tjMtitle").textContent = it.objectName || "";
+      var g = (it.grade != null) ? it.grade : 0;
+      var meta = '<span class="pill" style="background:' + (GRADE_COLOR[g] || "#9e9e9e") + ';color:#1a1a1a">' + (GRADE[g] || ("T" + g)) + '</span>' +
+        (it.secondClassCN ? '<span class="pill">' + esc(it.secondClassCN) + '</span>' : '') +
+        (it.weight ? '<span class="pill">重量 ' + esc(it.weight) + '</span>' : '') +
+        (it.length ? '<span class="pill">体积 ' + esc(it.length) + '×' + esc(it.width) + '</span>' : '');
+      document.getElementById("tjMeta").innerHTML = meta;
+      document.getElementById("tjMdesc").textContent = it.desc || "";
+      // 详情：优先用 *Detail 字段
+      var detail = it.propsDetail || it.gunDetail || it.accDetail || it.protectDetail || null;
+      var rows = [];
+      if (detail) rows = flattenDetail(detail);
+      document.getElementById("tjMdetail").innerHTML = rows.length
+        ? rows.map(function (r) { return '<div class="tj-drow"><div class="k">' + esc(r[0]) + '</div><div class="v">' + esc(r[1]) + '</div></div>'; }).join("")
+        : '<div class="tj-drow"><div class="k">提示</div><div class="v">该物品暂无更多结构化属性。</div></div>';
+      document.getElementById("tjModal").classList.add("on");
+    }
+    function closeModal() { document.getElementById("tjModal").classList.remove("on"); }
+
+    function start() {
+      if (!CFG.enabled) { document.getElementById("tjGrid").innerHTML = '<div class="tj-empty">图鉴页当前已关闭（可在后台「图鉴管理」开启）。</div>'; return; }
+      fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+        if (d.tujian) CFG = d.tujian;
+        cats = enabledCats();
+        renderSide();
+        select("all");
+        document.getElementById("tjSearch").addEventListener("input", function (e) {
+          if (e.isComposing) return; kw = e.target.value.trim().toLowerCase(); select(curKey);
+        });
+        document.getElementById("tjMclose").onclick = closeModal;
+        document.getElementById("tjModal").addEventListener("click", function (e) { if (e.target.id === "tjModal") closeModal(); });
+      }).catch(function (e) {
+        document.getElementById("tjGrid").innerHTML = '<div class="tj-empty" style="color:#ff5b5b">加载配置失败：' + esc(e.message) + '</div>';
+      });
+    }
+    start();
+  })();
+  </script>
+</body>
+</html>

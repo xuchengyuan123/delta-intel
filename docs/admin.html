@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=26">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=25"></script>
-  <script defer src="js/i18n.js?v=25"></script>
+  <script src="js/art.js?v=26"></script>
+  <script defer src="js/i18n.js?v=26"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -60,6 +60,13 @@
     .admin-body { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 56px); }
     .admin-side { background: var(--sidebar); border-right: 1px solid var(--border); padding: 12px 0; overflow-y: auto; }
     .as-group { padding: 14px 16px 6px; font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+    .as-group.as-static { cursor: default; }
+    .as-group:not(.as-static) { cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+    .as-group:not(.as-static):hover { color: var(--text); }
+    .as-group .as-arrow { font-size: 10px; opacity: .6; transition: transform .15s ease; }
+    .as-group.collapsed .as-arrow { transform: rotate(-90deg); }
+    .as-group.collapsed + .as-group-body { display: none; }
+    #sideRecent .as-item { background: color-mix(in srgb, var(--role) 8%, transparent); }
     .as-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; cursor: pointer; color: var(--text); border-left: 3px solid transparent; user-select: none; }
     .as-item:hover { background: var(--bg-soft); }
     .as-item.active { background: color-mix(in srgb, var(--role) 14%, transparent); border-left-color: var(--role); color: var(--role); font-weight: 700; }
@@ -230,7 +237,8 @@
       opcode:{ key: "opcode",name: "特战干员图鉴管理员", color: "#ff4d6d", icon: "🪖", panels: ["opcode"] },
       wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] },
       data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems"] },
-      usermgr: { key: "usermgr", name: "用户管理管理员", color: "#ff8c00", icon: "👥", panels: ["usermgr"] }
+      usermgr: { key: "usermgr", name: "用户管理管理员", color: "#ff8c00", icon: "👥", panels: ["usermgr"] },
+      tujian:   { key: "tujian", name: "图鉴管理员",     color: "#ff6b9d", icon: "🗂", panels: ["tujian"] }
     };
     var PANELS = {
       dashboard: { label: "总览 · 数据/操作/日志", icon: "📊", title: "总览仪表盘", sub: "网站浏览数据、管理员操作记录、更新日志。总管理员可在此进入全部模块。", mount: mountDashboard },
@@ -280,7 +288,8 @@
       maps:       { label: "地图管理", icon: "🗺", title: "地图管理", sub: "维护前台「地图」列表。", mount: mountMaps },
       announce:   { label: "站内公告", icon: "📢", title: "站内公告 / 运营横幅", sub: "发布全站顶部横幅公告，支持颜色、有效期与启用开关（需以总管理员身份登录 Worker）。", mount: mountAnnounce },
       ugc:        { label: "用户投稿审核", icon: "📝", title: "用户投稿审核", sub: "查看注册用户提交的攻略/素材投稿，审核通过后在「用户投稿」页公开（需以总管理员身份登录 Worker）。", mount: mountUgc },
-      usermgr:    { label: "用户管理", icon: "👥", title: "注册用户管理", sub: "总管理员与「用户管理」分管理员可在此查看 / 禁用 / 删除注册会员（普通用户）。其它分管理员无此入口。", mount: mountUserMgr }
+      usermgr:    { label: "用户管理", icon: "👥", title: "注册用户管理", sub: "总管理员与「用户管理」分管理员可在此查看 / 禁用 / 删除注册会员（普通用户）。其它分管理员无此入口。", mount: mountUserMgr },
+      tujian:     { label: "图鉴管理", icon: "🗂", title: "图鉴管理（API 数据源）", sub: "配置前台「三角洲图鉴」页(tujian.html)：开关分类、调整顺序、添加精选与自定义数据源（默认 WaterEve/DeltaForceData 公开 API）。", mount: mountTujian }
     };
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
@@ -288,7 +297,7 @@
       { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "usermgr"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
-      { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images"] },
+      { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images", "tujian"] },
       { name: "攻略与互动",   panels: ["guides", "craft", "quiz"] },
       { name: "装备数据",     panels: ["armors", "scopes", "npc", "melee", "rigs"] },
       { name: "养成与交易",   panels: ["upgrades", "expansion", "keyRooms", "collectibles", "bulletPacks", "eventitems", "materials", "containers", "items", "bullets"] },
@@ -569,6 +578,34 @@
       var r = ROLES[activeRole];
       var owned = r.panels;
       var kw = (sideSearchVal || "").trim().toLowerCase();
+      var side = document.getElementById("side");
+      // 搜索框 + 最近使用容器只创建一次（避免中文输入法组字被重复提交）
+      if (!document.getElementById("sideSearch")) {
+        side.innerHTML = '<input id="sideSearch" class="side-search" placeholder="搜索功能…" /><div id="sideRecent"></div><div id="sideList"></div>';
+        var sb = document.getElementById("sideSearch");
+        sb.value = sideSearchVal;
+        sb.addEventListener("input", function (e) { if (e.isComposing) return; sideSearchVal = sb.value; renderSide(); });
+        sb.addEventListener("compositionend", function () { sideSearchVal = sb.value; renderSide(); });
+      }
+      // 最近使用（按角色可用面板过滤）
+      var recent = [];
+      try { recent = JSON.parse(localStorage.getItem("di_recent_panels") || "[]"); } catch (e) {}
+      recent = recent.filter(function (p) { return owned.indexOf(p) > -1 && PANELS[p]; });
+      var recentHtml = "";
+      if (recent.length && !kw) {
+        recentHtml = '<div class="as-group as-static">最近使用</div>' +
+          recent.map(function (p) {
+            var P = PANELS[p];
+            return '<div class="as-item' + (p === activePanel ? " active" : "") + '" data-panel="' + p + '"><span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
+          }).join("");
+      }
+      // 折叠状态（默认仅展开「总览与账号」）
+      var collapsed;
+      try { collapsed = JSON.parse(localStorage.getItem("di_collapsed_groups") || "null"); } catch (e) { collapsed = null; }
+      if (!collapsed) {
+        collapsed = {};
+        PANEL_GROUPS.forEach(function (g) { collapsed[g.name] = (g.name !== "总览与账号"); });
+      }
       var listHtml = "";
       PANEL_GROUPS.forEach(function (g) {
         var ps = g.panels.filter(function (p) { return owned.indexOf(p) > -1; });
@@ -577,33 +614,47 @@
         ps.forEach(function (p) {
           var P = PANELS[p]; if (!P) return;
           if (kw && (P.label + P.title + P.sub).toLowerCase().indexOf(kw) < 0) return;
-          items += '<div class="as-item' + (p === activePanel ? " active" : "") + '" data-panel="' + p + '">' +
-            '<span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
+          items += '<div class="as-item" data-panel="' + p + '"><span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
         });
         if (!items) return;
-        listHtml += '<div class="as-group">' + g.name + "</div>" + items;
+        var isC = (!kw && collapsed[g.name]) ? " collapsed" : "";
+        listHtml += '<div class="as-group' + isC + '" data-group="' + g.name + '"><span>' + g.name + '</span><span class="as-arrow">▼</span></div>' +
+          '<div class="as-group-body" data-group="' + g.name + '">' + items + '</div>';
       });
-      if (!listHtml) {
-        listHtml = '<div class="as-empty">没有匹配的功能</div>';
-      }
-      var side = document.getElementById("side");
-      // 搜索框只创建一次：中文输入法组字时若反复销毁重建输入框，会导致组字串被重复提交（敲一字出三字）。
-      if (!document.getElementById("sideSearch")) {
-        side.innerHTML = '<input id="sideSearch" class="side-search" placeholder="搜索功能…" /><div id="sideList"></div>';
-        var sb = document.getElementById("sideSearch");
-        sb.value = sideSearchVal;
-        sb.addEventListener("input", function (e) { if (e.isComposing) return; sideSearchVal = sb.value; renderSide(); });
-        sb.addEventListener("compositionend", function () { sideSearchVal = sb.value; renderSide(); });
-      }
+      if (!listHtml) listHtml = '<div class="as-empty">没有匹配的功能</div>';
+
+      document.getElementById("sideRecent").innerHTML = recentHtml;
       var list = document.getElementById("sideList");
       list.innerHTML = listHtml;
-      list.querySelectorAll(".as-item").forEach(function (el) {
+
+      document.getElementById("sideRecent").querySelectorAll(".as-item").forEach(function (el) {
         el.addEventListener("click", function () { showPanel(el.getAttribute("data-panel")); });
       });
+      list.querySelectorAll(".as-group").forEach(function (el) {
+        el.addEventListener("click", function () {
+          var name = el.getAttribute("data-group");
+          var cur; try { cur = JSON.parse(localStorage.getItem("di_collapsed_groups") || "{}"); } catch (e) { cur = {}; }
+          cur[name] = !cur[name];
+          try { localStorage.setItem("di_collapsed_groups", JSON.stringify(cur)); } catch (e) {}
+          el.classList.toggle("collapsed");
+        });
+      });
+      list.querySelectorAll(".as-group-body .as-item").forEach(function (el) {
+        el.addEventListener("click", function () { showPanel(el.getAttribute("data-panel")); });
+      });
+    }
+    function pushRecent(p) {
+      try {
+        var a = JSON.parse(localStorage.getItem("di_recent_panels") || "[]");
+        a = a.filter(function (x) { return x !== p; });
+        a.unshift(p); a = a.slice(0, 6);
+        localStorage.setItem("di_recent_panels", JSON.stringify(a));
+      } catch (e) {}
     }
     function showPanel(p) {
       var P = PANELS[p];
       if (!P) p = "dashboard";
+      pushRecent(p);
       activePanel = p;
       renderSide();
       renderRoleSwitch();
@@ -866,6 +917,72 @@
         }).catch(function () { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
       }
       load();
+    }
+
+    /* ============ 图鉴管理（tujian.html 数据源配置） ============ */
+    function mountTujian(c) {
+      function reload() {
+        getDataObj().then(function (d) {
+          var tj = d.obj.tujian || { enabled: true, source: "https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json", categories: [], featured: [] };
+          render(tj);
+        }).catch(function (e) {
+          c.innerHTML = '<div class="status" style="color:#ff5b5b">读取 data.json 失败：' + esc(e.message) + '</div>';
+        });
+      }
+      function render(tj) {
+        var catsHtml = (tj.categories || []).map(function (cat, i) {
+          return '<div class="tj-cat" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border)">' +
+            '<input type="checkbox" class="tj-en" data-i="' + i + '" ' + (cat.enabled ? "checked" : "") + '>' +
+            '<input class="tj-name" data-i="' + i + '" value="' + esc(cat.name || "") + '" style="width:120px">' +
+            '<input class="tj-file" data-i="' + i + '" value="' + esc(cat.file || "") + '" style="flex:1" placeholder="相对路径，如 props/collection.json">' +
+            '<input class="tj-order" data-i="' + i + '" type="number" value="' + (cat.order != null ? cat.order : (i + 1)) + '" style="width:54px">' +
+            '<button class="btn danger sm tj-del" data-i="' + i + '">删</button>' +
+            '</div>';
+        }).join("");
+        c.innerHTML =
+          '<div class="panel-card"><h3>🗂 图鉴管理（API 数据源）</h3>' +
+          '<p class="panel-tip">前台「三角洲图鉴」页(tujian.html)调用公开 API 展示三角洲各类收集品 / 装备。下方可开关分类、改顺序、换数据源；保存后即时生效。默认源：<b>WaterEve/DeltaForceData</b>（免密钥、CORS 可用）。</p>' +
+          '<div class="login-field"><label>总开关</label><label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="tjEnabled" ' + (tj.enabled ? "checked" : "") + '> 启用图鉴页</label></div>' +
+          '<div class="login-field"><label>数据源根地址（CDN 根，不含末尾斜杠）</label><input id="tjSource" value="' + esc(tj.source || "") + '"></div>' +
+          '<h4 style="margin:14px 0 6px">分类（用右侧数字排序，小靠前）</h4>' +
+          '<div id="tjCats">' + (catsHtml || '<div class="status">暂无分类</div>') + '</div>' +
+          '<div class="row"><button class="btn sm" id="tjAddCat">＋ 添加分类</button></div>' +
+          '<div class="login-field" style="margin-top:14px"><label>精选物品（JSON 数组，示例：[{"objectID":15010050001,"note":"镇馆之宝"}]）</label><textarea id="tjFeatured" rows="4">' + esc(JSON.stringify(tj.featured || [], null, 2)) + '</textarea></div>' +
+          '<div class="row"><button class="btn role-c" id="tjSave">保存</button><span class="msg" id="tjMsg"></span></div>' +
+          '<div class="panel-tip" style="margin-top:10px">前台数据来自游戏官方资源，图片地址形如 playerhub.df.qq.com/.../{objectID}.png；本站仅做聚合展示，不存储游戏资源文件。</div>' +
+          '</div>';
+        c.querySelector("#tjAddCat").onclick = function () {
+          tj.categories = tj.categories || [];
+          tj.categories.push({ key: "cat" + Date.now(), name: "新分类", file: "", enabled: true, order: tj.categories.length + 1 });
+          render(tj);
+        };
+        c.querySelectorAll(".tj-del").forEach(function (b) {
+          b.onclick = function () { tj.categories.splice(+b.getAttribute("data-i"), 1); render(tj); };
+        });
+        c.querySelector("#tjSave").onclick = function () {
+          var msg = c.querySelector("#tjMsg"); msg.className = "msg"; msg.textContent = "保存中…";
+          getDataObj().then(function (dd) {
+            var o = dd.obj;
+            o.tujian = o.tujian || {};
+            o.tujian.enabled = c.querySelector("#tjEnabled").checked;
+            o.tujian.source = c.querySelector("#tjSource").value.trim();
+            o.tujian.categories = (o.tujian.categories || []).map(function (cat, i) {
+              return {
+                key: cat.key || ("cat" + i),
+                name: c.querySelector('.tj-name[data-i="' + i + '"]').value.trim(),
+                file: c.querySelector('.tj-file[data-i="' + i + '"]').value.trim(),
+                enabled: c.querySelector('.tj-en[data-i="' + i + '"]').checked,
+                order: (+c.querySelector('.tj-order[data-i="' + i + '"]').value) || (i + 1)
+              };
+            });
+            try { o.tujian.featured = JSON.parse(c.querySelector("#tjFeatured").value || "[]"); }
+            catch (e2) { o.tujian.featured = o.tujian.featured || []; }
+            o.tujian.categories.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+            return putDataObj(o, "更新图鉴配置", msg);
+          }).catch(function (e3) { msg.className = "msg err"; msg.textContent = "❌ " + e3.message; });
+        };
+      }
+      reload();
     }
 
     /* ============ 浏览记录（真实访问数据） ============ */

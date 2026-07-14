@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>改枪码 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css?v=26">
+  <style>
+    :root { --gun-accent: #ff8c1a; }
+    body { background: var(--bg); color: var(--text); margin: 0; }
+    .g-wrap { max-width: 1180px; margin: 0 auto; padding: 16px 16px 60px; }
+    .g-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; }
+    .g-back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .g-back:hover { color: var(--gun-accent); }
+    .g-title { font-size: 22px; font-weight: 800; margin: 0; }
+    .g-title span { color: var(--gun-accent); }
+    .g-search { margin-left: auto; flex: 1; min-width: 180px; max-width: 320px; }
+    .g-search input { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; }
+    .g-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .g-chip { font-size: 12.5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-soft); color: var(--muted); cursor: pointer; user-select: none; }
+    .g-chip.on { background: var(--gun-accent); color: #1a1a1a; border-color: var(--gun-accent); font-weight: 700; }
+    .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .g-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+    .g-img { height: 150px; background: linear-gradient(135deg, color-mix(in srgb, var(--gun-accent) 22%, var(--bg-elev)), var(--bg-elev)); display: flex; align-items: center; justify-content: center; position: relative; }
+    .g-img img { max-height: 130px; max-width: 92%; object-fit: contain; }
+    .g-img .g-wtag { position: absolute; left: 10px; top: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; padding: 3px 9px; border-radius: 8px; }
+    .g-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .g-name { font-size: 15px; font-weight: 800; }
+    .g-meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+    .g-meta b { color: var(--gun-accent); font-weight: 700; }
+    .g-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .g-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: color-mix(in srgb, var(--gun-accent) 14%, transparent); color: var(--gun-accent); }
+    .g-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .g-foot { margin-top: auto; display: flex; gap: 8px; }
+    .g-copy { flex: 1; background: var(--gun-accent); color: #1a1a1a; border: 0; border-radius: 9px; padding: 9px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .g-copy.ok { background: #2ecc71; }
+    .g-empty { text-align: center; color: var(--muted); padding: 50px 0; }
+    .g-status { text-align:center; color: var(--muted); padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <div class="g-wrap">
+    <div class="g-top">
+      <a class="g-back" href="index.html">← 返回首页</a>
+      <h1 class="g-title">改枪<span>码</span></h1>
+      <div class="g-search"><input id="gSearch" placeholder="搜索武器 / 方案名 / 标签…"></div>
+    </div>
+    <div class="g-chips" id="gChips"></div>
+    <div id="gGrid" class="g-grid"><div class="g-status">加载中…</div></div>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+    var DATA = null, GUNS = [], gunImgMap = {}, activeTag = "", kw = "";
+    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function copyText(t) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(t);
+      }
+      return new Promise(function (res) {
+        var ta = document.createElement("textarea"); ta.value = t;
+        ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
+        ta.select(); try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta); res();
+      });
+    }
+    function buildGunImgMap() {
+      // 用枪械 API 把武器名映射到图片（仅步枪类，其余降级为占位）
+      return fetch("https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json/gun/gunRifle.json?_=" + Date.now())
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var list = (j && j.jData && j.jData.data && j.jData.data.data && j.jData.data.data.list) || [];
+          list.forEach(function (it) { if (it.objectName && it.prePic) gunImgMap[it.objectName] = it.prePic; });
+        }).catch(function () {});
+    }
+    function imgFor(g) {
+      if (g.image) return g.image;
+      for (var k in gunImgMap) { if (k.indexOf(g.weapon) > -1 || g.weapon.indexOf(k.replace(/突击步枪|步枪|冲锋枪|狙击枪|机枪|霰弹枪|手枪/g, "")) > -1) return gunImgMap[k]; }
+      // 模糊匹配：武器名包含枪械名
+      var keys = Object.keys(gunImgMap);
+      for (var i = 0; i < keys.length; i++) { if (keys[i].indexOf(g.weapon) > -1) return gunImgMap[keys[i]]; }
+      return "";
+    }
+    function allTags() {
+      var s = {}; GUNS.forEach(function (g) { (g.tags || []).forEach(function (t) { s[t] = 1; }); });
+      return Object.keys(s);
+    }
+    function renderChips() {
+      var html = '<div class="g-chip' + (activeTag === "" ? " on" : "") + '" data-t="">全部</div>' +
+        allTags().map(function (t) { return '<div class="g-chip' + (activeTag === t ? " on" : "") + '" data-t="' + esc(t) + '">' + esc(t) + '</div>'; }).join("");
+      var box = document.getElementById("gChips"); box.innerHTML = html;
+      box.querySelectorAll(".g-chip").forEach(function (el) {
+        el.onclick = function () { activeTag = el.getAttribute("data-t") || ""; renderChips(); renderGrid(); };
+      });
+    }
+    function renderGrid() {
+      var list = GUNS.filter(function (g) {
+        if (activeTag && (g.tags || []).indexOf(activeTag) < 0) return false;
+        if (kw) {
+          var hay = (g.name + " " + g.weapon + " " + (g.tags || []).join(" ") + " " + (g.author || "")).toLowerCase();
+          if (hay.indexOf(kw) < 0) return false;
+        }
+        return true;
+      });
+      var grid = document.getElementById("gGrid");
+      if (!list.length) { grid.innerHTML = '<div class="g-empty">没有匹配的改枪方案。</div>'; return; }
+      grid.innerHTML = list.map(function (g, idx) {
+        var img = imgFor(g);
+        var imgHtml = img ? '<img src="' + esc(img) + '" alt="' + esc(g.weapon) + '" loading="lazy">' : '<div style="font-size:44px">🔫</div>';
+        var tags = (g.tags || []).map(function (t) { return '<span class="g-tag">' + esc(t) + "</span>"; }).join("");
+        return '<div class="g-card">' +
+          '<div class="g-img">' + imgHtml + '<span class="g-wtag">' + esc(g.weapon) + '</span></div>' +
+          '<div class="g-body">' +
+            '<div class="g-name">' + esc(g.name) + '</div>' +
+            '<div class="g-meta"><span>作者 <b>' + esc(g.author || "—") + '</b></span><span>价格 <b>' + esc(g.price || "免费") + '</b></span></div>' +
+            (tags ? '<div class="g-tags">' + tags + '</div>' : '') +
+            (g.desc ? '<div class="g-desc">' + esc(g.desc) + '</div>' : '') +
+            '<div class="g-foot"><button class="g-copy" data-i="' + idx + '">📋 ' + (g.code ? "复制改枪码" : "复制方案") + '</button></div>' +
+          '</div></div>';
+      }).join("");
+      grid.querySelectorAll(".g-copy").forEach(function (b) {
+        b.onclick = function () {
+          var g = list[+b.getAttribute("data-i")];
+          var txt;
+          if (g.code) { txt = g.code; }
+          else {
+            txt = "【" + (g.name || "") + "】" + (g.weapon || "") + "\n作者：" + (g.author || "—") + "\n价格：" + (g.price || "免费") +
+              "\n标签：" + (g.tags || []).join("、") + "\n配件：\n- " + (g.attachments || []).join("\n- ");
+          }
+          copyText(txt).then(function () {
+            var old = b.textContent; b.textContent = "✅ 已复制"; b.classList.add("ok");
+            setTimeout(function () { b.textContent = old; b.classList.remove("ok"); }, 1400);
+          });
+        };
+      });
+    }
+    function start() {
+      fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+        DATA = d; GUNS = d.gunBuilds || [];
+        return buildGunImgMap();
+      }).then(function () {
+        renderChips(); renderGrid();
+        document.getElementById("gSearch").addEventListener("input", function (e) {
+          if (e.isComposing) return; kw = e.target.value.trim().toLowerCase(); renderGrid();
+        });
+      }).catch(function (e) {
+        document.getElementById("gGrid").innerHTML = '<div class="g-empty" style="color:#ff5b5b">加载失败：' + esc(e.message) + '</div>';
+      });
+    }
+    start();
+  })();
+  </script>
+</body>
+</html>

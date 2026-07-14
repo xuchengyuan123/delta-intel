@@ -129,6 +129,8 @@
         { route: "keyrooms",    label: "钥匙房", ico: "🗝" },
         { route: "collectibles",label: "收集品价值", ico: "💎" },
         { route: "bulletpacks", label: "子弹自选包利润", ico: "📊" },
+        { href: "tujian.html", label: "三角洲图鉴(API)", ico: "🗂" },
+        { href: "guns.html",    label: "改枪码(卡片)",    ico: "🔧" },
       ],
     },
     {
@@ -1013,7 +1015,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=25").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=26").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
