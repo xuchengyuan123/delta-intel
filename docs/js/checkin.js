@@ -1,6 +1,7 @@
-/* 三角洲情报台 · 每日签到 + 积分（悬浮小组件）
+/* 三角洲情报台 · 每日签到 + 积分（轻量悬浮组件）
  * 自包含：优先用 window.D.api()，否则自己带 Bearer 请求 /api/checkin。
- * 仅在已登录（localStorage 有 di_user_token）时显示。 */
+ * 仅在已登录（localStorage 有 di_user_token）时显示。
+ * v31 优化：缩小为右下角圆球，不挡内容；点击展开详细面板。 */
 (function () {
   var TOKEN_KEY = "di_user_token";
 
@@ -25,35 +26,42 @@
   }
 
   function mount() {
-    if (!isLogin()) return;            // 未登录不显示
+    if (!isLogin()) return;
     if (document.getElementById("df-checkin")) return;
 
     var root = el("div");
     root.id = "df-checkin";
     root.innerHTML =
       '<style>' +
-      '#df-checkin .ck-pill{position:fixed;top:64px;right:12px;z-index:60;display:flex;align-items:center;gap:6px;' +
-      'background:var(--card,#1c1f26);color:var(--text,#fff);border:1px solid var(--border,#333);border-radius:999px;' +
-      'padding:7px 12px;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35);user-select:none;}' +
-      '#df-checkin .ck-pill .ck-coin{font-size:15px;}' +
-      '#df-checkin .ck-panel{position:fixed;top:104px;right:12px;z-index:61;width:248px;background:var(--card,#1c1f26);' +
-      'color:var(--text,#fff);border:1px solid var(--border,#333);border-radius:14px;padding:14px;box-shadow:0 8px 28px rgba(0,0,0,.45);display:none;}' +
-      '#df-checkin .ck-panel.show{display:block;}' +
+      '#df-checkin .ck-fab{position:fixed;right:16px;bottom:16px;z-index:60;width:52px;height:52px;border-radius:50%;' +
+      'display:flex;align-items:center;justify-content:center;gap:3px;flex-direction:column;' +
+      'background:linear-gradient(135deg,#f7c948,#e6a91a);color:#2b1d05;border:1px solid rgba(255,255,255,.15);' +
+      'box-shadow:0 6px 18px rgba(0,0,0,.45);cursor:pointer;user-select:none;transition:transform .15s;}' +
+      '#df-checkin .ck-fab:active{transform:scale(.94);}' +
+      '#df-checkin .ck-fab .ck-coin{font-size:18px;line-height:1;}' +
+      '#df-checkin .ck-fab .ck-pts{font-size:11px;font-weight:700;line-height:1;}' +
+      '#df-checkin .ck-panel{position:fixed;right:16px;bottom:78px;z-index:61;width:260px;background:var(--card,#1c1f26);' +
+      'color:var(--text,#fff);border:1px solid var(--border,#333);border-radius:16px;padding:14px;box-shadow:0 10px 32px rgba(0,0,0,.5);' +
+      'display:none;transform-origin:bottom right;}' +
+      '#df-checkin .ck-panel.show{display:block;animation:ckPop .18s ease-out;}' +
+      '@keyframes ckPop{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}' +
       '#df-checkin .ck-h{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:8px;}' +
       '#df-checkin .ck-lv{font-size:12px;color:var(--accent,#4da3ff);}' +
       '#df-checkin .ck-bar{height:7px;border-radius:6px;background:var(--border,#333);overflow:hidden;margin:6px 0 10px;}' +
-      '#df-checkin .ck-bar>i{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#7ee0c0);}' +
+      '#df-checkin .ck-bar>i{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#7ee0c0);transition:width .3s;}' +
       '#df-checkin .ck-streak{display:flex;gap:4px;margin-bottom:10px;}' +
-      '#df-checkin .ck-dot{flex:1;height:22px;border-radius:6px;background:var(--border,#333);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;}' +
+      '#df-checkin .ck-dot{flex:1;height:24px;border-radius:6px;background:var(--border,#333);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;}' +
       '#df-checkin .ck-dot.on{background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;font-weight:700;}' +
       '#df-checkin .ck-btn{width:100%;border:0;border-radius:10px;padding:9px;font-size:14px;font-weight:700;cursor:pointer;' +
       'background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;}' +
       '#df-checkin .ck-btn:disabled{opacity:.6;cursor:default;}' +
       '#df-checkin .ck-tip{font-size:11px;color:#9aa;margin-top:8px;text-align:center;}' +
-      '@media(max-width:480px){#df-checkin .ck-panel{right:8px;width:calc(100vw - 16px);}}' +
+      '#df-checkin .ck-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;}' +
+      '@media(max-width:480px){#df-checkin .ck-panel{right:12px;bottom:72px;width:calc(100vw - 24px);max-width:320px;}}' +
       '</style>' +
-      '<div class="ck-pill"><span class="ck-coin">🪙</span><span class="ck-pts">0</span></div>' +
+      '<div class="ck-fab"><span class="ck-coin">🪙</span><span class="ck-pts">0</span></div>' +
       '<div class="ck-panel">' +
+      '  <button class="ck-close">×</button>' +
       '  <div class="ck-h"><span>每日签到</span><span class="ck-lv">Lv.1</span></div>' +
       '  <div class="ck-bar"><i style="width:0%"></i></div>' +
       '  <div class="ck-streak"></div>' +
@@ -62,8 +70,9 @@
       '</div>';
     document.body.appendChild(root);
 
-    var pill = root.querySelector(".ck-pill");
+    var fab = root.querySelector(".ck-fab");
     var panel = root.querySelector(".ck-panel");
+    var closeBtn = root.querySelector(".ck-close");
     var ptsEl = root.querySelector(".ck-pts");
     var lvEl = root.querySelector(".ck-lv");
     var barEl = root.querySelector(".ck-bar>i");
@@ -71,7 +80,9 @@
     var btn = root.querySelector(".ck-btn");
     var tip = root.querySelector(".ck-tip");
 
-    pill.addEventListener("click", function () { panel.classList.toggle("show"); });
+    function toggle() { panel.classList.toggle("show"); }
+    fab.addEventListener("click", toggle);
+    closeBtn.addEventListener("click", function () { panel.classList.remove("show"); });
     document.addEventListener("click", function (e) {
       if (panel.classList.contains("show") && !root.contains(e.target)) panel.classList.remove("show");
     });
@@ -82,7 +93,6 @@
       lvEl.textContent = "Lv." + (d.level || 1);
       var into = d.into || 0, next = d.next || 100;
       barEl.style.width = Math.max(0, Math.min(100, Math.round(into / next * 100))) + "%";
-      // 连续签到 7 格
       var s = d.streak || 0;
       var html = "";
       for (var i = 0; i < 7; i++) {
@@ -114,7 +124,7 @@
           render(j);
           if (!j.already) {
             tip.textContent = "签到成功 +" + (j.gained || 0) + " 积分 🎉";
-            pill.animate([{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 360 });
+            fab.animate([{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 360 });
           }
         } else { btn.disabled = false; btn.textContent = "签到领积分"; }
       }).catch(function () { btn.disabled = false; btn.textContent = "签到领积分"; });
@@ -131,9 +141,7 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tryMount);
   else tryMount();
 
-  // 登录后（同页弹窗）或跨标签页登录后刷新
   window.addEventListener("storage", function (e) { if (e.key === TOKEN_KEY) tryMount(); });
-  // 轮询兜底：登录弹窗可能在同页完成，给 8 秒内两次机会
   setTimeout(tryMount, 1500);
   setTimeout(tryMount, 5000);
 })();

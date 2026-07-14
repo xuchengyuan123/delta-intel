@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=30"></script>
-  <script defer src="js/i18n.js?v=30"></script>
+  <script src="js/art.js?v=31"></script>
+  <script defer src="js/i18n.js?v=31"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -599,8 +599,16 @@
       renderRoleSwitch();
       renderSide();
       showPanel("dashboard");
-      // 应用已保存的界面定制（全局 + 当前角色配色）
       applyStoredUi(activeRole);
+      // 登录成功语音欢迎（浏览器需支持 Web Speech API）
+      try {
+        if (window.speechSynthesis) {
+          var u = new SpeechSynthesisUtterance("身份验证通过，巴别塔欢迎您");
+          u.lang = "zh-CN";
+          u.rate = 1;
+          window.speechSynthesis.speak(u);
+        }
+      } catch (e) {}
     }
 
     function renderRoleBadge() {
@@ -936,47 +944,115 @@
       c.innerHTML =
         '<div class="panel-card">' +
           '<h3>👥 注册用户管理</h3>' +
-          '<div class="panel-tip">这里管理网站普通注册会员：可禁用其登录、或删除账号。操作仅影响该用户，不影响分管理员账号。</div>' +
+          '<div class="panel-tip">管理普通注册会员：搜索、查看详情、禁用/启用、设为信任用户（免 AI 审核直接发布）、重置密码、删除账号。</div>' +
+          '<div class="row" style="margin-bottom:12px;gap:10px;align-items:center;">' +
+            '<input id="umSearch" placeholder="搜索邮箱/昵称" style="flex:1;min-width:160px;">' +
+            '<button class="btn sm" id="umReload">🔄 刷新</button>' +
+          '</div>' +
           '<div id="umStats" class="panel-tip"></div>' +
           '<div id="umList"><div class="status">加载中…</div></div>' +
         '</div>';
+      var allMembers = [];
+      var kw = "";
 
       function fmtDate(ts) {
         if (!ts) return "未知";
         try { return new Date(ts).toLocaleString("zh-CN", { hour12: false }); } catch (e) { return String(ts); }
       }
+      function fmtDateShort(ts) {
+        if (!ts) return "未知";
+        try { return new Date(ts).toLocaleDateString("zh-CN"); } catch (e) { return String(ts); }
+      }
+      function filtered() {
+        var q = kw.trim().toLowerCase();
+        if (!q) return allMembers;
+        return allMembers.filter(function (u) {
+          return (u.id || "").toLowerCase().includes(q) || (u.name || "").toLowerCase().includes(q) || (u.email || "").toLowerCase().includes(q);
+        });
+      }
+      function render() {
+        var ms = filtered();
+        document.getElementById("umStats").innerHTML = "共 <b>" + allMembers.length + "</b> 位注册会员，当前显示 <b>" + ms.length + "</b> 位。";
+        if (!ms.length) { document.getElementById("umList").innerHTML = '<div class="status">暂无匹配用户。</div>'; return; }
+        document.getElementById("umList").innerHTML = '<div class="ui-role-grid">' + ms.map(function (u) {
+          var badges = '';
+          if (u.disabled) badges += '<span style="display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(255,91,91,.15);color:#ff5b5b;font-size:11px;margin-left:4px;">已禁用</span>';
+          if (u.trusted) badges += '<span style="display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(25,195,166,.15);color:#19c3a6;font-size:11px;margin-left:4px;">信任用户</span>';
+          return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.name || u.id) + badges +
+            "<br><small style=\"color:var(--muted)\">" + esc(u.id) + " · Lv." + (u.level || 1) + " · 积分 " + esc(u.points || 0) + " · 注册于 " + fmtDateShort(u.createdAt) + "</small></div>" +
+            '<div class="ui-role-actions">' +
+              '<button class="btn sm" data-act="detail" data-id="' + esc(u.id) + '">详情</button>' +
+              (u.disabled
+                ? '<button class="btn role-c" data-act="enable" data-id="' + esc(u.id) + '">启用</button>'
+                : '<button class="btn role-c" data-act="disable" data-id="' + esc(u.id) + '">禁用</button>') +
+              '<button class="btn role-c" data-act="trust" data-id="' + esc(u.id) + '">' + (u.trusted ? "取消信任" : "信任") + '</button>' +
+              '<button class="btn role-c" data-act="reset" data-id="' + esc(u.id) + '">重置密码</button>' +
+              '<button class="btn role-d" data-act="del" data-id="' + esc(u.id) + '">删除</button>' +
+            '</div></div>';
+        }).join("") + "</div>";
+        bindActions();
+      }
+      function bindActions() {
+        document.getElementById("umList").querySelectorAll("button[data-act]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var act = b.getAttribute("data-act");
+            var id = b.getAttribute("data-id");
+            if (act === "detail") return showDetail(id);
+            if (act === "reset") return resetPw(id);
+            if (act === "del" && !confirm("确定删除用户 " + id + "？此操作不可恢复。")) return;
+            var body, method, url;
+            if (act === "del") { method = "DELETE"; url = "/api/admin/member"; body = { id: id }; }
+            else if (act === "trust") { method = "PUT"; url = "/api/admin/member/trusted"; body = { id: id, trusted: !b.textContent.includes("取消") }; }
+            else { method = "PUT"; url = "/api/admin/member"; body = { id: id, disabled: act === "disable" }; }
+            b.disabled = true;
+            wkFetch(url, { method: method, body: JSON.stringify(body) })
+              .then(function (r) { return r.json(); })
+              .then(function (j) { if (j.error) alert(j.error); load(); })
+              .catch(function () { alert("操作失败"); b.disabled = false; });
+          });
+        });
+      }
+      function showDetail(id) {
+        wkFetch("/api/admin/member/" + encodeURIComponent(id))
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) { alert(j.error); return; }
+            var u = j.user;
+            var html = '<div class="panel-card" style="margin-top:12px"><h3>👤 用户详情</h3>' +
+              '<p><b>账号：</b>' + esc(u.id) + '</p>' +
+              '<p><b>昵称：</b>' + esc(u.name || "未设置") + '</p>' +
+              '<p><b>等级：</b>Lv.' + (u.level || 1) + ' · 积分 ' + (u.points || 0) + ' · 连续签到 ' + (u.streak || 0) + ' 天</p>' +
+              '<p><b>状态：</b>' + (u.disabled ? '已禁用' : '正常') + ' · ' + (u.trusted ? '信任用户（免 AI 审核）' : '普通用户（AI 自动审核）') + '</p>' +
+              '<p><b>注册时间：</b>' + fmtDate(u.createdAt) + '</p>' +
+              '<p><b>最后签到：</b>' + (u.lastCheckin || "无") + '</p>' +
+              '<p><b>个人简介：</b>' + esc(u.bio || "无") + '</p>' +
+              '</div>';
+            var existing = document.getElementById("umDetail");
+            if (existing) existing.outerHTML = html;
+            else {
+              var d = document.createElement("div"); d.id = "umDetail"; d.innerHTML = html;
+              document.getElementById("umList").insertAdjacentElement("beforebegin", d);
+            }
+          }).catch(function () { alert("加载详情失败"); });
+      }
+      function resetPw(id) {
+        var pw = prompt("为 " + id + " 设置新密码（至少 6 位）：");
+        if (!pw) return;
+        if (pw.length < 6) { alert("密码至少 6 位"); return; }
+        wkFetch("/api/admin/member/reset-password", { method: "POST", body: JSON.stringify({ id: id, password: pw }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) { if (j.error) alert(j.error); else alert("密码已重置"); })
+          .catch(function () { alert("重置失败"); });
+      }
       function load() {
         wkFetch("/api/admin/members").then(function (r) { return r.json(); }).then(function (j) {
           if (j.error) { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + "</div>"; return; }
-          var ms = j.members || [];
-          document.getElementById("umStats").innerHTML = "共 <b>" + ms.length + "</b> 位注册会员。";
-          if (!ms.length) { document.getElementById("umList").innerHTML = '<div class="status">暂无注册用户。</div>'; return; }
-          document.getElementById("umList").innerHTML = '<div class="ui-role-grid">' + ms.map(function (u) {
-            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.name || u.id) +
-              "<br><small style=\"color:var(--muted)\">" + esc(u.id) + " · 注册于 " + fmtDate(u.createdAt) + "</small></div>" +
-              '<div class="ui-role-actions">' +
-                (u.disabled
-                  ? '<button class="btn role-c" data-act="enable" data-id="' + esc(u.id) + '">启用</button>'
-                  : '<button class="btn role-c" data-act="disable" data-id="' + esc(u.id) + '">禁用</button>') +
-                '<button class="btn role-d" data-act="del" data-id="' + esc(u.id) + '">删除</button>' +
-              '</div></div>';
-          }).join("") + "</div>";
-          document.getElementById("umList").querySelectorAll("button[data-act]").forEach(function (b) {
-            b.addEventListener("click", function () {
-              var act = b.getAttribute("data-act");
-              var id = b.getAttribute("data-id");
-              if (act === "del" && !confirm("确定删除用户 " + id + "？此操作不可恢复。")) return;
-              var body = act === "del" ? { id: id } : { id: id, disabled: act === "disable" };
-              var method = act === "del" ? "DELETE" : "PUT";
-              b.disabled = true;
-              wkFetch("/api/admin/member", { method: method, body: JSON.stringify(body) })
-                .then(function (r) { return r.json(); })
-                .then(function (j) { if (j.error) alert(j.error); load(); })
-                .catch(function () { alert("操作失败"); b.disabled = false; });
-            });
-          });
+          allMembers = j.members || [];
+          render();
         }).catch(function () { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
       }
+      document.getElementById("umSearch").addEventListener("input", function (e) { kw = e.target.value; render(); });
+      document.getElementById("umReload").addEventListener("click", load);
       load();
     }
 

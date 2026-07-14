@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>音乐台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
   <style>
     .mu-wrap{max-width:980px;margin:0 auto;padding:18px 16px 120px;}
     .mu-logo{font-weight:800;font-size:18px;color:var(--text);text-decoration:none;}
@@ -26,14 +26,29 @@
     .mu-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .mu-artist{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .mu-tip{color:var(--muted);font-size:13px;margin:10px 0;}
-    .mu-bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;z-index:50;}
-    .mu-bar img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);}
+    /* 悬浮播放器 */
+    .mu-float{position:fixed;left:16px;right:16px;bottom:16px;z-index:60;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);}
+    .mu-float.mini{width:auto;left:auto;right:16px;bottom:16px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+    .mu-float.mini .mu-now{display:none;}
+    .mu-float.mini audio{display:none;}
+    .mu-float.mini .mu-ctrl{width:100%;justify-content:center;}
+    .mu-float.mini .mu-mini-info{display:block;}
+    .mu-mini-info{display:none;font-size:12px;color:var(--muted);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mu-float .mu-bar-head{display:flex;align-items:center;gap:12px;}
+    .mu-float img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);flex-shrink:0;}
     .mu-now{min-width:0;flex:1;}
     .mu-now .t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .mu-now .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-bar audio{flex:2;max-width:520px;}
-    .mu-ctrl{display:flex;gap:6px;}
+    .mu-float audio{flex:2;max-width:520px;min-width:160px;}
+    .mu-ctrl{display:flex;gap:8px;align-items:center;}
     .mu-ctrl button{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;}
+    .mu-ctrl button.play{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .mu-toggle{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-left:auto;}
+    @media(max-width:640px){
+      .mu-float{left:8px;right:8px;bottom:8px;}
+      .mu-float .mu-now{max-width:120px;}
+      .mu-float audio{flex:1;max-width:none;}
+    }
   </style>
 </head>
 <body>
@@ -43,7 +58,7 @@
       <a class="mu-back" href="index.html">← 返回首页</a>
     </header>
     <h1 class="mu-title">🎵 音乐台</h1>
-    <p class="mu-sub">调用公开 Meting API（api.i-meto.com），可搜全网歌曲（网易云 / QQ / 酷狗 / 酷我等），点击即播。</p>
+    <p class="mu-sub">调用公开 Meting API（api.i-meto.com），可搜全网歌曲（网易云 / QQ / 酷狗 / 酷我等），点击即播。默认播放三角洲行动主题曲《Unbreakable》。</p>
 
     <div class="mu-search">
       <input id="muQ" placeholder="搜歌、歌手或歌单关键词，如：周杰伦 / 孤勇者" />
@@ -61,26 +76,65 @@
     <div class="mu-list" id="muList"></div>
   </div>
 
-  <div class="mu-bar">
-    <img id="muBarCover" alt="">
-    <div class="mu-now">
-      <div class="t" id="muBarTitle">未在播放</div>
-      <div class="a" id="muBarArtist">—</div>
+  <div class="mu-float" id="muFloat">
+    <div class="mu-bar-head">
+      <img id="muBarCover" alt="">
+      <div class="mu-now">
+        <div class="t" id="muBarTitle">未在播放</div>
+        <div class="a" id="muBarArtist">—</div>
+      </div>
+      <div class="mu-mini-info" id="muMiniInfo">未在播放</div>
+      <div class="mu-ctrl">
+        <button id="muPrev">⏮</button>
+        <button id="muPlay" class="play">▶</button>
+        <button id="muNext">⏭</button>
+      </div>
+      <audio id="muAudio" controls preload="none"></audio>
+      <button class="mu-toggle" id="muToggle">收起 ▼</button>
     </div>
-    <div class="mu-ctrl">
-      <button id="muPrev">⏮</button>
-      <button id="muNext">⏭</button>
-    </div>
-    <audio id="muAudio" controls preload="none"></audio>
   </div>
 
   <script>
     var API = "https://api.i-meto.com/meting/api";
-    var playlist = [];
-    var cur = -1;
+    // 默认歌单：三角洲行动主题曲 Unbreakable + 其他官方曲目
+    var playlist = [
+      { title: "Unbreakable (坚不可摧)", author: "三角洲行动 / Andreas Ohnhaus", url: "https://www.shiyinren.net/server/1/597012494.mp3", pic: "", default: true }
+    ];
+    var cur = 0;
     var audio = document.getElementById("muAudio");
+    var floatEl = document.getElementById("muFloat");
+    var isMini = false;
 
     function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+
+    function updateBar(it){
+      document.getElementById("muBarCover").src = it.pic || "";
+      document.getElementById("muBarTitle").textContent = it.title || "未知";
+      document.getElementById("muBarArtist").textContent = it.author || "未知";
+      document.getElementById("muMiniInfo").textContent = (it.title || "未知") + " - " + (it.author || "未知");
+      document.querySelectorAll(".mu-card").forEach(function (el) {
+        el.classList.toggle("playing", parseInt(el.getAttribute("data-i"), 10) === cur);
+      });
+    }
+    function playIndex(i){
+      if (i < 0 || i >= playlist.length) return;
+      cur = i;
+      var it = playlist[i];
+      audio.src = it.url;
+      audio.play().catch(function () {});
+      updateBar(it);
+      document.getElementById("muPlay").textContent = "⏸";
+    }
+    function togglePlay(){
+      if (!audio.src && playlist.length) { playIndex(cur); return; }
+      if (audio.paused) { audio.play().catch(function(){}); document.getElementById("muPlay").textContent = "⏸"; }
+      else { audio.pause(); document.getElementById("muPlay").textContent = "▶"; }
+    }
+    function setMini(mini){
+      isMini = mini;
+      floatEl.classList.toggle("mini", mini);
+      document.getElementById("muToggle").textContent = mini ? "展开 ▲" : "收起 ▼";
+    }
 
     function search(){
       var q = document.getElementById("muQ").value.trim();
@@ -94,7 +148,8 @@
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (arr) {
           if (!Array.isArray(arr) || !arr.length) { tip.textContent = "没有找到相关歌曲，换个关键词试试。"; return; }
-          playlist = arr;
+          playlist = arr.map(function (it) { return { title: it.title, author: it.author, url: it.url, pic: it.pic }; });
+          cur = 0;
           tip.textContent = "共 " + arr.length + " 首，点击播放。";
           list.innerHTML = arr.map(function (it, i) {
             var cover = it.pic || "";
@@ -110,25 +165,19 @@
         .catch(function (e) { tip.textContent = "搜索失败：" + esc(e.message) + "（该公共接口偶尔限流，稍后重试）"; });
     }
 
-    function playIndex(i){
-      if (i < 0 || i >= playlist.length) return;
-      cur = i;
-      var it = playlist[i];
-      audio.src = it.url;
-      audio.play().catch(function () {});
-      document.getElementById("muBarCover").src = it.pic || "";
-      document.getElementById("muBarTitle").textContent = it.title || "未知";
-      document.getElementById("muBarArtist").textContent = it.author || "未知";
-      document.querySelectorAll(".mu-card").forEach(function (el) {
-        el.classList.toggle("playing", parseInt(el.getAttribute("data-i"), 10) === i);
-      });
-    }
-
     document.getElementById("muSearch").addEventListener("click", search);
     document.getElementById("muQ").addEventListener("keydown", function (e) { if (e.key === "Enter") search(); });
     document.getElementById("muPrev").addEventListener("click", function () { if (playlist.length) playIndex((cur - 1 + playlist.length) % playlist.length); });
     document.getElementById("muNext").addEventListener("click", function () { if (playlist.length) playIndex((cur + 1) % playlist.length); });
+    document.getElementById("muPlay").addEventListener("click", togglePlay);
+    document.getElementById("muToggle").addEventListener("click", function () { setMini(!isMini); });
     audio.addEventListener("ended", function () { if (playlist.length) playIndex((cur + 1) % playlist.length); });
+    audio.addEventListener("play", function () { document.getElementById("muPlay").textContent = "⏸"; });
+    audio.addEventListener("pause", function () { document.getElementById("muPlay").textContent = "▶"; });
+
+    // 默认播放 Unbreakable
+    updateBar(playlist[0]);
+    playIndex(0);
   </script>
 </body>
 </html>

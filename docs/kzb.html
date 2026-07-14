@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>智能卡战备 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
   <style>
     .kzb-wrap{max-width:1000px;margin:0 auto;padding:18px 16px 80px;}
     .kzb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -98,27 +98,18 @@
       <div class="kzb-card">
         <div class="kzb-row">
           <div class="kzb-field">
-            <label>卡房类型</label>
-            <select id="recTier">
-              <option value="机密">机密卡房</option>
-              <option value="绝密">绝密卡房</option>
+            <label>推荐档位</label>
+            <select id="recLv">
+              <option value="0">机密 · 11W 配置</option>
+              <option value="1">机密 · 18W 配置</option>
+              <option value="2">绝密 · 55W 巴克什</option>
+              <option value="3">绝密 · 60W 航天</option>
+              <option value="5">绝密 · 78W 监狱</option>
             </select>
-          </div>
-          <div class="kzb-field">
-            <label>风格</label>
-            <select id="recStyle">
-              <option value="save">省钱（最低成本）</option>
-              <option value="steady">稳健（收益最优）</option>
-              <option value="aggro">激进（上限最高）</option>
-            </select>
-          </div>
-          <div class="kzb-field">
-            <label>战备预算（哈夫币）</label>
-            <input id="recBudget" type="number" min="1500" max="780000" step="1000" value="200000">
           </div>
           <button class="kzb-btn" id="recBtn">生成推荐</button>
         </div>
-        <div class="kzb-note">调用三角洲数据帝「实时卡战备」接口（经本站 Worker 代理，token 不暴露给前端），按你的战备预算自动算出最划算的一套带入配装。若未配置接口，则回退到本地模板估算。</div>
+        <div class="kzb-note">调用三角洲数据帝「智能出装推荐 V4」接口（经本站 Worker 代理，token 不暴露给前端），按档位返回多组实时推荐方案（花费最少、实用优先等）。若未配置接口，则回退到本地模板估算。</div>
         <div id="recResult"></div>
       </div>
     </div>
@@ -231,7 +222,11 @@
       document.getElementById("calcResult").innerHTML = html;
     }
 
-    /* ---------- 智能出装推荐（实时卡战备 API） ---------- */
+    /* ---------- 智能出装推荐（实时卡战备 V4 推荐 API） ---------- */
+    function lvName(lv) {
+      var map = { "0": "机密 · 11W", "1": "机密 · 18W", "2": "绝密 · 55W 巴克什", "3": "绝密 · 60W 航天", "5": "绝密 · 78W 监狱" };
+      return map[lv] || "未知档位";
+    }
     function pickByStyle(tier, style){
       var list = (KZB.loadouts || []).slice();
       if (!list.length) return null;
@@ -243,11 +238,10 @@
         list.sort(function (a, b) { return (Number(b.sell) || 0) - (Number(a.sell) || 0); });
         return list[0];
       }
-      // steady：收益最优（售价 - 成本）
       list.sort(function (a, b) { return ((Number(b.sell) || 0) - loadoutCost(b)) - ((Number(a.sell) || 0) - loadoutCost(a)); });
       return list[0];
     }
-    function renderRecLocal(lo, tier, style){
+    function renderRecLocal(lo, lv){
       var box = document.getElementById("recResult");
       var cost = loadoutCost(lo);
       var items = (lo.items || []).map(function (it) {
@@ -262,61 +256,71 @@
           '<span class="pr">' + kzbFmt(cur) + '</span>' +
           '<span class="dl ' + dcls + '">' + (dl >= 0 ? "+" : "") + kzbFmt(dl) + '</span></li>';
       }).join("");
-      var styleName = { save: "省钱", steady: "稳健", aggro: "激进" }[style] || style;
-      var html = '<div class="kzb-note" style="border-style:solid">⚠️ 实时卡战备接口未配置，以下为本地模板估算（非实时）。</div>' +
+      var html = '<div class="kzb-note" style="border-style:solid">⚠️ 智能出装接口未配置，以下为本地模板估算（非实时）。</div>' +
         '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">' + kzbEsc(lo.title) + '</div>' +
-        '<div class="lo-stats">' + tier + '卡房 · ' + styleName + '风格 · 总成本 ' + kzbFmt(cost) + ' 元</div></div>' +
-        '<button class="kzb-btn ghost" id="recCopy">📋 复制方案</button></div>' +
+        '<div class="lo-stats">' + lvName(lv) + ' · 总成本 ' + kzbFmt(cost) + ' 元</div></div>' +
+        '<button class="kzb-btn ghost rec-copy" data-i="local">📋 复制方案</button></div>' +
         '<div class="lo-stats">卖 ' + kzbW(lo.sell) + ' · 战备 ' + kzbW(lo.reserve) + ' · 假账 ' + kzbW(lo.fake) + '</div>' +
         '<ul class="lo-items">' + items + '</ul></div>';
       box.innerHTML = html;
-      document.getElementById("recCopy").addEventListener("click", function () {
-        var txt = "【" + lo.title + "】" + tier + "卡房·" + styleName + "\n卖 " + kzbW(lo.sell) + " / 战备 " + kzbW(lo.reserve) + " / 假账 " + kzbW(lo.fake) +
+      box.querySelector(".rec-copy").addEventListener("click", function () {
+        var txt = "【" + lo.title + "】" + lvName(lv) + "\n卖 " + kzbW(lo.sell) + " / 战备 " + kzbW(lo.reserve) + " / 假账 " + kzbW(lo.fake) +
           "\n" + (lo.items || []).map(function (it) { return "- " + it.name + "：" + kzbFmt(itemCost(it)) + "元"; }).join("\n");
         copyText(txt);
       });
     }
     function renderRec(){
-      var tier = document.getElementById("recTier").value;
-      var style = document.getElementById("recStyle").value;
-      var zb = Math.max(1500, Math.min(780000, Number(document.getElementById("recBudget").value) || 200000));
+      var lv = document.getElementById("recLv").value;
       var box = document.getElementById("recResult");
       box.innerHTML = '<div class="kzb-tip">实时计算中…</div>';
-      var qs = "zb=" + zb + "&exchange=0&is_bb=1&is_gun=1&is_hj=1&is_sq=1&is_tk=1&is_xg=1";
-      fetch("/api/kzb/diy?" + qs + "&_=" + Date.now(), { cache: "no-store" })
+      fetch("/api/kzb/recommend?lv=" + lv + "&_=" + Date.now(), { cache: "no-store" })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
           var j = res.j;
           if (j && j.needToken) {
-            var lo = pickByStyle(tier, style);
+            var lo = pickByStyle(lv, "save");
             if (!lo) { box.innerHTML = '<div class="kzb-empty">暂无配装数据，请在后台维护 kzb.loadouts。</div>'; return; }
-            renderRecLocal(lo, tier, style);
+            renderRecLocal(lo, lv);
             return;
           }
           if (!j || j.code !== 0 || !Array.isArray(j.data)) {
             throw new Error(j && j.error ? j.error : "接口返回异常");
           }
-          var items = j.data.map(function (it) {
-            var price = Number(it.price) || 0;
-            return '<li class="lo-item"><span class="nm">' + kzbEsc(it.name || "物品") + '</span>' +
-              '<span class="pr">' + kzbFmt(price) + '</span></li>';
-          }).join("");
-          var styleName = { save: "省钱", steady: "稳健", aggro: "激进" }[style] || style;
-          var html = '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">实时卡战备推荐 · ' + tier + '卡房</div>' +
-            '<div class="lo-stats">' + styleName + '风格 · 战备值 ' + kzbFmt(j.jz) + ' · 总价值 ' + kzbFmt(j.price) + ' 元</div></div>' +
-            '<button class="kzb-btn ghost" id="recCopy">📋 复制方案</button></div>' +
-            '<ul class="lo-items">' + items + '</ul></div>';
+          var html = '';
+          j.data.forEach(function (group, gi) {
+            var groupName = kzbEsc(group.name || ("方案组 " + (gi + 1)));
+            var groupZb = kzbFmt(group.zb || 0);
+            (group.list || []).forEach(function (lo, li) {
+              var items = (lo.data || []).map(function (it) {
+                return '<li class="lo-item"><span class="nm">' + kzbEsc(it.name || "物品") + '</span>' +
+                  '<span class="pr">' + kzbFmt(Number(it.price) || 0) + '</span></li>';
+              }).join("");
+              var cz = Number(lo.cz) || 0;
+              var czCls = cz <= 0 ? "up" : "down";
+              html += '<div class="lo-card">' +
+                '<div class="lo-head"><div><div class="lo-title">' + kzbEsc(lo.name || groupName) + ' <span style="font-weight:400;font-size:12px;color:var(--muted)">#' + (li + 1) + '</span></div>' +
+                '<div class="lo-stats">' + lvName(lv) + ' · 战备 ' + kzbFmt(Number(lo.jz) || 0) + ' · 花费 ' + kzbFmt(Number(lo.price) || 0) + ' · 假账/差额 <span class="' + czCls + '">' + (cz <= 0 ? "" : "+") + kzbFmt(cz) + '</span></div></div>' +
+                '<button class="kzb-btn ghost rec-copy" data-gi="' + gi + '" data-li="' + li + '">📋 复制</button></div>' +
+                '<ul class="lo-items">' + items + '</ul></div>';
+            });
+          });
+          if (!html) html = '<div class="kzb-empty">该档位暂无推荐数据，换个档位试试。</div>';
           box.innerHTML = html;
-          document.getElementById("recCopy").addEventListener("click", function () {
-            var txt = "【实时卡战备】" + tier + "卡房·" + styleName + "\n战备值 " + kzbFmt(j.jz) + " / 总价值 " + kzbFmt(j.price) + " 元\n" +
-              j.data.map(function (it) { return "- " + (it.name || "物品") + "：" + kzbFmt(Number(it.price) || 0) + "元"; }).join("\n");
-            copyText(txt);
+          box.querySelectorAll(".rec-copy").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var gIndex = parseInt(btn.getAttribute("data-gi"), 10);
+              var lIndex = parseInt(btn.getAttribute("data-li"), 10);
+              var g = j.data[gIndex]; var lo = g.list[lIndex];
+              var txt = "【" + (lo.name || g.name) + "】" + lvName(lv) + "\n战备 " + kzbFmt(Number(lo.jz) || 0) + " / 花费 " + kzbFmt(Number(lo.price) || 0) + " / 差额 " + kzbFmt(Number(lo.cz) || 0) + "\n" +
+                (lo.data || []).map(function (it) { return "- " + (it.name || "物品") + "：" + kzbFmt(Number(it.price) || 0) + "元"; }).join("\n");
+              copyText(txt);
+            });
           });
         })
         .catch(function (e) {
-          var lo = pickByStyle(tier, style);
+          var lo = pickByStyle(lv, "save");
           if (!lo) { box.innerHTML = '<div class="kzb-empty">实时接口不可用（' + kzbEsc(e.message) + '），且本地无配装数据。</div>'; return; }
-          renderRecLocal(lo, tier, style);
+          renderRecLocal(lo, lv);
         });
     }
     function copyText(txt){
@@ -359,12 +363,7 @@
       document.getElementById("calcBudget").addEventListener("input", renderCalc);
       document.getElementById("calcRuns").addEventListener("input", renderCalc);
       document.getElementById("recBtn").addEventListener("click", renderRec);
-      document.getElementById("recTier").addEventListener("change", function () {
-        document.getElementById("recBudget").value = (this.value === "绝密") ? 600000 : 200000;
-        renderRec();
-      });
-      document.getElementById("recStyle").addEventListener("change", renderRec);
-      document.getElementById("recBudget").addEventListener("input", renderRec);
+      document.getElementById("recLv").addEventListener("change", renderRec);
       document.getElementById("refreshPrice").addEventListener("click", function () {
         document.getElementById("priceMeta").textContent = "实时物价：刷新中…";
         loadPrices(true).then(function () { renderPriceMeta(); renderCalc(); renderRec(); });
