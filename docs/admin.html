@@ -630,7 +630,8 @@
         if (j.error) { clearWorkerSession(); return; }
         var role = j.role || "subadmin";
         if (!ROLES[role]) ROLES[role] = { key: role, name: "分管理员", color: "#8a7bff", icon: "🛡", panels: ["dashboard"] };
-        if (j.panels && j.panels.length) ROLES[role].panels = j.panels;
+        if (role === "super") ROLES[role].panels = Object.keys(PANELS); // 总管理员拥有全部面板
+        else if (j.panels && j.panels.length) ROLES[role].panels = j.panels;
         activeRole = role; setRole(role);
         enterShell(j.email || "");
       }).catch(function () { clearWorkerSession(); });

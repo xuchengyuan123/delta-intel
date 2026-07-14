@@ -1210,7 +1210,7 @@ async function handle(request, env) {
       const action = (body.action || "").trim();
       const rec = await getFriend(env, s.email, from);
       if (!rec) return json({ error: "请求不存在" }, 404);
-      if (rec.from !== s.email.toLowerCase()) return json({ error: "无权操作该请求" }, 403);
+      if (rec.from === s.email.toLowerCase()) return json({ error: "无权操作该请求" }, 403);
       if (action === "accept") { rec.status = "accepted"; await putFriend(env, s.email, from, rec); return json({ ok: true }); }
       if (action === "reject") { await delFriend(env, s.email, from); return json({ ok: true }); }
       return json({ error: "操作无效" }, 400);
