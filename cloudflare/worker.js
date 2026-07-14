@@ -514,7 +514,7 @@ async function adminLogin(env, body) {
 
 // 分管理员默认面板（兼容未存 panels 的旧分管理员；前端按角色查；新创建以传来的 panels 为准）
 const DEFAULT_PANELS = {
-  super: ["dashboard","tasks","music","art","sim","code","opcode","wcodex","trivia","uidesign","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","changelog","eventitems","sponsor","analytics","liveprice","mappass","subadmins","site","guides","craft","quiz","materials","rigs","containers","scatter","items","bullets","maps","announce","ugc"],
+  super: ["dashboard","tasks","music","art","sim","code","opcode","wcodex","trivia","uidesign","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","changelog","eventitems","sponsor","analytics","liveprice","mappass","subadmins","usermgr","site","guides","craft","quiz","materials","rigs","containers","scatter","items","bullets","maps","announce","ugc"],
   tasks: ["tasks"], music: ["music"], art: ["art","images"], sim: ["sim"], code: ["code"],
   opcode: ["opcode"], wcodex: ["wcodex"], data: ["gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems"],
   usermgr: ["usermgr"]
@@ -841,6 +841,48 @@ async function deleteUgc(env, id) {
   return json({ ok: true });
 }
 
+// 手动触发 AI 审核：单条（body.id）或全部待审（body.all=true）
+async function aiModerateUgc(env, body) {
+  const id = (body && body.id || "").trim();
+  const all = !!(body && body.all);
+  if (!id && !all) return json({ error: "请提供 id（单条）或 all:true（全部待审）" }, 400);
+  const results = [];
+  if (id) {
+    const r = await env.UGC.get("u:" + id);
+    if (!r) return json({ error: "投稿不存在" }, 404);
+    const rec = JSON.parse(r);
+    const mod = await aiModerate(env, rec.title, rec.body);
+    if (mod.decision === "approve") { rec.status = "approved"; rec.aiNote = "AI 自动通过：" + (mod.reason || ""); rec.rejectReason = ""; }
+    else if (mod.decision === "reject") { rec.status = "rejected"; rec.rejectReason = "AI 自动拒绝：" + (mod.reason || ""); rec.aiNote = ""; }
+    else { rec.status = "pending"; rec.aiNote = "转人工：" + (mod.reason || ""); }
+    await env.UGC.put("u:" + id, JSON.stringify(rec));
+    const idx = await getUgcIdx(env);
+    const it = idx.find((x) => x.id === id);
+    if (it) it.status = rec.status;
+    await setUgcIdx(env, idx);
+    results.push({ id, decision: mod.decision, status: rec.status, reason: mod.reason || "" });
+    return json({ ok: true, processed: 1, results });
+  }
+  const idx = await getUgcIdx(env);
+  const pendings = idx.filter((x) => x.status === "pending");
+  for (const it of pendings) {
+    const r = await env.UGC.get("u:" + it.id);
+    if (!r) continue;
+    const rec = JSON.parse(r);
+    const mod = await aiModerate(env, rec.title, rec.body);
+    let st;
+    if (mod.decision === "approve") { st = "approved"; rec.aiNote = "AI 自动通过：" + (mod.reason || ""); rec.rejectReason = ""; }
+    else if (mod.decision === "reject") { st = "rejected"; rec.rejectReason = "AI 自动拒绝：" + (mod.reason || ""); rec.aiNote = ""; }
+    else { st = "pending"; rec.aiNote = "转人工：" + (mod.reason || ""); }
+    rec.status = st;
+    await env.UGC.put("u:" + it.id, JSON.stringify(rec));
+    it.status = st;
+    results.push({ id: it.id, decision: mod.decision, status: st, reason: mod.reason || "" });
+  }
+  await setUgcIdx(env, idx);
+  return json({ ok: true, processed: results.length, results });
+}
+
 /* ============ 注册用户管理（仅总管理员 / 用户管理分管理员） ============ */
 async function requireUserMgr(env, req) {
   const s = await requireLogin(env, req);
@@ -1091,6 +1133,10 @@ async function handle(request, env) {
     if (p === "/api/admin/ugc" && request.method === "GET") {
       await requireStaff(env, request);
       return await listAllUgc(env);
+    }
+    if (p === "/api/admin/ugc/aimod" && request.method === "POST") {
+      await requireStaff(env, request);
+      return await aiModerateUgc(env, body);
     }
     if (p.startsWith("/api/admin/ugc/") && p.length > "/api/admin/ugc/".length) {
       const uid = p.slice("/api/admin/ugc/".length);
