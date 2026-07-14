@@ -91,6 +91,15 @@
   var DEFAULT = "home";
   var MENU = [
     { route: "home", label: "首页一图流" },
+    {
+      group: "常用页面", collapsed: false, items: [
+        { href: "profile.html", label: "我的主页", ico: "👤" },
+        { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
+        { href: "ugc.html", label: "投稿", ico: "📝" },
+        { href: "guns.html", label: "改枪码", ico: "🔧" },
+        { href: "tujian.html", label: "图鉴", ico: "🗂" },
+      ],
+    },
     { route: "quiz", label: "DFTI测试" },
     {
       group: "S10 赛季", collapsed: true, items: [
@@ -129,8 +138,6 @@
         { route: "keyrooms",    label: "钥匙房", ico: "🗝" },
         { route: "collectibles",label: "收集品价值", ico: "💎" },
         { route: "bulletpacks", label: "子弹自选包利润", ico: "📊" },
-        { href: "tujian.html", label: "三角洲图鉴(API)", ico: "🗂" },
-        { href: "guns.html",    label: "改枪码(卡片)",    ico: "🔧" },
       ],
     },
     {
