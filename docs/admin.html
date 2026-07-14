@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=23">
+  <link rel="stylesheet" href="css/style.css?v=24">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=23"></script>
-  <script defer src="js/i18n.js?v=23"></script>
+  <script src="js/art.js?v=24"></script>
+  <script defer src="js/i18n.js?v=24"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -569,7 +569,7 @@
       var r = ROLES[activeRole];
       var owned = r.panels;
       var kw = (sideSearchVal || "").trim().toLowerCase();
-      var html = '<input id="sideSearch" class="side-search" placeholder="搜索功能…" />';
+      var listHtml = "";
       PANEL_GROUPS.forEach(function (g) {
         var ps = g.panels.filter(function (p) { return owned.indexOf(p) > -1; });
         if (!ps.length) return;
@@ -581,22 +581,25 @@
             '<span class="ico">' + P.icon + "</span><span>" + P.label + "</span></div>";
         });
         if (!items) return;
-        html += '<div class="as-group">' + g.name + "</div>" + items;
+        listHtml += '<div class="as-group">' + g.name + "</div>" + items;
       });
-      if (html === '<input id="sideSearch" class="side-search" placeholder="搜索功能…" />') {
-        html += '<div class="as-empty">没有匹配的功能</div>';
+      if (!listHtml) {
+        listHtml = '<div class="as-empty">没有匹配的功能</div>';
       }
       var side = document.getElementById("side");
-      side.innerHTML = html;
-      side.querySelectorAll(".as-item").forEach(function (el) {
+      // 搜索框只创建一次：中文输入法组字时若反复销毁重建输入框，会导致组字串被重复提交（敲一字出三字）。
+      if (!document.getElementById("sideSearch")) {
+        side.innerHTML = '<input id="sideSearch" class="side-search" placeholder="搜索功能…" /><div id="sideList"></div>';
+        var sb = document.getElementById("sideSearch");
+        sb.value = sideSearchVal;
+        sb.addEventListener("input", function (e) { if (e.isComposing) return; sideSearchVal = sb.value; renderSide(); });
+        sb.addEventListener("compositionend", function () { sideSearchVal = sb.value; renderSide(); });
+      }
+      var list = document.getElementById("sideList");
+      list.innerHTML = listHtml;
+      list.querySelectorAll(".as-item").forEach(function (el) {
         el.addEventListener("click", function () { showPanel(el.getAttribute("data-panel")); });
       });
-      var sb = document.getElementById("sideSearch");
-      if (sb) {
-        sb.value = sideSearchVal;
-        sb.addEventListener("input", function () { sideSearchVal = sb.value; renderSide(); });
-        sb.focus(); var v = sb.value; sb.value = ""; sb.value = v; // 恢复焦点与光标位置
-      }
     }
     function showPanel(p) {
       var P = PANELS[p];

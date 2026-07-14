@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>卡战备 / 配装推荐 · 三角洲情报台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <link rel="stylesheet" href="css/style.css?v=24">
+  <style>
+    .kzb-wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;}
+    .kzb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .kzb-logo{font-weight:800;font-size:18px;color:var(--text);text-decoration:none;}
+    .kzb-logo span{color:var(--accent);}
+    .kzb-back{color:var(--muted);text-decoration:none;font-size:13px;}
+    .kzb-title{font-size:22px;margin:6px 0 4px;}
+    .kzb-sub{color:var(--muted);font-size:13px;margin:0 0 18px;}
+    .kzb-section{margin-bottom:26px;}
+    .kzb-section h2{font-size:16px;margin:0 0 12px;color:var(--accent);}
+    .kzb-maps{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+    .kzb-map{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;}
+    .kzb-map-name{font-weight:600;margin-bottom:8px;}
+    .kzb-map-meta{display:flex;justify-content:space-between;align-items:center;}
+    .kzb-tier{font-size:12px;padding:2px 8px;border-radius:999px;}
+    .tier-ji{background:rgba(25,195,166,.15);color:#19c3a6;}
+    .tier-jue{background:rgba(255,77,109,.15);color:#ff4d6d;}
+    .kzb-w{font-weight:700;color:var(--accent);}
+    .kzb-loadouts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+    .kzb-lo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .kzb-lo-head{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .kzb-lo-title{font-weight:700;font-size:15px;}
+    .kzb-lo-stats{font-size:12px;color:var(--muted);}
+    .kzb-items{list-style:none;margin:0;padding:0;}
+    .kzb-item{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;}
+    .kzb-item-name{flex:1;}
+    .kzb-item-price{color:var(--muted);}
+    .kzb-item-delta.up{color:#19c3a6;}
+    .kzb-item-delta.down{color:#ff5b5b;}
+    .kzb-empty,.kzb-tip{color:var(--muted);font-size:13px;}
+    .kzb-tip{margin-top:8px;}
+    .kzb-tip code{background:var(--bg);padding:1px 5px;border-radius:4px;}
+  </style>
+</head>
+<body>
+  <div class="kzb-wrap">
+    <header class="kzb-head">
+      <a class="kzb-logo" href="index.html">三角洲<span>情报台</span></a>
+      <a class="kzb-back" href="index.html">← 返回首页</a>
+    </header>
+    <h1 class="kzb-title">🎴 卡战备 / 配装推荐</h1>
+    <p class="kzb-sub" id="kzbUpdated"></p>
+
+    <section class="kzb-section">
+      <h2>🗺️ 地图卡战备掉率</h2>
+      <div class="kzb-maps" id="kzbMaps"></div>
+    </section>
+
+    <section class="kzb-section">
+      <h2>🎒 配装推荐</h2>
+      <div class="kzb-loadouts" id="kzbLoadouts"></div>
+    </section>
+
+    <p class="kzb-tip">数据参考 shushu.fan/kzb，可在后台「代码维护」面板编辑 <code>data.json</code> 的 <code>kzb</code> 字段更新（地图掉率、配装与价格）。</p>
+  </div>
+
+  <script>
+    function kzbFmt(n){ return Number(n || 0).toLocaleString(); }
+    function kzbEsc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+    function kzbRender(d){
+      var k = d.kzb || {};
+      var kzbUpd = document.getElementById("kzbUpdated");
+      if (kzbUpd) kzbUpd.textContent = k.updatedAt ? ("数据更新：" + k.updatedAt) : "";
+      var maps = (k.maps || []).map(function(m){
+        var cls = (m.tier === "绝密") ? "tier-jue" : "tier-ji";
+        return '<div class="kzb-map"><div class="kzb-map-name">' + kzbEsc(m.name) + '</div>' +
+          '<div class="kzb-map-meta"><span class="kzb-tier ' + cls + '">' + kzbEsc(m.tier) + '</span>' +
+          '<span class="kzb-w">' + kzbFmt(m.w) + 'W</span></div></div>';
+      }).join("") || '<div class="kzb-empty">暂无数据</div>';
+      document.getElementById("kzbMaps").innerHTML = maps;
+      var los = (k.loadouts || []).map(function(lo){
+        var items = (lo.items || []).map(function(it){
+          var dl = Number(it.delta || 0);
+          var dc = dl > 0 ? "up" : "down";
+          var dsign = (dl > 0 ? "+" : "") + kzbFmt(dl);
+          return '<li class="kzb-item"><span class="kzb-item-name">' + kzbEsc(it.name) + '</span>' +
+            '<span class="kzb-item-price">' + kzbFmt(it.price) + '</span>' +
+            '<span class="kzb-item-delta ' + dc + '">' + dsign + '</span></li>';
+        }).join("");
+        var fakeSign = (lo.fake > 0 ? "+" : "") + kzbFmt(lo.fake);
+        return '<div class="kzb-lo"><div class="kzb-lo-head"><span class="kzb-lo-title">' + kzbEsc(lo.title) + '</span>' +
+          '<span class="kzb-lo-stats">售价 ' + kzbFmt(lo.sell) + 'W · 战备 ' + kzbFmt(lo.reserve) + 'W · 假账 ' + fakeSign + 'W</span></div>' +
+          '<ul class="kzb-items">' + items + '</ul></div>';
+      }).join("") || '<div class="kzb-empty">暂无数据</div>';
+      document.getElementById("kzbLoadouts").innerHTML = los;
+    }
+    fetch("data.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(kzbRender).catch(function(e){
+      document.getElementById("kzbMaps").innerHTML = '<div class="kzb-empty">加载失败：' + kzbEsc(e.message) + '</div>';
+    });
+  </script>
+</body>
+</html>
