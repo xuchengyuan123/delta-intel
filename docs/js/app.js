@@ -1013,7 +1013,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=24").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=25").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
