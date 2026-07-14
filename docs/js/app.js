@@ -166,7 +166,7 @@
     {
       group: "网站相关", collapsed: true, items: [
         { href: "forum.html",   label: "战友论坛", ico: "💬" },
-        { href: "kzb.html",    label: "卡战备 / 配装", ico: "🎴" },
+        { href: "kzb.html",    label: "智能卡战备", ico: "🎴" },
         { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
@@ -1015,7 +1015,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=26").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=27").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

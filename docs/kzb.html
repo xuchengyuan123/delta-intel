@@ -2,41 +2,56 @@
 <html lang="zh-CN" class="dark">
 <head>
   <meta charset="utf-8">
-  <title>卡战备 / 配装推荐 · 三角洲情报台</title>
+  <title>智能卡战备 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=26">
+  <link rel="stylesheet" href="css/style.css?v=27">
   <style>
-    .kzb-wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;}
+    .kzb-wrap{max-width:1000px;margin:0 auto;padding:18px 16px 80px;}
     .kzb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
     .kzb-logo{font-weight:800;font-size:18px;color:var(--text);text-decoration:none;}
     .kzb-logo span{color:var(--accent);}
     .kzb-back{color:var(--muted);text-decoration:none;font-size:13px;}
     .kzb-title{font-size:22px;margin:6px 0 4px;}
-    .kzb-sub{color:var(--muted);font-size:13px;margin:0 0 18px;}
-    .kzb-section{margin-bottom:26px;}
-    .kzb-section h2{font-size:16px;margin:0 0 12px;color:var(--accent);}
-    .kzb-maps{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
-    .kzb-map{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;}
-    .kzb-map-name{font-weight:600;margin-bottom:8px;}
-    .kzb-map-meta{display:flex;justify-content:space-between;align-items:center;}
-    .kzb-tier{font-size:12px;padding:2px 8px;border-radius:999px;}
-    .tier-ji{background:rgba(25,195,166,.15);color:#19c3a6;}
-    .tier-jue{background:rgba(255,77,109,.15);color:#ff4d6d;}
-    .kzb-w{font-weight:700;color:var(--accent);}
-    .kzb-loadouts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-    .kzb-lo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
-    .kzb-lo-head{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
-    .kzb-lo-title{font-weight:700;font-size:15px;}
-    .kzb-lo-stats{font-size:12px;color:var(--muted);}
-    .kzb-items{list-style:none;margin:0;padding:0;}
-    .kzb-item{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;}
-    .kzb-item-name{flex:1;}
-    .kzb-item-price{color:var(--muted);}
-    .kzb-item-delta.up{color:#19c3a6;}
-    .kzb-item-delta.down{color:#ff5b5b;}
+    .kzb-sub{color:var(--muted);font-size:13px;margin:0 0 14px;}
+    .kzb-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+    .kzb-tab{padding:8px 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);cursor:pointer;font-size:14px;}
+    .kzb-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .kzb-panel{display:none;}
+    .kzb-panel.active{display:block;}
+    .kzb-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;}
+    .kzb-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px;}
+    .kzb-field{display:flex;flex-direction:column;gap:4px;}
+    .kzb-field label{font-size:12px;color:var(--muted);}
+    .kzb-field select,.kzb-field input{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;min-width:160px;}
+    .kzb-btn{padding:9px 18px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;}
+    .kzb-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+    .kzb-meta{font-size:12px;color:var(--muted);margin:4px 0 12px;}
+    .kzb-meta b{color:var(--accent);}
+    .kzb-note{font-size:12px;color:var(--muted);background:var(--bg);border:1px dashed var(--border);border-radius:8px;padding:8px 10px;margin:8px 0;}
+    table.kzb-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+    table.kzb-tbl th,table.kzb-tbl td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}
+    table.kzb-tbl th{color:var(--muted);font-weight:600;}
+    table.kzb-tbl tr.best{background:rgba(192,57,43,.08);}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;}
+    .pill-up{background:rgba(25,195,166,.15);color:#19c3a6;}
+    .pill-down{background:rgba(255,91,91,.15);color:#ff5b5b;}
+    .pill-best{background:var(--accent);color:#fff;}
+    .lo-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+    .lo-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+    .lo-title{font-weight:700;font-size:16px;}
+    .lo-stats{font-size:12px;color:var(--muted);margin-top:4px;}
+    .lo-items{list-style:none;margin:0;padding:0;}
+    .lo-item{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:13px;}
+    .lo-item .nm{flex:1;}
+    .lo-item .pr{color:var(--muted);}
+    .lo-item .dl.up{color:#19c3a6;}
+    .lo-item .dl.down{color:#ff5b5b;}
+    .sug{font-size:11px;padding:1px 6px;border-radius:6px;margin-left:6px;}
+    .sug-sell{background:rgba(25,195,166,.15);color:#19c3a6;}
+    .sug-keep{background:rgba(255,91,91,.15);color:#ff5b5b;}
     .kzb-empty,.kzb-tip{color:var(--muted);font-size:13px;}
-    .kzb-tip{margin-top:8px;}
     .kzb-tip code{background:var(--bg);padding:1px 5px;border-radius:4px;}
+    .kzb-sep{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
   </style>
 </head>
 <body>
@@ -45,55 +60,278 @@
       <a class="kzb-logo" href="index.html">三角洲<span>情报台</span></a>
       <a class="kzb-back" href="index.html">← 返回首页</a>
     </header>
-    <h1 class="kzb-title">🎴 卡战备 / 配装推荐</h1>
+    <h1 class="kzb-title">🎴 智能卡战备</h1>
     <p class="kzb-sub" id="kzbUpdated"></p>
 
-    <section class="kzb-section">
-      <h2>🗺️ 地图卡战备掉率</h2>
-      <div class="kzb-maps" id="kzbMaps"></div>
-    </section>
+    <div class="kzb-tabs">
+      <div class="kzb-tab active" data-tab="calc">📊 收益计算器</div>
+      <div class="kzb-tab" data-tab="rec">🤖 智能出装推荐</div>
+    </div>
 
-    <section class="kzb-section">
-      <h2>🎒 配装推荐</h2>
-      <div class="kzb-loadouts" id="kzbLoadouts"></div>
-    </section>
+    <div class="kzb-meta" id="priceMeta">实时物价：加载中…</div>
 
-    <p class="kzb-tip">数据参考 shushu.fan/kzb，可在后台「代码维护」面板编辑 <code>data.json</code> 的 <code>kzb</code> 字段更新（地图掉率、配装与价格）。</p>
+    <!-- 收益计算器 -->
+    <div class="kzb-panel active" id="panel-calc">
+      <div class="kzb-card">
+        <div class="kzb-row">
+          <div class="kzb-field">
+            <label>选择地图（决定掉率档位）</label>
+            <select id="calcMap"></select>
+          </div>
+          <div class="kzb-field">
+            <label>投入预算（战备值 · 万）</label>
+            <input id="calcBudget" type="number" min="1" step="1" value="30">
+          </div>
+          <div class="kzb-field">
+            <label>预计每日场次</label>
+            <input id="calcRuns" type="number" min="1" step="1" value="3">
+          </div>
+          <button class="kzb-btn" id="calcBtn">计算收益</button>
+        </div>
+        <div class="kzb-note">估算仅供参考：单次预期收益 = 地图掉率档位价值 × 期望系数 0.6（约 60% 场次能提出该档卡），实际随运气波动；价格为交易行真实成交价（caiweilv/DeltaForcePrice）。</div>
+        <div id="calcResult"></div>
+      </div>
+    </div>
+
+    <!-- 智能出装推荐 -->
+    <div class="kzb-panel" id="panel-rec">
+      <div class="kzb-card">
+        <div class="kzb-row">
+          <div class="kzb-field">
+            <label>卡房类型</label>
+            <select id="recTier">
+              <option value="机密">机密卡房</option>
+              <option value="绝密">绝密卡房</option>
+            </select>
+          </div>
+          <div class="kzb-field">
+            <label>风格</label>
+            <select id="recStyle">
+              <option value="save">省钱（最低成本）</option>
+              <option value="steady">稳健（收益最优）</option>
+              <option value="aggro">激进（上限最高）</option>
+            </select>
+          </div>
+          <button class="kzb-btn" id="recBtn">生成推荐</button>
+        </div>
+        <div class="kzb-note">基于地图掉率 + 实时物价，自动挑出最划算的一套配装，并给出「卖 / 留 / 假账」建议（实时价高于模板价建议卖，低于则建议留）。</div>
+        <div id="recResult"></div>
+      </div>
+    </div>
+
+    <div class="kzb-sep">
+      <button class="kzb-btn ghost" id="refreshPrice">🔄 刷新实时物价</button>
+    </div>
+    <p class="kzb-tip" style="margin-top:14px">数据可在后台「代码维护」面板编辑 <code>data.json</code> 的 <code>kzb</code> 字段更新（地图掉率、配装与价格）。本页计算用真实交易行价格，调价时自动刷新。</p>
   </div>
 
   <script>
+    /* ---------- 工具 ---------- */
     function kzbFmt(n){ return Number(n || 0).toLocaleString(); }
     function kzbEsc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
-    function kzbRender(d){
-      var k = d.kzb || {};
-      var kzbUpd = document.getElementById("kzbUpdated");
-      if (kzbUpd) kzbUpd.textContent = k.updatedAt ? ("数据更新：" + k.updatedAt) : "";
-      var maps = (k.maps || []).map(function(m){
-        var cls = (m.tier === "绝密") ? "tier-jue" : "tier-ji";
-        return '<div class="kzb-map"><div class="kzb-map-name">' + kzbEsc(m.name) + '</div>' +
-          '<div class="kzb-map-meta"><span class="kzb-tier ' + cls + '">' + kzbEsc(m.tier) + '</span>' +
-          '<span class="kzb-w">' + kzbFmt(m.w) + 'W</span></div></div>';
-      }).join("") || '<div class="kzb-empty">暂无数据</div>';
-      document.getElementById("kzbMaps").innerHTML = maps;
-      var los = (k.loadouts || []).map(function(lo){
-        var items = (lo.items || []).map(function(it){
-          var dl = Number(it.delta || 0);
-          var dc = dl > 0 ? "up" : "down";
-          var dsign = (dl > 0 ? "+" : "") + kzbFmt(dl);
-          return '<li class="kzb-item"><span class="kzb-item-name">' + kzbEsc(it.name) + '</span>' +
-            '<span class="kzb-item-price">' + kzbFmt(it.price) + '</span>' +
-            '<span class="kzb-item-delta ' + dc + '">' + dsign + '</span></li>';
-        }).join("");
-        var fakeSign = (lo.fake > 0 ? "+" : "") + kzbFmt(lo.fake);
-        return '<div class="kzb-lo"><div class="kzb-lo-head"><span class="kzb-lo-title">' + kzbEsc(lo.title) + '</span>' +
-          '<span class="kzb-lo-stats">售价 ' + kzbFmt(lo.sell) + 'W · 战备 ' + kzbFmt(lo.reserve) + 'W · 假账 ' + fakeSign + 'W</span></div>' +
-          '<ul class="kzb-items">' + items + '</ul></div>';
-      }).join("") || '<div class="kzb-empty">暂无数据</div>';
-      document.getElementById("kzbLoadouts").innerHTML = los;
+    function kzbW(n){ return (Number(n||0)).toLocaleString() + "W"; }
+
+    /* ---------- 实时物价（同 liveprice.js 的免费公开源，浏览器直连、CORS 可用） ---------- */
+    var PRICE_URL = "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json";
+    var PRICE_CACHE_KEY = "df_kzb_price_v1";
+    var PRICE_TTL = 5 * 60 * 1000;
+    var priceMap = {};
+    var priceMeta = { ts: 0, count: 0, error: null };
+    function loadPrices(force){
+      try {
+        var raw = localStorage.getItem(PRICE_CACHE_KEY);
+        if (raw) {
+          var p = JSON.parse(raw);
+          if (p && p.ts && (Date.now() - p.ts < PRICE_TTL) && p.map) {
+            priceMap = p.map; priceMeta = p.meta || { ts: p.ts, count: Object.keys(p.map).length, error: null };
+            if (!force) return Promise.resolve(priceMeta);
+          }
+        }
+      } catch (e) {}
+      return fetch(PRICE_URL + "?_=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (arr) {
+          if (!Array.isArray(arr)) throw new Error("数据格式异常");
+          var m = {};
+          arr.forEach(function (it) { if (it && it.name) m[String(it.name).trim().toLowerCase()] = it.price; });
+          priceMap = m;
+          priceMeta = { ts: Date.now(), count: arr.length, error: null };
+          try { localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify({ ts: priceMeta.ts, map: m, meta: priceMeta })); } catch (e) {}
+          return priceMeta;
+        })
+        .catch(function (e) {
+          priceMeta = { ts: priceMeta.ts || 0, count: priceMeta.count || 0, error: e.message };
+          return priceMeta;
+        });
     }
-    fetch("data.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(kzbRender).catch(function(e){
-      document.getElementById("kzbMaps").innerHTML = '<div class="kzb-empty">加载失败：' + kzbEsc(e.message) + '</div>';
-    });
+    function priceOf(name){ if (!name) return null; var v = priceMap[String(name).trim().toLowerCase()]; return (v == null) ? null : v; }
+    function renderPriceMeta(){
+      var el = document.getElementById("priceMeta");
+      if (!el) return;
+      if (priceMeta.error) { el.innerHTML = "实时物价：<b style='color:#ff5b5b'>暂不可用（" + kzbEsc(priceMeta.error) + "）</b>，已用模板价估算"; return; }
+      var t = priceMeta.ts ? new Date(priceMeta.ts).toLocaleTimeString("zh-CN") : "—";
+      el.innerHTML = "实时物价：已加载 <b>" + kzbFmt(priceMeta.count) + "</b> 项交易行真实成交价 · 更新于 " + t;
+    }
+
+    /* ---------- 数据 ---------- */
+    var KZB = { maps: [], loadouts: [] };
+    var EXP_FACTOR = 0.6; // 期望掉率系数
+
+    function itemCost(it){
+      var live = priceOf(it.name);
+      return (live != null) ? live : (Number(it.price) || 0);
+    }
+    function loadoutCost(lo){
+      return (lo.items || []).reduce(function (s, it) { return s + itemCost(it); }, 0);
+    }
+
+    /* ---------- 收益计算器 ---------- */
+    function renderCalc(){
+      var mapSel = document.getElementById("calcMap");
+      var map = KZB.maps[mapSel.selectedIndex] || KZB.maps[0];
+      var budgetW = Number(document.getElementById("calcBudget").value) || 0;
+      var runs = Number(document.getElementById("calcRuns").value) || 1;
+      if (!map) { document.getElementById("calcResult").innerHTML = '<div class="kzb-empty">暂无地图数据，请在后台维护 kzb.maps。</div>'; return; }
+
+      var singleGain = (Number(map.w) || 0) * 10000 * EXP_FACTOR; // 单次预期收益（元）
+      var rows = (KZB.loadouts || []).map(function (lo) {
+        var cost = loadoutCost(lo);
+        var net = singleGain - cost;
+        return { lo: lo, cost: cost, net: net };
+      }).sort(function (a, b) { return b.net - a.net; });
+      var bestNet = rows.length ? rows[0].net : 0;
+
+      var html = '<table class="kzb-tbl"><thead><tr>' +
+        '<th>配装方案</th><th>单套成本</th><th>单次预期收益</th><th>单次净利润</th><th>推荐度</th></tr></thead><tbody>';
+      rows.forEach(function (r, idx) {
+        var best = idx === 0 && r.net >= 0;
+        var pill = r.net >= 0 ? '<span class="pill pill-up">赚</span>' : '<span class="pill pill-down">亏</span>';
+        var bestPill = best ? ' <span class="pill pill-best">★ 最划算</span>' : '';
+        html += '<tr class="' + (best ? "best" : "") + '">' +
+          '<td>' + kzbEsc(r.lo.title) + bestPill + '</td>' +
+          '<td>' + kzbFmt(r.cost) + '</td>' +
+          '<td>' + kzbFmt(singleGain) + '</td>' +
+          '<td>' + kzbFmt(Math.round(r.net)) + ' ' + pill + '</td>' +
+          '<td>第 ' + (idx + 1) + ' 名</td></tr>';
+      });
+      html += '</tbody></table>';
+
+      var best = rows[0];
+      if (best && best.net > 0) {
+        var days = Math.ceil((budgetW * 10000) / (best.net * runs));
+        html += '<div class="kzb-note" style="border-style:solid;margin-top:12px">💡 按预算 <b>' + kzbW(budgetW) + '</b>、每日 <b>' + runs + '</b> 场估算：用最划算方案「' +
+          kzbEsc(best.lo.title) + '」，约 <b>' + days + '</b> 天回本（单次净利 ' + kzbFmt(Math.round(best.net)) + ' 元）。</div>';
+      } else if (best) {
+        html += '<div class="kzb-note" style="border-style:solid;margin-top:12px;color:#ff5b5b">⚠️ 当前地图掉率下，所列配装单次预期收益均不足以覆盖成本，建议降低带入成本或换更高掉率地图。</div>';
+      }
+      document.getElementById("calcResult").innerHTML = html;
+    }
+
+    /* ---------- 智能出装推荐 ---------- */
+    function pickByStyle(tier, style){
+      var list = (KZB.loadouts || []).slice();
+      if (!list.length) return null;
+      if (style === "save") {
+        list.sort(function (a, b) { return loadoutCost(a) - loadoutCost(b); });
+        return list[0];
+      }
+      if (style === "aggro") {
+        list.sort(function (a, b) { return (Number(b.sell) || 0) - (Number(a.sell) || 0); });
+        return list[0];
+      }
+      // steady：收益最优（售价 - 成本）
+      list.sort(function (a, b) { return ((Number(b.sell) || 0) - loadoutCost(b)) - ((Number(a.sell) || 0) - loadoutCost(a)); });
+      return list[0];
+    }
+    function renderRec(){
+      var tier = document.getElementById("recTier").value;
+      var style = document.getElementById("recStyle").value;
+      var lo = pickByStyle(tier, style);
+      var box = document.getElementById("recResult");
+      if (!lo) { box.innerHTML = '<div class="kzb-empty">暂无配装数据，请在后台维护 kzb.loadouts。</div>'; return; }
+      var cost = loadoutCost(lo);
+      var items = (lo.items || []).map(function (it) {
+        var live = priceOf(it.name);
+        var tmpl = Number(it.price) || 0;
+        var cur = (live != null) ? live : tmpl;
+        var dl = cur - tmpl;
+        var dcls = dl >= 0 ? "up" : "down";
+        var sug = "";
+        if (live != null) sug = dl >= 0 ? '<span class="sug sug-sell">建议卖</span>' : '<span class="sug sug-keep">建议留</span>';
+        return '<li class="lo-item"><span class="nm">' + kzbEsc(it.name) + sug + '</span>' +
+          '<span class="pr">' + kzbFmt(cur) + '</span>' +
+          '<span class="dl ' + dcls + '">' + (dl >= 0 ? "+" : "") + kzbFmt(dl) + '</span></li>';
+      }).join("");
+      var styleName = { save: "省钱", steady: "稳健", aggro: "激进" }[style] || style;
+      var html = '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">' + kzbEsc(lo.title) + '</div>' +
+        '<div class="lo-stats">' + tier + '卡房 · ' + styleName + '风格 · 总成本 ' + kzbFmt(cost) + ' 元</div></div>' +
+        '<button class="kzb-btn ghost" id="recCopy">📋 复制方案</button></div>' +
+        '<div class="lo-stats">卖 ' + kzbW(lo.sell) + ' · 战备 ' + kzbW(lo.reserve) + ' · 假账 ' + kzbW(lo.fake) + '</div>' +
+        '<ul class="lo-items">' + items + '</ul></div>';
+      box.innerHTML = html;
+      document.getElementById("recCopy").addEventListener("click", function () {
+        var txt = "【" + lo.title + "】" + tier + "卡房·" + styleName + "\n卖 " + kzbW(lo.sell) + " / 战备 " + kzbW(lo.reserve) + " / 假账 " + kzbW(lo.fake) +
+          "\n" + (lo.items || []).map(function (it) { return "- " + it.name + "：" + kzbFmt(itemCost(it)) + "元"; }).join("\n");
+        copyText(txt);
+      });
+    }
+    function copyText(txt){
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function(){ alert("已复制方案"); }, function(){ fallbackCopy(txt); });
+      } else fallbackCopy(txt);
+    }
+    function fallbackCopy(txt){
+      try {
+        var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); document.body.removeChild(ta); alert("已复制方案");
+      } catch (e) { alert("复制失败，请手动选择：\n" + txt); }
+    }
+
+    /* ---------- 初始化 ---------- */
+    function fillMapSelect(){
+      var sel = document.getElementById("calcMap");
+      sel.innerHTML = (KZB.maps || []).map(function (m) {
+        return '<option value="' + kzbEsc(m.name) + '">' + kzbEsc(m.name) + '（' + kzbEsc(m.tier) + ' · ' + kzbW(m.w) + '）</option>';
+      }).join("") || '<option>暂无地图</option>';
+      sel.onchange = renderCalc;
+    }
+    function init(){
+      fetch("data.json?t=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+        var k = d.kzb || {};
+        KZB.maps = k.maps || [];
+        KZB.loadouts = k.loadouts || [];
+        document.getElementById("kzbUpdated").textContent = k.updatedAt ? ("数据更新：" + k.updatedAt) : "";
+        fillMapSelect();
+        var first = KZB.maps[0];
+        if (first) document.getElementById("calcBudget").value = first.w || 30;
+        renderCalc();
+      }).catch(function (e) {
+        document.getElementById("calcResult").innerHTML = '<div class="kzb-empty">加载失败：' + kzbEsc(e.message) + '</div>';
+      });
+
+      loadPrices(false).then(renderPriceMeta);
+
+      document.getElementById("calcBtn").addEventListener("click", renderCalc);
+      document.getElementById("calcBudget").addEventListener("input", renderCalc);
+      document.getElementById("calcRuns").addEventListener("input", renderCalc);
+      document.getElementById("recBtn").addEventListener("click", renderRec);
+      document.getElementById("recTier").addEventListener("change", renderRec);
+      document.getElementById("recStyle").addEventListener("change", renderRec);
+      document.getElementById("refreshPrice").addEventListener("click", function () {
+        document.getElementById("priceMeta").textContent = "实时物价：刷新中…";
+        loadPrices(true).then(function () { renderPriceMeta(); renderCalc(); renderRec(); });
+      });
+
+      document.querySelectorAll(".kzb-tab").forEach(function (t) {
+        t.addEventListener("click", function () {
+          document.querySelectorAll(".kzb-tab").forEach(function (x) { x.classList.remove("active"); });
+          document.querySelectorAll(".kzb-panel").forEach(function (x) { x.classList.remove("active"); });
+          t.classList.add("active");
+          document.getElementById("panel-" + t.getAttribute("data-tab")).classList.add("active");
+        });
+      });
+    }
+    init();
   </script>
 </body>
 </html>

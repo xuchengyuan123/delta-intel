@@ -453,11 +453,7 @@ async function sendCode(env, body) {
   await ensureSuper(env);
   const to = (body.to || "").trim().toLowerCase();
   if (!to) return json({ error: "缺少邮箱或手机号" }, 400);
-  // 手机号验证码需要短信网关（需实名，本项目未配置）→ 明确提示，不走到邮件发送
   const isPhone = !to.includes("@") && /^\+?\d{6,15}$/.test(to);
-  if (isPhone) {
-    return json({ error: "手机号验证码暂不支持（需短信服务且要实名，当前未配置）。请改用邮箱接收验证码；已设密码的手机号可直接用密码登录。" }, 400);
-  }
   const purpose = (body.purpose || "login").toLowerCase();
   if (purpose === "login") {
     const user = await getUserById(env, to);
@@ -468,21 +464,37 @@ async function sendCode(env, body) {
   const code = genCode();
   await env.CODES.put("code:" + to, code, { expirationTtl: 300 });
 
-  const devMode = (env.DEV_MODE || "").toLowerCase() === "true";
   const mail = env.MAIL; // Cloudflare 自带发信绑定（MailChannels）
   const hasEmailJS = env.EMAILJS_SERVICE_ID && env.EMAILJS_TEMPLATE_ID && env.EMAILJS_PUBLIC_KEY;
-  if (devMode || (!mail && !hasEmailJS)) {
-    // 开发模式 / 未配置任何发信：验证码直接回显到前端（前端已支持 devCode 展示）
+  const sms = env.SMS_GATEWAY; // 短信网关标识（如 "aliyun"）；未配置则手机验证码回显
+
+  if (isPhone) {
+    // 手机号：配置了短信网关才真发；否则回显到屏幕（未配置/开发环境友好，配好短信后不再回显）
+    if (sms) {
+      try { await sendSMS(env, to, code); return json({ ok: true }); }
+      catch (e) { return json({ ok: true, devCode: code, smsError: String((e && e.message) || e) }); }
+    }
     return json({ ok: true, devCode: code });
   }
-  try {
-    if (mail) await sendViaMail(env, to, code);          // 优先 Cloudflare MailChannels
-    else if (hasEmailJS) await sendEmailJS(env, to, code); // 备选 EmailJS
-    return json({ ok: true });
-  } catch (e) {
-    // 邮件发送失败（域名未开 Email Routing / DNS 未配 / 被收件方拒收）也回显，避免卡死
-    return json({ ok: true, devCode: code, mailError: String((e && e.message) || e) });
+  // 邮箱：配置了发信通道才真发；否则回显。配置完成后屏幕不再显示验证码。
+  if (mail || hasEmailJS) {
+    try {
+      if (mail) await sendViaMail(env, to, code);          // 优先 Cloudflare MailChannels
+      else if (hasEmailJS) await sendEmailJS(env, to, code); // 备选 EmailJS
+      return json({ ok: true });
+    } catch (e) {
+      // 邮件发送失败（域名未开 Email Routing / DNS 未配 / 被收件方拒收）也回显，避免卡死
+      return json({ ok: true, devCode: code, mailError: String((e && e.message) || e) });
+    }
   }
+  return json({ ok: true, devCode: code });
+}
+
+// 短信发送（预留：需短信网关且要实名；当前未配置，sendCode 走回显分支）
+async function sendSMS(env, to, code) {
+  if ((env.SMS_GATEWAY || "") !== "aliyun") throw new Error("短信网关未配置");
+  // TODO: 接入阿里云短信（需已实名账号 + AccessKey）；当前未实现，落到回显兜底
+  throw new Error("短信发送尚未实现（需实名短信服务）");
 }
 
 async function adminLogin(env, body) {
@@ -521,15 +533,18 @@ const DEFAULT_PANELS = {
 };
 
 async function createSubadmin(env, body) {
-  const email = (body.email || "").trim().toLowerCase();
+  const contact = (body.contact || "").trim().toLowerCase();
   const pw = body.password || "";
-  const phone = (body.phone || "").trim();
   const role = body.role || "subadmin";
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "邮箱格式不正确" }, 400);
+  const isEmail = contact.indexOf("@") >= 0;
+  const phoneOk = /^\+?\d{6,15}$/.test(contact);
+  if (!contact || (!isEmail && !phoneOk)) return json({ error: "联系方式格式不正确（需为邮箱或手机号）" }, 400);
   if (pw.length < 6) return json({ error: "密码至少 6 位" }, 400);
   if (role === "super") return json({ error: "不能创建总管理员" }, 400);
-  if (await getUserById(env, email)) return json({ error: "该邮箱已存在" }, 400);
-  if (phone && (await getUserById(env, phone))) return json({ error: "该手机号已存在" }, 400);
+  if (await getUserById(env, contact)) return json({ error: "该联系方式已存在" }, 400);
+
+  const email = isEmail ? contact : "";
+  const phone = isEmail ? "" : contact;
 
   // 面板权限：优先用前端传来的多选；否则按角色回退默认面板（兼容旧分管理员）
   const panels = (Array.isArray(body.panels) && body.panels.length) ? body.panels : (DEFAULT_PANELS[role] || ["dashboard"]);

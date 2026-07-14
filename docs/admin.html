@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=26">
+  <link rel="stylesheet" href="css/style.css?v=27">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=26"></script>
-  <script defer src="js/i18n.js?v=26"></script>
+  <script src="js/art.js?v=27"></script>
+  <script defer src="js/i18n.js?v=27"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -740,9 +740,8 @@
               '<div class="sa-panels" id="saPanels"></div>' +
               '<div class="panel-tip"><a href="javascript:;" id="saSelAll">全选</a> · <a href="javascript:;" id="saClear">清空</a> · 已选 <b id="saCount">0</b> 个面板</div>' +
             '</div>' +
-            '<div class="login-field"><label>邮箱（必填）</label><input id="saEmail" placeholder="subadmin@example.com"></div>' +
+            '<div class="login-field"><label>联系方式（邮箱或手机号，必填）</label><input id="saContact" placeholder="subadmin@example.com 或 13800000000"></div>' +
             '<div class="login-field"><label>密码（≥6 位）</label><input id="saPw" type="password" placeholder="密码"></div>' +
-            '<div class="login-field"><label>手机号（可选，用于手机号登录）</label><input id="saPhone" placeholder="13800000000"></div>' +
             '<button class="btn" id="saCreate">创建分管理员</button>' +
             '<div class="msg" id="saMsg"></div>' +
           '</div>' +
@@ -832,24 +831,25 @@
           if (!us.length) { list.innerHTML = '<div class="status">暂无账号。</div>'; return; }
           list.innerHTML = '<div class="ui-role-grid">' + us.map(function (u) {
             var r = ROLES[u.role] || { name: u.role, icon: "🛡", color: "#8a7bff" };
-            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.email) +
-              "<br><small style=\"color:var(--muted)\">" + (u.phone || "无手机") + " · " + r.icon + " " + esc(r.name) + "</small></div>" +
+            var saContact = u.email || u.phone || "—";
+            var saContactSub = (u.email && u.phone) ? esc(u.phone) : (u.email ? "仅邮箱" : "仅手机");
+            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(saContact) +
+              "<br><small style=\"color:var(--muted)\">" + saContactSub + " · " + r.icon + " " + esc(r.name) + "</small></div>" +
               (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') + "</div>";
           }).join("") + "</div>";
         }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
       }
 
       document.getElementById("saCreate").addEventListener("click", function () {
-        var email = document.getElementById("saEmail").value.trim();
+        var contact = document.getElementById("saContact").value.trim();
         var pw = document.getElementById("saPw").value;
-        var phone = document.getElementById("saPhone").value.trim();
         var role = selectedSaRole;
         var panels = getCheckedPanels();
         if (!panels.length) panels = (ROLES[role] && ROLES[role].panels) ? ROLES[role].panels : ["dashboard"];
         var msg = document.getElementById("saMsg");
-        if (!email || !pw || pw.length < 6) { msg.className = "msg err"; msg.textContent = "邮箱必填，密码至少 6 位。"; return; }
+        if (!contact || !pw || pw.length < 6) { msg.className = "msg err"; msg.textContent = "联系方式与密码必填，密码至少 6 位。"; return; }
         msg.className = "msg"; msg.textContent = "创建中…";
-        wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ email: email, password: pw, phone: phone, role: role, panels: panels }) })
+        wkFetch("/api/admin/create-subadmin", { method: "POST", body: JSON.stringify({ contact: contact, password: pw, role: role, panels: panels }) })
           .then(function (r) { return r.json(); })
           .then(function (j) {
             if (j.error) { msg.className = "msg err"; msg.textContent = j.error; return; }
