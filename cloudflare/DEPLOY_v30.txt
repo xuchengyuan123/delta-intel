@@ -1,0 +1,79 @@
+================================================================
+三角洲情报台 · v30 部署说明
+================================================================
+本版核心：每日签到 + 积分体系（纯后端 + 悬浮前端组件）
+改动涉及【后端 Worker】与【前端整包】，两步都要做。
+
+----------------------------------------------------------------
+一、本版改了什么
+----------------------------------------------------------------
+【后端 worker.js（必须重新部署）】
+  ▸ 新增「每日签到 + 积分」：
+    - 函数 todayStr()/ydayStr()/levelOf()/checkinInfo()/doCheckIn()：
+      按北京时间(Asia/Shanghai)计算当天，连签加天、积分累加、等级推导。
+    - 积分规则：首日 5 分；连续签到每日 +2 分；第 11 天起封顶 25 分/天；
+      断签清零连续天数（总积分保留）。
+    - 等级：每 100 积分升 1 级；签到信息含 points/streak/level/next/into。
+  ▸ 接口：
+        GET  /api/checkin  → 查当前签到状态（需登录）
+        POST /api/checkin  → 执行签到（需登录），返回 gained/连续天数等
+  ▸ 数据：积分/连续天数直接写入用户记录（USERS KV），**无需新增 KV 绑定**。
+  ▸ /api/user/profile/me 返回值新增 points/streak/lastCheckin/level/next/into/checkedInToday。
+
+【前端 docs/】
+  ▸ 新增 js/checkin.js（自包含悬浮组件）：登录后右上角显示 🪙积分 pill，
+    点开面板可一键签到、看等级进度与连续签到 7 格；用 window.D.api()，
+    缺省回退自带 Bearer 请求。
+  ▸ 在 index/forum/friends/profile/search/ugc 6 个加载 site-common 的页面
+    尾部注入 <script src="js/checkin.js?v=30"></script>（仅登录态显示）。
+  ▸ sw.js：CACHE 名 → delta-intel-v30。
+  ▸ 全站静态资源版本号 ?v=29 → ?v=30（强制刷新缓存）。
+
+----------------------------------------------------------------
+二、KV / 环境变量（重要）
+----------------------------------------------------------------
+  ▸ 本版**无新增 KV 绑定**：积分写在现有 USERS 用户记录里。
+  ▸ 其余绑定（SESSIONS/LB/POSTS/...）与 Secrets（GH_TOKEN/SUPER_* 等）
+    同前，保持不变。
+
+----------------------------------------------------------------
+三、部署步骤（3 步）
+----------------------------------------------------------------
+1) 部署后端 Worker（控制台或 wrangler）：
+   - 控制台：Workers → delta-intel-auth → 把 cloudflare/worker.js 全文
+     粘贴覆盖 → 保存并部署。
+   - 或本地：在 cloudflare/ 目录执行 `npx wrangler deploy`。
+   - ⚠️ 若用 wrangler 且要保留排行榜 LB 绑定，确认 wrangler.toml 已含 LB
+     （否则用控制台粘贴法最稳）。
+   - 确认 Secrets（GH_TOKEN/SUPER_EMAIL/SUPER_PASSWORD）仍在。
+
+2) 上传前端：把桌面「三角洲情报台-上传包\docs\」整个文件夹覆盖上传到
+   GitHub 仓库 xuchengyuan123/delta-intel 的 docs/ 目录（含新增
+   js/checkin.js 与改动的 6 个 html、sw.js、data.json 及 ?v=30 引用）。
+
+3) 浏览器打开网站 → Ctrl+F5 强制刷新（清掉旧 Service Worker 缓存）。
+
+----------------------------------------------------------------
+四、自检清单（部署后）
+----------------------------------------------------------------
+  □ 用账号登录后，页面右上角出现 🪙积分 pill；点开显示「每日签到」面板。
+  □ 点「签到领积分」→ 显示「签到成功 +X 积分」，积分与连续天数增加；
+    再次进入显示「今日已签到 ✓」且按钮禁用。
+  □ 断一天再签：连续天数清零（总积分保留），首日分值正确。
+  □ 个人主页 /api/user/profile/me 返回含 points/streak/level 字段
+    （可用控制台 Network 看 /api/checkin）。
+  □ 未登录时 pill 不显示。
+  □ 控制台 Network 无 worker.js / checkin.js 报错。
+
+----------------------------------------------------------------
+五、文件清单（本版改动）
+----------------------------------------------------------------
+  修改：cloudflare/worker.js        （/api/checkin + 用户积分字段 + getMyProfile 扩字段）
+  新增：docs/js/checkin.js          （每日签到悬浮组件）
+  修改：docs/index.html forum.html friends.html profile.html search.html ugc.html
+                                  （注入 checkin.js 引用）
+  修改：docs/sw.js                  （CACHE=delta-intel-v30）
+  修改：docs/data.json              （v30 changelog）
+  修改：docs/*.html / docs/js/*.js  （?v=29 → ?v=30 全站缓存刷新）
+  新建：cloudflare/DEPLOY_v30.txt   （本说明）
+================================================================

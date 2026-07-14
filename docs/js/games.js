@@ -9,6 +9,7 @@
  * ========================================================= */
 (function () {
   "use strict";
+  var DF = null; // 保存 D（含 api / getToken / render），供异步回调使用
 
   var MORSE_NUM = {
     "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-",
@@ -20,7 +21,9 @@
     fp: { target: 0, picked: [], score: 0, streak: 0, best: 0 },
     react: { state: "idle", startedAt: 0, best: 0, last: 0, rounds: 0, sum: 0, timer: null },
     brain: { seq: [], step: 0, input: [], score: 0, streak: 0, best: 0, showing: false },
-    pc: { code: "", display: false, input: "", score: 0, streak: 0, best: 0, revealTimer: null }
+    pc: { code: "", display: false, input: "", score: 0, streak: 0, best: 0, revealTimer: null },
+    quiz: { q: 0, total: 0, score: 0, streak: 0, best: 0, running: false, timeLeft: 60, timer: null, cur: null, picks: [], done: false },
+    lb: { game: "all", period: "all", timer: null, myRank: null, myScore: null }
   };
 
   /* ---------- 音频 ---------- */
@@ -305,33 +308,181 @@
   function bindFp() { document.querySelectorAll(".fp-candidate").forEach(function (el) { el.addEventListener("click", function () { pickFp(+el.getAttribute("data-i")); }); }); }
   function renderFp() { var p = document.getElementById("gamePanel"); if (!p) return; if (!GAME.fp.picked.length && GAME.fp.score === 0) { p.innerHTML = '<div class="pc-start"><button class="btn-primary" id="fpStart">开始指纹破译</button></div>'; document.getElementById("fpStart").addEventListener("click", startFp); return; } p.innerHTML = fpPanel(); bindFp(); }
 
+  /* ================= 6. 知识竞速（三角洲知识问答，限时） ================= */
+  var QUIZ_BANK = [
+    { q: "在「烽火地带」撤离玩法中，被击败后通常？", a: ["直接淘汰出局", "可搜刮后撤离/被队友救援", "永久封号", "掉落全部等级"], c: 1 },
+    { q: "「战备值(W)」限制的是？", a: ["单局时长", "带入装备的总价值", "队伍人数", "弹药数量"], c: 1 },
+    { q: "「绝密」卡房相比「机密」？", a: ["战备要求更低", "战备要求更高、物资更肥", "只能单人进入", "没有 AI 敌人"], c: 1 },
+    { q: "「曼德尔砖」的主要作用是？", a: ["恢复血量", "开出高价值战利品", "升级武器", "解锁地图"], c: 1 },
+    { q: "「假账」在卡战备里指？", a: ["虚报战备以匹配低战备局", "真实报账", "删除装备", "举报外挂"], c: 0 },
+    { q: "三角洲行动由哪家公司发行？", a: ["网易", "腾讯", "米哈游", "莉莉丝"], c: 1 },
+    { q: "这种「搜刮后撤离」玩法源自哪类经典类型？", a: ["MOBA", "撤离射击(Extraction)", "卡牌", "音游"], c: 1 },
+    { q: "游戏里的「干员」通常代表？", a: ["可操作的角色/职业", "一种武器", "一张地图", "一段剧情"], c: 0 },
+    { q: "以下哪种是游戏里常见的资源获取方式？", a: ["抽卡保底", "搜刮地图物资点", "交易所买等级", "签到送枪"], c: 1 },
+    { q: "「交易行/拍卖」在游戏里一般用于？", a: ["买卖战利品换游戏币", "组队匹配", "看广告", "改名"], c: 0 },
+    { q: "「钥匙房」通常意味着？", a: ["需钥匙开启、物资更好的房间", "登出按钮", "聊天室", "训练场"], c: 0 },
+    { q: "三角洲行动里玩家间的主要对抗模式是？", a: ["纯合作 PvE", "PvPvE 混合（玩家+AI）", "纯观战", "回合制棋牌"], c: 1 },
+    { q: "「改枪码」通常指？", a: ["分享武器配件的代码", "游戏兑换码", "防沉迷密码", "服务器地址"], c: 0 },
+    { q: "提升「后坐力控制」主要影响？", a: ["移动速度", "射击时枪口上跳幅度", "背包容量", "搜刮速度"], c: 1 },
+    { q: "「安全箱」的作用是？", a: ["存放撤离时必掉的贵重物资", "加血", "加速换弹", "解锁新地图"], c: 0 }
+  ];
+  function startQuiz() {
+    var z = GAME.quiz; z.running = true; z.q = 0; z.total = 0; z.score = 0; z.streak = 0; z.done = false; z.timeLeft = 60;
+    if (z.timer) clearInterval(z.timer);
+    z.timer = setInterval(function () { z.timeLeft--; if (z.timeLeft <= 0) endQuiz(); renderQuiz(); }, 1000);
+    nextQuizQ();
+  }
+  function endQuiz() {
+    var z = GAME.quiz; z.running = false; if (z.timer) { clearInterval(z.timer); z.timer = null; }
+    z.done = true; if (z.best < z.score) z.best = z.score; renderQuiz();
+  }
+  function nextQuizQ() {
+    var z = GAME.quiz;
+    if (z.q >= QUIZ_BANK.length) { endQuiz(); return; }
+    z.cur = QUIZ_BANK[z.q]; z.picks = []; renderQuiz();
+  }
+  function pickQuiz(idx) {
+    var z = GAME.quiz; if (!z.running || !z.cur) return;
+    if (z.picks.indexOf(idx) > -1) return;
+    z.picks.push(idx); z.total++;
+    if (idx === z.cur.c) { z.streak++; z.score += 10 + z.streak * 2; beep(1200, 0.12, 0.3); }
+    else { z.streak = 0; beep(200, 0.3, 0.3, "sawtooth"); }
+    if (z.q < QUIZ_BANK.length - 1) { z.q++; setTimeout(nextQuizQ, 350); }
+    else endQuiz();
+  }
+  function quizPanel() {
+    var z = GAME.quiz;
+    if (!z.running && z.total === 0 && z.score === 0) {
+      return '<div class="pc-start"><button class="btn-primary" id="quizStart">开始知识竞速</button>' +
+        '<div class="sub">60 秒内尽可能多答对三角洲知识题，越快越多分！</div></div>';
+    }
+    if (z.done || (!z.running && z.total > 0)) {
+      return '<div class="quiz-result"><div class="quiz-title">本局得分 <b>' + z.score + '</b></div>' +
+        '<div class="quiz-sub">答对 ' + z.total + ' 题 · 最高 <b>' + z.best + '</b></div>' +
+        '<button class="btn-primary" id="quizAgain">再来一局</button>' +
+        '<button class="btn-ghost" id="quizSubmit">🏆 提交成绩</button></div>';
+    }
+    var item = z.cur;
+    var opts = item.a.map(function (t, i) {
+      var cls = "quiz-opt"; if (z.picks.indexOf(i) > -1) cls += (i === item.c ? " right" : " wrong");
+      return '<button class="' + cls + '" data-i="' + i + '">' + esc(t) + '</button>';
+    }).join("");
+    return '<div class="quiz-game">' +
+      '<div class="quiz-bar">⏱ ' + z.timeLeft + 's · 第 ' + (z.q + 1) + '/' + QUIZ_BANK.length + ' 题 · 得分 <b>' + z.score + '</b> · 连击 <b>' + z.streak + '</b> · 最高 <b>' + z.best + '</b></div>' +
+      '<div class="quiz-q">' + esc(item.q) + '</div>' +
+      '<div class="quiz-opts">' + opts + '</div></div>';
+  }
+  function bindQuiz() {
+    var s = document.getElementById("quizStart"); if (s) s.addEventListener("click", startQuiz);
+    var a = document.getElementById("quizAgain"); if (a) a.addEventListener("click", startQuiz);
+    var sub = document.getElementById("quizSubmit"); if (sub) sub.addEventListener("click", function () { submitScore("quiz"); });
+    document.querySelectorAll(".quiz-opt").forEach(function (b) { b.addEventListener("click", function () { pickQuiz(+b.getAttribute("data-i")); }); });
+  }
+  function renderQuiz() { var p = document.getElementById("gamePanel"); if (!p) return; p.innerHTML = quizPanel(); bindQuiz(); }
+
+  /* ================= 排行榜（实时轮询） ================= */
+  var LB_GAMES = [
+    { k: "all", n: "总榜" }, { k: "morse", n: "摩斯门" }, { k: "pc", n: "破译电脑" },
+    { k: "react", n: "快速反应" }, { k: "brain", n: "脑机门" }, { k: "fp", n: "指纹破译" }, { k: "quiz", n: "知识竞速" }
+  ];
+  var LB_PERIODS = [{ k: "all", n: "全部" }, { k: "week", n: "本周" }, { k: "month", n: "本月" }];
+  function lbRowHtml(r) {
+    var me = (r.email && GAME.lb._me && r.email.toLowerCase() === GAME.lb._me.toLowerCase()) ? " me" : "";
+    return '<tr class="lb-row' + me + '"><td class="lb-rank">' + r.rank + '</td><td class="lb-name">' + esc(r.name) + '</td><td class="lb-score">' + r.score + '</td></tr>';
+  }
+  function renderLb() {
+    var p = document.getElementById("gamePanel"); if (!p) return;
+    var z = GAME.lb;
+    var gsel = LB_GAMES.map(function (g) { return '<button class="seg-btn' + (z.game === g.k ? " active" : "") + '" data-lbg="' + g.k + '">' + g.n + '</button>'; }).join("");
+    var psel = LB_PERIODS.map(function (g) { return '<button class="seg-btn' + (z.period === g.k ? " active" : "") + '" data-lbp="' + g.k + '">' + g.n + '</button>'; }).join("");
+    var my = (z.myRank != null) ? ('<div class="lb-my">你的排名：<b>#' + z.myRank + '</b> · ' + z.myScore + ' 分</div>') : '<div class="lb-my">登录后提交成绩即可上榜</div>';
+    p.innerHTML = '<div class="lb-game">' +
+      '<div class="seg lb-seg">' + gsel + '</div>' +
+      '<div class="seg lb-seg">' + psel + '</div>' +
+      my +
+      '<div class="lb-table"><table><thead><tr><th>#</th><th>玩家</th><th>分数</th></tr></thead><tbody id="lbBody"><tr><td colspan="3" class="lb-loading">加载中…</td></tr></tbody></table></div>' +
+      '<div class="lb-note">实时刷新（每 8 秒自动更新）</div></div>';
+    p.querySelectorAll("[data-lbg]").forEach(function (b) { b.addEventListener("click", function () { z.game = b.getAttribute("data-lbg"); renderLb(); loadLb(); }); });
+    p.querySelectorAll("[data-lbp]").forEach(function (b) { b.addEventListener("click", function () { z.period = b.getAttribute("data-lbp"); renderLb(); loadLb(); }); });
+    loadLb();
+  }
+  async function loadLb() {
+    var z = GAME.lb; if (!DF) return;
+    try {
+      var j = await DF.api("/api/leaderboard?game=" + encodeURIComponent(z.game) + "&period=" + encodeURIComponent(z.period));
+      z._me = j.myEmail || null; z.myRank = j.myRank != null ? j.myRank : null; z.myScore = j.myScore != null ? j.myScore : null;
+      var b = document.getElementById("lbBody"); if (!b) return;
+      if (j.needKv) { b.innerHTML = '<tr><td colspan="3" class="lb-loading">⚠️ 排行榜未启用（需在 Cloudflare 绑定 LB 命名空间）</td></tr>'; return; }
+      if (j.error) { b.innerHTML = '<tr><td colspan="3" class="lb-loading">' + esc(j.error) + '</td></tr>'; return; }
+      b.innerHTML = (j.rows && j.rows.length ? j.rows.map(lbRowHtml).join("") : '<tr><td colspan="3" class="lb-loading">暂无记录，快来抢第一！</td></tr>');
+      if (z.myRank != null) { var my = p_my(); if (my) my.innerHTML = '你的排名：<b>#' + z.myRank + '</b> · ' + z.myScore + ' 分'; }
+      if (!z.timer) z.timer = setInterval(loadLb, 8000);
+    } catch (e) {
+      var b2 = document.getElementById("lbBody"); if (b2) b2.innerHTML = '<tr><td colspan="3" class="lb-loading">加载失败：' + esc(e.message || e) + '</td></tr>';
+    }
+  }
+  function p_my() { var all = document.querySelectorAll(".lb-my"); return all && all.length ? all[all.length - 1] : null; }
+  async function submitScore(gameKey) {
+    if (!DF) return;
+    var best = (GAME[gameKey] && GAME[gameKey].best) || 0;
+    if (!best || best <= 0) { alert("该游戏还没有成绩可提交～"); return; }
+    try {
+      var j = await DF.api("/api/leaderboard", { method: "POST", body: JSON.stringify({ game: gameKey, score: best }) });
+      if (j.error) { alert("提交失败：" + j.error); return; }
+      if (GAME.tab === "lb") loadLb();
+      alert("✅ 已提交 " + best + " 分到「" + gameKey + "」排行榜！当前排名 #" + (j.rank || "?"));
+    } catch (e) { alert("提交失败：" + (e.message || e)); }
+  }
+  async function submitAll() {
+    if (!DF) return;
+    if (!DF.getToken || !DF.getToken()) { alert("请先登录后再提交成绩到排行榜"); return; }
+    var ks = ["morse", "pc", "react", "brain", "fp", "quiz"];
+    var sent = 0;
+    for (var i = 0; i < ks.length; i++) {
+      var b = (GAME[ks[i]] && GAME[ks[i]].best) || 0;
+      if (b > 0) { try { await DF.api("/api/leaderboard", { method: "POST", body: JSON.stringify({ game: ks[i], score: b }) }); sent++; } catch (e) {} }
+    }
+    alert("✅ 已提交 " + sent + " 个游戏的最高成绩到排行榜！");
+    if (GAME.tab === "lb") loadLb();
+  }
+
   /* ================= 外壳 ================= */
   var TABS = [
     { key: "morse", label: "🔢 摩斯密码门" },
     { key: "pc", label: "💻 破译电脑" },
     { key: "react", label: "⚡ 快速反应" },
     { key: "brain", label: "🧠 脑机密码门" },
-    { key: "fp", label: "🖐 指纹破译" }
+    { key: "fp", label: "🖐 指纹破译" },
+    { key: "quiz", label: "📚 知识竞速" },
+    { key: "lb", label: "🏆 排行榜" }
   ];
   function gamesHtml(D) {
     var tabs = TABS.map(function (t) { return '<button class="seg-btn' + (GAME.tab === t.key ? " active" : "") + '" data-tab="' + t.key + '">' + t.label + '</button>'; }).join("");
     return '<div class="section-title">🎮 三角洲小游戏</div>' +
-      '<p class="sub">对应 KK日报 的 5 款挑战：听摩斯输入密码、记忆破译电脑密码、测反应速度、记忆脑机序列、辨认指纹。</p>' +
-      '<div class="seg">' + tabs + '</div><div id="gamePanel"></div>';
+      '<p class="sub">6 款挑战 + 全球实时排行榜：听摩斯、破译电脑、测反应、脑机序列、辨指纹、知识竞速。成绩可提交到排行榜（需登录）。</p>' +
+      '<div class="seg">' + tabs + '</div>' +
+      '<button class="btn-ghost" id="lbSubmitAll" style="margin:10px 0">🏆 提交我的成绩</button>' +
+      '<div id="gamePanel"></div>';
   }
   function gamesInit(D) {
+    DF = D;
+    if (GAME.lb.timer) { clearInterval(GAME.lb.timer); GAME.lb.timer = null; }
     document.querySelectorAll(".seg-btn[data-tab]").forEach(function (b) {
       b.addEventListener("click", function () { GAME.tab = b.getAttribute("data-tab"); D.render("games"); });
     });
+    var sb = document.getElementById("lbSubmitAll"); if (sb) sb.addEventListener("click", submitAll);
     var p = document.getElementById("gamePanel");
     if (GAME.tab === "morse") { p.innerHTML = morsePanel(); bindMorse(); }
     else if (GAME.tab === "pc") renderPc();
     else if (GAME.tab === "react") renderReact();
     else if (GAME.tab === "brain") renderBrain();
-    else renderFp();
+    else if (GAME.tab === "fp") renderFp();
+    else if (GAME.tab === "quiz") renderQuiz();
+    else renderLb();
   }
 
   function reg(D) {
+    DF = D;
     D.VIEWS.games = { html: function () { return gamesHtml(D); }, init: function () { gamesInit(D); } };
     D.MENU.push({ group: "小游戏", items: [{ route: "games", label: "三角洲小游戏", ico: "🎮" }] });
   }

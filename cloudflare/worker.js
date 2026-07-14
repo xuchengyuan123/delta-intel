@@ -153,12 +153,75 @@ async function getSession(env, req) {
   }
   return s;
 }
-async function createSession(env, email, role, panels) {
+async function createSession(env, email, role, panels, device) {
   const token = randToken();
-  const s = { email, role, exp: Date.now() + 7 * 86400 * 1000 };
+  const s = { email, role, exp: Date.now() + 7 * 86400 * 1000, at: Date.now() };
   if (panels && panels.length) s.panels = panels;
+  if (device) s.device = device;
   await env.SESSIONS.put("sess:" + token, JSON.stringify(s), { expirationTtl: 7 * 86400 + 60 });
+  // 维护 per-user 会话索引（用于「多端/设备管理」，可看到在哪些设备登录、远程踢下线）
+  try {
+    const idxKey = "sessions:" + email;
+    let idx = [];
+    const raw = await env.SESSIONS.get(idxKey);
+    if (raw) { try { idx = JSON.parse(raw); } catch (e) {} }
+    idx = idx.filter(function (x) { return x.token !== token; });
+    idx.push({ token: token, role: role, device: device || null, at: Date.now() });
+    await env.SESSIONS.put(idxKey, JSON.stringify(idx), { expirationTtl: 30 * 86400 + 60 });
+  } catch (e) {}
   return token;
+}
+// 解析 User-Agent → 浏览器 / 系统（用于设备管理展示）
+function parseUA(ua) {
+  ua = (ua || "").toLowerCase();
+  var browser = "未知浏览器", os = "未知系统";
+  if (ua.indexOf("edg") >= 0) browser = "Edge";
+  else if (ua.indexOf("chrome") >= 0 && ua.indexOf("chromium") < 0) browser = "Chrome";
+  else if (ua.indexOf("firefox") >= 0) browser = "Firefox";
+  else if (ua.indexOf("safari") >= 0 && ua.indexOf("chrome") < 0) browser = "Safari";
+  else if (ua.indexOf("micromessenger") >= 0) browser = "微信内置";
+  else if (ua.indexOf("qq") >= 0) browser = "QQ浏览器";
+  if (ua.indexOf("iphone") >= 0 || ua.indexOf("ipad") >= 0) os = "iOS";
+  else if (ua.indexOf("android") >= 0) os = "Android";
+  else if (ua.indexOf("windows") >= 0) os = "Windows";
+  else if (ua.indexOf("mac os") >= 0 || ua.indexOf("macintosh") >= 0) os = "macOS";
+  else if (ua.indexOf("linux") >= 0) os = "Linux";
+  return { browser: browser, os: os, ua: (ua || "") };
+}
+// 列出某用户全部会话（自动清理失效项，标记本机）
+async function listSessions(env, email, currentToken) {
+  const idxKey = "sessions:" + email;
+  let idx = [];
+  const raw = await env.SESSIONS.get(idxKey);
+  if (raw) { try { idx = JSON.parse(raw); } catch (e) {} }
+  var live = [];
+  for (var i = 0; i < idx.length; i++) {
+    const it = idx[i];
+    const rec = await env.SESSIONS.get("sess:" + it.token);
+    if (!rec) continue;
+    var s; try { s = JSON.parse(rec); } catch (e) { continue; }
+    if (s.exp && s.exp < Date.now()) { try { await env.SESSIONS.delete("sess:" + it.token); } catch (e) {} continue; }
+    live.push({ token: it.token, role: it.role, device: it.device || null, at: it.at, current: it.token === currentToken });
+  }
+  if (live.length !== idx.length) {
+    try {
+      await env.SESSIONS.put(idxKey, JSON.stringify(live.map(function (x) {
+        return { token: x.token, role: x.role, device: x.device, at: x.at };
+      })), { expirationTtl: 30 * 86400 + 60 });
+    } catch (e) {}
+  }
+  live.sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+  return live;
+}
+async function revokeSession(env, email, token) {
+  try { await env.SESSIONS.delete("sess:" + token); } catch (e) {}
+  const idxKey = "sessions:" + email;
+  let idx = [];
+  const raw = await env.SESSIONS.get(idxKey);
+  if (raw) { try { idx = JSON.parse(raw); } catch (e) {} }
+  idx = idx.filter(function (x) { return x.token !== token; });
+  try { await env.SESSIONS.put(idxKey, JSON.stringify(idx), { expirationTtl: 30 * 86400 + 60 }); } catch (e) {}
+  return true;
 }
 
 /* ============ 鉴权辅助 ============ */
@@ -498,7 +561,7 @@ async function sendSMS(env, to, code) {
   throw new Error("短信发送尚未实现（需实名短信服务）");
 }
 
-async function adminLogin(env, body) {
+async function adminLogin(env, body, req) {
   await ensureSuper(env);
   const id = (body.id || body.email || "").trim().toLowerCase();
   if (!id) return json({ error: "缺少账号" }, 400);
@@ -521,7 +584,8 @@ async function adminLogin(env, body) {
   if (!ok) return json({ error: "账号或密码/验证码错误" }, 401);
 
   const panels = (user.panels && user.panels.length) ? user.panels : (DEFAULT_PANELS[user.role] || ["dashboard"]);
-  const token = await createSession(env, user.email, user.role, panels);
+  const device = parseUA(req ? req.headers.get("user-agent") : "");
+  const token = await createSession(env, user.email, user.role, panels, device);
   return json({ session: token, role: user.role, email: user.email, panels });
 }
 
@@ -556,7 +620,7 @@ async function createSubadmin(env, body) {
 }
 
 /* ============ 普通用户：注册 / 登录 ============ */
-async function registerUser(env, body) {
+async function registerUser(env, body, req) {
   const id = (body.id || "").trim().toLowerCase();
   if (!id) return json({ error: "请输入邮箱或手机号" }, 400);
   const isEmail = id.indexOf("@") >= 0;
@@ -579,11 +643,12 @@ async function registerUser(env, body) {
     role: "user",
     salt, hash, disabled: false, createdAt: Date.now(),
   });
-  const token = await createSession(env, id, "user");
+  const device = parseUA(req ? req.headers.get("user-agent") : "");
+  const token = await createSession(env, id, "user", null, device);
   return json({ session: token, role: "user", id });
 }
 
-async function userLogin(env, body) {
+async function userLogin(env, body, req) {
   const id = (body.id || body.email || "").trim().toLowerCase();
   if (!id) return json({ error: "缺少账号" }, 400);
   const user = await getUserById(env, id);
@@ -598,7 +663,8 @@ async function userLogin(env, body) {
     ok = hash === user.hash;
   }
   if (!ok) return json({ error: "账号或密码/验证码错误" }, 401);
-  const token = await createSession(env, user.email || user.phone, user.role);
+  const device = parseUA(req ? req.headers.get("user-agent") : "");
+  const token = await createSession(env, user.email || user.phone, user.role, null, device);
   return json({ session: token, role: user.role, id: user.email || user.phone });
 }
 
@@ -958,7 +1024,8 @@ async function getProfile(env, id) {
 async function getMyProfile(env, sess) {
   const u = await getUserById(env, sess.email);
   if (!u) return json({ error: "用户不存在" }, 404);
-  return json({ profile: { id: u.email || u.phone, name: u.name || "", bio: u.bio || "", avatar: u.avatar || "", role: u.role, joinedAt: u.createdAt || null } });
+  const ci = checkinInfo(u);
+  return json({ profile: { id: u.email || u.phone, name: u.name || "", bio: u.bio || "", avatar: u.avatar || "", role: u.role, joinedAt: u.createdAt || null, points: ci.points, streak: ci.streak, lastCheckin: ci.lastCheckin, level: ci.level, next: ci.next, into: ci.into, checkedInToday: ci.checkedInToday } });
 }
 async function updateProfile(env, body, sess) {
   const u = await getUserById(env, sess.email);
@@ -968,6 +1035,53 @@ async function updateProfile(env, body, sess) {
   if (typeof body.avatar === "string") u.avatar = body.avatar.slice(0, 500);
   await putUser(env, u);
   return json({ ok: true, profile: { id: u.email || u.phone, name: u.name || "", bio: u.bio || "", avatar: u.avatar || "", role: u.role } });
+}
+
+/* ============ 每日签到 + 积分 ============ */
+// 按北京时间(Asia/Shanghai)取当天日期，避免跨日时区错乱
+function todayStr() {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" }); // YYYY-MM-DD
+}
+function ydayStr(today) {
+  const d = new Date(today + "T00:00:00+08:00");
+  d.setDate(d.getDate() - 1);
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
+}
+function levelOf(points) {
+  const p = points || 0;
+  const level = Math.floor(p / 100) + 1;
+  const next = level * 100;
+  return { level, next, into: p - (level - 1) * 100 };
+}
+function checkinInfo(u) {
+  const t = todayStr();
+  const lv = levelOf(u.points || 0);
+  return {
+    checkedInToday: (u.lastCheckin || "") === t,
+    points: u.points || 0,
+    streak: u.streak || 0,
+    lastCheckin: u.lastCheckin || null,
+    level: lv.level,
+    next: lv.next,
+    into: lv.into,
+  };
+}
+async function doCheckIn(env, s) {
+  const u = await getUserById(env, s.email);
+  if (!u) throw new HttpError(404, "用户不存在");
+  const t = todayStr();
+  if ((u.lastCheckin || "") === t) {
+    return { ok: true, already: true, ...checkinInfo(u) };
+  }
+  const ys = ydayStr(t);
+  const streak = (u.lastCheckin || "") === ys ? (u.streak || 0) + 1 : 1;
+  const gained = 5 + Math.min(streak - 1, 10) * 2; // 首日 5 分，连签每日 +2，第 11 天起封顶 25
+  u.points = (u.points || 0) + gained;
+  u.streak = streak;
+  u.lastCheckin = t;
+  u.checkinDays = (u.checkinDays || 0) + 1;
+  await putUser(env, u);
+  return { ok: true, already: false, gained, ...checkinInfo(u) };
 }
 
 /* ============ 全站搜索（论坛 + 投稿） ============ */
@@ -1024,6 +1138,87 @@ async function kzbDiy(env, url) {
   }
 }
 
+/* ============ 全球实时排行榜（KV: LB） ============ */
+// 支持的游戏 key（与前端 games.js 中 GAME 的 tab 一致）
+const LB_GAMES = ["morse", "pc", "react", "brain", "fp", "quiz"];
+function lbPeriodMs(period) {
+  if (period === "week") return 7 * 86400 * 1000;
+  if (period === "month") return 30 * 86400 * 1000;
+  return Infinity;
+}
+async function leaderboardGet(env, url) {
+  if (!env.LB) return json({ error: "未配置排行榜 KV（在 Cloudflare Worker 绑定 LB 命名空间后启用）", needKv: true }, 200);
+  const game = (url.searchParams.get("game") || "all").toLowerCase();
+  const period = (url.searchParams.get("period") || "all").toLowerCase();
+  const since = Date.now() - lbPeriodMs(period);
+  // 可选会话：用于标注「你的排名」（不强制登录）
+  let myEmail = null;
+  try { const auth = request.headers.get("Authorization") || ""; const m = auth.match(/^Bearer\s+(.+)$/i); if (m) { const rec = await env.SESSIONS.get("sess:" + m[1]); if (rec) { const s = JSON.parse(rec); if (!s.exp || s.exp >= Date.now()) myEmail = s.email.toLowerCase(); } } } catch (e) {}
+  let rows = [];
+  if (game === "all") {
+    // 汇总：每个用户取其各游戏最高分之和
+    const listed = await env.LB.list({ prefix: "lb:" });
+    const byUser = {};
+    for (const k of listed.keys) {
+      const m = k.name.match(/^lb:(.+?):(.+)$/); // lb:<game>:<email>
+      if (!m) continue;
+      const g = m[1], email = m[2];
+      let rec; try { rec = JSON.parse(await env.LB.get(k.name)); } catch (e) { continue; }
+      if (!rec || rec.at < since) continue;
+      if (!byUser[email]) byUser[email] = { name: rec.name, perGame: {}, at: 0 };
+      if (!(g in byUser[email].perGame) || rec.score > byUser[email].perGame[g]) byUser[email].perGame[g] = rec.score;
+      if (rec.at > byUser[email].at) byUser[email].at = rec.at;
+    }
+    rows = Object.keys(byUser).map(function (email) {
+      const u = byUser[email];
+      const total = Object.keys(u.perGame).reduce(function (a, g) { return a + u.perGame[g]; }, 0);
+      return { name: u.name, email: email, score: total, at: u.at };
+    });
+  } else {
+    if (LB_GAMES.indexOf(game) < 0) return json({ error: "未知游戏：" + game }, 400);
+    const listed = await env.LB.list({ prefix: "lb:" + game + ":" });
+    for (const k of listed.keys) {
+      let rec; try { rec = JSON.parse(await env.LB.get(k.name)); } catch (e) { continue; }
+      if (!rec || rec.at < since) continue;
+      rows.push({ name: rec.name, score: rec.score, at: rec.at });
+    }
+  }
+  rows.sort(function (a, b) { return b.score - a.score || b.at - a.at; });
+  const top = rows.slice(0, 50).map(function (r, i) { return { rank: i + 1, name: r.name, email: r.email, score: r.score, at: r.at }; });
+  let myRank = null, myScore = null;
+  if (myEmail) {
+    const me = rows.find(function (r) { return (r.email || "").toLowerCase() === myEmail; });
+    if (me) { myRank = rows.indexOf(me) + 1; myScore = me.score; }
+  }
+  return json({ ok: true, game: game, period: period, total: rows.length, rows: top, myRank: myRank, myScore: myScore, myEmail: myEmail });
+}
+async function leaderboardPost(env, request, body) {
+  if (!env.LB) return json({ error: "未配置排行榜 KV（在 Cloudflare Worker 绑定 LB 命名空间后启用）", needKv: true }, 200);
+  const s = await requireLogin(env, request); // 必须登录，防匿名刷榜
+  const game = (body.game || "").toLowerCase();
+  const score = Math.floor(Number(body.score));
+  if (LB_GAMES.indexOf(game) < 0) return json({ error: "未知游戏：" + game }, 400);
+  if (!isFinite(score) || score <= 0) return json({ error: "分数无效" }, 400);
+  const email = s.email.toLowerCase();
+  const u = await getUserById(env, s.email).catch(function () { return null; });
+  const name = (u && u.name) || email.split("@")[0];
+  const key = "lb:" + game + ":" + email;
+  const old = await env.LB.get(key);
+  let cur = null; try { cur = old ? JSON.parse(old) : null; } catch (e) {}
+  // 只保存历史最高分
+  if (!cur || score > cur.score) {
+    await env.LB.put(key, JSON.stringify({ score: score, name: name, at: Date.now() }));
+  }
+  // 计算当前排名（该游戏总榜）
+  const listed = await env.LB.list({ prefix: "lb:" + game + ":" });
+  let better = 0;
+  for (const k of listed.keys) {
+    let rec; try { rec = JSON.parse(await env.LB.get(k.name)); } catch (e) { continue; }
+    if (rec && rec.score > score) better++;
+  }
+  return json({ ok: true, rank: better + 1, game: game, score: score });
+}
+
 async function handle(request, env) {
   if (request.method === "OPTIONS") return corsPreflight();
   const url = new URL(request.url);
@@ -1052,15 +1247,34 @@ async function handle(request, env) {
 
   try {
     if (p === "/api/send-code" && request.method === "POST") return await sendCode(env, body);
-    if (p === "/api/admin-login" && request.method === "POST") return await adminLogin(env, body);
+    if (p === "/api/admin-login" && request.method === "POST") return await adminLogin(env, body, request);
 
     if (p === "/api/logout" && request.method === "POST") {
       const s = await getSession(env, request);
       if (s) {
         const auth = request.headers.get("Authorization") || "";
         const m = auth.match(/^Bearer\s+(.+)$/i);
-        if (m) await env.SESSIONS.delete("sess:" + m[1]);
+        if (m) await revokeSession(env, s.email, m[1]);
       }
+      return json({ ok: true });
+    }
+
+    /* —— 多端/设备管理：列出当前账号的全部登录设备、远程踢下线 —— */
+    if (p === "/api/sessions" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      const auth = request.headers.get("Authorization") || "";
+      const m = auth.match(/^Bearer\s+(.+)$/i);
+      const cur = m ? m[1] : "";
+      const list = await listSessions(env, s.email, cur);
+      return json({ ok: true, email: s.email, sessions: list });
+    }
+    if (p === "/api/sessions/revoke" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      const tk = (body.token || "").trim();
+      if (!tk) return json({ error: "缺少 token" }, 400);
+      const owned = await listSessions(env, s.email, "");
+      if (!owned.some(function (x) { return x.token === tk; })) return json({ error: "无权限或会话不存在" }, 403);
+      await revokeSession(env, s.email, tk);
       return json({ ok: true });
     }
 
@@ -1123,8 +1337,8 @@ async function handle(request, env) {
 
     /* —— 普通用户：注册 / 登录 —— */
     if (p === "/api/user/send-code" && request.method === "POST") return await sendCode(env, body);
-    if (p === "/api/user/register" && request.method === "POST") return await registerUser(env, body);
-    if (p === "/api/user/login" && request.method === "POST") return await userLogin(env, body);
+    if (p === "/api/user/register" && request.method === "POST") return await registerUser(env, body, request);
+    if (p === "/api/user/login" && request.method === "POST") return await userLogin(env, body, request);
 
     /* —— 论坛：看帖公开，发帖 / 回复 / 删帖需登录 —— */
     if (p === "/api/forum/posts" && request.method === "GET") return await listPosts(env, url);
@@ -1213,6 +1427,17 @@ async function handle(request, env) {
     if (p === "/api/user/profile" && request.method === "PUT") {
       const s = await requireLogin(env, request);
       return await updateProfile(env, body, s);
+    }
+
+    /* —— 每日签到 + 积分 —— */
+    if (p === "/api/checkin" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      const u = await getUserById(env, s.email);
+      return json(u ? checkinInfo(u) : { checkedInToday: false, points: 0, streak: 0, level: 1, next: 100, into: 0, lastCheckin: null });
+    }
+    if (p === "/api/checkin" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      return json(await doCheckIn(env, s));
     }
 
     /* —— 全站搜索（论坛 + 投稿） —— */
@@ -1317,6 +1542,10 @@ async function handle(request, env) {
 
     /* —— 智能卡战备：代理三角洲数据帝实时卡战备 API（token 存 Worker Secret ORZICE_TOKEN，不暴露给前端） —— */
     if (p === "/api/kzb/diy" && request.method === "GET") return await kzbDiy(env, url);
+
+    /* —— 全球实时排行榜（KV: LB） —— */
+    if (p === "/api/leaderboard" && request.method === "GET") return await leaderboardGet(env, url);
+    if (p === "/api/leaderboard" && request.method === "POST") return await leaderboardPost(env, request, body);
 
     return json({ error: "Not Found" }, 404);
   } catch (e) {

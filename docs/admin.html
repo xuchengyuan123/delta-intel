@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=27">
+  <link rel="stylesheet" href="css/style.css?v=30">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=27"></script>
-  <script defer src="js/i18n.js?v=27"></script>
+  <script src="js/art.js?v=30"></script>
+  <script defer src="js/i18n.js?v=30"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -149,10 +149,52 @@
     .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
     .post .pbody { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
 
-    @media (max-width: 768px) {
-      .admin-body { grid-template-columns: 1fr; }
-      .admin-side { display: none; }
+    /* 设备管理面板 */
+    .dev-tools { margin-bottom: 10px; }
+    .dev-list { display: flex; flex-direction: column; gap: 8px; }
+    .dev-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
+    .dev-info { flex: 1; min-width: 0; }
+    .dev-name { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .dev-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .dev-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--border); color: var(--muted); }
+    .dev-badge.cur { background: color-mix(in srgb, #3ddc84 22%, transparent); color: #3ddc84; }
+    .dev-empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+
+    /* 汉堡菜单按钮（仅移动端显示） + 遮罩 */
+    .nav-toggle { display: none; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-size: 18px; cursor: pointer; line-height: 1; }
+    .nav-mask { display: none; }
+
+    /* ===== 移动端自适应：抽屉式侧边栏，手机竖屏/横屏/缩放均可用 ===== */
+    @media (max-width: 860px) {
+      .nav-toggle { display: inline-block; }
+      .admin-body { grid-template-columns: 1fr; position: relative; }
+      .admin-side {
+        position: fixed; top: 56px; left: 0; bottom: 0; width: 240px; max-width: 82vw;
+        transform: translateX(-100%); transition: transform .22s ease; z-index: 40;
+        box-shadow: var(--shadow); display: block;
+      }
+      .admin-body.nav-open .admin-side { transform: translateX(0); }
+      .admin-body.nav-open .nav-mask { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 35; }
+      .admin-main { padding: 14px; max-width: 100%; }
+      .admin-top .who { display: none; }
       .login-roles { grid-template-columns: 1fr; }
+      .panel-card { padding: 14px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+      .row { gap: 8px; }
+    }
+    @media (max-width: 480px) {
+      .admin-top { padding: 0 10px; height: 52px; }
+      .admin-side { top: 52px; }
+      .at-logo { font-size: 14px; }
+      .admin-main { padding: 10px; }
+      .am-title { font-size: 18px; }
+      .role-switch { max-width: 120px; }
+      .admin-top .at-right .btn { padding: 6px 10px; }
+    }
+    @media (orientation: landscape) and (max-height: 520px) {
+      .admin-top { height: 48px; }
+      .admin-side { top: 48px; }
+      .admin-main { padding: 10px 14px; }
     }
   </style>
 </head>
@@ -193,6 +235,7 @@
   <div class="admin-shell" id="shell">
     <div class="admin-top">
       <div class="at-left">
+        <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
         <span class="at-logo">三角洲<span>情报台</span></span>
         <span class="role-badge" id="roleBadge">—</span>
         <select class="role-switch" id="roleSwitch"></select>
@@ -203,8 +246,9 @@
         <a class="btn ghost sm" href="index.html">首页</a>
       </div>
     </div>
-    <div class="admin-body">
+    <div class="admin-body" id="adminBody">
       <div class="admin-side" id="side"></div>
+      <div class="nav-mask" id="navMask"></div>
       <div class="admin-main">
         <h2 class="am-title" id="amTitle"></h2>
         <div class="am-sub" id="amSub"></div>
@@ -289,12 +333,13 @@
       announce:   { label: "站内公告", icon: "📢", title: "站内公告 / 运营横幅", sub: "发布全站顶部横幅公告，支持颜色、有效期与启用开关（需以总管理员身份登录 Worker）。", mount: mountAnnounce },
       ugc:        { label: "用户投稿审核", icon: "📝", title: "用户投稿审核", sub: "查看注册用户提交的攻略/素材投稿，审核通过后在「用户投稿」页公开（需以总管理员身份登录 Worker）。", mount: mountUgc },
       usermgr:    { label: "用户管理", icon: "👥", title: "注册用户管理", sub: "总管理员与「用户管理」分管理员可在此查看 / 禁用 / 删除注册会员（普通用户）。其它分管理员无此入口。", mount: mountUserMgr },
-      tujian:     { label: "图鉴管理", icon: "🗂", title: "图鉴管理（API 数据源）", sub: "配置前台「三角洲图鉴」页(tujian.html)：开关分类、调整顺序、添加精选与自定义数据源（默认 WaterEve/DeltaForceData 公开 API）。", mount: mountTujian }
+      tujian:     { label: "图鉴管理", icon: "🗂", title: "图鉴管理（API 数据源）", sub: "配置前台「三角洲图鉴」页(tujian.html)：开关分类、调整顺序、添加精选与自定义数据源（默认 WaterEve/DeltaForceData 公开 API）。", mount: mountTujian },
+      devices:    { label: "设备管理", icon: "📱", title: "多端登录 / 设备管理", sub: "查看当前账号在哪些设备（电脑/手机）登录，可远程踢下线某台设备。总管理员与分管理员均可使用。", mount: mountDevices }
     };
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
     var PANEL_GROUPS = [
-      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "usermgr"] },
+      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "usermgr", "devices"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images", "tujian"] },
@@ -566,6 +611,7 @@
     function renderRoleSwitch() {
       // 总管理员可切换到任意角色面板；分管理员只能停留在自己的角色
       var allowed = ROLES[activeRole].panels.slice();
+      if (allowed.indexOf("devices") < 0) allowed.push("devices");
       var sel = document.getElementById("roleSwitch");
       sel.innerHTML = allowed.map(function (p) {
         var P = PANELS[p];
@@ -576,7 +622,8 @@
     }
     function renderSide() {
       var r = ROLES[activeRole];
-      var owned = r.panels;
+      var owned = r.panels.slice();
+      if (owned.indexOf("devices") < 0) owned.push("devices"); // 设备管理：所有登录的后台账号均可见
       var kw = (sideSearchVal || "").trim().toLowerCase();
       var side = document.getElementById("side");
       // 搜索框 + 最近使用容器只创建一次（避免中文输入法组字被重复提交）
@@ -652,6 +699,8 @@
       } catch (e) {}
     }
     function showPanel(p) {
+      var ab = document.getElementById("adminBody");
+      if (ab) ab.classList.remove("nav-open"); // 移动端点开功能后收起抽屉
       var P = PANELS[p];
       if (!P) p = "dashboard";
       pushRecent(p);
@@ -673,6 +722,18 @@
       clearToken();
       location.reload();
     });
+
+    /* 移动端抽屉：汉堡按钮开合侧边栏，点遮罩收起 */
+    try {
+      document.getElementById("navToggle").addEventListener("click", function () {
+        var b = document.getElementById("adminBody");
+        if (b) b.classList.toggle("nav-open");
+      });
+      document.getElementById("navMask").addEventListener("click", function () {
+        var b = document.getElementById("adminBody");
+        if (b) b.classList.remove("nav-open");
+      });
+    } catch (e) {}
 
     /* 自动恢复 Worker 登录态（分管理员刷新不必重登） */
     (function restoreWorker() {
@@ -983,6 +1044,50 @@
         };
       }
       reload();
+    }
+
+    /* ============ 多端登录 / 设备管理 ============ */
+    function mountDevices(c) {
+      c.innerHTML =
+        '<div class="panel-card"><h3>📱 多端登录 / 设备管理</h3>' +
+        '<p class="panel-tip">这里列出当前账号（' + esc(getRole() === "super" ? "总管理员" : "分管理员") + '）正在登录的所有设备。电脑与手机可同时在线、互不踢线；发现陌生设备可一键踢下线。</p>' +
+        '<div class="dev-tools"><button class="btn sm" id="devRefresh">🔄 刷新设备列表</button></div>' +
+        '<div id="devList" class="dev-list"><div class="status">加载中…</div></div></div>';
+      function fmtTime(ts) {
+        if (!ts) return "";
+        var d = new Date(ts);
+        function p(n) { return (n < 10 ? "0" : "") + n; }
+        return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+      }
+      function load() {
+        var box = document.getElementById("devList");
+        box.innerHTML = '<div class="status">加载中…</div>';
+        wkFetch("/api/sessions").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { box.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
+          if (!j.sessions || !j.sessions.length) { box.innerHTML = '<div class="dev-empty">暂无其他登录设备</div>'; return; }
+          box.innerHTML = j.sessions.map(function (s) {
+            var dev = s.device || {};
+            var name = (dev.os || "未知系统") + " · " + (dev.browser || "未知浏览器");
+            var badge = s.current ? '<span class="dev-badge cur">本机</span>' : '<span class="dev-badge">其他设备</span>';
+            var btn = s.current ? '' : '<button class="btn sm danger dev-revoke" data-token="' + esc(s.token) + '">踢下线</button>';
+            return '<div class="dev-row"><div class="dev-info"><div class="dev-name">' + esc(name) + " " + badge + '</div>' +
+              '<div class="dev-meta">登录时间：' + fmtTime(s.at) + ' · 角色：' + esc(s.role || "") + '</div></div>' + btn + '</div>';
+          }).join("");
+          box.querySelectorAll(".dev-revoke").forEach(function (b) {
+            b.addEventListener("click", function () {
+              if (!confirm("确定踢下线该设备？该设备将立即退出登录。")) return;
+              wkFetch("/api/sessions/revoke", { method: "POST", body: JSON.stringify({ token: b.getAttribute("data-token") }) })
+                .then(function (r) { return r.json(); }).then(function (j2) {
+                  if (j2.ok) load(); else alert(j2.error || "操作失败");
+                }).catch(function (e) { alert("网络错误：" + e.message); });
+            });
+          });
+        }).catch(function (e) {
+          document.getElementById("devList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败：' + esc(e.message) + '</div>';
+        });
+      }
+      document.getElementById("devRefresh").addEventListener("click", load);
+      load();
     }
 
     /* ============ 浏览记录（真实访问数据） ============ */
