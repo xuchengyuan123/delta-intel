@@ -112,9 +112,13 @@
               <option value="aggro">激进（上限最高）</option>
             </select>
           </div>
+          <div class="kzb-field">
+            <label>战备预算（哈夫币）</label>
+            <input id="recBudget" type="number" min="1500" max="780000" step="1000" value="200000">
+          </div>
           <button class="kzb-btn" id="recBtn">生成推荐</button>
         </div>
-        <div class="kzb-note">基于地图掉率 + 实时物价，自动挑出最划算的一套配装，并给出「卖 / 留 / 假账」建议（实时价高于模板价建议卖，低于则建议留）。</div>
+        <div class="kzb-note">调用三角洲数据帝「实时卡战备」接口（经本站 Worker 代理，token 不暴露给前端），按你的战备预算自动算出最划算的一套带入配装。若未配置接口，则回退到本地模板估算。</div>
         <div id="recResult"></div>
       </div>
     </div>
@@ -227,7 +231,7 @@
       document.getElementById("calcResult").innerHTML = html;
     }
 
-    /* ---------- 智能出装推荐 ---------- */
+    /* ---------- 智能出装推荐（实时卡战备 API） ---------- */
     function pickByStyle(tier, style){
       var list = (KZB.loadouts || []).slice();
       if (!list.length) return null;
@@ -243,12 +247,8 @@
       list.sort(function (a, b) { return ((Number(b.sell) || 0) - loadoutCost(b)) - ((Number(a.sell) || 0) - loadoutCost(a)); });
       return list[0];
     }
-    function renderRec(){
-      var tier = document.getElementById("recTier").value;
-      var style = document.getElementById("recStyle").value;
-      var lo = pickByStyle(tier, style);
+    function renderRecLocal(lo, tier, style){
       var box = document.getElementById("recResult");
-      if (!lo) { box.innerHTML = '<div class="kzb-empty">暂无配装数据，请在后台维护 kzb.loadouts。</div>'; return; }
       var cost = loadoutCost(lo);
       var items = (lo.items || []).map(function (it) {
         var live = priceOf(it.name);
@@ -263,7 +263,8 @@
           '<span class="dl ' + dcls + '">' + (dl >= 0 ? "+" : "") + kzbFmt(dl) + '</span></li>';
       }).join("");
       var styleName = { save: "省钱", steady: "稳健", aggro: "激进" }[style] || style;
-      var html = '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">' + kzbEsc(lo.title) + '</div>' +
+      var html = '<div class="kzb-note" style="border-style:solid">⚠️ 实时卡战备接口未配置，以下为本地模板估算（非实时）。</div>' +
+        '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">' + kzbEsc(lo.title) + '</div>' +
         '<div class="lo-stats">' + tier + '卡房 · ' + styleName + '风格 · 总成本 ' + kzbFmt(cost) + ' 元</div></div>' +
         '<button class="kzb-btn ghost" id="recCopy">📋 复制方案</button></div>' +
         '<div class="lo-stats">卖 ' + kzbW(lo.sell) + ' · 战备 ' + kzbW(lo.reserve) + ' · 假账 ' + kzbW(lo.fake) + '</div>' +
@@ -274,6 +275,49 @@
           "\n" + (lo.items || []).map(function (it) { return "- " + it.name + "：" + kzbFmt(itemCost(it)) + "元"; }).join("\n");
         copyText(txt);
       });
+    }
+    function renderRec(){
+      var tier = document.getElementById("recTier").value;
+      var style = document.getElementById("recStyle").value;
+      var zb = Math.max(1500, Math.min(780000, Number(document.getElementById("recBudget").value) || 200000));
+      var box = document.getElementById("recResult");
+      box.innerHTML = '<div class="kzb-tip">实时计算中…</div>';
+      var qs = "zb=" + zb + "&exchange=0&is_bb=1&is_gun=1&is_hj=1&is_sq=1&is_tk=1&is_xg=1";
+      fetch("/api/kzb/diy?" + qs + "&_=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          var j = res.j;
+          if (j && j.needToken) {
+            var lo = pickByStyle(tier, style);
+            if (!lo) { box.innerHTML = '<div class="kzb-empty">暂无配装数据，请在后台维护 kzb.loadouts。</div>'; return; }
+            renderRecLocal(lo, tier, style);
+            return;
+          }
+          if (!j || j.code !== 0 || !Array.isArray(j.data)) {
+            throw new Error(j && j.error ? j.error : "接口返回异常");
+          }
+          var items = j.data.map(function (it) {
+            var price = Number(it.price) || 0;
+            return '<li class="lo-item"><span class="nm">' + kzbEsc(it.name || "物品") + '</span>' +
+              '<span class="pr">' + kzbFmt(price) + '</span></li>';
+          }).join("");
+          var styleName = { save: "省钱", steady: "稳健", aggro: "激进" }[style] || style;
+          var html = '<div class="lo-card"><div class="lo-head"><div><div class="lo-title">实时卡战备推荐 · ' + tier + '卡房</div>' +
+            '<div class="lo-stats">' + styleName + '风格 · 战备值 ' + kzbFmt(j.jz) + ' · 总价值 ' + kzbFmt(j.price) + ' 元</div></div>' +
+            '<button class="kzb-btn ghost" id="recCopy">📋 复制方案</button></div>' +
+            '<ul class="lo-items">' + items + '</ul></div>';
+          box.innerHTML = html;
+          document.getElementById("recCopy").addEventListener("click", function () {
+            var txt = "【实时卡战备】" + tier + "卡房·" + styleName + "\n战备值 " + kzbFmt(j.jz) + " / 总价值 " + kzbFmt(j.price) + " 元\n" +
+              j.data.map(function (it) { return "- " + (it.name || "物品") + "：" + kzbFmt(Number(it.price) || 0) + "元"; }).join("\n");
+            copyText(txt);
+          });
+        })
+        .catch(function (e) {
+          var lo = pickByStyle(tier, style);
+          if (!lo) { box.innerHTML = '<div class="kzb-empty">实时接口不可用（' + kzbEsc(e.message) + '），且本地无配装数据。</div>'; return; }
+          renderRecLocal(lo, tier, style);
+        });
     }
     function copyText(txt){
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -315,8 +359,12 @@
       document.getElementById("calcBudget").addEventListener("input", renderCalc);
       document.getElementById("calcRuns").addEventListener("input", renderCalc);
       document.getElementById("recBtn").addEventListener("click", renderRec);
-      document.getElementById("recTier").addEventListener("change", renderRec);
+      document.getElementById("recTier").addEventListener("change", function () {
+        document.getElementById("recBudget").value = (this.value === "绝密") ? 600000 : 200000;
+        renderRec();
+      });
       document.getElementById("recStyle").addEventListener("change", renderRec);
+      document.getElementById("recBudget").addEventListener("input", renderRec);
       document.getElementById("refreshPrice").addEventListener("click", function () {
         document.getElementById("priceMeta").textContent = "实时物价：刷新中…";
         loadPrices(true).then(function () { renderPriceMeta(); renderCalc(); renderRec(); });

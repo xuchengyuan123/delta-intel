@@ -20,6 +20,7 @@
 //   GET  /api/admin/data           -> {content:"<json string>"}
 //   PUT  /api/admin/data           {content:"<json string>"} -> {ok}
 //   PUT  /api/admin/file           {path, content(base64), message} -> {url}
+//   GET  /api/kzb/diy               ?zb=&exchange=&is_bb=&is_gun=&is_hj=&is_sq=&is_tk=&is_xg= -> 代理三角洲数据帝实时卡战备（需 ORZICE_TOKEN Secret）
 //
 // 依赖绑定（在 wrangler.toml 配置）：
 //   KV:  USERS / SESSIONS / CODES
@@ -995,6 +996,34 @@ async function searchContent(env, q) {
 }
 
 /* ============ 路由 ============ */
+/* ============ 智能卡战备代理（三角洲数据帝 orzice.com 实时卡战备） ============ */
+async function kzbDiy(env, url) {
+  const token = env.ORZICE_TOKEN;
+  if (!token) {
+    // 未配置 token：前端自动回退到本地模板估算，这里给明确标记
+    return json({ error: "未配置 ORZICE_TOKEN（在 Cloudflare Worker 添加 Secret 后启用实时卡战备）", needToken: true }, 200);
+  }
+  const allowed = ["zb", "exchange", "is_bb", "is_gun", "is_hj", "is_sq", "is_tk", "is_xg"];
+  const qs = new URLSearchParams();
+  for (const k of allowed) {
+    const v = url.searchParams.get(k);
+    if (v !== null && v !== "") qs.set(k, v);
+  }
+  qs.set("token", token);
+  const upstream = "https://orzice.com/workApi/v1/sjz_api/jzv3_diy?" + qs.toString();
+  try {
+    const r = await fetch(upstream, { headers: { "User-Agent": "DeltaIntel/1.0" } });
+    const txt = await r.text();
+    let data;
+    try { data = JSON.parse(txt); } catch (e) {
+      return json({ error: "上游返回非 JSON：" + txt.slice(0, 200), upstreamStatus: r.status }, 502);
+    }
+    return json(data, r.status === 200 ? 200 : 502);
+  } catch (e) {
+    return json({ error: "调用卡战备接口失败：" + (e && e.message ? e.message : e), needToken: !token }, 502);
+  }
+}
+
 async function handle(request, env) {
   if (request.method === "OPTIONS") return corsPreflight();
   const url = new URL(request.url);
@@ -1285,6 +1314,9 @@ async function handle(request, env) {
     /* —— 微信登录（OAuth2 骨架；配置 WECHAT_APPID / WECHAT_APPKEY 后启用，前端默认隐藏） —— */
     if (p === "/api/auth/wechat" && request.method === "GET") return await wxAuthStart(env, url);
     if (p === "/api/auth/wechat/callback" && request.method === "GET") return await wxAuthCallback(env, url);
+
+    /* —— 智能卡战备：代理三角洲数据帝实时卡战备 API（token 存 Worker Secret ORZICE_TOKEN，不暴露给前端） —— */
+    if (p === "/api/kzb/diy" && request.method === "GET") return await kzbDiy(env, url);
 
     return json({ error: "Not Found" }, 404);
   } catch (e) {

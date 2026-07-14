@@ -166,7 +166,7 @@
       group: "娱乐工具", collapsed: true, items: [
         { route: "games",   label: "电竞趣味游戏", ico: "🎮" },
         { route: "tools",   label: "实用工具", ico: "🧰" },
-        { route: "music",   label: "音乐台", ico: "🎵" },
+        { href: "music.html", label: "音乐台", ico: "🎵" },
         { route: "feedback",label: "意见反馈", ico: "📮" },
       ],
     },
