@@ -1785,3 +1785,28 @@ html.compact .field { margin-bottom: 8px; }
   .ui-role-row, .dev-row { flex-direction: column; align-items: stretch; }
   .ui-role-actions { justify-content: flex-start; }
 }
+
+/* ===================== 工作台·可视化拼搭器 ===================== */
+.wb-palette { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.wb-pal-btn { padding: 6px 10px; border: 1px solid var(--border); background: var(--bg-soft); color: var(--text); border-radius: 8px; cursor: pointer; font-size: 13px; }
+.wb-pal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.wb-comp-list { display: flex; flex-direction: column; gap: 6px; }
+.wb-comp-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); }
+.wb-comp-drag { cursor: grab; color: var(--muted); user-select: none; }
+.wb-comp-ico { font-size: 16px; }
+.wb-comp-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-comp-acts { display: flex; gap: 4px; }
+.wb-props { margin-top: 10px; border: 1px dashed var(--border); border-radius: 8px; padding: 10px; background: var(--bg-soft); }
+.wb-prop-head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 8px; }
+.wb-field-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.wb-field-row .wf-label { flex: 1; min-width: 120px; }
+.wb-field-row .wf-opt { flex: 1; min-width: 140px; }
+.wf-req { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+
+/* ===================== 生成页·组件样式 ===================== */
+.wb-h { margin: 14px 0 8px; line-height: 1.3; }
+.wb-p { margin: 8px 0; line-height: 1.7; }
+.wb-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.wb-dash-item { display: inline-block; min-width: 120px; margin: 6px; padding: 12px 16px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
+.wb-dash-item .n { font-size: 22px; font-weight: 700; color: var(--accent); }
+.wb-dash-item .l { font-size: 12px; color: var(--muted); margin-top: 4px; }

@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=45">
+  <link rel="stylesheet" href="css/style.css?v=47">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=45"></script>
-  <script defer src="js/i18n.js?v=45"></script>
-  <script defer src="js/workbench.js?v=45"></script>
+  <script src="js/art.js?v=47"></script>
+  <script defer src="js/i18n.js?v=47"></script>
+  <script defer src="js/workbench.js?v=47"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -143,6 +143,47 @@
     .ui-role-row code { font-size: 12px; color: var(--muted); }
     .ui-role-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn.role-d { background: #ff5b5b; color: #fff; }
+
+    /* ===== 用户管理面板（V48 重构：更清晰的工具栏 + 统计 + 筛选 + 卡片） ===== */
+    .um-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px; }
+    .um-search { flex:1; min-width:180px; position:relative; display:flex; align-items:center; }
+    .um-search input { width:100%; box-sizing:border-box; padding:9px 12px 9px 34px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-size:13px; }
+    .um-search .ic { position:absolute; left:11px; font-size:13px; opacity:.6; pointer-events:none; }
+    .um-stats { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .um-stat { flex:1; min-width:92px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-soft); }
+    .um-stat .n { font-size:20px; font-weight:800; line-height:1.1; }
+    .um-stat .l { font-size:11.5px; color:var(--muted); margin-top:2px; }
+    .um-stat.total .n { color:var(--accent); }
+    .um-stat.dis .n { color:#ff5b5b; }
+    .um-stat.tru .n { color:#19c3a6; }
+    .um-filters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+    .um-chip { padding:5px 12px; border:1px solid var(--border); border-radius:999px; background:var(--bg); color:var(--muted); font-size:12px; cursor:pointer; user-select:none; transition:.15s; }
+    .um-chip:hover { border-color:var(--accent); color:var(--text); }
+    .um-chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .um-list { display:flex; flex-direction:column; gap:8px; }
+    .um-card { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:var(--bg-soft); transition:.15s; }
+    .um-card:hover { border-color:var(--accent); box-shadow:0 2px 12px rgba(0,0,0,.12); }
+    .um-card.is-disabled { opacity:.62; }
+    .um-ava { width:42px; height:42px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; color:#fff; text-transform:uppercase; }
+    .um-main { flex:1; min-width:0; }
+    .um-name { font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .um-meta { font-size:12px; color:var(--muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .um-tag { font-size:11px; padding:1px 8px; border-radius:999px; font-weight:600; }
+    .um-tag.dis { background:rgba(255,91,91,.15); color:#ff5b5b; }
+    .um-tag.tru { background:rgba(25,195,166,.15); color:#19c3a6; }
+    .um-acts { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .um-acts .btn { padding:5px 10px; font-size:12px; }
+    .um-empty, .um-error { text-align:center; padding:34px 16px; color:var(--muted); border:1px dashed var(--border); border-radius:12px; line-height:1.7; }
+    .um-empty .ico, .um-error .ico { font-size:30px; display:block; margin-bottom:8px; }
+    .um-empty .hint { font-size:12px; margin-top:8px; }
+    .um-error { color:#ff5b5b; border-color:rgba(255,91,91,.4); }
+    .um-skel { height:66px; border-radius:12px; background:linear-gradient(90deg,var(--bg-soft) 25%,var(--border) 37%,var(--bg-soft) 63%); background-size:400% 100%; animation:umsk 1.3s ease infinite; margin-bottom:8px; }
+    @keyframes umsk { 0%{background-position:100% 0} 100%{background-position:0 0} }
+    .um-detail { margin-top:12px; border:1px solid var(--accent); border-radius:12px; padding:14px 16px; background:var(--bg-soft); }
+    .um-detail h4 { margin:0 0 10px; font-size:15px; display:flex; justify-content:space-between; align-items:center; }
+    .um-detail .kv { display:grid; grid-template-columns:96px 1fr; gap:7px 10px; font-size:13px; }
+    .um-detail .kv b { color:var(--muted); font-weight:600; }
+    @media (max-width:640px){ .um-card{flex-wrap:wrap} .um-acts{width:100%;justify-content:flex-start;margin-top:6px} }
 
     .post { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
     .post .pmeta { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
@@ -592,6 +633,8 @@
       if (!apiBase()) { err.textContent = "请先填写 Cloudflare Worker 地址。"; return; }
       if (!id) { err.textContent = "请输入邮箱或手机号"; return; }
       if (!pw && !code) { err.textContent = "请输入密码，或先获取验证码后填写。"; return; }
+      // 在点击手势内预解锁登录语音：异步登录返回后再播放常被浏览器自动播放策略拦截，此处先拿到用户激活
+      try { primeLoginVoice(); } catch (e) {}
       err.textContent = "验证中…";
       var body = { id: id };
       if (code) { body.email = id; body.code = code; } else { body.password = pw; }
@@ -612,29 +655,53 @@
         .catch(function () { err.textContent = "登录失败，请检查 Worker 地址或网络。"; });
     });
 
-    /* 后台登录成功语音：优先播放 data.json 的 site.havkVoiceUrl（如巴别塔身份认证.wav），缺省走语音合成 */
+    /* 后台登录成功语音：优先播放 data.json 的 site.havkVoiceUrl（如 assets/login-voice.wav），失败/缺省回退浏览器语音合成 */
+    var _loginAudio = null;
+    function loginVoiceUrl() {
+      var site = (window.D && window.D.data && window.D.data.site) || {};
+      return site.havkVoiceUrl || "";
+    }
+    /* 在用户点击手势内调用：先建好 Audio 并静音试播一次拿到“用户激活”，随后登录成功再正常播放就不会被拦 */
+    function primeLoginVoice() {
+      var url = loginVoiceUrl();
+      if (url) {
+        if (!_loginAudio) { _loginAudio = new Audio(url); _loginAudio.preload = "auto"; }
+        _loginAudio.muted = true;
+        var p = _loginAudio.play();
+        if (p && p.then) {
+          p.then(function () { try { _loginAudio.pause(); _loginAudio.currentTime = 0; } catch (e) {} _loginAudio.muted = false; })
+           .catch(function () { _loginAudio.muted = false; });
+        }
+      }
+      // 预热 TTS 语音列表（首次 getVoices 常为空，需触发异步加载）
+      if (window.speechSynthesis) { try { window.speechSynthesis.getVoices(); } catch (e) {} }
+    }
+    function speakLoginTTS() {
+      try {
+        if (!window.speechSynthesis) return;
+        var u = new SpeechSynthesisUtterance("身份验证通过，巴别塔欢迎您");
+        u.lang = "zh-CN"; u.rate = 0.92; u.pitch = 0.85;
+        var voices = window.speechSynthesis.getVoices() || [];
+        var zhVoices = voices.filter(function (v) { return (v.lang || "").toLowerCase().startsWith("zh"); });
+        var pick = voices.find(function (v) { return /male|男|低|沉|deep|yong/i.test(v.name); });
+        if (!pick && zhVoices.length) pick = zhVoices[0];
+        if (pick) u.voice = pick;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
     function playLoginVoice() {
       try {
-        var site = (window.D && window.D.data && window.D.data.site) || {};
-        var url = site.havkVoiceUrl || "";
+        var url = loginVoiceUrl();
         if (url) {
-          var a = new Audio(url);
-          a.volume = 1;
+          var a = _loginAudio || new Audio(url);
+          a.muted = false; a.volume = 1;
+          try { a.currentTime = 0; } catch (e) {}
           var p = a.play();
-          if (p && p.catch) p.catch(function () {});
+          if (p && p.catch) p.catch(function () { speakLoginTTS(); }); // 播放被拦或失败时回退到 TTS
           return;
         }
-        if (window.speechSynthesis) {
-          var u = new SpeechSynthesisUtterance("身份验证通过，巴别塔欢迎您");
-          u.lang = "zh-CN"; u.rate = 0.92; u.pitch = 0.85;
-          var voices = window.speechSynthesis.getVoices() || [];
-          var zhVoices = voices.filter(function (v) { return (v.lang || "").toLowerCase().startsWith("zh"); });
-          var pick = voices.find(function (v) { return /male|男|低|沉|deep|yong/i.test(v.name); });
-          if (!pick && zhVoices.length) pick = zhVoices[0];
-          if (pick) u.voice = pick;
-          window.speechSynthesis.speak(u);
-        }
-      } catch (e) {}
+        speakLoginTTS();
+      } catch (e) { speakLoginTTS(); }
     }
 
     function enterShell(login) {
@@ -1107,16 +1174,19 @@
       c.innerHTML =
         '<div class="panel-card">' +
           '<h3>👥 注册用户管理</h3>' +
-          '<div class="panel-tip">管理普通注册会员：搜索、查看详情、禁用/启用、设为信任用户（免 AI 审核直接发布）、重置密码、删除账号。</div>' +
-          '<div class="row" style="margin-bottom:12px;gap:10px;align-items:center;">' +
-            '<input id="umSearch" placeholder="搜索邮箱/昵称" style="flex:1;min-width:160px;">' +
+          '<div class="panel-tip">管理<b>普通注册会员</b>（前台注册的玩家账号）：搜索、查看详情、禁用/启用、设为信任用户（免 AI 审核直接发布）、重置密码、删除账号。<br>注：这里<b>只显示普通会员</b>；如果你注册的是<b>管理员账号</b>，请到左侧「🛡 分管理员管理」查看。</div>' +
+          '<div class="um-toolbar">' +
+            '<div class="um-search"><span class="ic">🔍</span><input id="umSearch" placeholder="搜索昵称 / 邮箱 / 账号"></div>' +
             '<button class="btn sm" id="umReload">🔄 刷新</button>' +
           '</div>' +
-          '<div id="umStats" class="panel-tip"></div>' +
-          '<div id="umList"><div class="status">加载中…</div></div>' +
+          '<div id="umStats" class="um-stats"></div>' +
+          '<div id="umFilters" class="um-filters"></div>' +
+          '<div id="umList" class="um-list"><div class="um-skel"></div><div class="um-skel"></div><div class="um-skel"></div></div>' +
         '</div>';
       var allMembers = [];
       var kw = "";
+      var flt = "all"; // all | normal | disabled | trusted
+      var listEl = document.getElementById("umList");
 
       function fmtDate(ts) {
         if (!ts) return "未知";
@@ -1126,24 +1196,63 @@
         if (!ts) return "未知";
         try { return new Date(ts).toLocaleDateString("zh-CN"); } catch (e) { return String(ts); }
       }
+      /* 头像底色：根据账号 id 稳定取色 */
+      function avaColor(id) {
+        var s = String(id || "?"), h = 0, i;
+        for (i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+        return "hsl(" + (h % 360) + ",62%,48%)";
+      }
+      function avaText(u) {
+        var s = (u.name || u.id || "?").trim();
+        return s ? s.charAt(0) : "?";
+      }
       function filtered() {
         var q = kw.trim().toLowerCase();
-        if (!q) return allMembers;
         return allMembers.filter(function (u) {
+          if (flt === "normal" && u.disabled) return false;
+          if (flt === "disabled" && !u.disabled) return false;
+          if (flt === "trusted" && !u.trusted) return false;
+          if (!q) return true;
           return (u.id || "").toLowerCase().includes(q) || (u.name || "").toLowerCase().includes(q) || (u.email || "").toLowerCase().includes(q);
         });
       }
+      function renderStats() {
+        var total = allMembers.length;
+        var dis = allMembers.filter(function (u) { return u.disabled; }).length;
+        var tru = allMembers.filter(function (u) { return u.trusted; }).length;
+        document.getElementById("umStats").innerHTML =
+          '<div class="um-stat total"><div class="n">' + total + '</div><div class="l">注册会员总数</div></div>' +
+          '<div class="um-stat"><div class="n">' + (total - dis) + '</div><div class="l">正常</div></div>' +
+          '<div class="um-stat dis"><div class="n">' + dis + '</div><div class="l">已禁用</div></div>' +
+          '<div class="um-stat tru"><div class="n">' + tru + '</div><div class="l">信任用户</div></div>';
+        var chips = [["all", "全部"], ["normal", "正常"], ["disabled", "已禁用"], ["trusted", "信任用户"]];
+        document.getElementById("umFilters").innerHTML = chips.map(function (x) {
+          return '<span class="um-chip' + (flt === x[0] ? " on" : "") + '" data-f="' + x[0] + '">' + x[1] + '</span>';
+        }).join("");
+        document.getElementById("umFilters").querySelectorAll(".um-chip").forEach(function (ch) {
+          ch.addEventListener("click", function () { flt = ch.getAttribute("data-f"); render(); });
+        });
+      }
       function render() {
+        renderStats();
         var ms = filtered();
-        document.getElementById("umStats").innerHTML = "共 <b>" + allMembers.length + "</b> 位注册会员，当前显示 <b>" + ms.length + "</b> 位。";
-        if (!ms.length) { document.getElementById("umList").innerHTML = '<div class="status">暂无匹配用户。</div>'; return; }
-        document.getElementById("umList").innerHTML = '<div class="ui-role-grid">' + ms.map(function (u) {
-          var badges = '';
-          if (u.disabled) badges += '<span style="display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(255,91,91,.15);color:#ff5b5b;font-size:11px;margin-left:4px;">已禁用</span>';
-          if (u.trusted) badges += '<span style="display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(25,195,166,.15);color:#19c3a6;font-size:11px;margin-left:4px;">信任用户</span>';
-          return '<div class="ui-role-row"><div class="ui-role-name">' + esc(u.name || u.id) + badges +
-            "<br><small style=\"color:var(--muted)\">" + esc(u.id) + " · Lv." + (u.level || 1) + " · 积分 " + esc(u.points || 0) + " · 注册于 " + fmtDateShort(u.createdAt) + "</small></div>" +
-            '<div class="ui-role-actions">' +
+        if (!ms.length) {
+          listEl.innerHTML = allMembers.length
+            ? '<div class="um-empty"><span class="ico">🔍</span>没有符合当前筛选/搜索条件的会员。</div>'
+            : '<div class="um-empty"><span class="ico">📭</span>暂无注册会员。<div class="hint">前台有玩家用「邮箱注册」后，这里才会出现。<br>若你注册的是管理员，请到「分管理员管理」；数据异常可点上方「🔄 刷新」重新调取。</div></div>';
+          return;
+        }
+        listEl.innerHTML = ms.map(function (u) {
+          var tags = '';
+          if (u.disabled) tags += '<span class="um-tag dis">已禁用</span>';
+          if (u.trusted) tags += '<span class="um-tag tru">信任</span>';
+          return '<div class="um-card' + (u.disabled ? " is-disabled" : "") + '">' +
+            '<div class="um-ava" style="background:' + avaColor(u.id) + '">' + esc(avaText(u)) + '</div>' +
+            '<div class="um-main">' +
+              '<div class="um-name">' + esc(u.name || u.id) + tags + '</div>' +
+              '<div class="um-meta">' + esc(u.id) + ' · Lv.' + (u.level || 1) + ' · 积分 ' + esc(u.points || 0) + ' · 注册于 ' + fmtDateShort(u.createdAt) + '</div>' +
+            '</div>' +
+            '<div class="um-acts">' +
               '<button class="btn sm" data-act="detail" data-id="' + esc(u.id) + '">详情</button>' +
               (u.disabled
                 ? '<button class="btn role-c" data-act="enable" data-id="' + esc(u.id) + '">启用</button>'
@@ -1152,11 +1261,11 @@
               '<button class="btn role-c" data-act="reset" data-id="' + esc(u.id) + '">重置密码</button>' +
               '<button class="btn role-d" data-act="del" data-id="' + esc(u.id) + '">删除</button>' +
             '</div></div>';
-        }).join("") + "</div>";
+        }).join("");
         bindActions();
       }
       function bindActions() {
-        document.getElementById("umList").querySelectorAll("button[data-act]").forEach(function (b) {
+        listEl.querySelectorAll("button[data-act]").forEach(function (b) {
           b.addEventListener("click", function () {
             var act = b.getAttribute("data-act");
             var id = b.getAttribute("data-id");
@@ -1181,21 +1290,22 @@
           .then(function (j) {
             if (j.error) { alert(j.error); return; }
             var u = j.user;
-            var html = '<div class="panel-card" style="margin-top:12px"><h3>👤 用户详情</h3>' +
-              '<p><b>账号：</b>' + esc(u.id) + '</p>' +
-              '<p><b>昵称：</b>' + esc(u.name || "未设置") + '</p>' +
-              '<p><b>等级：</b>Lv.' + (u.level || 1) + ' · 积分 ' + (u.points || 0) + ' · 连续签到 ' + (u.streak || 0) + ' 天</p>' +
-              '<p><b>状态：</b>' + (u.disabled ? '已禁用' : '正常') + ' · ' + (u.trusted ? '信任用户（免 AI 审核）' : '普通用户（AI 自动审核）') + '</p>' +
-              '<p><b>注册时间：</b>' + fmtDate(u.createdAt) + '</p>' +
-              '<p><b>最后签到：</b>' + (u.lastCheckin || "无") + '</p>' +
-              '<p><b>个人简介：</b>' + esc(u.bio || "无") + '</p>' +
-              '</div>';
+            var html = '<div class="um-detail" id="umDetail">' +
+              '<h4>👤 用户详情<button class="btn sm" id="umDetailClose">关闭</button></h4>' +
+              '<div class="kv">' +
+                '<b>账号</b><span>' + esc(u.id) + '</span>' +
+                '<b>昵称</b><span>' + esc(u.name || "未设置") + '</span>' +
+                '<b>等级</b><span>Lv.' + (u.level || 1) + ' · 积分 ' + (u.points || 0) + ' · 连续签到 ' + (u.streak || 0) + ' 天</span>' +
+                '<b>状态</b><span>' + (u.disabled ? '已禁用' : '正常') + ' · ' + (u.trusted ? '信任用户（免 AI 审核）' : '普通用户（AI 自动审核）') + '</span>' +
+                '<b>注册时间</b><span>' + fmtDate(u.createdAt) + '</span>' +
+                '<b>最后签到</b><span>' + esc(u.lastCheckin || "无") + '</span>' +
+                '<b>个人简介</b><span>' + esc(u.bio || "无") + '</span>' +
+              '</div></div>';
             var existing = document.getElementById("umDetail");
             if (existing) existing.outerHTML = html;
-            else {
-              var d = document.createElement("div"); d.id = "umDetail"; d.innerHTML = html;
-              document.getElementById("umList").insertAdjacentElement("beforebegin", d);
-            }
+            else listEl.insertAdjacentElement("beforebegin", (function () { var d = document.createElement("div"); d.innerHTML = html; return d.firstChild; })());
+            var closeBtn = document.getElementById("umDetailClose");
+            if (closeBtn) closeBtn.addEventListener("click", function () { var e = document.getElementById("umDetail"); if (e) e.remove(); });
           }).catch(function () { alert("加载详情失败"); });
       }
       function resetPw(id) {
@@ -1208,11 +1318,25 @@
           .catch(function () { alert("重置失败"); });
       }
       function load() {
+        listEl.innerHTML = '<div class="um-skel"></div><div class="um-skel"></div><div class="um-skel"></div>';
         wkFetch("/api/admin/members").then(function (r) { return r.json(); }).then(function (j) {
-          if (j.error) { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + "</div>"; return; }
+          if (j.error) {
+            listEl.innerHTML = '<div class="um-error"><span class="ico">⚠️</span>调取失败：' + esc(j.error) +
+              '<div style="margin-top:10px"><button class="btn sm" id="umRetry">🔄 重新调取</button></div></div>';
+            var rb = document.getElementById("umRetry"); if (rb) rb.addEventListener("click", load);
+            document.getElementById("umStats").innerHTML = "";
+            document.getElementById("umFilters").innerHTML = "";
+            return;
+          }
           allMembers = j.members || [];
           render();
-        }).catch(function () { document.getElementById("umList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+        }).catch(function () {
+          listEl.innerHTML = '<div class="um-error"><span class="ico">📡</span>网络异常，未能连接 Worker 调取用户列表。' +
+            '<div style="margin-top:10px"><button class="btn sm" id="umRetry">🔄 重新调取</button></div></div>';
+          var rb = document.getElementById("umRetry"); if (rb) rb.addEventListener("click", load);
+          document.getElementById("umStats").innerHTML = "";
+          document.getElementById("umFilters").innerHTML = "";
+        });
       }
       document.getElementById("umSearch").addEventListener("input", function (e) { kw = e.target.value; render(); });
       document.getElementById("umReload").addEventListener("click", load);
