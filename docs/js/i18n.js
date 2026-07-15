@@ -46,16 +46,32 @@
   function syncBtn() { var b = document.getElementById("langToggleI18n"); if (b) b.textContent = (lang === "en" ? "🇨🇳" : "EN"); }
 
   function ensureToggle() {
-    if (document.getElementById("langToggleI18n")) { syncBtn(); return; }
-    var btn = document.createElement("button");
-    btn.id = "langToggleI18n";
-    btn.title = "切换语言 / Switch language";
-    btn.textContent = (lang === "en" ? "🇨🇳" : "EN");
-    btn.style.cssText = "position:fixed;right:12px;bottom:12px;z-index:9999;width:44px;height:44px;border-radius:50%;" +
-      "border:1px solid var(--border,#333);background:var(--card,#1c1c22);color:var(--text,#eee);font-size:14px;cursor:pointer;" +
-      "box-shadow:0 4px 14px rgba(0,0,0,.35);";
-    btn.addEventListener("click", function () { toggle(); });
-    document.body.appendChild(btn);
+    var existing = document.getElementById("langToggleI18n");
+    if (existing) { syncBtn(); return; }
+    // 优先插入顶栏，如果顶栏不存在再降级到右下角小圆钮
+    var topbar = document.querySelector(".topbar-right");
+    if (topbar) {
+      var btn = document.createElement("button");
+      btn.id = "langToggleI18n";
+      btn.className = "icon-btn";
+      btn.title = "切换语言 / Switch language";
+      btn.textContent = (lang === "en" ? "🇨🇳" : "EN");
+      btn.addEventListener("click", function () { toggle(); });
+      topbar.appendChild(btn);
+    } else {
+      var btn = document.createElement("button");
+      btn.id = "langToggleI18n";
+      btn.title = "切换语言 / Switch language";
+      btn.textContent = (lang === "en" ? "🇨🇳" : "EN");
+      btn.style.cssText = "position:fixed;right:16px;bottom:80px;z-index:60;width:44px;height:44px;border-radius:50%;" +
+        "border:1px solid var(--border,#333);background:var(--card,#1c1c22);color:var(--text,#eee);font-size:14px;cursor:pointer;" +
+        "box-shadow:0 4px 14px rgba(0,0,0,.35);transition:bottom .2s;";
+      var style = document.createElement("style");
+      style.textContent = "body.has-install-banner #langToggleI18n{bottom:140px !important;}";
+      document.head.appendChild(style);
+      btn.addEventListener("click", function () { toggle(); });
+      document.body.appendChild(btn);
+    }
   }
 
   window.I18N = { setLang: setLang, toggle: toggle, getLang: function () { return lang; }, apply: apply };

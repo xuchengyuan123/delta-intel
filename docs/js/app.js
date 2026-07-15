@@ -177,6 +177,14 @@
         { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
+    {
+      group: "武器 / 战队 / 资讯", collapsed: true, items: [
+        { href: "guns-calc.html", label: "武器改装计算器", ico: "🔧" },
+        { href: "team.html",      label: "战队 / 公会",    ico: "⚔" },
+        { href: "news.html",      label: "资讯中心",      ico: "📰" },
+        { href: "zhanji.html",    label: "战绩查询",      ico: "📊" },
+      ],
+    },
   ];
 
   /* ---------- 工具 ---------- */
@@ -1012,6 +1020,7 @@
       '<button class="ib-btn" id="ibInstall">安装</button>' +
       '<button class="ib-close" id="ibClose">×</button>';
     document.body.appendChild(b);
+    document.body.classList.add("has-install-banner");
     document.getElementById("ibInstall").addEventListener("click", function () {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -1019,10 +1028,10 @@
     });
     document.getElementById("ibClose").addEventListener("click", hideInstallBanner);
   }
-  function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); }
+  function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); document.body.classList.remove("has-install-banner"); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=31").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=35").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

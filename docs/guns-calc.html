@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>武器改装计算器 · 三角洲情报台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<style>
+  :root{
+    --bg:#0b0e14;
+    --panel:#161b22;
+    --border:#30363d;
+    --text:#e6edf3;
+    --muted:#8b949e;
+    --green:#3fb950;
+    --amber:#d29922;
+    --red:#f85149;
+    --danger:#da3633;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--green);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* 顶栏 */
+  .topbar{
+    background:linear-gradient(180deg,#11161f,#0d1117);
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:blur(4px);
+  }
+  .topbar-inner{
+    max-width:960px;margin:0 auto;padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .topbar h1{
+    font-size:18px;margin:0;letter-spacing:1px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .topbar h1::before{
+    content:"";width:10px;height:18px;background:var(--green);
+    border-radius:2px;box-shadow:0 0 8px rgba(63,185,80,.6);
+  }
+  .back{font-size:14px;white-space:nowrap;}
+
+  .container{max-width:960px;margin:0 auto;padding:16px;}
+
+  .intro{
+    color:var(--muted);font-size:14px;margin:4px 0 18px;
+  }
+
+  /* 双栏配装 */
+  .columns{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  }
+  .col{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px;
+  }
+  .col-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .col-title{font-size:16px;font-weight:700;letter-spacing:1px;}
+  .col-title .tag{
+    font-size:11px;padding:2px 8px;border-radius:20px;margin-right:8px;
+    border:1px solid var(--border);
+  }
+  .tag.a{color:var(--green);border-color:rgba(63,185,80,.5);}
+  .tag.b{color:var(--amber);border-color:rgba(210,153,34,.5);}
+
+  .reset-btn{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;
+    transition:.15s;
+  }
+  .reset-btn:hover{border-color:var(--danger);color:var(--red);}
+
+  .field{margin-bottom:10px;}
+  .field label{
+    display:block;font-size:12px;color:var(--muted);margin-bottom:4px;
+  }
+  select{
+    width:100%;background:#0d1117;color:var(--text);
+    border:1px solid var(--border);border-radius:6px;
+    padding:8px 10px;font-size:14px;font-family:inherit;
+    appearance:none;cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+  }
+  select:focus{outline:none;border-color:var(--green);}
+
+  .att-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;
+    margin-top:4px;padding-top:10px;border-top:1px dashed var(--border);
+  }
+
+  /* 属性条 */
+  .stats{margin-top:12px;}
+  .stat-row{margin-bottom:9px;}
+  .stat-row .top{
+    display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;
+  }
+  .stat-row .top .name{color:var(--text);}
+  .stat-row .top .val{color:var(--muted);font-variant-numeric:tabular-nums;}
+  .bar{
+    height:8px;background:#0d1117;border-radius:6px;overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .bar > span{
+    display:block;height:100%;border-radius:6px;
+    background:linear-gradient(90deg,#2ea043,var(--green));
+    transition:width .35s ease;
+  }
+
+  /* 对比区 */
+  .compare{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px;margin-top:18px;
+  }
+  .compare h2{font-size:16px;margin:0 0 4px;letter-spacing:1px;}
+  .compare .sub{color:var(--muted);font-size:13px;margin-bottom:14px;}
+  .compare-grid{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start;}
+  .radar-wrap{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px;}
+
+  table.cmp{width:100%;border-collapse:collapse;font-size:13px;}
+  table.cmp th,table.cmp td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--border);}
+  table.cmp th{color:var(--muted);font-weight:600;font-size:12px;}
+  table.cmp td.name{text-align:left;color:var(--text);}
+  table.cmp td .v{font-variant-numeric:tabular-nums;font-weight:600;}
+  .better{color:var(--green);}
+  .worse{color:var(--red);}
+  .equal{color:var(--muted);}
+  .score{
+    display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;
+    border:1px solid var(--border);
+  }
+  .score.a{color:var(--green);border-color:rgba(63,185,80,.5);}
+  .score.b{color:var(--amber);border-color:rgba(210,153,34,.5);}
+  .winner{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;}
+
+  footer{
+    max-width:960px;margin:0 auto;padding:20px 16px 40px;
+    color:var(--muted);font-size:12px;text-align:center;
+  }
+
+  /* 移动端 */
+  @media (max-width:720px){
+    .columns{grid-template-columns:1fr;}
+    .compare-grid{grid-template-columns:1fr;}
+    .radar-wrap{max-width:320px;margin:0 auto;}
+    .att-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <h1>武器改装计算器</h1>
+    <a class="back" href="index.html">← 返回首页</a>
+  </div>
+</header>
+
+<main class="container">
+  <p class="intro">为你的干员搭配枪械与配件，实时演算最终属性并左右对比。所有改动自动保存到本地，下次打开自动恢复。</p>
+
+  <div class="columns">
+    <section class="col" id="colA"></section>
+    <section class="col" id="colB"></section>
+  </div>
+
+  <section class="compare">
+    <h2>配装对比</h2>
+    <div class="sub">数值越高越好，绿色为当前更优一方，红色为更弱一方。</div>
+    <div class="compare-grid">
+      <div style="overflow-x:auto;">
+        <table class="cmp" id="cmpTable"></table>
+        <div class="winner" id="winner"></div>
+      </div>
+      <div class="radar-wrap">
+        <canvas id="radar" height="280"></canvas>
+        <div id="radarFallback" style="display:none;color:var(--muted);font-size:12px;text-align:center;padding:20px 0;">雷达图需联网加载 Chart.js，属性条对比不受影响。</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>三角洲情报台 · 武器改装计算器 (V32) · 数据基于游戏手感模拟，仅供参考</footer>
+
+<script>
+/* ===================== 数据 ===================== */
+const STATS = [
+  {key:'damage',     name:'伤害',     isCount:false},
+  {key:'rpm',        name:'射速',     isCount:false},
+  {key:'range',      name:'射程',     isCount:false},
+  {key:'accuracy',   name:'精度',     isCount:false},
+  {key:'handling',   name:'操控',     isCount:false},
+  {key:'recoil',     name:'后坐力控制', isCount:false},
+  {key:'ergonomics', name:'人机工效', isCount:false},
+  {key:'moveSpeed',  name:'移动速度', isCount:false},
+  {key:'mag',        name:'弹匣容量', isCount:true}
+];
+
+const WEAPONS = [
+  {key:'AKM', name:'AKM', type:'突击步枪',
+    base:{damage:78,rpm:60,range:65,accuracy:55,handling:50,recoil:40,ergonomics:55,moveSpeed:62,mag:30}},
+  {key:'M4A1', name:'M4A1', type:'突击步枪',
+    base:{damage:62,rpm:75,range:62,accuracy:68,handling:65,recoil:60,ergonomics:68,moveSpeed:68,mag:30}},
+  {key:'AK-12', name:'AK-12', type:'突击步枪',
+    base:{damage:64,rpm:78,range:60,accuracy:66,handling:62,recoil:55,ergonomics:62,moveSpeed:66,mag:30}},
+  {key:'K416', name:'K416', type:'突击步枪',
+    base:{damage:60,rpm:80,range:64,accuracy:70,handling:70,recoil:65,ergonomics:70,moveSpeed:70,mag:30}},
+  {key:'M250', name:'M250', type:'机枪',
+    base:{damage:85,rpm:70,range:70,accuracy:58,handling:35,recoil:45,ergonomics:30,moveSpeed:40,mag:100}},
+  {key:'Vector', name:'Vector', type:'冲锋枪',
+    base:{damage:50,rpm:95,range:35,accuracy:55,handling:80,recoil:55,ergonomics:78,moveSpeed:82,mag:25}},
+  {key:'SR-25', name:'SR-25', type:'射手步枪',
+    base:{damage:90,rpm:45,range:85,accuracy:80,handling:45,recoil:35,ergonomics:45,moveSpeed:50,mag:20}},
+  {key:'M700', name:'M700', type:'狙击枪',
+    base:{damage:95,rpm:25,range:92,accuracy:88,handling:40,recoil:30,ergonomics:38,moveSpeed:48,mag:5}},
+  {key:'AWM', name:'AWM', type:'狙击枪',
+    base:{damage:100,rpm:20,range:95,accuracy:92,handling:35,recoil:28,ergonomics:32,moveSpeed:45,mag:5}}
+];
+
+const ATTACH_SLOTS = [
+  {key:'barrel', name:'枪管', options:[
+    {name:'默认枪管', mods:{}},
+    {name:'重型枪管', mods:{recoil:8, accuracy:6, range:5, handling:-4, moveSpeed:-2}},
+    {name:'短枪管',   mods:{handling:8, moveSpeed:5, recoil:-5, range:-6}},
+    {name:'长枪管',   mods:{range:10, accuracy:5, recoil:3, handling:-5}}
+  ]},
+  {key:'muzzle', name:'枪口', options:[
+    {name:'无枪口',   mods:{}},
+    {name:'补偿器',   mods:{recoil:12, accuracy:3, handling:-2}},
+    {name:'消音器',   mods:{recoil:5, accuracy:2, handling:-3, range:-2}},
+    {name:'制退器',   mods:{recoil:15, handling:-4}}
+  ]},
+  {key:'grip', name:'握把', options:[
+    {name:'无握把',   mods:{}},
+    {name:'垂直握把', mods:{recoil:8, handling:3}},
+    {name:'倾斜握把', mods:{handling:8, ergonomics:5, recoil:2}},
+    {name:'战术握把', mods:{recoil:5, ergonomics:6, handling:2}}
+  ]},
+  {key:'magazine', name:'弹匣', options:[
+    {name:'标准弹匣',   mods:{}},
+    {name:'扩容弹匣',   mods:{mag:20, handling:-3, moveSpeed:-2}},
+    {name:'快拆弹匣',   mods:{ergonomics:8, handling:4, mag:5}},
+    {name:'大容量弹鼓', mods:{mag:70, handling:-8, moveSpeed:-5, ergonomics:-5}}
+  ]},
+  {key:'stock', name:'枪托', options:[
+    {name:'无枪托',   mods:{}},
+    {name:'战术枪托', mods:{recoil:10, accuracy:4, handling:-3}},
+    {name:'轻量枪托', mods:{handling:8, moveSpeed:4, recoil:3}},
+    {name:'稳固枪托', mods:{accuracy:8, recoil:6, handling:-5}}
+  ]},
+  {key:'scope', name:'瞄准镜', options:[
+    {name:'机械瞄具', mods:{}},
+    {name:'红点瞄具', mods:{accuracy:5, handling:2}},
+    {name:'全息瞄具', mods:{accuracy:6, handling:1}},
+    {name:'高倍镜',   mods:{accuracy:12, range:8, handling:-6, moveSpeed:-2}}
+  ]},
+  {key:'laser', name:'镭射', options:[
+    {name:'无镭射',     mods:{}},
+    {name:'激光指示器', mods:{accuracy:6, ergonomics:4, handling:2}},
+    {name:'战术镭射',   mods:{accuracy:4, recoil:3, ergonomics:3}}
+  ]}
+];
+
+/* ===================== 状态 ===================== */
+const STORE_KEY = 'delta_guns_calc_v32';
+const SIDES = ['A','B'];
+
+function defaultState(){
+  const att = {};
+  ATTACH_SLOTS.forEach(s => att[s.key] = s.options[0].name);
+  return { weapon: WEAPONS[0].key, attachments: att };
+}
+
+let state = { A: defaultState(), B: defaultState() };
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    SIDES.forEach(side=>{
+      if(saved[side] && saved[side].weapon && WEAPONS.some(w=>w.key===saved[side].weapon)){
+        state[side].weapon = saved[side].weapon;
+        if(saved[side].attachments){
+          ATTACH_SLOTS.forEach(slot=>{
+            const v = saved[side].attachments[slot.key];
+            if(slot.options.some(o=>o.name===v)) state[side].attachments[slot.key] = v;
+          });
+        }
+      }
+    });
+  }catch(e){/* 忽略损坏数据 */}
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ===================== 计算 ===================== */
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+function computeStats(side){
+  const st = state[side];
+  const w = WEAPONS.find(x=>x.key===st.weapon) || WEAPONS[0];
+  const res = {};
+  STATS.forEach(s=>{
+    let v = w.base[s.key];
+    ATTACH_SLOTS.forEach(slot=>{
+      const opt = slot.options.find(o=>o.name===st.attachments[slot.key]);
+      if(opt && opt.mods[s.key]) v += opt.mods[s.key];
+    });
+    res[s.key] = s.isCount ? Math.max(0, Math.round(v)) : clamp(Math.round(v),0,100);
+  });
+  return res;
+}
+
+/* ===================== 渲染配装栏 ===================== */
+function buildColumn(side){
+  const col = document.getElementById('col'+side);
+  const tagClass = side==='A' ? 'a' : 'b';
+  const tagText  = side==='A' ? 'A' : 'B';
+
+  let weaponOpts = WEAPONS.map(w=>`<option value="${w.key}">${w.name}（${w.type}）</option>`).join('');
+  let attFields = ATTACH_SLOTS.map(slot=>{
+    const opts = slot.options.map(o=>`<option value="${o.name}">${o.name}</option>`).join('');
+    return `<div class="field">
+      <label>${slot.name}</label>
+      <select class="att" data-side="${side}" data-slot="${slot.key}">${opts}</select>
+    </div>`;
+  }).join('');
+
+  col.innerHTML = `
+    <div class="col-head">
+      <div class="col-title"><span class="tag ${tagClass}">配装 ${tagText}</span></div>
+      <button class="reset-btn" data-side="${side}">重置</button>
+    </div>
+    <div class="field">
+      <label>选择武器</label>
+      <select class="weapon" data-side="${side}">${weaponOpts}</select>
+    </div>
+    <div class="att-grid">${attFields}</div>
+    <div class="stats" id="stats${side}"></div>
+  `;
+
+  // 回填当前值
+  col.querySelector('.weapon').value = state[side].weapon;
+  col.querySelectorAll('.att').forEach(sel=>{
+    sel.value = state[side].attachments[sel.dataset.slot];
+  });
+
+  // 事件
+  col.querySelector('.weapon').addEventListener('change', e=>{
+    state[side].weapon = e.target.value; afterChange();
+  });
+  col.querySelectorAll('.att').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      state[side].attachments[sel.dataset.slot] = e.target.value; afterChange();
+    });
+  });
+  col.querySelector('.reset-btn').addEventListener('click', ()=>{
+    state[side] = defaultState();
+    // 同步 UI
+    col.querySelector('.weapon').value = state[side].weapon;
+    col.querySelectorAll('.att').forEach(s=> s.value = state[side].attachments[s.dataset.slot]);
+    afterChange();
+  });
+}
+
+function renderBars(side){
+  const stats = computeStats(side);
+  const box = document.getElementById('stats'+side);
+  box.innerHTML = STATS.map(s=>{
+    const v = stats[s.key];
+    const pct = s.isCount ? clamp(v,0,100) : v;
+    return `<div class="stat-row">
+      <div class="top"><span class="name">${s.name}</span><span class="val">${v}${s.isCount?' 发':''}</span></div>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ===================== 对比表 ===================== */
+function renderCompare(){
+  const sa = computeStats('A'), sb = computeStats('B');
+  let rows = '';
+  STATS.forEach(s=>{
+    const va = sa[s.key], vb = sb[s.key];
+    let ca='equal', cb='equal';
+    if(va>vb){ca='better';cb='worse';}
+    else if(vb>va){cb='better';ca='worse';}
+    rows += `<tr>
+      <td class="name">${s.name}</td>
+      <td><span class="v ${ca}">${va}${s.isCount?'':''}</span></td>
+      <td><span class="v ${cb}">${vb}${s.isCount?'':''}</span></td>
+    </tr>`;
+  });
+
+  // 综合评分：8 项 0-100 属性均值
+  const scoreKeys = STATS.filter(s=>!s.isCount).map(s=>s.key);
+  const scoreA = Math.round(scoreKeys.reduce((a,k)=>a+sa[k],0)/scoreKeys.length);
+  const scoreB = Math.round(scoreKeys.reduce((a,k)=>a+sb[k],0)/scoreKeys.length);
+  let scA='equal', scB='equal';
+  if(scoreA>scoreB){scA='better';scB='worse';}
+  else if(scoreB>scoreA){scB='better';scA='worse';}
+
+  const table = document.getElementById('cmpTable');
+  table.innerHTML = `
+    <thead><tr><th style="text-align:left">属性</th>
+      <th><span class="score a">A · ${scoreA}</span></th>
+      <th><span class="score b">B · ${scoreB}</span></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+
+  const winner = document.getElementById('winner');
+  if(scoreA===scoreB) winner.textContent = '综合评分持平';
+  else winner.innerHTML = `综合评分优势：<span class="${scoreA>scoreB?'better':'worse'}">配装 ${scoreA>scoreB?'A':'B'}</span>`;
+}
+
+/* ===================== 雷达图（Chart.js 可选） ===================== */
+let radarChart = null;
+function renderRadar(){
+  const canvas = document.getElementById('radar');
+  if(typeof window.Chart === 'undefined'){
+    canvas.style.display='none';
+    document.getElementById('radarFallback').style.display='block';
+    return;
+  }
+  const radarStats = STATS.filter(s=>!s.isCount);
+  const labels = radarStats.map(s=>s.name);
+  const sa = computeStats('A'), sb = computeStats('B');
+  const dataA = radarStats.map(s=>sa[s.key]);
+  const dataB = radarStats.map(s=>sb[s.key]);
+
+  const cfg = {
+    type:'radar',
+    data:{
+      labels,
+      datasets:[
+        {label:'配装 A', data:dataA,
+          borderColor:'#3fb950', backgroundColor:'rgba(63,185,80,.20)',
+          pointBackgroundColor:'#3fb950', borderWidth:2},
+        {label:'配装 B', data:dataB,
+          borderColor:'#d29922', backgroundColor:'rgba(210,153,34,.20)',
+          pointBackgroundColor:'#d29922', borderWidth:2}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#e6edf3', font:{size:12}}}},
+      scales:{
+        r:{
+          min:0, max:100,
+          angleLines:{color:'#30363d'},
+          grid:{color:'#30363d'},
+          pointLabels:{color:'#8b949e', font:{size:11}},
+          ticks:{color:'#8b949e', backdropColor:'transparent', stepSize:20}
+        }
+      }
+    }
+  };
+  if(radarChart){ radarChart.data.datasets[0].data=dataA; radarChart.data.datasets[1].data=dataB; radarChart.update(); }
+  else { radarChart = new window.Chart(canvas, cfg); }
+}
+
+/* ===================== 统一刷新 ===================== */
+function afterChange(){
+  SIDES.forEach(renderBars);
+  renderCompare();
+  renderRadar();
+  saveState();
+}
+
+/* ===================== 初始化 ===================== */
+function init(){
+  loadState();
+  SIDES.forEach(buildColumn);
+  afterChange();
+}
+
+// Chart.js 通过 defer 加载，等待 DOM 与脚本都就绪
+window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('load', ()=>{ if(radarChart) renderRadar(); });
+</script>
+</body>
+</html>

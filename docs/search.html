@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>全站搜索 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=31">
+  <link rel="stylesheet" href="css/style.css?v=35">
   <style>
     .composer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
     .composer input.title { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
@@ -27,7 +27,7 @@
     <div id="results"><div class="status">输入关键词开始搜索。</div></div>
   </div>
 
-  <script src="js/site-common.js?v=31"></script>
+  <script src="js/site-common.js?v=35"></script>
   <script>
     var D = window.DeltaCommon;
     function doSearch(q) {
@@ -52,6 +52,6 @@
     document.getElementById("searchInput").addEventListener("keydown", function (e) { if (e.key === "Enter") doSearch(this.value); });
     doSearch(new URLSearchParams(location.search).get("q") || "");
   </script>
-<script src="js/checkin.js?v=31"></script>
+<script src="js/checkin.js?v=35"></script>
 </body>
 </html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>战绩查询 · 三角洲情报台</title>
+<style>
+  :root{
+    --bg:#0e1116;--card:#161b22;--card2:#1c232c;--border:#2a323d;--text:#e6edf3;--muted:#8b97a6;
+    --accent:#37e0a6;--accent2:#4aa8ff;--danger:#ff6b6b;--warn:#ffb454;--radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;padding:16px;max-width:920px;margin:0 auto;}
+  h1{font-size:22px;margin:6px 0 2px;display:flex;align-items:center;gap:8px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{padding:8px 14px;border:1px solid var(--border);background:var(--card);border-radius:999px;cursor:pointer;font-size:14px;color:var(--muted);user-select:none}
+  .tab.active{background:var(--accent);color:#06251c;border-color:var(--accent);font-weight:600}
+  .panel{display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  .panel.active{display:block}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  input,textarea,select{width:100%;padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:130px}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600}
+  .btn-primary{background:var(--accent);color:#06251c}
+  .btn-qq{background:#12b7f5;color:#fff}
+  .btn-wx{background:#07c160;color:#fff}
+  .btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .hint{font-size:12px;color:var(--muted);background:var(--card2);border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-top:10px}
+  .err{color:var(--danger);font-size:13px;margin-top:10px}
+  .ok{color:var(--accent);font-size:13px;margin-top:10px}
+  /* 战绩卡片 */
+  .zcard{background:linear-gradient(135deg,#10261f,#161b22);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-top:6px}
+  .zhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .zava{width:52px;height:52px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:24px}
+  .zname{font-size:18px;font-weight:700}
+  .zlv{font-size:12px;color:var(--muted)}
+  .zgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+  .zmetric{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px}
+  .zk{font-size:11px;color:var(--muted)}
+  .zv{font-size:17px;font-weight:700;color:var(--accent)}
+  .zraw{margin-top:12px}
+  details summary{cursor:pointer;color:var(--muted);font-size:12px}
+  pre{background:#0b0e13;border:1px solid var(--border);border-radius:8px;padding:10px;overflow:auto;font-size:11px;color:var(--muted);max-height:240px}
+  /* 对比 */
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  th,td{border:1px solid var(--border);padding:8px;text-align:center}
+  th{background:var(--card2);color:var(--muted);font-weight:600}
+  .bar{height:8px;border-radius:4px;background:var(--accent);margin-top:4px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}
+  .pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--card2);border:1px solid var(--border);color:var(--muted);margin-left:8px}
+</style>
+</head>
+<body>
+<h1>📊 战绩查询</h1>
+<div class="sub">像鼠鼠工具那样读取三角洲行动战绩 · 支持 手动粘贴 / 第三方接口 / QQ登录 / 微信登录 四种方式</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="manual">✏️ 手动粘贴</div>
+  <div class="tab" data-tab="proxy">🔌 第三方接口</div>
+  <div class="tab" data-tab="qq">🐧 QQ 登录</div>
+  <div class="tab" data-tab="wx">💬 微信登录</div>
+</div>
+
+<!-- 手动粘贴 -->
+<section class="panel active" id="p-manual">
+  <label>昵称</label><input id="m-name" placeholder="你的游戏昵称">
+  <div class="row">
+    <div><label>等级</label><input id="m-level" placeholder="如 24"></div>
+    <div><label>历史最高段位</label><input id="m-rank" placeholder="如 钻石"></div>
+  </div>
+  <div class="row">
+    <div><label>KD</label><input id="m-kd" placeholder="如 1.85"></div>
+    <div><label>胜率 %</label><input id="m-win" placeholder="如 52"></div>
+    <div><label>总场次</label><input id="m-matches" placeholder="如 1200"></div>
+  </div>
+  <div class="row">
+    <div><label>撤离率 %</label><input id="m-evac" placeholder="如 61"></div>
+    <div><label>击败人数</label><input id="m-kills" placeholder="如 3400"></div>
+    <div><label>带出价格</label><input id="m-extract" placeholder="如 8.2M"></div>
+  </div>
+  <label>其他指标（可选，每行 名称:值）</label>
+  <textarea id="m-extra" rows="3" placeholder="大红解锁进度: 3/12&#10;游戏时长: 210h"></textarea>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-primary" id="m-show">生成战绩卡</button>
+    <button class="btn-ghost" id="m-save">存入对比</button>
+  </div>
+  <div id="m-out"></div>
+</section>
+
+<!-- 第三方接口 -->
+<section class="panel" id="p-proxy">
+  <p class="sub" style="margin:0 0 6px">经 Worker 代理 xianyuw.cn 自动拉取你的战绩（不需你本人实名）。</p>
+  <label>cookie_id（三角洲行动游戏站登录后的 Cookie 唯一标识）</label>
+  <input id="pr-cookie" placeholder="从浏览器 Cookie 取得，见下方说明">
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-primary" id="pr-go">拉取战绩</button>
+    <button class="btn-ghost" id="pr-save">存入对比</button>
+    <button class="btn-ghost" id="pr-bind">绑定到账号</button>
+  </div>
+  <div id="pr-msg"></div>
+  <div class="hint">
+    <b>怎么拿 cookie_id？</b><br>
+    1. 电脑浏览器打开三角洲行动游戏相关站点并登录；<br>
+    2. 按 F12 → Application（应用）→ Cookies，找到该站点 Cookie；<br>
+    3. 复制能标识你账号的那段值（xianyuw.cn 需要的是 <code>cookie_id</code> 字段值）粘贴到上方。<br>
+    <i>前提：需先到 xianyuw.cn 注册拿到免费 key，并由站长在 Worker 添加 Secret <code>DF_STATS_KEY</code>。</i>
+  </div>
+  <div id="pr-out"></div>
+</section>
+
+<!-- QQ 登录 -->
+<section class="panel" id="p-qq">
+  <p class="sub" style="margin:0 0 6px">扫码/授权登录本站（QQ），登录后绑定 cookie_id 即可一键拉取战绩。</p>
+  <div id="qq-status" class="ok">未登录</div>
+  <label>cookie_id（登录后填，可一键拉取）</label>
+  <input id="qq-cookie" placeholder="同第三方接口说明">
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-qq" id="qq-login">🐧 QQ 登录</button>
+    <button class="btn-primary" id="qq-bind">绑定 cookie_id</button>
+    <button class="btn-ghost" id="qq-go">拉取我的战绩</button>
+  </div>
+  <div id="qq-msg"></div>
+  <div id="qq-out"></div>
+</section>
+
+<!-- 微信登录 -->
+<section class="panel" id="p-wx">
+  <p class="sub" style="margin:0 0 6px">扫码登录本站（微信），登录后绑定 cookie_id 即可一键拉取战绩。</p>
+  <div id="wx-status" class="ok">未登录</div>
+  <label>cookie_id（登录后填，可一键拉取）</label>
+  <input id="wx-cookie" placeholder="同第三方接口说明">
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-wx" id="wx-login">💬 微信登录</button>
+    <button class="btn-primary" id="wx-bind">绑定 cookie_id</button>
+    <button class="btn-ghost" id="wx-go">拉取我的战绩</button>
+  </div>
+  <div id="wx-msg"></div>
+  <div id="wx-out"></div>
+</section>
+
+<!-- 对比 -->
+<section class="panel" id="p-compare">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <strong>📁 战绩对比（本地保存）</strong>
+    <button class="btn-ghost" id="cmp-clear" style="padding:6px 12px">清空</button>
+  </div>
+  <div id="cmp-out"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "https://api.delta.shopping";
+const ZL = {
+  kd:"KD", win_rate:"胜率", winrate:"胜率", winRate:"胜率",
+  matches:"总场次", match_count:"总场次", total_match:"总场次", total:"总场次",
+  rank:"历史最高段位", rank_name:"段位", rankName:"段位",
+  evac_rate:"撤离率", evacRate:"撤离率", escape_rate:"撤离率",
+  extract_value:"带出价格", extractValue:"带出价格", takeout:"带出价格", take_out:"带出价格",
+  kills:"击败人数", kill:"击败人数", kill_count:"击败人数",
+  level:"等级", nickname:"昵称", openid:"OpenID", uid:"UID",
+  warehouse_value:"仓库价值", hafcoin:"哈夫币",
+  tdm_level:"TDM 等级", tdm_exp:"TDM 经验",
+  play_time:"游戏时长", playTime:"游戏时长", duration:"游戏时长",
+  bigred:"大红解锁进度", big_red:"大红解锁进度",
+};
+function labelFor(k){ const last=k.split(".").pop(); return ZL[k]||ZL[last]||k; }
+function token(){ return localStorage.getItem("di_user_token")||""; }
+function uid(){ return localStorage.getItem("di_user_id")||""; }
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+async function api(path, opts){
+  opts=opts||{}; const h={"Content-Type":"application/json"};
+  const tk=token(); if(tk) h["Authorization"]="Bearer "+tk;
+  const r=await fetch(API+path,{method:opts.method||"GET",headers:h,body:opts.body?JSON.stringify(opts.body):undefined});
+  return r.json().catch(()=>({error:"响应解析失败"}));
+}
+
+// 登录回调：?token=&id=&role= → 存本地
+(function handleLogin(){
+  const u=new URLSearchParams(location.search);
+  const tk=u.get("token"), id=u.get("id"), role=u.get("role");
+  if(tk){ localStorage.setItem("di_user_token",tk); if(id)localStorage.setItem("di_user_id",id); if(role)localStorage.setItem("di_user_role",role);
+    const clean=location.pathname+location.hash; history.replaceState(null,"",clean); refreshLoginStatus(); toast("登录成功"); }
+  else refreshLoginStatus();
+})();
+
+function refreshLoginStatus(){
+  const logged=!!token();
+  const name=uid();
+  const s1=document.getElementById("qq-status"), s2=document.getElementById("wx-status");
+  const txt=logged?("已登录："+esc(name||"用户")):"未登录";
+  if(s1)s1.textContent=txt; if(s2)s2.textContent=txt;
+}
+
+// tabs
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active"); document.getElementById("p-"+t.dataset.tab).classList.add("active");
+});
+
+// 渲染战绩卡
+function renderCard(d, mountId){
+  const stats=d.stats||{};
+  const keys=Object.keys(stats).filter(k=>!["code","msg","raw"].includes(k.toLowerCase()));
+  let grid="";
+  for(const k of keys){
+    const v=stats[k]; if(v===null||v===undefined||v==="")continue;
+    const val=(Array.isArray(v)||(v&&typeof v==="object"))?JSON.stringify(v).slice(0,40):esc(v);
+    grid+=`<div class="zmetric"><div class="zk">${esc(labelFor(k))}</div><div class="zv">${val}</div></div>`;
+  }
+  const html=`<div class="zcard">
+    <div class="zhead">
+      <div class="zava">🪖</div>
+      <div><div class="zname">${esc(d.nickname||"未知玩家")}</div>
+      <div class="zlv">等级 ${esc(d.level||"-")} ${d.openid?'<span class="pill">'+esc(d.openid)+'</span>':""}</div></div>
+    </div>
+    <div class="zgrid">${grid||'<div class="zk">未解析到战绩字段，请展开原始数据查看</div>'}</div>
+    <div class="zraw"><details><summary>查看原始数据</summary><pre>${esc(JSON.stringify(d.raw||d,null,2))}</pre></details></div>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-ghost" onclick="saveCompare(${JSON.stringify({nickname:d.nickname,level:d.level,stats:stats}).replace(/"/g,"&quot;")})">存入对比</button>
+    <button class="btn-ghost" onclick="shareText(${JSON.stringify({nickname:d.nickname,level:d.level,stats:stats}).replace(/"/g,"&quot;")})">复制分享文本</button>
+  </div>`;
+  document.getElementById(mountId).innerHTML=html;
+}
+
+// 手动
+document.getElementById("m-show").onclick=()=>{
+  const stats={};
+  const map={"m-name":"nickname","m-level":"level","m-rank":"rank","m-kd":"kd","m-win":"win_rate","m-matches":"matches","m-evac":"evac_rate","m-kills":"kills","m-extract":"extract_value"};
+  for(const id in map){ const v=document.getElementById(id).value.trim(); if(v)stats[map[id]]=v; }
+  const extra=document.getElementById("m-extra").value.trim();
+  if(extra){ extra.split("\n").forEach(line=>{ const i=line.indexOf(":"); if(i>0){ const k=line.slice(0,i).trim(); const v=line.slice(i+1).trim(); if(k)stats[k]=v; } }); }
+  const d={nickname:stats.nickname||document.getElementById("m-name").value.trim()||"我",level:stats.level||"",stats};
+  renderCard(d,"m-out"); window._last=d;
+};
+document.getElementById("m-save").onclick=()=>{ if(!window._last){toast("请先生成战绩卡");return;} saveCompare(window._last); };
+
+// 第三方代理
+document.getElementById("pr-go").onclick=async()=>{
+  const cid=document.getElementById("pr-cookie").value.trim(); if(!cid){msg("pr-msg","请填写 cookie_id",true);return;}
+  msg("pr-msg","拉取中…");
+  const j=await api("/api/zhanji?cookie_id="+encodeURIComponent(cid));
+  if(j.needKey){msg("pr-msg","Worker 未配置 DF_STATS_KEY（xianyuw.cn 免费 key）。"+ (j.error||""),true);return;}
+  if(j.error){msg("pr-msg",j.error,true);return;}
+  renderCard(j,"pr-out"); msg("pr-msg","拉取成功",false); window._proxy=j;
+};
+document.getElementById("pr-save").onclick=()=>{ if(!window._proxy){toast("请先拉取");return;} saveCompare(window._proxy); };
+document.getElementById("pr-bind").onclick=async()=>{
+  const cid=document.getElementById("pr-cookie").value.trim(); if(!cid){toast("请填写 cookie_id");return;}
+  const j=await api("/api/me/dfcookie",{method:"POST",body:{cookie_id:cid}});
+  msg("pr-msg", j.ok?"已绑定到账号":(j.error||"绑定失败"), !j.ok);
+};
+
+// QQ
+document.getElementById("qq-login").onclick=()=>{ location.href=API+"/api/auth/qq?redirect="+encodeURIComponent(location.href.split("?")[0]); };
+document.getElementById("qq-bind").onclick=async()=>{ await bindCookie("qq-cookie","qq-msg"); };
+document.getElementById("qq-go").onclick=()=>meFetch("qq-msg","qq-out");
+
+// 微信
+document.getElementById("wx-login").onclick=()=>{ location.href=API+"/api/auth/wechat?redirect="+encodeURIComponent(location.href.split("?")[0]); };
+document.getElementById("wx-bind").onclick=async()=>{ await bindCookie("wx-cookie","wx-msg"); };
+document.getElementById("wx-go").onclick=()=>meFetch("wx-msg","wx-out");
+
+async function bindCookie(inputId, msgId){
+  const cid=document.getElementById(inputId).value.trim(); if(!cid){msg(msgId,"请填写 cookie_id",true);return;}
+  const j=await api("/api/me/dfcookie",{method:"POST",body:{cookie_id:cid}});
+  msg(msgId, j.ok?"已绑定到账号":(j.error||"绑定失败"), !j.ok);
+}
+async function meFetch(msgId, outId){
+  if(!token()){msg(msgId,"请先登录",true);return;}
+  msg(msgId,"拉取中…");
+  const j=await api("/api/zhanji/me");
+  if(j.needBind){msg(msgId,"尚未绑定 cookie_id，请先绑定",true);return;}
+  if(j.error){msg(msgId,j.error,true);return;}
+  renderCard(j,outId); msg(msgId,"拉取成功",false); window._proxy=j;
+}
+
+function msg(id,txt,isErr){ const e=document.getElementById(id); e.className=isErr?"err":"ok"; e.textContent=txt; }
+
+// 对比（localStorage）
+function saveCompare(d){
+  if(!d||!d.stats)return;
+  let list=[]; try{list=JSON.parse(localStorage.getItem("di_zhanji_list")||"[]");}catch(e){}
+  list.push({nickname:d.nickname||"玩家",level:d.level||"",stats:d.stats,at:Date.now()});
+  localStorage.setItem("di_zhanji_list",JSON.stringify(list));
+  toast("已存入对比（共"+list.length+"条）"); renderCompare();
+}
+function renderCompare(){
+  let list=[]; try{list=JSON.parse(localStorage.getItem("di_zhanji_list")||"[]");}catch(e){}
+  const out=document.getElementById("cmp-out");
+  if(!list.length){ out.innerHTML='<p class="sub">还没有可对比的战绩。生成或拉取后点「存入对比」即可。</p>'; return; }
+  // 收集公共指标
+  const allKeys={}; list.forEach(d=>Object.keys(d.stats).forEach(k=>allKeys[k]=(allKeys[k]||0)+1));
+  const common=Object.keys(allKeys).filter(k=>allKeys[k]>1);
+  let html="<table><tr><th>指标</th>"+list.map(d=>"<th>"+esc(d.nickname)+"<br><span class='zk'>"+esc(d.level)+"</span></th>").join("")+"</tr>";
+  for(const k of common){
+    const vals=list.map(d=>d.stats[k]); const max=Math.max(...vals.map(v=>parseFloat(v)||0));
+    html+="<tr><td>"+esc(labelFor(k))+"</td>"+list.map(d=>{
+      const v=d.stats[k]; const pct=max?Math.min(100,(parseFloat(v)||0)/max*100):0;
+      return "<td>"+esc(v)+'<div class="bar" style="width:'+pct+'%"></div></td>';
+    }).join("")+"</tr>";
+  }
+  html+="</table>";
+  out.innerHTML=html;
+}
+document.getElementById("cmp-clear").onclick=()=>{ localStorage.removeItem("di_zhanji_list"); renderCompare(); toast("已清空"); };
+renderCompare();
+
+function shareText(d){
+  const lines=["【三角洲行动战绩】"+ (d.nickname||"我") + " Lv."+ (d.level||"-")];
+  for(const k of Object.keys(d.stats)){ const v=d.stats[k]; if(v===""||v==null)continue; lines.push(labelFor(k)+"："+v); }
+  const text=lines.join("\n");
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>toast("已复制分享文本")).catch(()=>fallbackCopy(text));
+  else fallbackCopy(text);
+}
+function fallbackCopy(text){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");toast("已复制");}catch(e){toast("复制失败");} document.body.removeChild(ta); }
+</script>
+</body>
+</html>

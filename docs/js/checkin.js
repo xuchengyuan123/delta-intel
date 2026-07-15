@@ -36,13 +36,15 @@
       '#df-checkin .ck-fab{position:fixed;right:16px;bottom:16px;z-index:60;width:52px;height:52px;border-radius:50%;' +
       'display:flex;align-items:center;justify-content:center;gap:3px;flex-direction:column;' +
       'background:linear-gradient(135deg,#f7c948,#e6a91a);color:#2b1d05;border:1px solid rgba(255,255,255,.15);' +
-      'box-shadow:0 6px 18px rgba(0,0,0,.45);cursor:pointer;user-select:none;transition:transform .15s;}' +
+      'box-shadow:0 6px 18px rgba(0,0,0,.45);cursor:pointer;user-select:none;transition:transform .15s,bottom .2s;}' +
+      'body.has-install-banner #df-checkin .ck-fab{bottom:76px;}' +
       '#df-checkin .ck-fab:active{transform:scale(.94);}' +
       '#df-checkin .ck-fab .ck-coin{font-size:18px;line-height:1;}' +
       '#df-checkin .ck-fab .ck-pts{font-size:11px;font-weight:700;line-height:1;}' +
       '#df-checkin .ck-panel{position:fixed;right:16px;bottom:78px;z-index:61;width:260px;background:var(--card,#1c1f26);' +
       'color:var(--text,#fff);border:1px solid var(--border,#333);border-radius:16px;padding:14px;box-shadow:0 10px 32px rgba(0,0,0,.5);' +
       'display:none;transform-origin:bottom right;}' +
+      'body.has-install-banner #df-checkin .ck-panel{bottom:138px;}' +
       '#df-checkin .ck-panel.show{display:block;animation:ckPop .18s ease-out;}' +
       '@keyframes ckPop{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}' +
       '#df-checkin .ck-h{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:8px;}' +
@@ -57,7 +59,7 @@
       '#df-checkin .ck-btn:disabled{opacity:.6;cursor:default;}' +
       '#df-checkin .ck-tip{font-size:11px;color:#9aa;margin-top:8px;text-align:center;}' +
       '#df-checkin .ck-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;}' +
-      '@media(max-width:480px){#df-checkin .ck-panel{right:12px;bottom:72px;width:calc(100vw - 24px);max-width:320px;}}' +
+      '@media(max-width:480px){#df-checkin .ck-panel{right:12px;bottom:72px;width:calc(100vw - 24px);max-width:320px;}body.has-install-banner #df-checkin .ck-panel{bottom:132px;}}' +
       '</style>' +
       '<div class="ck-fab"><span class="ck-coin">🪙</span><span class="ck-pts">0</span></div>' +
       '<div class="ck-panel">' +

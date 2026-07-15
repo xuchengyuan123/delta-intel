@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>音乐台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=31">
+  <link rel="stylesheet" href="css/style.css?v=35">
   <style>
     .mu-wrap{max-width:980px;margin:0 auto;padding:18px 16px 120px;}
     .mu-logo{font-weight:800;font-size:18px;color:var(--text);text-decoration:none;}
@@ -58,7 +58,7 @@
       <a class="mu-back" href="index.html">← 返回首页</a>
     </header>
     <h1 class="mu-title">🎵 音乐台</h1>
-    <p class="mu-sub">调用公开 Meting API（api.i-meto.com），可搜全网歌曲（网易云 / QQ / 酷狗 / 酷我等），点击即播。默认播放三角洲行动主题曲《Unbreakable》。</p>
+    <p class="mu-sub">调用多个公共 Meting API（网易云 / QQ音乐 / 酷狗 / 酷我 / 千千），自动选择可用源，点击即播。默认加载三角洲行动主题曲《Unbreakable》。</p>
 
     <div class="mu-search">
       <input id="muQ" placeholder="搜歌、歌手或歌单关键词，如：周杰伦 / 孤勇者" />
@@ -95,17 +95,30 @@
   </div>
 
   <script>
-    var API = "https://api.i-meto.com/meting/api";
-    // 默认歌单：三角洲行动主题曲 Unbreakable + 其他官方曲目
+    // 按平台选择更稳定的公共 Meting API
+    var APIS = {
+      netease: "https://api.i-meto.com/meting/api",
+      tencent: "https://metingapi.nanorocky.top/",
+      kugou: "https://api.i-meto.com/meting/api",
+      kuwo: "https://api.i-meto.com/meting/api",
+      baidu: "https://api.i-meto.com/meting/api"
+    };
+    // 默认播放三角洲行动主题曲 Unbreakable（网易云源，HTTPS 稳定）
     var playlist = [
-      { title: "Unbreakable (坚不可摧)", author: "三角洲行动 / Andreas Ohnhaus", url: "https://www.shiyinren.net/server/1/597012494.mp3", pic: "", default: true }
+      { title: "Unbreakable（坚不可摧）", author: "三角洲行动 / Andreas Ohnhaus", url: "https://api.i-meto.com/meting/api?server=netease&type=url&id=3392592976&auth=af0a0cec9075e78ebd30a4bf58690a28032e4767", pic: "https://api.i-meto.com/meting/api?server=netease&type=pic&id=109951173367356607&auth=e066f3fa54c4b109f501a3ebdd1d5e36fdba4194", default: true }
     ];
     var cur = 0;
     var audio = document.getElementById("muAudio");
     var floatEl = document.getElementById("muFloat");
     var isMini = false;
+    var autoPlayed = false;
 
     function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+
+    function normalize(it){
+      return { title: it.title || it.name || "未知", author: it.author || it.artist || "未知",
+        url: it.url || "", pic: it.pic || it.cover || "" };
+    }
 
     function updateBar(it){
       document.getElementById("muBarCover").src = it.pic || "";
@@ -121,19 +134,28 @@
       cur = i;
       var it = playlist[i];
       audio.src = it.url;
-      audio.play().catch(function () {});
+      audio.play().then(function () { document.getElementById("muPlay").textContent = "⏸"; }).catch(function () { document.getElementById("muPlay").textContent = "▶"; });
       updateBar(it);
-      document.getElementById("muPlay").textContent = "⏸";
     }
     function togglePlay(){
       if (!audio.src && playlist.length) { playIndex(cur); return; }
-      if (audio.paused) { audio.play().catch(function(){}); document.getElementById("muPlay").textContent = "⏸"; }
+      if (audio.paused) { audio.play().then(function(){ document.getElementById("muPlay").textContent = "⏸"; }).catch(function(){}); }
       else { audio.pause(); document.getElementById("muPlay").textContent = "▶"; }
     }
     function setMini(mini){
       isMini = mini;
       floatEl.classList.toggle("mini", mini);
       document.getElementById("muToggle").textContent = mini ? "展开 ▲" : "收起 ▼";
+    }
+
+    function searchWith(endpoint, q, server){
+      var url = endpoint + (endpoint.indexOf("?") > 0 ? "&" : "?");
+      if (endpoint.indexOf("metingapi.nanorocky.top") > -1) {
+        url += "server=" + encodeURIComponent(server) + "&type=search&id=0&keyword=" + encodeURIComponent(q) + "&_=" + Date.now();
+      } else {
+        url += "server=" + encodeURIComponent(server) + "&type=search&id=" + encodeURIComponent(q) + "&_=" + Date.now();
+      }
+      return fetch(url, { cache: "no-store" }).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); });
     }
 
     function search(){
@@ -144,40 +166,58 @@
       if (!q) { tip.textContent = "请先输入关键词。"; return; }
       tip.textContent = "搜索中…";
       list.innerHTML = "";
-      fetch(API + "?server=" + encodeURIComponent(server) + "&type=search&id=" + encodeURIComponent(q) + "&_=" + Date.now(), { cache: "no-store" })
-        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-        .then(function (arr) {
-          if (!Array.isArray(arr) || !arr.length) { tip.textContent = "没有找到相关歌曲，换个关键词试试。"; return; }
-          playlist = arr.map(function (it) { return { title: it.title, author: it.author, url: it.url, pic: it.pic }; });
-          cur = 0;
-          tip.textContent = "共 " + arr.length + " 首，点击播放。";
-          list.innerHTML = arr.map(function (it, i) {
-            var cover = it.pic || "";
-            return '<div class="mu-card" data-i="' + i + '">' +
-              '<img class="mu-cover" src="' + esc(cover) + '" onerror="this.style.visibility=\'hidden\'">' +
-              '<div class="mu-info"><div class="mu-name">' + esc(it.title) + '</div>' +
-              '<div class="mu-artist">' + esc(it.author) + '</div></div></div>';
-          }).join("");
-          list.querySelectorAll(".mu-card").forEach(function (el) {
-            el.addEventListener("click", function () { playIndex(parseInt(el.getAttribute("data-i"), 10)); });
-          });
-        })
-        .catch(function (e) { tip.textContent = "搜索失败：" + esc(e.message) + "（该公共接口偶尔限流，稍后重试）"; });
+      var endpoints = [];
+      var primary = APIS[server] || APIS.netease;
+      endpoints.push(primary);
+      if (server !== "netease" && primary !== APIS.netease) endpoints.push(APIS.netease);
+      if (server !== "tencent" && primary !== APIS.tencent) endpoints.push(APIS.tencent);
+
+      function tryNext(idx){
+        if (idx >= endpoints.length) { tip.textContent = "未找到相关歌曲，换个关键词或平台试试。"; return; }
+        searchWith(endpoints[idx], q, server)
+          .then(function(arr){
+            if (!Array.isArray(arr) || !arr.length) { tryNext(idx+1); return; }
+            playlist = arr.map(function(it){ return normalize(it); });
+            cur = 0;
+            tip.textContent = "共 " + arr.length + " 首，点击播放。";
+            list.innerHTML = arr.map(function(it, i){
+              var n = normalize(it);
+              return '<div class="mu-card" data-i="' + i + '">' +
+                '<img class="mu-cover" src="' + esc(n.pic) + '" onerror="this.style.visibility=\'hidden\'">' +
+                '<div class="mu-info"><div class="mu-name">' + esc(n.title) + '</div>' +
+                '<div class="mu-artist">' + esc(n.author) + '</div></div></div>';
+            }).join("");
+            list.querySelectorAll(".mu-card").forEach(function(el){
+              el.addEventListener("click", function(){ playIndex(parseInt(el.getAttribute("data-i"), 10)); });
+            });
+          })
+          .catch(function(e){ tryNext(idx+1); });
+      }
+      tryNext(0);
     }
 
     document.getElementById("muSearch").addEventListener("click", search);
-    document.getElementById("muQ").addEventListener("keydown", function (e) { if (e.key === "Enter") search(); });
-    document.getElementById("muPrev").addEventListener("click", function () { if (playlist.length) playIndex((cur - 1 + playlist.length) % playlist.length); });
-    document.getElementById("muNext").addEventListener("click", function () { if (playlist.length) playIndex((cur + 1) % playlist.length); });
+    document.getElementById("muQ").addEventListener("keydown", function(e){ if(e.key==="Enter") search(); });
+    document.getElementById("muPrev").addEventListener("click", function(){ if(playlist.length) playIndex((cur-1+playlist.length)%playlist.length); });
+    document.getElementById("muNext").addEventListener("click", function(){ if(playlist.length) playIndex((cur+1)%playlist.length); });
     document.getElementById("muPlay").addEventListener("click", togglePlay);
-    document.getElementById("muToggle").addEventListener("click", function () { setMini(!isMini); });
-    audio.addEventListener("ended", function () { if (playlist.length) playIndex((cur + 1) % playlist.length); });
-    audio.addEventListener("play", function () { document.getElementById("muPlay").textContent = "⏸"; });
-    audio.addEventListener("pause", function () { document.getElementById("muPlay").textContent = "▶"; });
+    document.getElementById("muToggle").addEventListener("click", function(){ setMini(!isMini); });
+    audio.addEventListener("ended", function(){ if(playlist.length) playIndex((cur+1)%playlist.length); });
+    audio.addEventListener("play", function(){ document.getElementById("muPlay").textContent = "⏸"; });
+    audio.addEventListener("pause", function(){ document.getElementById("muPlay").textContent = "▶"; });
+    audio.addEventListener("error", function(){
+      document.getElementById("muTip").textContent = "当前音频加载失败，点击播放按钮或换一首试试。";
+    });
 
-    // 默认播放 Unbreakable
+    // 默认加载 Unbreakable；桌面端首次可尝试静音自动播放，失败后显示提示
     updateBar(playlist[0]);
-    playIndex(0);
+    audio.src = playlist[0].url;
+    audio.load();
+    audio.play().then(function(){
+      autoPlayed = true;
+    }).catch(function(){
+      // 自动播放被浏览器阻止，这是正常的；保留播放按钮，用户点击即播
+    });
   </script>
 </body>
 </html>
