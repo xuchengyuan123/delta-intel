@@ -416,7 +416,7 @@
       if (j.error) { b.innerHTML = '<tr><td colspan="3" class="lb-loading">' + esc(j.error) + '</td></tr>'; return; }
       b.innerHTML = (j.rows && j.rows.length ? j.rows.map(lbRowHtml).join("") : '<tr><td colspan="3" class="lb-loading">暂无记录，快来抢第一！</td></tr>');
       if (z.myRank != null) { var my = p_my(); if (my) my.innerHTML = '你的排名：<b>#' + z.myRank + '</b> · ' + z.myScore + ' 分'; }
-      if (!z.timer) z.timer = setInterval(loadLb, 8000);
+      if (!z.timer) { z.startLb = function () { if (z.timer) clearInterval(z.timer); z.timer = setInterval(loadLb, 30000); }; z.stopLb = function () { if (z.timer) { clearInterval(z.timer); z.timer = null; } }; document.addEventListener("visibilitychange", function () { if (document.hidden) z.stopLb(); else z.startLb(); }); z.startLb(); }
     } catch (e) {
       var b2 = document.getElementById("lbBody"); if (b2) b2.innerHTML = '<tr><td colspan="3" class="lb-loading">加载失败：' + esc(e.message || e) + '</td></tr>';
     }

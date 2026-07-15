@@ -369,12 +369,17 @@
       // 首次加载
       renderFriends();
 
-      // 保持自己在线（刷新 me 状态）
-      D.me().catch(function () {});
-      setInterval(function () { D.me().catch(function () {}); }, 60000);
+      // 保持自己在线（刷新 me 状态），5 分钟一次，切后台暂停
+      function startMePoll() { if (window.__meTimer) clearInterval(window.__meTimer); window.__meTimer = setInterval(function () { D.me().catch(function () {}); }, 300000); D.me().catch(function () {}); }
+      function stopMePoll() { if (window.__meTimer) { clearInterval(window.__meTimer); window.__meTimer = null; } }
+      document.addEventListener("visibilitychange", function () { if (document.hidden) stopMePoll(); else startMePoll(); });
+      startMePoll();
 
-      // 在线刷新：周期性更新好友列表（不打断聊天）
-      D.poll(function () { renderFriends(); D.me().catch(function () {}); }, 15000);
+      // 在线刷新：周期性更新好友列表，1 分钟一次，切后台暂停
+      function startFriendsPoll() { if (window.__friendsTimer) clearInterval(window.__friendsTimer); window.__friendsTimer = setInterval(function () { renderFriends(); }, 60000); renderFriends(); }
+      function stopFriendsPoll() { if (window.__friendsTimer) { clearInterval(window.__friendsTimer); window.__friendsTimer = null; } }
+      document.addEventListener("visibilitychange", function () { if (document.hidden) stopFriendsPoll(); else startFriendsPoll(); });
+      startFriendsPoll();
     })();
   </script>
 <script src="js/checkin.js?v=35"></script>
