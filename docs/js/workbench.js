@@ -299,8 +299,8 @@
       return '<!DOCTYPE html>\n<html lang="zh-CN" class="dark">\n<head>' +
         '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">\n' +
         '<title>' + esc(title) + ' · 三角洲情报台</title>\n' +
-        '<link rel="stylesheet" href="css/style.css?v=41">\n' +
-        '<script src="js/app.js?v=41"><\/script>\n' +
+        '<link rel="stylesheet" href="css/style.css?v=42">\n' +
+        '<script src="js/app.js?v=42"><\/script>\n' +
         '</head>\n<body>' + body + '</body>\n</html>';
     }
 

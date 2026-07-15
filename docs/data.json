@@ -4234,7 +4234,8 @@
       "url": "https://www.youtube.com/"
     }
   ],
-  "changelog": [
+  "changelog": [{"date":"2026-07-15","title":"v42 · 修复后台登录崩溃（紧急回归）","items":["修复 v41 回归：admin.html 主脚本为非 defer 内联脚本，在 workbench.js（defer）加载前执行；PANELS 字面量中裸引用 mountWorkbench 触发 ReferenceError，导致整段脚本崩溃、登录按钮事件未绑定，后台无法登录","改为惰性调用 window.mountWorkbench（属性访问不抛错，点击面板时才取值），登录恢复正常","同步升版 v42：sw.js CACHE=delta-intel-v42 + 全站 ?v=42，确保 Service Worker 预缓存的旧 admin.html 失效刷新"]},
+
     {
       "date": "2026-07-15",
       "title": "v41 · 恢复 style.css + 开发工作台/音乐圆球",

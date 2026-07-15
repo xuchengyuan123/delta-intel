@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=41">
+  <link rel="stylesheet" href="css/style.css?v=42">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=41"></script>
-  <script defer src="js/i18n.js?v=41"></script>
-  <script defer src="js/workbench.js?v=41"></script>
+  <script src="js/art.js?v=42"></script>
+  <script defer src="js/i18n.js?v=42"></script>
+  <script defer src="js/workbench.js?v=42"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -348,7 +348,7 @@
       devices:    { label: "设备管理", icon: "📱", title: "多端登录 / 设备管理", sub: "查看当前账号在哪些设备（电脑/手机）登录，可远程踢下线某台设备。总管理员与分管理员均可使用。", mount: mountDevices },
       news:       { label: "资讯管理", icon: "📰", title: "资讯 / 直播 / 视频管理", sub: "维护前台「资讯中心」(news.html) 展示的资讯、直播与视频条目，保存后即时生效（写入 data.json）。", mount: mountNews },
       teams:      { label: "战队管理", icon: "⚔", title: "战队 / 公会管理（总览）", sub: "总览全站战队（来自 Cloudflare Worker 的 TEAMS KV），可置顶精选或解散违规战队。需以总/分管理员身份登录 Worker。", mount: mountTeams },
-      workbench:  { label: "开发工作台", icon: "🛠", title: "零代码开发工作台", sub: "管理版本迭代与功能项目，零代码生成新页面、改站点设置、一键发版。", mount: mountWorkbench }
+      workbench:  { label: "开发工作台", icon: "🛠", title: "零代码开发工作台", sub: "管理版本迭代与功能项目，零代码生成新页面、改站点设置、一键发版。", mount: function (c) { if (window.mountWorkbench) return window.mountWorkbench(c); } }
     };
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
