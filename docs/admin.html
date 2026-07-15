@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=35">
+  <link rel="stylesheet" href="css/style.css?v=36">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=35"></script>
-  <script defer src="js/i18n.js?v=35"></script>
+  <script src="js/art.js?v=36"></script>
+  <script defer src="js/i18n.js?v=36"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -328,6 +328,7 @@
       mappass: { label: "地图密码源", icon: "🗺", title: "每日地图密码接口", sub: "配置前台「每日地图密码」调用的免费公开接口（默认 tmini.net/api/sjzmm，每日自动更新）。可关闭或替换为其他兼容 JSON 源。", mount: mountMapPass },
       subadmins: { label: "分管理员管理", icon: "🛡", title: "分管理员账号管理", sub: "创建与查看分管理员账号（写入 Cloudflare Worker 的 KV）。分管理员可用「邮箱/手机号 + 密码或验证码」登录后台。需在「分管理员·账号」标签页以总管理员身份登录 Worker 后使用。", mount: mountSubAdmins },
       access:   { label: "浏览记录", icon: "📡", title: "浏览记录（真实访问数据）", sub: "仅管理员可见。展示真实访客数据：谁在线、谁访问、来自哪些国家/地区。数据来自 Cloudflare Worker 自记日志（可选叠加 Cloudflare Analytics）。", mount: mountAccess },
+      secaudit: { label: "安全防护 · 境外审核", icon: "🛡", title: "安全防护 · 境外请求审核", sub: "10 层应用防火墙状态与境外请求审核队列。所有非中国大陆 IP 的访问会自动进入待审核列表，可一键放行或封禁；也可手动封禁指定 IP。", mount: mountSecurity },
       site:       { label: "站点设置", icon: "⚙", title: "站点设置（站名/赞助/主题色）", sub: "维护全站基础信息：站名、赞助链接、辅助主题色。保存后前台即时生效。", mount: mountSite },
       guides:     { label: "新手攻略", icon: "🧭", title: "新手攻略管理", sub: "维护前台「新手攻略」的引导语与各模块卡片。", mount: mountGuides },
       craft:      { label: "制作树", icon: "🌲", title: "制作树管理", sub: "维护前台「制作树」的节点（产物/材料）与连线。", mount: mountCraft },
@@ -350,7 +351,7 @@
 
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
     var PANEL_GROUPS = [
-      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "usermgr", "devices"] },
+      { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "secaudit", "usermgr", "devices"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign", "news"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images", "tujian"] },
@@ -1373,6 +1374,77 @@
       function stopAccessPoll() { if (window.__accessTimer) { clearInterval(window.__accessTimer); window.__accessTimer = null; } }
       document.addEventListener("visibilitychange", function () { if (document.hidden) stopAccessPoll(); else startAccessPoll(); });
       startAccessPoll();
+    }
+
+    /* ============ 安全防护 · 境外请求审核 ============ */
+    function mountSecurity(c) {
+      if (adminMode() !== "worker") {
+        c.innerHTML = '<div class="status">此功能需以管理员身份登录 Worker 后使用。</div>';
+        return;
+      }
+      function fmt(ts) { if (!ts) return "-"; var d = new Date(ts); var p = function (x) { return String(x).padStart(2, "0"); }; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+      function render(j) {
+        j = j || {};
+        var review = j.review || [];
+        var blocked = j.blocked || [];
+        var html = "";
+        html += '<div class="panel-tip" style="margin-bottom:10px">🔥 <b>10 层应用防火墙已启用</b>：IP 黑名单 / 方法白名单 / UA 校验 / 恶意 Bot 拦截 / 请求体限制 / 注入过滤 / 单 IP 限流 / 登录防爆破 / 境外请求审核 / 高频端点节流。所有非中国大陆 IP 的访问会自动进入下方「待审核」队列，由你判断放行或封禁。</div>';
+        html += '<div class="panel-card" style="margin-bottom:14px"><h3>🌍 境外请求待审核（' + review.length + '）</h3>';
+        if (!review.length) html += '<div class="panel-tip">暂无待审核的境外请求。✅</div>';
+        else {
+          html += '<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--muted)"><th style="padding:6px">IP</th><th style="padding:6px">国家</th><th style="padding:6px">首次</th><th style="padding:6px">最近</th><th style="padding:6px">UA</th><th style="padding:6px">示例路径</th><th style="padding:6px">操作</th></tr></thead><tbody>';
+          review.forEach(function (e) {
+            html += '<tr style="border-top:1px solid var(--border)"><td style="padding:6px">' + esc(e.ip || "") + '</td><td style="padding:6px">' + esc(e.country || "") + '</td><td style="padding:6px">' + fmt(e.firstSeen) + '</td><td style="padding:6px">' + fmt(e.lastSeen) + '</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(e.ua || "") + '">' + esc(e.ua || "") + '</td><td style="padding:6px">' + esc(e.samplePath || "") + '</td><td style="padding:6px;white-space:nowrap"><a class="lnk sec-approve" data-ip="' + esc(e.ip) + '" style="color:#3ddc84;cursor:pointer;margin-right:10px">通过</a><a class="lnk sec-block" data-ip="' + esc(e.ip) + '" style="color:#ff5b5b;cursor:pointer">封禁</a></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        }
+        html += '</div>';
+        html += '<div class="panel-card" style="margin-bottom:14px"><h3>🚫 已封禁 IP（' + blocked.length + '）</h3>';
+        if (!blocked.length) html += '<div class="panel-tip">暂无封禁记录。</div>';
+        else {
+          html += '<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--muted)"><th style="padding:6px">IP</th><th style="padding:6px">封禁人</th><th style="padding:6px">时间</th><th style="padding:6px">原因</th><th style="padding:6px">操作</th></tr></thead><tbody>';
+          blocked.forEach(function (e) {
+            html += '<tr style="border-top:1px solid var(--border)"><td style="padding:6px">' + esc(e.ip || "") + '</td><td style="padding:6px">' + esc(e.by || "") + '</td><td style="padding:6px">' + fmt(e.at) + '</td><td style="padding:6px">' + esc(e.reason || "") + '</td><td style="padding:6px"><a class="lnk sec-unblock" data-ip="' + esc(e.ip) + '" style="color:#3ddc84;cursor:pointer">解封</a></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        }
+        html += '</div>';
+        html += '<div class="panel-card"><h3>➕ 手动封禁 IP</h3><div class="sa-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="secBlockIp" class="inp" placeholder="输入要封禁的 IP" style="flex:1;min-width:160px" /><button id="secBlockBtn" class="btn">封禁</button></div><div id="secMsg" class="msg"></div></div>';
+        c.innerHTML = html;
+        c.querySelectorAll(".sec-approve").forEach(function (el) { el.addEventListener("click", function () { act("approve", el.getAttribute("data-ip")); }); });
+        c.querySelectorAll(".sec-block").forEach(function (el) { el.addEventListener("click", function () { act("block", el.getAttribute("data-ip")); }); });
+        c.querySelectorAll(".sec-unblock").forEach(function (el) { el.addEventListener("click", function () { unblock(el.getAttribute("data-ip")); }); });
+        var bb = document.getElementById("secBlockBtn");
+        if (bb) bb.addEventListener("click", function () { var ip = document.getElementById("secBlockIp").value.trim(); if (ip) manualBlock(ip); });
+      }
+      function act(action, ip) {
+        if (!confirm((action === "approve" ? "通过并放行该 IP？" : "封禁该 IP？") + " " + ip)) return;
+        wkFetch("/api/admin/security/review", { method: "POST", body: JSON.stringify({ ip: ip, action: action }) })
+          .then(function (r) { return r.json(); }).then(function (j) { if (j.error) alert(j.error); else load(); }).catch(function () { alert("操作失败"); });
+      }
+      function unblock(ip) {
+        if (!confirm("解封该 IP？ " + ip)) return;
+        wkFetch("/api/admin/security/unblock", { method: "POST", body: JSON.stringify({ ip: ip }) })
+          .then(function (r) { return r.json(); }).then(function (j) { if (j.error) alert(j.error); else load(); }).catch(function () { alert("操作失败"); });
+      }
+      function manualBlock(ip) {
+        wkFetch("/api/admin/security/block", { method: "POST", body: JSON.stringify({ ip: ip, reason: "后台手动封禁" }) })
+          .then(function (r) { return r.json(); }).then(function (j) {
+            var m = document.getElementById("secMsg");
+            if (j.error) { m.className = "msg"; m.textContent = j.error; }
+            else { m.className = "msg ok"; m.textContent = "已封禁 " + ip; document.getElementById("secBlockIp").value = ""; load(); }
+          }).catch(function () { alert("操作失败"); });
+      }
+      function load() {
+        wkFetch("/api/admin/security/review").then(function (r) { return r.json(); }).then(function (j) {
+          if (j.error) { c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
+          render(j);
+        }).catch(function () { c.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败，请检查 Worker 地址。</div>'; });
+      }
+      function startPoll() { if (window.__secTimer) clearInterval(window.__secTimer); window.__secTimer = setInterval(load, 60000); load(); }
+      function stopPoll() { if (window.__secTimer) { clearInterval(window.__secTimer); window.__secTimer = null; } }
+      document.addEventListener("visibilitychange", function () { if (document.hidden) stopPoll(); else startPoll(); });
+      startPoll();
     }
 
     /* ============ 总览仪表盘 ============ */
