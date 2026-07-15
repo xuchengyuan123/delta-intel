@@ -1503,10 +1503,18 @@
         c.innerHTML = html;
       }
       function load() {
-        wkFetch("/api/admin/access").then(function (r) { return r.json(); }).then(function (j) {
+        wkFetch("/api/admin/access").then(function (r) {
+          if (!r.ok) return r.text().then(function (t) { throw new Error("HTTP " + r.status + (t ? ": " + t : "")); });
+          return r.json();
+        }).then(function (j) {
           if (j.error) { c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
           render(j);
-        }).catch(function () { c.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败，请检查 Worker 地址。</div>'; });
+        }).catch(function (e) {
+          var msg = (e && e.message) ? e.message : "加载失败，请检查 Worker 地址。";
+          c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(msg) + '</div><div style="text-align:center;margin-top:10px"><button class="btn" id="umRetry">重新调取</button></div>';
+          var btn = document.getElementById("umRetry");
+          if (btn) btn.addEventListener("click", load);
+        });
       }
       c.innerHTML = '<div class="status">加载中…</div>';
       function startAccessPoll() { if (window.__accessTimer) clearInterval(window.__accessTimer); window.__accessTimer = setInterval(load, 120000); load(); }

@@ -1,0 +1,44 @@
+三角洲情报台 V37 部署补丁（修复后台/战队加载失败）
+====================================================
+适用：已部署 V36 但出现以下报错时
+
+一、修复了什么问题
+------------------
+1. 后台「浏览记录」报「加载失败，请检查 Worker 地址」
+   根因：docs/data.json 里的 site 对象没有 apiBase 字段，
+         导致 admin.html 不知道该连接哪个 Worker。
+   修复：data.json 已加入 site.apiBase = "https://api.delta.shopping"，
+         admin.html 也加了默认值与自动读取逻辑。
+
+2. 战队/公会页报「加载失败：Cannot read properties of undefined (reading 'list')」
+   根因：Worker 里 /api/teams 调用 env.TEAMS.list()，
+         但 Cloudflare 控制台没有把 KV 命名空间以「TEAMS」这个名字绑定到 Worker。
+   修复：必须在 Cloudflare 控制台补绑 TEAMS（见下方步骤），
+         Worker 代码也加了更清晰的报错提示。
+
+二、Cloudflare 控制台操作（关键）
+----------------------------------
+1. 进入 Worker `delta-intel-auth` → Settings → Bindings。
+2. 确认以下 KV 命名空间已绑定（变量名必须与这里完全一致）：
+   USERS / SESSIONS / CODES / POSTS / ANNOUNCE / UGC / COMMENTS
+   ACCESS / PRESENCE / FRIENDS / MESSAGES / AVATARS / TEAMS
+   如果缺哪个，点「Add binding」→ 选 KV Namespace → 变量名填大写名字。
+3. 可选：SECURITY（不绑会复用 ACCESS，也能跑）。
+4. 保存后重新部署 Worker（粘贴最新 cloudflare/worker.js）。
+
+三、前端部署
+------------
+把 docs/ 文件夹整包上传到 GitHub Pages 仓库根目录，覆盖旧文件。
+上传后按 Ctrl+F5 强刷，让 Service Worker 更新到 delta-intel-v37。
+
+四、验证
+--------
+· 打开 https://你的域名/admin.html，Worker 地址输入框应自动显示 https://api.delta.shopping。
+· 登录后「浏览记录」应能加载。
+· 打开 https://你的域名/team.html，战队大厅应不再报 reading 'list'。
+  若还报错，按提示去 Cloudflare 检查 TEAMS KV 绑定。
+
+五、仍有问题时
+--------------
+浏览器按 F12 → Network → 找到红色失败的请求，看 Response 里返回什么，
+把具体报错发给我即可继续排查。

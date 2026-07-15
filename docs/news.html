@@ -117,6 +117,8 @@
   }
   .card.clickable { cursor: pointer; }
   .card.clickable:hover { border-color: var(--green); transform: translateY(-1px); }
+  .card.disabled { cursor: default; opacity: .7; }
+  .card.disabled:hover { border-color: var(--border); transform: none; }
 
   .card-head {
     display: flex;
@@ -296,155 +298,89 @@
 (function () {
   "use strict";
 
-  /* ---------- 内置示例数据（data.json 缺失/失败时回退） ---------- */
+  /* ---------- 内置示例数据（data.json 缺失/失败时回退；
+     所有 url 留空表示“暂无官方链接”，请替换为真实地址） ---------- */
   var SAMPLE_NEWS = [
     {
-      title: "《三角洲行动》V34「破晓行动」版本更新公告",
+      title: "《三角洲行动》S10 赛季「全面交战」正式开启",
       source: "官方公告",
       date: "2026-07-14",
-      summary: "全新赛季「破晓行动」上线，新增特勤干员「夜枭」，重做航天基地夜间光照系统，并优化撤离点匹配效率。",
-      url: "https://df.qq.com/",
+      summary: "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励。",
+      url: "",
       thumb: "", views: 12840, likes: 932
     },
     {
-      title: "限时活动：双子峰突袭 · 全服掉落双倍",
-      source: "活动中心",
+      title: "干员平衡性调整预告",
+      source: "官方",
+      date: "2026-07-13",
+      summary: "下版本将对部分突击干员的后坐力与技能冷却进行微调，详情见公告。",
+      url: "",
+      thumb: "", views: 8650, likes: 514
+    },
+    {
+      title: "夏日嘉年华限时活动上线",
+      source: "三角洲情报台",
       date: "2026-07-12",
-      summary: "7月12日至7月20日，机密/绝密行动局内物资双倍掉落，完成任务可兑换限定迷彩与挂饰。",
-      url: "https://df.qq.com/",
-      thumb: "", views: 9870, likes: 654
-    },
-    {
-      title: "干员平衡性调整：突击位全面重做",
-      source: "开发组日志",
-      date: "2026-07-09",
-      summary: "本版本对突击职业的机动性与火力曲线进行重新调校，新增战术翻滚与滑铲衔接，提升近中距离交火表现。",
-      url: "https://df.qq.com/",
-      thumb: "", views: 7650, likes: 421
-    },
-    {
-      title: "三角洲冠军杯 2026 夏季赛开赛在即",
-      source: "电竞官方",
-      date: "2026-07-07",
-      summary: "32支顶尖战队角逐总奖金 200 万元，7月18日揭幕战将在上海电竞中心线下开打，线上同步直播。",
-      url: "https://df.qq.com/",
-      thumb: "", views: 11200, likes: 803
-    },
-    {
-      title: "新地图「潮汐监狱」实机演示曝光",
-      source: "社区速递",
-      date: "2026-07-05",
-      summary: "绝密难度新图「潮汐监狱」曝光，引入动态水位机制与可破坏墙体，战术博弈空间大幅提升。",
-      url: "https://df.qq.com/",
-      thumb: "", views: 6340, likes: 377
-    },
-    {
-      title: "客户端热更新：修复撤离载具卡死问题",
-      source: "运维公告",
-      date: "2026-07-03",
-      summary: "修复部分情况下撤离载具模型加载失败导致卡死的异常，并降低高负载场景的显存占用。",
-      url: "https://df.qq.com/",
-      thumb: "", views: 4985, likes: 256
+      summary: "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。",
+      url: "",
+      thumb: "", views: 5210, likes: 388
     }
   ];
 
   var SAMPLE_LIVE = [
     {
       platform: "B站",
-      streamer: "三角洲老猫",
-      title: "V34新赛季冲分 · 航天基地绝密速通",
-      viewers: 128430,
-      live: true,
-      url: "https://live.bilibili.com/"
+      streamer: "三角洲情报台（示例）",
+      title: "S10 上分实况（请替换为官方直播间/主播房间号）",
+      viewers: 0,
+      live: false,
+      url: ""
     },
     {
       platform: "抖音",
-      streamer: "战地阿凯",
-      title: "双子峰突袭双倍掉落实测",
-      viewers: 56210,
-      live: true,
-      url: "https://live.douyin.com/"
-    },
-    {
-      platform: "斗鱼",
-      streamer: "Hardcore_Ray",
-      title: "战术教学：潮汐监狱点位精讲",
+      streamer: "战术大师（示例）",
+      title: "凌晨上分不掉分（请替换为官方直播间/主播房间号）",
       viewers: 0,
       live: false,
-      url: "https://www.douyu.com/"
+      url: ""
     },
     {
       platform: "YouTube",
-      streamer: "DeltaWorld",
-      title: "Operation Break Dawn — Global First Look",
-      viewers: 87400,
-      live: true,
-      url: "https://www.youtube.com/@DeltaForce"
-    },
-    {
-      platform: "虎牙",
-      streamer: "枪王小白",
-      title: "冠军杯观赛 + 答疑",
+      streamer: "DeltaPros（示例）",
+      title: "Ranked Grind（请替换为官方直播间/主播房间号）",
       viewers: 0,
       live: false,
-      url: "https://www.huya.com/"
+      url: ""
     }
   ];
 
   var SAMPLE_VIDEOS = [
     {
       platform: "B站",
-      title: "【三角洲行动】V34版本全干员强度榜",
-      author: "战术君",
-      duration: "12:34",
+      title: "S10 最强改枪方案合集（示例）",
+      author: "枪械研究室",
+      duration: "12:30",
       thumb: "",
-      url: "https://www.bilibili.com/video/BV1xx411c7mD",
-      embed: "https://player.bilibili.com/player.html?bvid=BV1xx411c7mD&autoplay=0"
+      url: "",
+      embed: ""
     },
     {
       platform: "B站",
-      title: "潮汐监狱新手必看：10个高价值点位",
-      author: "吃鸡研究所",
-      duration: "08:51",
+      title: "新手避坑指南：这些物资别乱卖（示例）",
+      author: "老六课堂",
+      duration: "08:15",
       thumb: "",
-      url: "https://www.bilibili.com/video/BV1yy411c7nE",
-      embed: "https://player.bilibili.com/player.html?bvid=BV1yy411c7nE&autoplay=0"
+      url: "",
+      embed: ""
     },
     {
       platform: "YouTube",
-      title: "Delta Force V34 — Best Loadouts Guide",
-      author: "GhostOps",
-      duration: "15:20",
+      title: "Top 10 Loadouts S10（示例）",
+      author: "DeltaPros",
+      duration: "15:02",
       thumb: "",
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      embed: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-    },
-    {
-      platform: "抖音",
-      title: "一发入魂！绝密航天基地狙击集锦",
-      author: "神枪手阿浩",
-      duration: "00:45",
-      thumb: "",
-      url: "https://www.douyin.com/video/1",
+      url: "",
       embed: ""
-    },
-    {
-      platform: "快手",
-      title: "主播带队撤离成功瞬间合集",
-      author: "战场老炮儿",
-      duration: "03:12",
-      thumb: "",
-      url: "https://www.kuaishou.com/short-video/1",
-      embed: ""
-    },
-    {
-      platform: "B站",
-      title: "冠军杯夏季赛前瞻：8强战队解析",
-      author: "电竞观察室",
-      duration: "21:07",
-      thumb: "",
-      url: "https://www.bilibili.com/video/BV1zz411c7pQ",
-      embed: "https://player.bilibili.com/player.html?bvid=BV1zz411c7pQ&autoplay=0"
     }
   ];
 
@@ -494,10 +430,13 @@
       return;
     }
     list.forEach(function (n) {
-      var card = el("div", "card clickable news-card");
-      card.addEventListener("click", function (e) {
-        if (e.target.tagName !== "A" && n.url) window.open(n.url, "_blank", "noopener");
-      });
+      var hasUrl = !!(n.url && n.url.trim());
+      var card = el("div", "card clickable news-card" + (hasUrl ? "" : " disabled"));
+      if (hasUrl) {
+        card.addEventListener("click", function (e) {
+          if (e.target.tagName !== "A") window.open(n.url, "_blank", "noopener");
+        });
+      }
 
       var row = el("div", "row");
       var thumb = el("div", "thumb");
@@ -510,7 +449,8 @@
 
       var body = el("div", "body");
       var head = el("div", "card-head");
-      head.innerHTML = '<div class="card-title"><a href="' + esc(n.url || "#") + '" target="_blank" rel="noopener">' + esc(n.title) + "</a></div>";
+      head.innerHTML = '<div class="card-title">' + (hasUrl ? '<a href="' + esc(n.url) + '" target="_blank" rel="noopener">' + esc(n.title) + '</a>' : esc(n.title)) + "</div>" +
+        (hasUrl ? "" : '<span style="font-size:12px;color:var(--muted);margin-left:8px;">暂无链接</span>');
       body.appendChild(head);
 
       var meta = el("div", "card-meta");
@@ -540,10 +480,13 @@
       return;
     }
     list.forEach(function (s) {
-      var card = el("div", "card clickable");
-      card.addEventListener("click", function () {
-        if (s.url) window.open(s.url, "_blank", "noopener");
-      });
+      var hasUrl = !!(s.url && s.url.trim());
+      var card = el("div", "card clickable" + (hasUrl ? "" : " disabled"));
+      if (hasUrl) {
+        card.addEventListener("click", function () {
+          if (s.url) window.open(s.url, "_blank", "noopener");
+        });
+      }
 
       var row = el("div", "row");
       var thumb = el("div", "thumb");
@@ -553,7 +496,7 @@
       var body = el("div", "body");
       var titleHtml = esc(s.title || "未命名直播");
       var head = el("div", "card-head");
-      head.innerHTML = '<div class="card-title">' + titleHtml + "</div>";
+      head.innerHTML = '<div class="card-title">' + titleHtml + (hasUrl ? "" : ' <span style="font-size:12px;color:var(--muted);font-weight:400;">暂无链接</span>') + "</div>";
       var badge = el("span", "badge " + (s.live ? "badge-live" : "badge-offline"));
       badge.innerHTML = s.live ? '<span class="dot"></span>直播中' : "离线";
       head.appendChild(badge);
@@ -584,7 +527,9 @@
       return;
     }
     list.forEach(function (v) {
-      var card = el("div", "card clickable");
+      var hasUrl = !!(v.url && v.url.trim());
+      var hasEmbed = !!(v.embed && v.embed.trim());
+      var card = el("div", "card clickable" + (hasUrl || hasEmbed ? "" : " disabled"));
 
       var row = el("div", "row");
       var thumb = el("div", "thumb");
@@ -599,7 +544,7 @@
 
       var body = el("div", "body");
       var head = el("div", "card-head");
-      head.innerHTML = '<div class="card-title">' + esc(v.title || "未命名视频") + "</div>";
+      head.innerHTML = '<div class="card-title">' + esc(v.title || "未命名视频") + (hasUrl || hasEmbed ? "" : ' <span style="font-size:12px;color:var(--muted);font-weight:400;">暂无链接</span>') + "</div>";
       head.appendChild(el("span", "badge badge-platform", esc(v.platform || "")));
       body.appendChild(head);
 
@@ -614,37 +559,38 @@
       embedWrap.style.display = "none";
       card.appendChild(embedWrap);
 
-      card.addEventListener("click", function () {
-        var canEmbed = (!v.embed) ? false : true;
-        var src = "";
-        if (v.embed && (v.embed.indexOf("player.bilibili.com") > -1 || v.embed.indexOf("youtube.com/embed") > -1)) {
-          src = v.embed;
-        } else if (isBili(v.url)) {
-          var bv = biliBvid(v.url);
-          if (bv) src = "https://player.bilibili.com/player.html?bvid=" + bv + "&autoplay=1";
-        } else if (isYouTube(v.url)) {
-          var yid = ytId(v.url);
-          if (yid) src = "https://www.youtube.com/embed/" + yid;
-        }
-
-        if (src) {
-          if (embedWrap.style.display === "none") {
-            embedWrap.innerHTML =
-              '<iframe src="' + esc(src) + '" allowfullscreen ' +
-              'allow="autoplay; fullscreen" scrolling="no"></iframe>';
-            embedWrap.style.display = "block";
-            // 收回其它已展开的播放器，保持单栏整洁
-            panel.querySelectorAll(".embed-wrap").forEach(function (w) {
-              if (w !== embedWrap) { w.style.display = "none"; w.innerHTML = ""; }
-            });
-          } else {
-            embedWrap.style.display = "none";
-            embedWrap.innerHTML = "";
+      if (hasUrl || hasEmbed) {
+        card.addEventListener("click", function () {
+          var src = "";
+          if (v.embed && (v.embed.indexOf("player.bilibili.com") > -1 || v.embed.indexOf("youtube.com/embed") > -1)) {
+            src = v.embed;
+          } else if (isBili(v.url)) {
+            var bv = biliBvid(v.url);
+            if (bv) src = "https://player.bilibili.com/player.html?bvid=" + bv + "&autoplay=1";
+          } else if (isYouTube(v.url)) {
+            var yid = ytId(v.url);
+            if (yid) src = "https://www.youtube.com/embed/" + yid;
           }
-        } else if (v.url) {
-          window.open(v.url, "_blank", "noopener");
-        }
-      });
+
+          if (src) {
+            if (embedWrap.style.display === "none") {
+              embedWrap.innerHTML =
+                '<iframe src="' + esc(src) + '" allowfullscreen ' +
+                'allow="autoplay; fullscreen" scrolling="no"></iframe>';
+              embedWrap.style.display = "block";
+              // 收回其它已展开的播放器，保持单栏整洁
+              panel.querySelectorAll(".embed-wrap").forEach(function (w) {
+                if (w !== embedWrap) { w.style.display = "none"; w.innerHTML = ""; }
+              });
+            } else {
+              embedWrap.style.display = "none";
+              embedWrap.innerHTML = "";
+            }
+          } else if (v.url) {
+            window.open(v.url, "_blank", "noopener");
+          }
+        });
+      }
 
       panel.appendChild(card);
     });

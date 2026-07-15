@@ -1,0 +1,105 @@
+================================================================
+三角洲情报台 · v35 部署说明
+================================================================
+本版核心：战绩查询「四合一」——像鼠鼠工具那样读取三角洲行动战绩
+  · ① 手动粘贴战绩页（零依赖，立即可用）
+  · ② 第三方接口（Worker 代理 xianyuw.cn，不需本人实名）
+  · ③ QQ 扫码登录  ④ 微信扫码登录（登录后绑定 cookie_id 一键拉取）
+改动涉及【后端 Worker（仅加 Secret，无逻辑改动）】与【前端整包】。
+
+----------------------------------------------------------------
+一、本版改了什么
+----------------------------------------------------------------
+【后端 worker.js】
+  ▸ 战绩接口（上一版已写入本文件夹的 worker.js，本轮无逻辑改动）：
+        GET  /api/zhanji?cookie_id=xxx        → 代理 xianyuw.cn 拉战绩（需登录）
+        GET  /api/zhanji/me                   → 拉取「我」已绑定的战绩（需登录）
+        POST /api/me/dfcookie {cookie_id}     → 把 cookie_id 绑定到当前账号
+    · 依赖 Secret：DF_STATS_KEY（xianyuw.cn 免费 key）；缺则返 {needKey:true}。
+    · 战绩字段拍平后返回，前端按 ZHANJI_LABELS 标注，未知字段原样显示。
+  ▸ OAuth 骨架（此前已有，本轮确认完整可用）：
+        GET /api/auth/qq  → /api/auth/qq/callback        （QQ_APPID / QQ_APPKEY）
+        GET /api/auth/wechat → /api/auth/wechat/callback （WECHAT_APPID / WECHAT_APPKEY）
+    登录成功回调前端 ?token=&id=&role=，与 zhanji.html 的登录态写入逻辑一致。
+
+【前端 docs/】
+  ▸ 新增 docs/zhanji.html（自包含单文件，四 Tab + 战绩卡 + 本地对比 + 分享）。
+  ▸ docs/index.html：顶栏新增「📊 战绩」入口；全站 ?v=34 → ?v=35。
+  ▸ docs/js/app.js：左侧菜单「武器 / 战队 / 资讯」组新增「战绩查询」；sw 注册 ?v=35。
+  ▸ docs/sw.js：CACHE 名 → delta-intel-v35；SHELL 预缓存新增 zhanji.html。
+  ▸ docs/data.json：changelog 头部新增 v35 条目。
+
+----------------------------------------------------------------
+二、必须配置的后端 Secret（Cloudflare Worker → Settings → Variables）
+----------------------------------------------------------------
+★ DF_STATS_KEY（必配，否则②第三方接口不可用）
+    1. 去 https://apii.xianyuw.cn 或 xianyuw.cn 注册，拿到免费 key。
+    2. 在 Worker 添加 Secret：名称 DF_STATS_KEY，值 = 该 key。
+    3. 效果：用户登录后，在战绩页「第三方接口」Tab 填自己的 cookie_id 即可拉取
+       （cookie_id 是用户在三角洲行动游戏站登录后浏览器 Cookie 里的标识，
+        属「查你自己」，隐私合规；不能按昵称搜陌生人）。
+
+☆ QQ_APPID / QQ_APPKEY（可选，启用③QQ 扫码登录）
+☆ WECHAT_APPID / WECHAT_APPKEY（可选，启用④微信扫码登录）
+    · 不配 → 对应 Tab 点登录后回调 wx_error=not_configured / qq_error=not_configured，
+      页面会提示「未配置」，不影响其他三种方式。
+    · 【重要·实名墙】QQ互联(connect.qq.com) 与 微信开放平台(open.weixin.qq.com)
+      的「网站应用」均需 实名认证 + 已备案域名。你本人未满 14 岁无法自行注册，
+      需由已实名家长代办，或暂时不用这两个 Tab。骨架已写好，配好凭据即自动启用。
+
+----------------------------------------------------------------
+三、部署步骤（顺序）
+----------------------------------------------------------------
+1) 后端：确认 Cloudflare 控制台里的 Worker 已是本文件夹最新 worker.js
+   （含 /api/zhanji 等路由）；并添加上述 Secret（至少 DF_STATS_KEY）。
+2) 前端：把本文件夹 docs/ 下全部文件（含新增 zhanji.html、改过的
+   index.html / js/app.js / sw.js / data.json）合并上传到
+   GitHub Pages 仓库（xuchengyuan123/delta-intel）根目录，覆盖旧文件。
+3) 强刷：浏览器 Ctrl+F5（或清 Service Worker），确认地址栏版本号 v35。
+4) 自测：
+   · 手动 Tab 填几项 → 「生成战绩卡」→ 「存入对比」正常。
+   · 第三方接口 Tab 填 cookie_id → 「拉取战绩」，应出战绩卡（需先登录论坛账号）。
+   · QQ/微信 Tab：未配 Secret 时提示未配置；配好后扫码→自动跳回并写入登录态。
+
+----------------------------------------------------------------
+五、KV 额度优化与基础防护（本轮新增，针对截图 KV put 超限）
+----------------------------------------------------------------
+【问题】Cloudflare Workers KV 免费套餐每天仅 1000 次 put。原代码中：
+  · 每个非静态请求都写 ACCESS 日志（recordAccess）
+  · 每个鉴权请求都写 PRESENCE 在线状态（updatePresence）
+  · 前端 admin 后台每 20s 轮询 /api/admin/access、好友页每 60s 轮询 /api/me、
+    游戏页每 8s 轮询排行榜，导致一天内 put 次数轻易破千。
+
+【后端 worker.js 优化】
+  · recordAccess：同一 IP 5 分钟内最多写一次，避免轮询/爬虫烧 KV。
+  · updatePresence：同一用户 5 分钟内已更新则跳过（先读后写，省 put）。
+  · 访问日志：API GET 轮询请求不再写入日志，只记录页面加载与 API 写操作。
+  · 基础安全层：拦截空 UA、常见爬虫/脚本签名、非法 HTTP Method（不耗 KV）。
+
+【前端轮询降频】
+  · admin.html：访问日志轮询 20s → 120s。
+  · friends.html：/api/me 60s → 300s；好友列表 15s → 60s。
+  · games.js：排行榜 8s → 30s。
+  · 全部轮询新增 visibilitychange 监听：页面切后台/最小化时自动暂停，
+    回到前台再恢复。
+
+【效果估算】
+  ·  admin 后台开一整天：约 720 次请求（原 4320 次），且不再触发日志写，
+     同时 updatePresence 5 分钟才写一次 → 从约 8640 次 put 降到约 300 次。
+  · 好友页开一整天：约 288 次 /api/me（原 1440 次），updatePresence 大幅冷却。
+  · 正常浏览页面下，免费 1000 次/天额度基本够用。
+
+【如仍超限】
+  · 在 Cloudflare 控制台 Analytics 查看哪个 KV namespace put 最多，
+    对症再降频。
+  · 终极方案：关闭访问日志（把 recordAccess 调用注释掉），可再省 90% 写。
+  · 若站点流量真正较大，免费额度确实不够，只能升级到 Workers Paid（5美元/月，
+    1000万次读取+100万次写入）。但因用户 <14 岁无法绑卡，可请家长代办，
+    或继续优化免费层使用。
+
+----------------------------------------------------------------
+六、QQ / 微信 OAuth 实名墙提醒
+----------------------------------------------------------------
+· QQ互联(connect.qq.com) 与 微信开放平台(open.weixin.qq.com) 的「网站应用」
+  均需 实名认证 + 已备案域名。你本人未满 14 岁无法自行注册，需由已实名家长
+  代办，或暂时不用战绩页的 QQ/微信 两个 Tab。骨架已写好，配好凭据即自动启用。

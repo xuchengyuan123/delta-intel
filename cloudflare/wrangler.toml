@@ -44,13 +44,14 @@ id = "fafe07e44ad44ab6a1e3a5b09a592f6a"
 binding = "COMMENTS"
 id = "9292c66643eb468e80f5ca4e0a3bfae8"
 
-# ===== 新增 KV（访问日志 / 在线状态 / 好友 / 私聊 / 头像） =====
+# ===== 新增 KV（访问日志 / 在线状态 / 好友 / 私聊 / 头像 / 战队） =====
 # 创建命令（逐条执行，把返回的 id 替换下面的占位符）：
 #   wrangler kv namespace create ACCESS
 #   wrangler kv namespace create PRESENCE
 #   wrangler kv namespace create FRIENDS
 #   wrangler kv namespace create MESSAGES
 #   wrangler kv namespace create AVATARS
+#   wrangler kv namespace create TEAMS
 [[kv_namespaces]]
 binding = "ACCESS"
 id = "700f7f9594714f5e925de73e427f656f"
@@ -66,6 +67,17 @@ id = "1b8d77a2375945cd8db9513530d19632"
 [[kv_namespaces]]
 binding = "AVATARS"
 id = "736a34738aa5405aa3a877a4b2b8b9d8"
+[[kv_namespaces]]
+binding = "TEAMS"
+id = "REPLACE_WITH_YOUR_TEAMS_KV_ID"
+
+# ===== 新增 KV（开发工作台「工作/版本迭代」独立存储） =====
+# 创建命令：  wrangler kv namespace create WORKBENCH
+# 把返回的 id 替换下面的占位符。绑定后，工作台里的「工作」数据会存到这个 KV，
+# 重新上传整包网站也不会丢失（未绑定则自动回退到 data.json.works）。
+[[kv_namespaces]]
+binding = "WORKBENCH"
+id = "REPLACE_WITH_YOUR_WORKBENCH_KV_ID"
 
 # ===== 邮件发送（Cloudflare 自带 MailChannels，免费、无需第三方账号） =====
 # 前提：delta.shopping 已在 Cloudflare 控制台开启 Email Routing 并加好 SPF/DKIM（开启时自动生成）。

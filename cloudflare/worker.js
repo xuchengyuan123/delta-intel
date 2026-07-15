@@ -13,19 +13,44 @@
 //   GET  /api/me                   -> {role, email}
 //   GET  /api/admin/users          (super)                   -> {users:[{email,phone,role,disabled}]}
 //   POST /api/admin/create-subadmin (super) {email,password,phone,role,panels[]} -> {ok, role, panels[]}
-//   GET  /api/admin/members         (super | 用户管理分管理员)  -> {members:[{id,email,phone,name,disabled,createdAt}]}
+//   GET  /api/admin/members         (super | 用户管理分管理员)  -> {members:[{id,email,phone,name,disabled,trusted,createdAt,points,streak,level}]}
+//   GET  /api/admin/member/:id       (super | 用户管理分管理员)  -> {user:{...}}
 //   PUT  /api/admin/member           (super | 用户管理分管理员)  {id, disabled} -> {ok, disabled}
+//   PUT  /api/admin/member/trusted   (super | 用户管理分管理员)  {id, trusted} -> {ok, trusted}
+//   POST /api/admin/member/reset-password (super | 用户管理分管理员) {id, password} -> {ok}
 //   DELETE /api/admin/member         (super | 用户管理分管理员)  {id} -> {ok}
-//   AI 审核（可选）：配置 AI_API_KEY + AI_API_URL 后，论坛发帖自动 approve/reject，敏感词或异常转人工
+//   AI 审核（可选）：配置 AI_API_KEY + AI_API_URL 后，投稿自动 AI 审核；通过直接发布，拒绝/异常转人工。信任用户免审直接发布。
 //   GET  /api/admin/data           -> {content:"<json string>"}
 //   PUT  /api/admin/data           {content:"<json string>"} -> {ok}
+//   GET  /api/admin/apps           (super)  -> {apps:[{id,name,icon,type,status,modules:[{id,name,pages:[...]}]}]}  （存于 WORKBENCH KV）
+//   PUT  /api/admin/apps           (super)  {apps:[...]} -> {ok}                                                     （存于 WORKBENCH KV）
+//   POST /api/app/submit           (公开)   {appId, pageId, fields:{...}} -> {ok}   表单收集提交（存 WORKBENCH KV 键 sub:appId:pageId）
+//   GET  /api/admin/app-submissions (super) ?app=&page= -> {rows:[{at,fields}]}      后台查看/导出表单提交（WORKBENCH KV）
 //   PUT  /api/admin/file           {path, content(base64), message} -> {url}
-//   GET  /api/kzb/diy               ?zb=&exchange=&is_bb=&is_gun=&is_hj=&is_sq=&is_tk=&is_xg= -> 代理三角洲数据帝实时卡战备（需 ORZICE_TOKEN Secret）
+//   GET  /api/kzb/diy               ?zb=&exchange=&is_bb=&is_gun=&is_hj=&is_sq=&is_tk=&is_xg= -> 代理三角洲数据帝 DIY 卡战备（需 ORZICE_TOKEN Secret）
+//   GET  /api/kzb/recommend         ?lv=0..5 -> 代理三角洲数据帝 V4 智能出装推荐（需 ORZICE_TOKEN Secret）
+//   战队 / 公会（V33）：
+//   GET  /api/teams                 ?q=        -> {teams:[{id,name,tag,desc,owner,memberCount,featured,createdAt}]}
+//   GET  /api/teams/mine            (登录)     -> {teams:[{id,name,tag,role,memberCount}]}
+//   POST /api/teams                 (登录)     {name,tag,desc} -> {ok, team}
+//   GET  /api/teams/:id             -> {team:{members,records,...}}
+//   POST /api/teams/:id/join        (登录)     -> {ok, team}
+//   POST /api/teams/:id/leave       (登录)     -> {ok}
+//   POST /api/teams/:id/record      (登录,队员) {mode,result,kd,score,note} -> {ok, record}
+//   POST /api/teams/:id/promote     (登录,队长) {email, role} -> {ok}
+//   POST /api/teams/:id/feature     (staff)    {featured} -> {ok, featured}
+//   DELETE /api/teams/:id           (登录,队长|super) -> {ok}
+//   GET  /api/admin/teams           (staff)    -> {teams:[...]}
+//   DELETE /api/admin/teams/:id     (staff)    -> {ok}
 //
 // 依赖绑定（在 wrangler.toml 配置）：
-//   KV:  USERS / SESSIONS / CODES
+//   KV:  USERS / SESSIONS / CODES / POSTS / ANNOUNCE / UGC / COMMENTS / ACCESS / PRESENCE / FRIENDS / MESSAGES / AVATARS / TEAMS
 //   vars:REPO, DEV_MODE
 //   secrets: GH_TOKEN, SUPER_EMAIL, SUPER_PASSWORD（以及可选 EMAILJS_*；邮件用 MAIL 绑定）
+//           可选 DF_STATS_KEY（xianyuw.cn 免费 key，启用 /api/zhanji 自动战绩）
+//   安全防护（V36）：可选 KV 绑定 SECURITY（不配置则复用 ACCESS 命名空间存放黑名单/审核队列）
+//   后台接口：GET/POST /api/admin/security/review、POST /api/admin/security/block、POST /api/admin/security/unblock
+//   10 层应用防火墙：IP黑名单 / 方法白名单 / UA校验 / 恶意Bot拦截 / 请求体限制 / 注入过滤 / 单IP限流 / 登录防爆破 / 境外审核 / 高频端点节流
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -57,7 +82,10 @@ function randToken() {
   return [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
 function genCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  // 用 Web Crypto 生成 6 位验证码（比 Math.random 熵更高，避免可预测）
+  const b = new Uint8Array(3);
+  crypto.getRandomValues(b);
+  return String((b[0] * 65536 + b[1] * 256 + b[2]) % 1000000).padStart(6, "0");
 }
 const enc = new TextEncoder();
 
@@ -115,16 +143,159 @@ async function putUser(env, user) {
   if (user.phone) ids.push(user.phone.toLowerCase());
   for (const id of ids) await env.USERS.put("u:" + id, JSON.stringify(user));
 }
-async function allUsers(env) {
-  const list = await env.USERS.list();
-  const out = [];
-  for (const k of list.keys) {
-    if (!k.name.startsWith("u:")) continue;
-    const rec = await env.USERS.get(k.name);
-    if (rec) out.push(JSON.parse(rec));
-  }
-  return out;
-}
+    async function allUsers(env) {
+      const list = await env.USERS.list();
+      const out = [];
+      for (const k of list.keys) {
+        if (!k.name.startsWith("u:")) continue;
+        const rec = await env.USERS.get(k.name);
+        if (rec) out.push(JSON.parse(rec));
+      }
+      return out;
+    }
+
+    /* ============ 战队存储（KV: TEAMS） ============ */
+    async function getTeam(env, id) {
+      const rec = await env.TEAMS.get("t:" + id);
+      return rec ? JSON.parse(rec) : null;
+    }
+    async function putTeam(env, team) {
+      await env.TEAMS.put("t:" + team.id, JSON.stringify(team));
+    }
+    async function delTeam(env, id) {
+      await env.TEAMS.delete("t:" + id);
+    }
+    async function allTeams(env) {
+      if (!env.TEAMS) throw new Error("KV 命名空间 TEAMS 未绑定到 Worker。请在 Cloudflare 控制台 Settings → Bindings 中添加 KV 绑定：变量名 TEAMS，并指向一个 KV 命名空间。");
+      const list = await env.TEAMS.list();
+      const out = [];
+      for (const k of list.keys) {
+        if (!k.name.startsWith("t:")) continue;
+        const rec = await env.TEAMS.get(k.name);
+        if (rec) out.push(JSON.parse(rec));
+      }
+      return out;
+    }
+
+    /* ============ 战队 / 公会 API（V33） ============ */
+    function publicTeam(t) {
+      return { id: t.id, name: t.name, tag: t.tag, desc: t.desc || "", owner: t.owner, memberCount: (t.members || []).length, featured: !!t.featured, createdAt: t.createdAt };
+    }
+    async function createTeam(env, body, s) {
+      const name = (body.name || "").trim();
+      const tag = (body.tag || "").trim().toUpperCase();
+      const desc = (body.desc || "").trim().slice(0, 200);
+      if (name.length < 2 || name.length > 20) return json({ error: "队名需 2–20 字" }, 400);
+      if (tag.length < 1 || tag.length > 6) return json({ error: "战队标签需 1–6 位" }, 400);
+      const id = "team_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const team = {
+        id, name, tag, desc,
+        owner: s.email,
+        members: [{ email: s.email, role: "owner", joinedAt: Date.now() }],
+        records: [],
+        featured: false,
+        createdAt: Date.now()
+      };
+      await putTeam(env, team);
+      return json({ ok: true, team: publicTeam(team) });
+    }
+    async function listTeamsPublic(env, q) {
+      const all = await allTeams(env);
+      const kw = (q || "").trim().toLowerCase();
+      const list = all
+        .filter((t) => !kw || t.name.toLowerCase().indexOf(kw) >= 0 || (t.tag || "").toLowerCase().indexOf(kw) >= 0)
+        .sort((a, b) => (b.featured - a.featured) || (b.createdAt - a.createdAt))
+        .map(publicTeam);
+      return json({ teams: list });
+    }
+    async function myTeams(env, email) {
+      const all = await allTeams(env);
+      const mine = all.filter((t) => (t.members || []).some((m) => m.email === email)).map(function (t) {
+        const me = (t.members || []).find((m) => m.email === email);
+        return { id: t.id, name: t.name, tag: t.tag, role: me ? me.role : "member", memberCount: (t.members || []).length };
+      });
+      return json({ teams: mine });
+    }
+    async function getTeamDetail(env, tid) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      return json({ team: t });
+    }
+    async function joinTeam(env, tid, s) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      if ((t.members || []).some((m) => m.email === s.email)) return json({ error: "你已在战队中" }, 400);
+      t.members = t.members || [];
+      t.members.push({ email: s.email, role: "member", joinedAt: Date.now() });
+      await putTeam(env, t);
+      return json({ ok: true, team: t });
+    }
+    async function leaveTeam(env, tid, s) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      const me = (t.members || []).find((m) => m.email === s.email);
+      if (!me) return json({ error: "你不在该战队" }, 400);
+      if (me.role === "owner") return json({ error: "队长不能直接退出，请先转让或解散战队" }, 400);
+      t.members = (t.members || []).filter((m) => m.email !== s.email);
+      await putTeam(env, t);
+      return json({ ok: true });
+    }
+    async function addTeamRecord(env, tid, body, s) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      if (!(t.members || []).some((m) => m.email === s.email)) return json({ error: "仅队员可提交战绩" }, 403);
+      const mode = (body.mode || "综合").trim().slice(0, 20);
+      const result = body.result === "lose" ? "lose" : "win";
+      const kd = Number(body.kd || 0);
+      const score = Number(body.score || 0);
+      const note = (body.note || "").trim().slice(0, 200);
+      const rec = { id: "r" + Date.now().toString(36), by: s.email, mode, result, kd, score, note, createdAt: Date.now() };
+      t.records = t.records || [];
+      t.records.unshift(rec);
+      if (t.records.length > 100) t.records = t.records.slice(0, 100);
+      await putTeam(env, t);
+      return json({ ok: true, record: rec });
+    }
+    async function promoteMember(env, tid, body, s) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      if (t.owner !== s.email) return json({ error: "仅队长可调整成员" }, 403);
+      const target = (body.email || "").trim().toLowerCase();
+      const role = body.role === "admin" ? "admin" : (body.role === "member" ? "member" : null);
+      if (!role) return json({ error: "角色无效" }, 400);
+      if (target === s.email) return json({ error: "不能调整队长自身" }, 400);
+      const m = (t.members || []).find((x) => x.email === target);
+      if (!m) return json({ error: "该成员不在战队" }, 404);
+      m.role = role;
+      await putTeam(env, t);
+      return json({ ok: true });
+    }
+    async function setTeamFeatured(env, tid, body) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      t.featured = !!body.featured;
+      await putTeam(env, t);
+      return json({ ok: true, featured: t.featured });
+    }
+    async function deleteTeam(env, tid, s) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      if (t.owner !== s.email && s.role !== "super") return json({ error: "仅队长或总管理员可解散" }, 403);
+      await delTeam(env, tid);
+      return json({ ok: true });
+    }
+    async function adminListTeams(env) {
+      const all = await allTeams(env);
+      return json({ teams: all.sort((a, b) => b.createdAt - a.createdAt).map(function (t) {
+        return { id: t.id, name: t.name, tag: t.tag, owner: t.owner, memberCount: (t.members || []).length, recordCount: (t.records || []).length, featured: !!t.featured, createdAt: t.createdAt };
+      }) });
+    }
+    async function adminDeleteTeam(env, tid) {
+      const t = await getTeam(env, tid);
+      if (!t) return json({ error: "战队不存在" }, 404);
+      await delTeam(env, tid);
+      return json({ ok: true });
+    }
 
 // 首次访问时，用环境变量引导出总管理员账号（仅在尚未存在时创建一次）
 async function ensureSuper(env) {
@@ -274,9 +445,21 @@ async function ghPutData(env, contentStr, message) {
   }
   return true;
 }
+// 规范化写入仓库的路径：仅允许落在 docs/ 下，禁止 ../ 穿越、空字节与控制字符
+function sanitizeRepoPath(path) {
+  let s = String(path || "");
+  try { s = decodeURIComponent(s); } catch (e) {}
+  s = s.replace(/\\/g, "/").replace(/[\x00-\x1f\x7f]/g, ""); // 去控制字符与反斜杠
+  const segs = s.split("/").filter(function (seg) {
+    return seg && seg !== "." && seg !== "..";
+  });
+  if (segs[0] === "docs") segs.shift(); // 去掉可能已存在的 docs/ 前缀，避免重复
+  let p = "docs/" + segs.join("/");
+  if (p.endsWith("/")) p = p.slice(0, -1);
+  return p;
+}
 async function ghPutFile(env, path, contentB64, message) {
-  let p = (path || "").replace(/^\/+/, "");
-  if (!p.startsWith("docs/")) p = "docs/" + p;
+  const p = sanitizeRepoPath(path);
   const url = `https://api.github.com/repos/${env.REPO}/contents/${p}`;
   let sha;
   const r0 = await fetch(url, { headers: ghHeaders(env) });
@@ -295,11 +478,151 @@ async function ghPutFile(env, path, contentB64, message) {
   return j.content ? j.content.download_url : null;
 }
 
+/* ============ 开发工作台工作存储（KV: WORKBENCH） ============ */
+// 工作台「工作 / 版本迭代 / 功能项目」独立于 data.json，存于 WORKBENCH KV；
+// 重新上传整包网站也不会丢失。未绑定 WORKBENCH 时前端会自动回退到 data.json.works。
+async function getApps(env) {
+  if (!env.WORKBENCH) throw new Error("KV 命名空间 WORKBENCH 未绑定到 Worker。请在 Cloudflare 控制台 Settings → Bindings 中添加 KV 绑定：变量名 WORKBENCH，并指向一个 KV 命名空间。");
+  const raw = await env.WORKBENCH.get("apps");
+  if (!raw) return [];
+  try { return JSON.parse(raw); } catch (e) { return []; }
+}
+async function putApps(env, apps) {
+  if (!env.WORKBENCH) throw new Error("KV 命名空间 WORKBENCH 未绑定到 Worker。");
+  await env.WORKBENCH.put("apps", JSON.stringify(Array.isArray(apps) ? apps : []));
+  return { ok: true };
+}
+
+// 表单收集提交：存于 WORKBENCH KV，键 sub:appId:pageId（数组追加）
+async function getSubmissions(env, appId, pageId) {
+  if (!env.WORKBENCH) throw new Error("KV 命名空间 WORKBENCH 未绑定到 Worker。");
+  const raw = await env.WORKBENCH.get("sub:" + appId + ":" + pageId);
+  if (!raw) return [];
+  try { return JSON.parse(raw); } catch (e) { return []; }
+}
+async function appendSubmission(env, appId, pageId, row) {
+  if (!env.WORKBENCH) throw new Error("KV 命名空间 WORKBENCH 未绑定到 Worker。");
+  const key = "sub:" + appId + ":" + pageId;
+  let arr = [];
+  try { const raw = await env.WORKBENCH.get(key); if (raw) arr = JSON.parse(raw); } catch (e) { arr = []; }
+  if (!Array.isArray(arr)) arr = [];
+  arr.push(row);
+  await env.WORKBENCH.put(key, JSON.stringify(arr));
+  return { ok: true };
+}
+
 /* ============ 扩展存储（KV: ACCESS / PRESENCE / FRIENDS / MESSAGES / AVATARS） ============ */
+/* ============ 10 层应用防火墙（V36） ============ */
+// 仅白名单国家放行；其余国家/地区的请求自动进入后台「境外请求审核」队列，由管理员放行或封禁
+const ALLOW_COUNTRIES = ["CN"];
+const MAX_BODY = 64 * 1024;                 // POST/PUT 请求体上限 64KB
+// 已知恶意 Bot / 扫描器 / 攻击工具 UA 特征
+const BAD_BOTS = /curl|wget|python-requests|scrapy|aiohttp|httpclient|java\/|okhttp|apache-http|libwww|winhttp|go-http|headless|selenium|phantomjs|masscan|zgrab|sqlmap|nikto|dirbuster|wpscan|acunetix|netsparker|semrush|ahrefs|mj12bot|dotbot|petalbot|yandex|bytespider/i;
+// SQL 注入 / XSS / 路径穿越 / 敏感路径 等攻击特征
+const BAD_SIG = /(\bunion\b.*\bselect\b)|(\bselect\b.+\bfrom\b)|(\binsert\b.+\binto\b)|(\bdrop\b.+\btable\b)|(<script)|(\bon\w+\s*=)|(\.\.\/)|(\.\.%2f)|(etc\/passwd)|(phpmyadmin)|(sqlmap)|(\bnmap\b)|(\bnikto\b)|(\bwpscan\b)|(\.\.%5c)/i;
+// 模块级内存状态（不写 KV，省额度；冷启动会重置，但对单隔离实例的突发有效）
+const _rl = new Map();        // 单 IP 滑动窗口计数： ip -> {cnt, ts}
+const _loginFail = new Map(); // 登录失败计数： ip -> {cnt, ts}
+const _flagged = new Set();   // 已处理（待审/放行/封禁）的境外 IP，内存去重，避免重复读 KV
+const _allow = new Set();     // 已放行（approved）的境外 IP
+const _blockCache = new Map();// 黑名单内存缓存： ip -> {blocked, ts}（60s），避免每次请求读 KV
+// 昂贵/高频 GET 端点额外收紧（第 10 层）
+const HOT = { "/api/leaderboard": 30, "/api/admin/access": 20, "/api/zhanji": 30, "/api/zhanji/me": 20, "/api/me": 60 };
+// 公开表单提交接口的单 IP 限流（防垃圾提交）
+const _submitRl = new Map();
+
+function clientIp(req) {
+  return req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ipv6") || "";
+}
+// 返回拦截 Response，或 null 表示通过全部 10 层
+async function securityGate(env, request) {
+  const now = Date.now();
+  const ip = clientIp(request);
+  const ua = request.headers.get("user-agent") || "";
+  const method = request.method;
+  const url = new URL(request.url);
+  const p = url.pathname;
+  const q = url.search || "";
+  const country = (request.cf && request.cf.country) || "XX";
+  const secKV = env.SECURITY || env.ACCESS;
+
+  // 第 1 层：IP 黑名单（内存缓存 60s，仅必要时读 1 次 KV）
+  let blocked = null;
+  const bc = _blockCache.get(ip);
+  if (bc && now - bc.ts < 60000) blocked = bc.blocked;
+  else {
+    try { const b = await secKV.get("sec:block:" + ip); blocked = !!b; } catch (e) { blocked = false; }
+    _blockCache.set(ip, { blocked: blocked, ts: now });
+  }
+  if (blocked) return json({ error: "您的访问已被管理员封禁" }, 403);
+
+  // 第 2 层：HTTP 方法白名单
+  if (!/^(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)$/.test(method))
+    return json({ error: "不支持的请求方法" }, 405);
+
+  // 第 3 层：User-Agent 基础校验（空 / 过短）
+  if (!ua || ua.length < 6) return json({ error: "请求被拦截（缺少合法 User-Agent）" }, 400);
+
+  // 第 4 层：已知恶意 Bot / 扫描器 / 攻击工具
+  if (BAD_BOTS.test(ua)) return json({ error: "请求被拦截（疑似自动化攻击工具）" }, 403);
+
+  // 第 5 层：请求体大小限制（防大包耗尽资源）
+  if (method === "POST" || method === "PUT") {
+    const len = parseInt(request.headers.get("content-length") || "0", 10);
+    if (len > MAX_BODY) return json({ error: "请求体过大" }, 413);
+  }
+
+  // 第 6 层：路径穿越 / 注入 / XSS 特征过滤（path + query + UA）
+  if (BAD_SIG.test(p) || BAD_SIG.test(q) || BAD_SIG.test(ua))
+    return json({ error: "请求被拦截（检测到攻击特征）" }, 403);
+
+  // 第 7 层：单 IP 速率限制（内存滑动窗口；境外更严）
+  let w = _rl.get(ip);
+  if (!w || now - w.ts > 60000) w = { cnt: 0, ts: now };
+  w.cnt++; _rl.set(ip, w);
+  const limit = (country === "CN") ? 120 : 40;
+  if (w.cnt > limit) return json({ error: "请求过于频繁，请稍后再试" }, 429);
+
+  // 第 9 层：国别策略 —— 境外（非白名单）请求写入后台审核队列（内存去重 + KV 持久，每 IP 至多写 1 次）
+  if (ALLOW_COUNTRIES.indexOf(country) < 0) {
+    if (!_flagged.has(ip) && !_allow.has(ip)) {
+      try {
+        const rec = await secKV.get("sec:review:" + ip);
+        if (rec) {
+          const o = JSON.parse(rec);
+          if (o.status === "approved") _allow.add(ip); else _flagged.add(ip);
+        } else {
+          const obj = { ip: ip, country: country, firstSeen: now, lastSeen: now, ua: ua.slice(0, 200), samplePath: p, status: "pending", note: "" };
+          await secKV.put("sec:review:" + ip, JSON.stringify(obj));
+          const qi = await secKV.get("sec:review_queue");
+          const arr = qi ? JSON.parse(qi) : [];
+          if (arr.indexOf(ip) < 0) { arr.push(ip); await secKV.put("sec:review_queue", JSON.stringify(arr)); }
+          _flagged.add(ip);
+        }
+      } catch (e) {}
+    }
+  }
+
+  // 第 10 层：敏感/高频端点节流（昂贵 GET 接口额外收紧，保护 KV/CPU）
+  if (HOT[p] && method === "GET") {
+    const key = "hot:" + p + ":" + ip;
+    const hl = _rl.get(key) || { cnt: 0, ts: now };
+    if (now - hl.ts > 60000) hl.cnt = 0;
+    hl.cnt++; _rl.set(key, hl);
+    if (hl.cnt > HOT[p]) return json({ error: "该接口请求过于频繁，请稍后再试" }, 429);
+  }
+
+  // 第 8 层（登录防爆破）在 adminLogin 内单独生效
+  return null;
+}
+
 async function recordAccess(env, rec) {
   try {
     const idx = await env.ACCESS.get("idx:access");
     const arr = idx ? JSON.parse(idx) : [];
+    // 限流：同一 IP 5 分钟内最多写一次（避免轮询/爬虫烧 KV）
+    const last = arr.find(function (x) { return x.ip === rec.ip; });
+    if (last && (rec.ts - last.ts) < 5 * 60 * 1000) return;
     arr.unshift(rec);
     if (arr.length > 2000) arr.length = 2000;
     await env.ACCESS.put("idx:access", JSON.stringify(arr));
@@ -307,7 +630,13 @@ async function recordAccess(env, rec) {
 }
 async function updatePresence(env, email, meta) {
   try {
-    await env.PRESENCE.put("p:" + email.toLowerCase(), JSON.stringify(Object.assign({ ts: Date.now() }, meta || {})));
+    const key = "p:" + email.toLowerCase();
+    const old = await env.PRESENCE.get(key);
+    if (old) {
+      const o = JSON.parse(old);
+      if (o.ts && (Date.now() - o.ts) < 5 * 60 * 1000) return;
+    }
+    await env.PRESENCE.put(key, JSON.stringify(Object.assign({ ts: Date.now() }, meta || {})));
   } catch (e) {}
 }
 async function getPresence(env, email) {
@@ -343,6 +672,7 @@ function b64decodeBytes(b64) {
 
 /* ============ 访问日志 / 在线状态（管理员） ============ */
 async function listAccess(env, isSuper) {
+  if (!env.ACCESS) throw new Error("KV 命名空间 ACCESS 未绑定到 Worker。请在 Cloudflare 控制台 Settings → Bindings 中添加 KV 绑定：变量名 ACCESS。");
   const idx = await env.ACCESS.get("idx:access");
   const log = idx ? JSON.parse(idx) : [];
   const plist = await env.PRESENCE.list();
@@ -563,6 +893,16 @@ async function sendSMS(env, to, code) {
 
 async function adminLogin(env, body, req) {
   await ensureSuper(env);
+  const ip = clientIp(req);
+  // 第 8 层：登录防暴力破解（失败锁定，仅达阈值时写 1 次 KV）
+  try {
+    const lock = await (env.SECURITY || env.ACCESS).get("sec:lock:" + ip);
+    if (lock) {
+      const o = JSON.parse(lock);
+      if (o.until > Date.now())
+        return json({ error: "登录尝试过于频繁，已临时锁定，请 " + Math.ceil((o.until - Date.now()) / 1000) + " 秒后再试" }, 429);
+    }
+  } catch (e) {}
   const id = (body.id || body.email || "").trim().toLowerCase();
   if (!id) return json({ error: "缺少账号" }, 400);
   const user = await getUserById(env, id);
@@ -581,7 +921,23 @@ async function adminLogin(env, body, req) {
     const hash = await hashPassword(body.password, user.salt);
     ok = hash === user.hash;
   }
-  if (!ok) return json({ error: "账号或密码/验证码错误" }, 401);
+  if (!ok) {
+    // 记录失败，连续 5 次临时锁 15 分钟（仅此时写 1 次 KV）
+    let f = _loginFail.get(ip) || { cnt: 0, ts: Date.now() };
+    if (Date.now() - f.ts > 15 * 60 * 1000) f = { cnt: 0, ts: Date.now() };
+    f.cnt++; _loginFail.set(ip, f);
+    if (f.cnt >= 5) {
+      try {
+        await (env.SECURITY || env.ACCESS).put("sec:lock:" + ip, JSON.stringify({ until: Date.now() + 15 * 60 * 1000, cnt: f.cnt }), { expirationTtl: 15 * 60 + 60 });
+      } catch (e) {}
+      _loginFail.delete(ip);
+      return json({ error: "密码连续错误次数过多，账号已临时锁定 15 分钟" }, 429);
+    }
+    return json({ error: "账号或密码/验证码错误" }, 401);
+  }
+  // 成功后清除失败计数与锁定
+  _loginFail.delete(ip);
+  try { await (env.SECURITY || env.ACCESS).delete("sec:lock:" + ip); } catch (e) {}
 
   const panels = (user.panels && user.panels.length) ? user.panels : (DEFAULT_PANELS[user.role] || ["dashboard"]);
   const device = parseUA(req ? req.headers.get("user-agent") : "");
@@ -594,7 +950,16 @@ const DEFAULT_PANELS = {
   super: ["dashboard","tasks","music","art","sim","code","opcode","wcodex","trivia","uidesign","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","changelog","eventitems","sponsor","analytics","liveprice","mappass","subadmins","usermgr","site","guides","craft","quiz","materials","rigs","containers","scatter","items","bullets","maps","announce","ugc"],
   tasks: ["tasks"], music: ["music"], art: ["art","images"], sim: ["sim"], code: ["code"],
   opcode: ["opcode"], wcodex: ["wcodex"], data: ["gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems"],
-  usermgr: ["usermgr"]
+  usermgr: ["usermgr"],
+  // —— 按「职务」扩充的分管理员（V32–V34） ——
+  content:  ["tasks","optask","events","streamer","door","gun","guides","craft","quiz","news","announce","ugc","feedback","changelog"],
+  community: ["usermgr","subadmins","access","devices","ugc"],
+  codex:    ["opcode","wcodex","trivia","tujian","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems"],
+  artmusic: ["art","images","music"],
+  datatools: ["armors","scopes","npc","melee","rigs","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","materials","containers","items","bullets","maps","scatter","liveprice","mappass","sim","code","analytics"],
+  biz:      ["sponsor","site"],
+  secops:   ["subadmins","usermgr","access","secaudit","devices","announce","ugc","code"],
+  teamsmgr: ["teams"]
 };
 
 async function createSubadmin(env, body) {
@@ -869,19 +1234,26 @@ async function createUgc(env, body, sess) {
   const text = (body.body || "").trim();
   if (!title) return json({ error: "标题不能为空" }, 400);
   if (!text) return json({ error: "内容不能为空" }, 400);
+  const u = await getUserById(env, sess.email).catch(function () { return null; });
   const id = genId("u");
   let status = "pending", rejectReason = "", aiNote = "";
-  const mod = await aiModerate(env, title, text);
-  if (mod.decision === "approve") { status = "approved"; aiNote = "AI 自动通过：" + (mod.reason || ""); }
-  else if (mod.decision === "reject") { status = "rejected"; rejectReason = "AI 自动拒绝：" + (mod.reason || ""); }
-  else { status = "pending"; aiNote = "转人工：" + (mod.reason || ""); }
+  // 信任用户：跳过 AI，直接发布（由管理员在用户管理中设置）
+  if (u && u.trusted === true) {
+    status = "approved";
+    aiNote = "信任用户，自动通过";
+  } else {
+    const mod = await aiModerate(env, title, text);
+    if (mod.decision === "approve") { status = "approved"; aiNote = "AI 自动通过：" + (mod.reason || ""); }
+    else if (mod.decision === "reject") { status = "rejected"; rejectReason = "AI 自动拒绝：" + (mod.reason || ""); }
+    else { status = "pending"; aiNote = "转人工：" + (mod.reason || ""); }
+  }
   const rec = { id, author: sess.email, title, category: body.category || "攻略", body: text, status, createdAt: Date.now(), rejectReason, aiNote };
   await env.UGC.put("u:" + id, JSON.stringify(rec));
   const idx = await getUgcIdx(env);
   idx.unshift({ id, author: rec.author, title, category: rec.category, status, createdAt: rec.createdAt });
   if (idx.length > UGC_CAP) idx.length = UGC_CAP;
   await setUgcIdx(env, idx);
-  return json({ ok: true, id });
+  return json({ ok: true, id, status: status });
 }
 async function listApprovedUgc(env) {
   const idx = await getUgcIdx(env);
@@ -977,9 +1349,20 @@ async function listMembers(env) {
   const users = await allUsers(env);
   const members = users
     .filter((u) => u.role === "user")
-    .map((u) => ({ id: (u.email || u.phone || "").toLowerCase(), email: u.email || "", phone: u.phone || "", name: u.name || "", disabled: !!u.disabled, createdAt: u.createdAt || null }))
+    .map((u) => {
+      const id = (u.email || u.phone || "").toLowerCase();
+      const ci = checkinInfo(u);
+      return { id, email: u.email || "", phone: u.phone || "", name: u.name || "", disabled: !!u.disabled, trusted: !!u.trusted, createdAt: u.createdAt || null, points: ci.points, streak: ci.streak, level: ci.level, lastSeen: u.lastSeen || null };
+    })
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   return json({ members });
+}
+async function getMemberDetails(env, id) {
+  const u = await getUserById(env, id);
+  if (!u || u.role !== "user") return json({ error: "用户不存在" }, 404);
+  const ci = checkinInfo(u);
+  const p = await getPresence(env, id);
+  return json({ user: { id: (u.email || u.phone || "").toLowerCase(), email: u.email || "", phone: u.phone || "", name: u.name || "", bio: u.bio || "", avatar: u.avatar || "", disabled: !!u.disabled, trusted: !!u.trusted, createdAt: u.createdAt || null, points: ci.points, streak: ci.streak, level: ci.level, lastCheckin: ci.lastCheckin, lastSeen: p ? p.ts : (u.lastSeen || null) } });
 }
 async function setMemberDisabled(env, body) {
   const id = (body.id || "").trim().toLowerCase();
@@ -989,6 +1372,28 @@ async function setMemberDisabled(env, body) {
   u.disabled = !!body.disabled;
   await putUser(env, u);
   return json({ ok: true, disabled: u.disabled });
+}
+async function setMemberTrusted(env, body) {
+  const id = (body.id || "").trim().toLowerCase();
+  if (!id) return json({ error: "缺少用户 id" }, 400);
+  const u = await getUserById(env, id);
+  if (!u || u.role !== "user") return json({ error: "用户不存在" }, 404);
+  u.trusted = !!body.trusted;
+  await putUser(env, u);
+  return json({ ok: true, trusted: u.trusted });
+}
+async function resetMemberPassword(env, body) {
+  const id = (body.id || "").trim().toLowerCase();
+  const pw = body.password || "";
+  if (!id) return json({ error: "缺少用户 id" }, 400);
+  if (pw.length < 6) return json({ error: "密码至少 6 位" }, 400);
+  const u = await getUserById(env, id);
+  if (!u || u.role !== "user") return json({ error: "用户不存在" }, 404);
+  const salt = await newSalt();
+  const hash = await hashPassword(pw, salt);
+  u.salt = salt; u.hash = hash;
+  await putUser(env, u);
+  return json({ ok: true });
 }
 async function deleteMember(env, body) {
   const id = (body.id || "").trim().toLowerCase();
@@ -1138,6 +1543,90 @@ async function kzbDiy(env, url) {
   }
 }
 
+// 智能出装推荐：orzice V4 实时配装推荐（按档位返回多组推荐方案）
+async function kzbRecommend(env, url) {
+  const token = env.ORZICE_TOKEN;
+  if (!token) {
+    return json({ error: "未配置 ORZICE_TOKEN（在 Cloudflare Worker 添加 Secret 后启用智能出装推荐）", needToken: true }, 200);
+  }
+  const lv = url.searchParams.get("lv") || "0";
+  const qs = new URLSearchParams();
+  qs.set("lv", lv);
+  qs.set("token", token);
+  const upstream = "https://orzice.com/workApi/v1/sjz_api/jzv4_zb?" + qs.toString();
+  try {
+    const r = await fetch(upstream, { headers: { "User-Agent": "DeltaIntel/1.0" } });
+    const txt = await r.text();
+    let data;
+    try { data = JSON.parse(txt); } catch (e) {
+      return json({ error: "上游返回非 JSON：" + txt.slice(0, 200), upstreamStatus: r.status }, 502);
+    }
+    return json(data, r.status === 200 ? 200 : 502);
+  } catch (e) {
+    return json({ error: "调用推荐接口失败：" + (e && e.message ? e.message : e), needToken: !token }, 502);
+  }
+}
+
+/* ============ 战绩查询（第三方聚合 xianyuw.cn，Secret: DF_STATS_KEY） ============ */
+// 常见战绩字段 → 中文标签（前端展示用；未知字段按原 key 显示）
+const ZHANJI_LABELS = {
+  kd: "KD", win_rate: "胜率", winrate: "胜率", winRate: "胜率",
+  matches: "总场次", match_count: "总场次", total_match: "总场次", total: "总场次",
+  rank: "历史最高段位", rank_name: "段位", rankName: "段位",
+  evac_rate: "撤离率", evacRate: "撤离率", escape_rate: "撤离率", evacRate2: "撤离率",
+  extract_value: "带出价格", extractValue: "带出价格", takeout: "带出价格", take_out: "带出价格",
+  kills: "击败人数", kill: "击败人数", kill_count: "击败人数",
+  level: "等级", nickname: "昵称", openid: "OpenID", uid: "UID",
+  warehouse_value: "仓库价值", hafcoin: "哈夫币",
+  tdm_level: "TDM 等级", tdm_exp: "TDM 经验",
+  play_time: "游戏时长", playTime: "游戏时长", duration: "游戏时长",
+  bigred: "大红解锁进度", big_red: "大红解锁进度",
+};
+
+// 把任意嵌套对象拍平为单层（数组原样保留），便于前端统一展示
+function flattenObj(obj, prefix, out) {
+  if (!obj || typeof obj !== "object") return;
+  for (const k of Object.keys(obj)) {
+    const v = obj[k];
+    const key = prefix ? prefix + "." + k : k;
+    if (v && typeof v === "object" && !Array.isArray(v)) flattenObj(v, key, out);
+    else out[key] = v;
+  }
+}
+
+async function zhanjiProxy(env, cookieId) {
+  const key = env.DF_STATS_KEY;
+  if (!key) return json({ error: "未配置 DF_STATS_KEY（在 Cloudflare Worker 添加 Secret：xianyuw.cn 的免费 key）后启用自动战绩", needKey: true }, 200);
+  if (!cookieId) return json({ error: "缺少 cookie_id（在三角洲行动游戏站登录后从浏览器 Cookie 取得）" }, 400);
+  const upstream = "https://apii.xianyuw.cn/api/v1/deltaforce-get-stats?key=" + encodeURIComponent(key) + "&cookie_id=" + encodeURIComponent(cookieId);
+  try {
+    const r = await fetch(upstream, { headers: { "User-Agent": "DeltaIntel/1.0" } });
+    const txt = await r.text();
+    let data;
+    try { data = JSON.parse(txt); } catch (e) { return json({ error: "上游返回非 JSON：" + txt.slice(0, 200), upstreamStatus: r.status }, 502); }
+    const flat = {};
+    flattenObj(data, "", flat);
+    return json({
+      ok: true, source: "xianyuw.cn",
+      nickname: data.nickname || flat.nickname || "",
+      openid: data.openid || flat.openid || "",
+      level: data.level || flat.level || "",
+      stats: flat, // 全部字段，前端按 ZHANJI_LABELS 标注，未知字段原样显示
+      raw: data,
+    }, r.status === 200 ? 200 : 502);
+  } catch (e) {
+    return json({ error: "调用战绩接口失败：" + (e && e.message ? e.message : e), needKey: !key }, 502);
+  }
+}
+
+async function bindDfCookie(env, s, cookieId) {
+  const user = await getUserById(env, s.email);
+  if (!user) return json({ error: "用户不存在" }, 404);
+  user.df_cookie = cookieId;
+  await putUser(env, user);
+  return json({ ok: true });
+}
+
 /* ============ 全球实时排行榜（KV: LB） ============ */
 // 支持的游戏 key（与前端 games.js 中 GAME 的 tab 一致）
 const LB_GAMES = ["morse", "pc", "react", "brain", "fp", "quiz"];
@@ -1223,6 +1712,11 @@ async function handle(request, env) {
   if (request.method === "OPTIONS") return corsPreflight();
   const url = new URL(request.url);
   const p = url.pathname;
+
+  /* 10 层应用防火墙：拦截恶意/滥用请求（仅黑名单 1 次 KV 读，其余内存，省额度） */
+  const secResp = await securityGate(env, request);
+  if (secResp) return secResp;
+
   let body = {};
   try {
     const ct = request.headers.get("content-type") || "";
@@ -1234,10 +1728,11 @@ async function handle(request, env) {
     return json({ error: "请求体不是合法 JSON" }, 400);
   }
 
-  /* 访问日志：记录页面与 API 请求（跳过 css/js/图片等静态资源） */
+  /* 访问日志：记录页面与 API 写请求，跳过静态资源与 API GET 轮询（省 KV） */
   try {
     const skipStatic = /\.(css|js|svg|jpg|jpeg|png|gif|ico|woff2?|ttf|json|webmanifest)$/i.test(p);
-    if (!skipStatic) {
+    const isApiPoll = request.method === "GET" && p.startsWith("/api/");
+    if (!skipStatic && !isApiPoll) {
       const ua = request.headers.get("user-agent") || "";
       const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
       const country = (request.cf && request.cf.country) || "";
@@ -1313,6 +1808,59 @@ async function handle(request, env) {
       await requireUserMgr(env, request);
       return await deleteMember(env, body);
     }
+    if (p === "/api/admin/member/trusted" && request.method === "PUT") {
+      await requireUserMgr(env, request);
+      return await setMemberTrusted(env, body);
+    }
+    if (p === "/api/admin/member/reset-password" && request.method === "POST") {
+      await requireUserMgr(env, request);
+      return await resetMemberPassword(env, body);
+    }
+    if (p.startsWith("/api/admin/member/") && request.method === "GET" && p.length > "/api/admin/member/".length) {
+      await requireUserMgr(env, request);
+      return await getMemberDetails(env, decodeURIComponent(p.slice("/api/admin/member/".length)));
+    }
+
+    if (p === "/api/admin/apps" && request.method === "GET") {
+      await requireSuper(env, request);
+      return json({ apps: await getApps(env) });
+    }
+    if (p === "/api/admin/apps" && request.method === "PUT") {
+      await requireSuper(env, request);
+      const apps = Array.isArray(body.apps) ? body.apps : [];
+      return json(await putApps(env, apps));
+    }
+
+    /* —— 工作台：表单收集提交（公开）/ 后台查看（super） —— */
+    if (p === "/api/app/submit" && request.method === "POST") {
+      // 公开接口：单 IP 每分钟上限 30 次，防垃圾/滥用
+      const sip = clientIp(request);
+      const now = Date.now();
+      let w = _submitRl.get(sip) || { cnt: 0, ts: now };
+      if (now - w.ts > 60000) w = { cnt: 0, ts: now };
+      w.cnt++; _submitRl.set(sip, w);
+      if (w.cnt > 30) return json({ error: "提交过于频繁，请稍后再试" }, 429);
+      const appId = (body && body.appId) || "";
+      const pageId = (body && body.pageId) || "";
+      // ID 仅允许字母数字下划线连字符，避免用于操控 KV 键或注入
+      if (!/^[A-Za-z0-9_\-]{1,64}$/.test(appId) || !/^[A-Za-z0-9_\-]{1,64}$/.test(pageId))
+        return json({ error: "appId/pageId 非法" }, 400);
+      const fields = (body && body.fields) || {};
+      if (typeof fields !== "object" || fields === null || Array.isArray(fields))
+        return json({ error: "fields 格式错误" }, 400);
+      const keys = Object.keys(fields);
+      if (keys.length > 100) return json({ error: "字段数量过多" }, 400);
+      if (JSON.stringify(fields).length > 16 * 1024) return json({ error: "提交内容过大" }, 400);
+      await appendSubmission(env, appId, pageId, { at: Date.now(), fields: fields });
+      return json({ ok: true });
+    }
+    if (p === "/api/admin/app-submissions" && request.method === "GET") {
+      await requireSuper(env, request);
+      const appId = url.searchParams.get("app") || "";
+      const pageId = url.searchParams.get("page") || "";
+      if (!appId || !pageId) return json({ error: "缺少 app/page 参数" }, 400);
+      return json({ rows: await getSubmissions(env, appId, pageId) });
+    }
 
     if (p === "/api/admin/data" && request.method === "GET") {
       await requireStaff(env, request);
@@ -1324,6 +1872,10 @@ async function handle(request, env) {
     if (p === "/api/admin/data" && request.method === "PUT") {
       await requireStaff(env, request);
       if (!env.GH_TOKEN) return json({ error: "Worker 未配置 GH_TOKEN" }, 500);
+      if (typeof body.content !== "string") return json({ error: "content 必须是字符串" }, 400);
+      try { JSON.parse(body.content); } catch (e) {
+        return json({ error: "content 不是合法 JSON，已拒绝写入（避免整站数据损坏）" }, 400);
+      }
       await ghPutData(env, body.content, "[分管理员] 更新数据");
       return json({ ok: true });
     }
@@ -1403,6 +1955,82 @@ async function handle(request, env) {
       if (request.method === "DELETE") return await deleteUgc(env, uid);
     }
 
+    /* —— 战队 / 公会（V33） —— */
+    if (p === "/api/teams" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      return await createTeam(env, body, s);
+    }
+    if (p === "/api/teams" && request.method === "GET") {
+      const q = url.searchParams.get("q") || "";
+      return await listTeamsPublic(env, q);
+    }
+    if (p === "/api/teams/mine" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      return await myTeams(env, s.email);
+    }
+    if (p.startsWith("/api/teams/") && p.length > "/api/teams/".length) {
+      const rest = p.slice("/api/teams/".length);
+      const slash = rest.indexOf("/");
+      const tid = slash < 0 ? rest : rest.slice(0, slash);
+      const sub = slash < 0 ? "" : rest.slice(slash); // "", "/join", "/leave", "/record", "/promote", "/feature"
+      if (!tid) return json({ error: "缺少战队 id" }, 400);
+      if (sub === "" && request.method === "GET") return await getTeamDetail(env, tid);
+      if (sub === "" && request.method === "DELETE") {
+        const s = await requireLogin(env, request);
+        return await deleteTeam(env, tid, s);
+      }
+      if (sub === "/join" && request.method === "POST") {
+        const s = await requireLogin(env, request);
+        return await joinTeam(env, tid, s);
+      }
+      if (sub === "/leave" && request.method === "POST") {
+        const s = await requireLogin(env, request);
+        return await leaveTeam(env, tid, s);
+      }
+      if (sub === "/record" && request.method === "POST") {
+        const s = await requireLogin(env, request);
+        return await addTeamRecord(env, tid, body, s);
+      }
+      if (sub === "/promote" && request.method === "POST") {
+        const s = await requireLogin(env, request);
+        return await promoteMember(env, tid, body, s);
+      }
+      if (sub === "/feature" && request.method === "POST") {
+        await requireStaff(env, request);
+        return await setTeamFeatured(env, tid, body);
+      }
+    }
+    /* —— 战队管理（后台总览） —— */
+    if (p === "/api/admin/teams" && request.method === "GET") {
+      await requireStaff(env, request);
+      return await adminListTeams(env);
+    }
+    if (p.startsWith("/api/admin/teams/") && p.length > "/api/admin/teams/".length) {
+      const tid = p.slice("/api/admin/teams/".length);
+      await requireStaff(env, request);
+      if (request.method === "DELETE") return await adminDeleteTeam(env, tid);
+    }
+
+    /* —— 战绩查询（V35 候选：手动 / 第三方代理 / QQ·微信登录后绑定 cookie_id） —— */
+    if (p === "/api/zhanji" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      const qid = url.searchParams.get("cookie_id");
+      const cookieId = qid || (await getUserById(env, s.email) || {}).df_cookie || "";
+      return await zhanjiProxy(env, cookieId);
+    }
+    if (p === "/api/zhanji/me" && request.method === "GET") {
+      const s = await requireLogin(env, request);
+      const cookieId = (await getUserById(env, s.email) || {}).df_cookie || "";
+      if (!cookieId) return json({ error: "尚未绑定 cookie_id，请先在战绩页填入并绑定", needBind: true }, 200);
+      return await zhanjiProxy(env, cookieId);
+    }
+    if (p === "/api/me/dfcookie" && request.method === "POST") {
+      const s = await requireLogin(env, request);
+      const cid = (body.cookie_id || "").trim();
+      if (!cid) return json({ error: "缺少 cookie_id" }, 400);
+      return await bindDfCookie(env, s, cid);
+    }
+
     /* —— 评论 —— */
     if (p === "/api/comments" && request.method === "GET") {
       const target = url.searchParams.get("target") || "";
@@ -1452,6 +2080,96 @@ async function handle(request, env) {
       const cf = await cfAnalytics(env);
       if (cf) data.cloudflare = cf;
       return json(data);
+    }
+
+    /* —— 安全防护（V36）：境外请求审核 + 封禁管理（仅后台） —— */
+    if (p === "/api/admin/security/review" && request.method === "GET") {
+      await requireStaff(env, request);
+      const secKV = env.SECURITY || env.ACCESS;
+      const review = [];
+      const blocked = [];
+      try {
+        const qi = await secKV.get("sec:review_queue");
+        const arr = qi ? JSON.parse(qi) : [];
+        for (const ip of arr) {
+          const r = await secKV.get("sec:review:" + ip);
+          if (r) { try { review.push(JSON.parse(r)); } catch (e) {} }
+        }
+        const bi = await secKV.get("sec:block_queue");
+        const barr = bi ? JSON.parse(bi) : [];
+        for (const ip of barr) {
+          const r = await secKV.get("sec:block:" + ip);
+          if (r) { try { blocked.push(JSON.parse(r)); } catch (e) {} }
+        }
+      } catch (e) {}
+      return json({ review: review, blocked: blocked });
+    }
+    if (p === "/api/admin/security/review" && request.method === "POST") {
+      const s = await requireStaff(env, request);
+      const secKV = env.SECURITY || env.ACCESS;
+      const ip = (body.ip || "").trim();
+      const action = (body.action || "").trim();
+      if (!ip) return json({ error: "缺少 IP" }, 400);
+      if (action === "approve") {
+        try {
+          const r = await secKV.get("sec:review:" + ip);
+          const o = r ? JSON.parse(r) : { ip: ip, status: "approved" };
+          o.status = "approved"; o.note = (body.note || ""); o.reviewedAt = Date.now(); o.by = s.email;
+          await secKV.put("sec:review:" + ip, JSON.stringify(o));
+          await secKV.put("sec:allow:" + ip, "1");
+          const qi = await secKV.get("sec:review_queue");
+          let arr = qi ? JSON.parse(qi) : [];
+          arr = arr.filter(function (x) { return x !== ip; });
+          await secKV.put("sec:review_queue", JSON.stringify(arr));
+          _allow.add(ip); _flagged.add(ip);
+        } catch (e) {}
+        return json({ ok: true });
+      }
+      if (action === "block") {
+        try {
+          await secKV.put("sec:block:" + ip, JSON.stringify({ ip: ip, by: s.email, at: Date.now(), reason: (body.note || "后台审核封禁") }));
+          const bi = await secKV.get("sec:block_queue");
+          let barr = bi ? JSON.parse(bi) : [];
+          if (barr.indexOf(ip) < 0) barr.push(ip);
+          await secKV.put("sec:block_queue", JSON.stringify(barr));
+          const qi = await secKV.get("sec:review_queue");
+          let arr = qi ? JSON.parse(qi) : [];
+          arr = arr.filter(function (x) { return x !== ip; });
+          await secKV.put("sec:review_queue", JSON.stringify(arr));
+          _flagged.add(ip);
+        } catch (e) {}
+        return json({ ok: true });
+      }
+      return json({ error: "无效操作" }, 400);
+    }
+    if (p === "/api/admin/security/block" && request.method === "POST") {
+      const s = await requireStaff(env, request);
+      const secKV = env.SECURITY || env.ACCESS;
+      const ip = (body.ip || "").trim();
+      if (!ip) return json({ error: "缺少 IP" }, 400);
+      try {
+        await secKV.put("sec:block:" + ip, JSON.stringify({ ip: ip, by: s.email, at: Date.now(), reason: (body.reason || "手动封禁") }));
+        const bi = await secKV.get("sec:block_queue");
+        let barr = bi ? JSON.parse(bi) : [];
+        if (barr.indexOf(ip) < 0) barr.push(ip);
+        await secKV.put("sec:block_queue", JSON.stringify(barr));
+      } catch (e) {}
+      return json({ ok: true });
+    }
+    if (p === "/api/admin/security/unblock" && request.method === "POST") {
+      const s = await requireStaff(env, request);
+      const secKV = env.SECURITY || env.ACCESS;
+      const ip = (body.ip || "").trim();
+      if (!ip) return json({ error: "缺少 IP" }, 400);
+      try {
+        await secKV.delete("sec:block:" + ip);
+        const bi = await secKV.get("sec:block_queue");
+        let barr = bi ? JSON.parse(bi) : [];
+        barr = barr.filter(function (x) { return x !== ip; });
+        await secKV.put("sec:block_queue", JSON.stringify(barr));
+        _blockCache.delete(ip);
+      } catch (e) {}
+      return json({ ok: true });
     }
 
     /* —— 好友系统（登录用户） —— */
@@ -1542,6 +2260,7 @@ async function handle(request, env) {
 
     /* —— 智能卡战备：代理三角洲数据帝实时卡战备 API（token 存 Worker Secret ORZICE_TOKEN，不暴露给前端） —— */
     if (p === "/api/kzb/diy" && request.method === "GET") return await kzbDiy(env, url);
+    if (p === "/api/kzb/recommend" && request.method === "GET") return await kzbRecommend(env, url);
 
     /* —— 全球实时排行榜（KV: LB） —— */
     if (p === "/api/leaderboard" && request.method === "GET") return await leaderboardGet(env, url);
