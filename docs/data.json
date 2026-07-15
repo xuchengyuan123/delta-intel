@@ -115,43 +115,7 @@
       }
     ]
   },
-  "maps": [
-    {
-      "name": "彩六联动房",
-      "code": "537",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "AZ3核电站",
-      "code": "5723",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "5603",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "5394",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "5946",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "0351",
-      "date": "2026-07-15 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "0242",
-      "date": "2026-07-15 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -472,7 +436,8 @@
     "afdianUrl": "https://ifdian.net/a/delta-intel",
     "accent2": "#19c3a6",
     "art": {},
-    "apiBase": "https://api.delta.shopping"
+    "apiBase": "https://api.delta.shopping",
+    "havkVoiceUrl": "assets/login-voice.wav"
   },
   "adminLog": [],
   "tasks": {
@@ -2662,7 +2627,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-07-15T06:28:58.845Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
@@ -4270,6 +4235,38 @@
     }
   ],
   "changelog": [
+    {
+      "date": "2026-07-15",
+      "title": "v41 · 恢复 style.css + 开发工作台/音乐圆球",
+      "items": [
+        "修复误覆盖：恢复 docs/css/style.css 全部原始样式（用户从最新版本贴回恢复）",
+        "恢复后重新补回悬浮音乐播放器 .mu-float 样式（小圆球 → 展开音乐台）与开发工作台 .wb-* 样式",
+        "悬浮音乐播放器默认改为右下角小圆球（.mu-float.orb），点击展开为完整音乐台（此前为全屏/大条，过于突兀）",
+        "后台新增「开发工作台」模块（js/workbench.js + admin.html 菜单），支持零代码工作管理 / 新页面生成 / 站点设置 / 一键发版",
+        "移动端横竖屏、缩放、表格滚动、控件 ≥16px 防 iOS 聚焦缩放等自适应增强已随原始 style.css 一并回归"
+      ]
+    },
+    {
+      "date": "2026-07-15",
+      "title": "v40 · 悬浮音乐播放器按音乐台重建",
+      "items": [
+        "悬浮播放器（js/music.js）改为与 music.html 音乐台同一套实现：多源 Meting API + 真实 <audio> 播放（不再用 QQ outchain iframe）",
+        "后台 data.json.music[] 的 QQ 歌曲按 songid 经 Meting 自动解析出可播放链接与封面（无 songid 的跳过）",
+        "悬浮条样式统一为 .mu-float（原 .music-float/.mf-* 全部移除），与音乐台完全一致",
+        "展开悬浮条可直接搜歌并加入播放列表（多端点回退，结果追加不去覆盖后台歌单），支持上一首/播放/下一首/收起胶囊",
+        "默认载入《Unbreakable（坚不可摧）》（与音乐台一致）；全站悬浮默认折叠为胶囊，点击展开",
+        "全站静态资源升级至 v40 缓存（?v=40 / delta-intel-v40）"
+      ]
+    },
+    {
+      "date": "2026-07-15",
+      "title": "v39 · 后台登录语音",
+      "items": [
+        "后台登录成功后播放专属语音「巴别塔身份认证」（assets/login-voice.wav），替换原先的语音合成播报",
+        "新增音频资源 assets/login-voice.wav（巴别塔身份认证，约 4 秒）",
+        "全站静态资源升级至 v39 缓存（?v=39 / delta-intel-v39）"
+      ]
+    },
     {
       "date": "2026-07-15",
       "title": "v38 · 音乐台/资讯/改枪码/账号 界面升级",

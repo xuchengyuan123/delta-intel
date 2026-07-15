@@ -1,0 +1,34 @@
+三角洲情报台 · v39 部署说明（后台登录语音）
+================================================
+
+本次改动
+--------
+1. 新增音频资源：assets/login-voice.wav（来自用户提供的「巴别塔身份认证.wav」，
+   733KB，16bit 立体声 44100Hz PCM，约 4 秒）。文件名改为 ASCII 以避免中文 URL 编码问题。
+2. data.json 的 site.havkVoiceUrl = "assets/login-voice.wav"（后台「站点设置」里的
+   「登录语音 URL」输入框仍可随时改；留空则回退为语音合成「身份验证通过，巴别塔欢迎您」）。
+3. 修正语音触发时机：原代码在 admin.html 一打开（页面加载）就播，现改为
+   「登录成功」(enterShell) 才播，符合「后台登录语音」诉求。
+4. 版本升 v39：全站 ?v=38 -> ?v=39（13 文件），sw.js CACHE=delta-intel-v39，
+   js/app.js 注册 sw.js?v=39，data.json changelog 头部加 v39。
+
+为什么登录时才响（不是打开页面就响）
+-----------------------------------
+原 playLoginVoice 逻辑写在 applyStoredUi()（data.json 加载回调）里，admin.html 一加载就执行，
+导致没登录也会播。现已抽出独立函数 playLoginVoice()，在 enterShell()（登录成功入口，
+自动恢复会话也会走这里）顶部调用。
+
+部署步骤
+--------
+1. 把桌面「三角洲情报台-上传包」整包（含新增 docs/assets/login-voice.wav）上传到
+   GitHub Pages 仓库根目录。务必带上 assets/ 目录。
+2. 浏览器打开后台 admin.html，Ctrl+F5 强刷（清掉 v38 旧缓存）。
+3. 输入账号密码登录 -> 应听到「巴别塔身份认证」语音。
+4. 若没声音：检查浏览器是否拦截自动播放（登录是用户点击触发的，正常应放行）；
+   或到后台「站点设置」确认「登录语音 URL」= assets/login-voice.wav。
+
+注意
+----
+- assets/login-voice.wav 未加入 sw.js SHELL 预缓存（避免无登录用户也下载 733KB），
+  首次登录后由 Service Worker 自动缓存，之后离线也可用。
+- Worker 无需改动，纯前端 + data.json + 静态资源。

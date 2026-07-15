@@ -4,51 +4,15 @@
   <meta charset="utf-8">
   <title>音乐台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=38">
+  <link rel="stylesheet" href="css/style.css?v=41">
   <style>
+    /* 页面级样式；播放器相关 .mu-* 已统一到 css/style.css（与悬浮播放器共用） */
     .mu-wrap{max-width:980px;margin:0 auto;padding:18px 16px 120px;}
     .mu-logo{font-weight:800;font-size:18px;color:var(--text);text-decoration:none;}
     .mu-logo span{color:var(--accent);}
     .mu-back{color:var(--muted);text-decoration:none;font-size:13px;margin-left:10px;}
     .mu-title{font-size:22px;margin:14px 0 4px;}
     .mu-sub{color:var(--muted);font-size:13px;margin:0 0 14px;}
-    .mu-search{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-    .mu-search input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;}
-    .mu-search select{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:14px;}
-    .mu-btn{padding:10px 18px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;}
-    .mu-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
-    .mu-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
-    .mu-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:.15s;display:flex;gap:10px;align-items:center;}
-    .mu-card:hover{border-color:var(--accent);}
-    .mu-card.playing{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
-    .mu-cover{width:48px;height:48px;border-radius:8px;object-fit:cover;background:var(--bg);flex-shrink:0;}
-    .mu-info{min-width:0;}
-    .mu-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-artist{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-tip{color:var(--muted);font-size:13px;margin:10px 0;}
-    /* 悬浮播放器 */
-    .mu-float{position:fixed;left:16px;right:16px;bottom:16px;z-index:60;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);}
-    .mu-float.mini{width:auto;left:auto;right:16px;bottom:16px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
-    .mu-float.mini .mu-now{display:none;}
-    .mu-float.mini audio{display:none;}
-    .mu-float.mini .mu-ctrl{width:100%;justify-content:center;}
-    .mu-float.mini .mu-mini-info{display:block;}
-    .mu-mini-info{display:none;font-size:12px;color:var(--muted);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-float .mu-bar-head{display:flex;align-items:center;gap:12px;}
-    .mu-float img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);flex-shrink:0;}
-    .mu-now{min-width:0;flex:1;}
-    .mu-now .t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-now .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mu-float audio{flex:2;max-width:520px;min-width:160px;}
-    .mu-ctrl{display:flex;gap:8px;align-items:center;}
-    .mu-ctrl button{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;}
-    .mu-ctrl button.play{background:var(--accent);color:#fff;border-color:var(--accent);}
-    .mu-toggle{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-left:auto;}
-    @media(max-width:640px){
-      .mu-float{left:8px;right:8px;bottom:8px;}
-      .mu-float .mu-now{max-width:120px;}
-      .mu-float audio{flex:1;max-width:none;}
-    }
   </style>
 </head>
 <body>
