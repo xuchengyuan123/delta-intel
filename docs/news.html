@@ -146,6 +146,9 @@
     color: var(--muted);
     margin: 4px 0 0;
   }
+  .n-stats { margin-top: 4px; font-size: 12.5px; }
+  .n-stats span { color: var(--muted); }
+  .n-stats span:last-child { color: var(--red); }
 
   /* Badges */
   .badge {
@@ -300,42 +303,48 @@
       source: "官方公告",
       date: "2026-07-14",
       summary: "全新赛季「破晓行动」上线，新增特勤干员「夜枭」，重做航天基地夜间光照系统，并优化撤离点匹配效率。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 12840, likes: 932
     },
     {
       title: "限时活动：双子峰突袭 · 全服掉落双倍",
       source: "活动中心",
       date: "2026-07-12",
       summary: "7月12日至7月20日，机密/绝密行动局内物资双倍掉落，完成任务可兑换限定迷彩与挂饰。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 9870, likes: 654
     },
     {
       title: "干员平衡性调整：突击位全面重做",
       source: "开发组日志",
       date: "2026-07-09",
       summary: "本版本对突击职业的机动性与火力曲线进行重新调校，新增战术翻滚与滑铲衔接，提升近中距离交火表现。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 7650, likes: 421
     },
     {
       title: "三角洲冠军杯 2026 夏季赛开赛在即",
       source: "电竞官方",
       date: "2026-07-07",
       summary: "32支顶尖战队角逐总奖金 200 万元，7月18日揭幕战将在上海电竞中心线下开打，线上同步直播。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 11200, likes: 803
     },
     {
       title: "新地图「潮汐监狱」实机演示曝光",
       source: "社区速递",
       date: "2026-07-05",
       summary: "绝密难度新图「潮汐监狱」曝光，引入动态水位机制与可破坏墙体，战术博弈空间大幅提升。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 6340, likes: 377
     },
     {
       title: "客户端热更新：修复撤离载具卡死问题",
       source: "运维公告",
       date: "2026-07-03",
       summary: "修复部分情况下撤离载具模型加载失败导致卡死的异常，并降低高负载场景的显存占用。",
-      url: "https://df.qq.com/"
+      url: "https://df.qq.com/",
+      thumb: "", views: 4985, likes: 256
     }
   ];
 
@@ -472,7 +481,12 @@
     return m ? m[1] : "";
   }
 
-  /* ---------- 渲染：资讯 ---------- */
+  /* ---------- 渲染：资讯（左图右文卡片） ---------- */
+  function fmtNum(n) {
+    n = n || 0;
+    if (n >= 10000) return (n / 10000).toFixed(1) + " 万";
+    return String(n);
+  }
   function renderNews(list, panel) {
     panel.innerHTML = "";
     if (!list || !list.length) {
@@ -480,20 +494,40 @@
       return;
     }
     list.forEach(function (n) {
-      var card = el("div", "card");
-      var titleHtml =
-        '<a href="' + esc(n.url) + '" target="_blank" rel="noopener">' + esc(n.title) + "</a>";
+      var card = el("div", "card clickable news-card");
+      card.addEventListener("click", function (e) {
+        if (e.target.tagName !== "A" && n.url) window.open(n.url, "_blank", "noopener");
+      });
+
+      var row = el("div", "row");
+      var thumb = el("div", "thumb");
+      if (n.thumb) {
+        thumb.innerHTML = '<img src="' + esc(n.thumb) + '" alt="封面" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=&quot;ph&quot;>📰</div>\'">';
+      } else {
+        thumb.innerHTML = '<div class="ph">📰</div>';
+      }
+      row.appendChild(thumb);
+
+      var body = el("div", "body");
       var head = el("div", "card-head");
-      head.appendChild(el("div", "card-title", titleHtml));
-      card.appendChild(head);
+      head.innerHTML = '<div class="card-title"><a href="' + esc(n.url || "#") + '" target="_blank" rel="noopener">' + esc(n.title) + "</a></div>";
+      body.appendChild(head);
 
       var meta = el("div", "card-meta");
       meta.innerHTML =
         '<span class="src">' + esc(n.source || "未知来源") + "</span>" +
         "<span>📅 " + esc(n.date || "") + "</span>";
-      card.appendChild(meta);
+      body.appendChild(meta);
 
-      if (n.summary) card.appendChild(el("p", "card-summary", esc(n.summary)));
+      var stats = el("div", "card-meta n-stats");
+      stats.innerHTML =
+        "<span>👁 " + fmtNum(n.views) + "</span>" +
+        "<span>❤ " + fmtNum(n.likes) + "</span>";
+      body.appendChild(stats);
+
+      if (n.summary) body.appendChild(el("p", "card-summary", esc(n.summary)));
+      row.appendChild(body);
+      card.appendChild(row);
       panel.appendChild(card);
     });
   }

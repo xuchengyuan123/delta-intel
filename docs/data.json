@@ -435,7 +435,8 @@
     "name": "三角洲情报台",
     "afdianUrl": "https://ifdian.net/a/delta-intel",
     "accent2": "#19c3a6",
-    "art": {}
+    "art": {},
+    "apiBase": "https://api.delta.shopping"
   },
   "adminLog": [],
   "tasks": {
@@ -4154,21 +4155,30 @@
       "source": "官方公告",
       "date": "2026-07-14",
       "summary": "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励。",
-      "url": "https://df.qq.com/"
+      "url": "https://df.qq.com/",
+      "thumb": "",
+      "views": 12840,
+      "likes": 932
     },
     {
       "title": "干员平衡性调整预告",
       "source": "官方",
       "date": "2026-07-13",
       "summary": "下版本将对部分突击干员的后坐力与技能冷却进行微调，详情见公告。",
-      "url": "https://df.qq.com/"
+      "url": "https://df.qq.com/",
+      "thumb": "",
+      "views": 8650,
+      "likes": 514
     },
     {
       "title": "夏日嘉年华限时活动上线",
       "source": "三角洲情报台",
       "date": "2026-07-12",
       "summary": "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。",
-      "url": ""
+      "url": "",
+      "thumb": "",
+      "views": 5210,
+      "likes": 388
     }
   ],
   "live": [
@@ -4224,6 +4234,30 @@
     }
   ],
   "changelog": [
+    {
+      "date": "2026-07-15",
+      "title": "v38 · 音乐台/资讯/改枪码/账号 界面升级",
+      "items": [
+        "悬浮音乐播放器改为音乐台风格（全宽底栏 + 封面 + 标题/歌手 + 上一首/播放/下一首 + 收起/展开迷你胶囊）",
+        "后台音乐管理改为卡片式编辑器，支持封面预览、QQ音乐/直链/外链类型联动",
+        "资讯页改为左图右文卡片列表，新增阅读量/点赞展示（数据含 thumb/views/likes）",
+        "改枪码页新增「武器类型」筛选（步枪/狙击/机枪/冲锋枪等）+ 点赞收藏（本地）",
+        "个人主页改为「我的游戏账号」资产面板（累计游戏时长/总资产/昨日收益/大红累计价值/哈夫币 + 绑定按钮）",
+        "删除战绩查询页顶部说明文字",
+        "全站静态资源升级至 v38 缓存（?v=38 / delta-intel-v38）"
+      ]
+    },
+    {
+      "date": "2026-07-15",
+      "title": "v37 · 修复后台/战队加载失败",
+      "items": [
+        "修复 data.json 缺少 site.apiBase 导致 admin 后台“加载失败，请检查 Worker 地址”的问题",
+        "admin.html 默认 Worker 地址改为 https://api.delta.shopping，并自动从 data.json 读取覆盖；登录页 Worker 地址输入框预填默认值",
+        "Worker /api/teams 增加 TEAMS KV 未绑定时的清晰报错（原报错“Cannot read properties of undefined”）",
+        "后台浏览记录接口增加 ACCESS KV 未绑定时的清晰报错，方便排查绑定问题",
+        "全站静态资源升级至 v37 缓存（?v=37 / delta-intel-v37）"
+      ]
+    },
     {
       "date": "2026-07-15",
       "title": "v36 · 10 层应用防火墙 + 境外请求后台审核",

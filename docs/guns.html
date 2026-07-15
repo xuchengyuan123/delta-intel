@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>改枪码 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=38">
   <style>
     :root { --gun-accent: #ff8c1a; }
     body { background: var(--bg); color: var(--text); margin: 0; }
@@ -34,6 +34,8 @@
     .g-foot { margin-top: auto; display: flex; gap: 8px; }
     .g-copy { flex: 1; background: var(--gun-accent); color: #1a1a1a; border: 0; border-radius: 9px; padding: 9px; font-weight: 700; font-size: 13px; cursor: pointer; }
     .g-copy.ok { background: #2ecc71; }
+    .g-like { background: var(--bg-soft); color: var(--muted); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .g-like.on { color: #ff5b7f; border-color: rgba(255,91,127,.5); background: rgba(255,91,127,.1); }
     .g-empty { text-align: center; color: var(--muted); padding: 50px 0; }
     .g-status { text-align:center; color: var(--muted); padding: 40px 0; }
   </style>
@@ -45,6 +47,7 @@
       <h1 class="g-title">改枪<span>码</span></h1>
       <div class="g-search"><input id="gSearch" placeholder="搜索武器 / 方案名 / 标签…"></div>
     </div>
+    <div class="g-chips" id="gCats"></div>
     <div class="g-chips" id="gChips"></div>
     <div id="gGrid" class="g-grid"><div class="g-status">加载中…</div></div>
   </div>
@@ -52,7 +55,7 @@
   <script>
   (function () {
     "use strict";
-    var DATA = null, GUNS = [], gunImgMap = {}, activeTag = "", kw = "";
+    var DATA = null, GUNS = [], gunImgMap = {}, activeTag = "", activeCat = "", kw = "";
     function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
     function copyText(t) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -65,6 +68,12 @@
         document.body.removeChild(ta); res();
       });
     }
+    /* 点赞（本地收藏，按方案名去重） */
+    var LIKE_KEY = "df_gun_likes_v1";
+    function loadLikes() { try { return JSON.parse(localStorage.getItem(LIKE_KEY) || "{}"); } catch (e) { return {}; } }
+    function saveLikes(o) { try { localStorage.setItem(LIKE_KEY, JSON.stringify(o)); } catch (e) {} }
+    function likeState(g) { return loadLikes()[g.name] || { liked: false, n: 0 }; }
+    function likeCount(g) { return likeState(g).n || 0; }
     function buildGunImgMap() {
       // 用枪械 API 把武器名映射到图片（仅步枪类，其余降级为占位）
       return fetch("https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json/gun/gunRifle.json?_=" + Date.now())
@@ -86,6 +95,39 @@
       var s = {}; GUNS.forEach(function (g) { (g.tags || []).forEach(function (t) { s[t] = 1; }); });
       return Object.keys(s);
     }
+    /* 武器 → 类型 分类（用于顶部「武器类型」筛选，对齐 kkrb 风格） */
+    var WEAPON_CAT = {
+      "M4A1": "突击步枪", "AKM": "突击步枪", "K416": "突击步枪", "AS Val": "突击步枪", "M16A4": "突击步枪", "AUG": "突击步枪",
+      "M700": "狙击枪", "SR-25": "狙击枪", "M14": "狙击枪", "AX-50": "狙击枪", "SVD": "狙击枪",
+      "M250": "机枪", "M249": "机枪", "M134": "机枪", "PKM": "机枪",
+      "MP5": "冲锋枪", "Vector": "冲锋枪", "P90": "冲锋枪", "MP7": "冲锋枪", "UMP45": "冲锋枪",
+      "M870": "霰弹枪", "KS-12": "霰弹枪", "TCSG12": "霰弹枪",
+      "G18": "手枪", "M1911": "手枪", "P320": "手枪", "沙漠之鹰": "手枪"
+    };
+    function weaponCat(g) {
+      var w = (g.weapon || "").trim();
+      if (WEAPON_CAT[w]) return WEAPON_CAT[w];
+      var name = (g.name || "") + " " + w;
+      if (/狙|栓动|射手/.test(name)) return "狙击枪";
+      if (/冲锋/.test(name)) return "冲锋枪";
+      if (/机枪|轻机/.test(name)) return "机枪";
+      if (/霰弹|喷子/.test(name)) return "霰弹枪";
+      if (/手枪|侧枪/.test(name)) return "手枪";
+      if (/步枪|突击/.test(name)) return "突击步枪";
+      return "其它";
+    }
+    function allCats() {
+      var s = {}; GUNS.forEach(function (g) { s[weaponCat(g)] = 1; });
+      return Object.keys(s);
+    }
+    function renderCatChips() {
+      var html = '<div class="g-chip' + (activeCat === "" ? " on" : "") + '" data-c="">全部</div>' +
+        allCats().map(function (t) { return '<div class="g-chip' + (activeCat === t ? " on" : "") + '" data-c="' + esc(t) + '">' + esc(t) + "</div>"; }).join("");
+      var box = document.getElementById("gCats"); box.innerHTML = html;
+      box.querySelectorAll(".g-chip").forEach(function (el) {
+        el.onclick = function () { activeCat = el.getAttribute("data-c") || ""; renderCatChips(); renderGrid(); };
+      });
+    }
     function renderChips() {
       var html = '<div class="g-chip' + (activeTag === "" ? " on" : "") + '" data-t="">全部</div>' +
         allTags().map(function (t) { return '<div class="g-chip' + (activeTag === t ? " on" : "") + '" data-t="' + esc(t) + '">' + esc(t) + '</div>'; }).join("");
@@ -96,6 +138,7 @@
     }
     function renderGrid() {
       var list = GUNS.filter(function (g) {
+        if (activeCat && weaponCat(g) !== activeCat) return false;
         if (activeTag && (g.tags || []).indexOf(activeTag) < 0) return false;
         if (kw) {
           var hay = (g.name + " " + g.weapon + " " + (g.tags || []).join(" ") + " " + (g.author || "")).toLowerCase();
@@ -116,7 +159,7 @@
             '<div class="g-meta"><span>作者 <b>' + esc(g.author || "—") + '</b></span><span>价格 <b>' + esc(g.price || "免费") + '</b></span></div>' +
             (tags ? '<div class="g-tags">' + tags + '</div>' : '') +
             (g.desc ? '<div class="g-desc">' + esc(g.desc) + '</div>' : '') +
-            '<div class="g-foot"><button class="g-copy" data-i="' + idx + '">📋 ' + (g.code ? "复制改枪码" : "复制方案") + '</button></div>' +
+            '<div class="g-foot"><button class="g-like" data-i="' + idx + '">❤ <span class="g-like-n">' + likeCount(g) + '</span></button><button class="g-copy" data-i="' + idx + '">📋 ' + (g.code ? "复制改枪码" : "复制方案") + '</button></div>' +
           '</div></div>';
       }).join("");
       grid.querySelectorAll(".g-copy").forEach(function (b) {
@@ -134,13 +177,26 @@
           });
         };
       });
+      grid.querySelectorAll(".g-like").forEach(function (b) {
+        var g = list[+b.getAttribute("data-i")];
+        var st = likeState(g);
+        if (st.liked) b.classList.add("on");
+        b.querySelector(".g-like-n").textContent = st.n || 0;
+        b.onclick = function () {
+          var o = loadLikes(); var k = g.name; var s = o[k] || { liked: false, n: 0 };
+          s.liked = !s.liked; s.n = Math.max(0, (s.n || 0) + (s.liked ? 1 : -1));
+          o[k] = s; saveLikes(o);
+          b.classList.toggle("on", s.liked);
+          b.querySelector(".g-like-n").textContent = s.n;
+        };
+      });
     }
     function start() {
       fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
         DATA = d; GUNS = d.gunBuilds || [];
         return buildGunImgMap();
       }).then(function () {
-        renderChips(); renderGrid();
+        renderCatChips(); renderChips(); renderGrid();
         document.getElementById("gSearch").addEventListener("input", function (e) {
           if (e.isComposing) return; kw = e.target.value.trim().toLowerCase(); renderGrid();
         });

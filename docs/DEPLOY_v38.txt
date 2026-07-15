@@ -1,0 +1,50 @@
+三角洲情报台 · V38 部署说明
+================================
+
+本次更新（V38）内容
+--------------------
+1. 悬浮音乐播放器：改为「音乐台」风格
+   - 全宽底栏：封面 + 标题/歌手 + 上一首/播放/下一首 + 收起/展开
+   - 收起后折叠为右下角迷你胶囊，点「展开」还原
+   - 文件：js/music.js、css/style.css
+2. 后台音乐管理：表格改为卡片式编辑器
+   - 每首一张卡片，含封面预览、类型联动（QQ音乐/直链/外链）
+   - 文件：admin.html、css/style.css
+3. 资讯页：改为左图右文卡片列表
+   - 缩略图（无图时显示 📰 占位）+ 标题/日期/来源 + 阅读量/点赞
+   - 文件：news.html、data.json（news[] 新增 thumb/views/likes）
+4. 改枪码页：新增「武器类型」筛选 + 点赞
+   - 顶部新增 步枪/狙击/机枪/冲锋枪… 分类筛选（与原有标签筛选叠加）
+   - 卡片新增 ❤ 收藏（本地存储，按方案名去重）
+   - 文件：guns.html
+5. 个人主页：改为「我的游戏账号」资产面板
+   - 头像 + 昵称/角色 + 「绑定三角洲账号」按钮
+   - 资产网格：累计游戏时长 / 总资产 / 昨日收益 / 大红累计价值 / 哈夫币
+   - 绑定后由后端 profile.gameAccount 返回真实数据；未绑定显示占位
+   - 文件：profile.html
+6. 删除战绩查询页顶部说明文字
+   - 文件：zhanji.html
+
+版本号变更
+----------
+- 全站静态资源 ?v=37 → ?v=38（index.html / admin.html / forum.html /
+  friends.html / guns.html / kzb.html / music.html / profile.html /
+  search.html / tujian.html / ugc.html / feedback.html / js/app.js）
+- sw.js CACHE：delta-intel-v37 → delta-intel-v38
+- data.json changelog 新增 v38 条目
+
+部署步骤（用户本机执行）
+------------------------
+1. 将本目录（docs/）整包上传到 GitHub 仓库 xuchengyuan123/delta-intel
+   根目录（覆盖 index.html、admin.html、data.json、sw.js、js/、css/、assets/ 等）。
+2. 在 Cloudflare 控制台确认 Worker delta-intel-auth（api.delta.shopping）
+   仍是 V37 后端（本次未改后端逻辑，无需重新部署 Worker）。
+3. 浏览器打开站点后 Ctrl+F5 强刷，清掉旧缓存；首次会自动重建缓存。
+4. 后台改数据后，GitHub Pages 重建约需 1 分钟，前台稍候刷新即可看到。
+
+备注
+----
+- 音乐仍为 QQ音乐外链（songid）播放；悬浮播放器默认展开显示播放器，
+  点「收起」可折叠为迷你胶囊。
+- 改枪码点赞为本地收藏（localStorage），不跨设备同步。
+- 个人主页资产数据需后端在 /api/user/profile 返回 gameAccount 字段后才会显示真实数值。

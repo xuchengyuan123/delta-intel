@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>个人主页 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=38">
   <style>
     .field { margin-bottom: 10px; }
     .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
@@ -21,6 +21,17 @@
     .post .ptitle { font-size: 16px; font-weight: 700; margin: 0 0 6px; cursor: pointer; }
     .post .ptitle:hover { color: var(--accent); }
     .post .psnippet { white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+    /* 我的游戏账号 资产面板 */
+    .ga-card { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .ga-card img { width: 60px; height: 60px; border-radius: 14px; object-fit: cover; background: var(--bg-soft); flex-shrink: 0; border: 1px solid var(--border); }
+    .ga-id { flex: 1; min-width: 0; }
+    .ga-id .pname { font-size: 18px; font-weight: 800; }
+    .ga-id .prole { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+    .ga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .ga-stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .ga-k { font-size: 12px; color: var(--muted); }
+    .ga-v { font-size: 19px; font-weight: 800; margin-top: 4px; color: var(--accent); }
+    .ga-t { font-size: 11px; color: var(--muted); margin-top: 4px; opacity: .8; }
   </style>
 </head>
 <body>
@@ -35,13 +46,15 @@
     <div id="viewBox"></div>
 
     <div id="editBox" style="display:none">
-      <div class="profile-head">
+      <div class="ga-card">
         <img id="pvAvatar" alt="头像" />
-        <div>
+        <div class="ga-id">
           <div class="pname" id="pvName"></div>
           <div class="prole" id="pvRole"></div>
+          <button class="btn ghost sm" id="bindBtn">🔗 绑定三角洲账号</button>
         </div>
       </div>
+      <div class="ga-grid" id="gaGrid"></div>
       <div class="field"><label>昵称</label><input id="edName" placeholder="昵称（最多 30 字）" /></div>
       <div class="field"><label>头像链接</label><input id="edAvatar" placeholder="https://… 图片 URL" />
         <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
@@ -62,13 +75,36 @@
     </div>
   </div>
 
-  <script src="js/site-common.js?v=36"></script>
+  <script src="js/site-common.js?v=38"></script>
   <script>
     var D = window.DeltaCommon;
     function setMsg(html, ok) {
       var box = document.getElementById("msgBox");
       if (!html) { box.style.display = "none"; box.className = "err-box"; return; }
       box.innerHTML = html; box.className = ok ? "ok-box" : "err-box"; box.style.display = "block";
+    }
+
+    function fmtMoney(n) {
+      n = n || 0;
+      return "¥ " + Number(n).toLocaleString();
+    }
+    // 我的游戏账号资产面板（数据来自 profile.gameAccount，未绑定则占位提示）
+    function renderGameAccount(p) {
+      var ga = p.gameAccount || null;
+      var box = document.getElementById("gaGrid");
+      if (!box) return;
+      var defs = [
+        { k: "累计游戏时长", v: ga && ga.playTime != null ? ga.playTime + " 小时" : "—", t: "绑定后显示" },
+        { k: "总资产", v: ga && ga.totalAssets != null ? fmtMoney(ga.totalAssets) : "—", t: "绑定后显示" },
+        { k: "昨日收益", v: ga && ga.yesterday != null ? fmtMoney(ga.yesterday) : "—", t: "绑定后显示" },
+        { k: "大红累计价值", v: ga && ga.redValue != null ? fmtMoney(ga.redValue) : "—", t: "绑定后显示" },
+        { k: "哈夫币", v: ga && ga.hafcoin != null ? Number(ga.hafcoin).toLocaleString() : "—", t: "绑定后显示" }
+      ];
+      box.innerHTML = defs.map(function (d) {
+        return '<div class="ga-stat"><div class="ga-k">' + D.esc(d.k) + '</div>' +
+          '<div class="ga-v">' + D.esc(d.v) + '</div>' +
+          (ga ? '' : '<div class="ga-t">' + D.esc(d.t) + '</div>') + '</div>';
+      }).join("");
     }
 
     function viewProfile(id) {
@@ -97,6 +133,7 @@
         document.getElementById("pvAvatar").style.visibility = p.avatar ? "visible" : "hidden";
         document.getElementById("pvName").textContent = p.name || p.id;
         document.getElementById("pvRole").textContent = roleLabel;
+        renderGameAccount(p);
         document.getElementById("edName").value = p.name || "";
         document.getElementById("edAvatar").value = p.avatar || "";
         document.getElementById("edBio").value = p.bio || "";
@@ -154,6 +191,7 @@
     });
 
     document.getElementById("gotoLogin").addEventListener("click", function () { location.href = "forum.html"; });
+    document.getElementById("bindBtn").addEventListener("click", function () { location.href = "zhanji.html"; });
 
     (function init() {
       var id = new URLSearchParams(location.search).get("id");
@@ -162,6 +200,6 @@
       else { document.getElementById("loginHint").style.display = "block"; }
     })();
   </script>
-<script src="js/checkin.js?v=36"></script>
+<script src="js/checkin.js?v=38"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@
 (function () {
   "use strict";
 
-  var STATE = { tracks: [], current: 0, expanded: false, hidden: false };
+  var STATE = { tracks: [], current: 0, mini: false, hidden: false };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -79,19 +79,22 @@
   function floatHtml() {
     if (!STATE.tracks.length) return "";
     var t = norm(STATE.tracks[STATE.current]);
-    var cls = "music-float" + (STATE.expanded ? " expanded" : "") + (STATE.hidden ? " hidden" : "");
+    var cls = "music-float" + (STATE.mini ? " mini" : "") + (STATE.hidden ? " hidden" : "");
     return '<div id="musicFloat" class="' + cls + '">' +
       '<div class="mf-bar">' +
         coverHtml(t, STATE.current) +
-        '<div class="mf-meta"><div class="mf-title">♪ ' + esc(t.title) + '</div><div class="mf-artist">' + esc(t.artist) + "</div></div>" +
+        '<div class="mf-now"><div class="mf-title" id="mfTitle">♪ ' + esc(t.title) + '</div>' +
+          '<div class="mf-artist" id="mfArtist">' + esc(t.artist) + '</div></div>' +
+        '<div class="mf-mini-info" id="mfMini">' + esc(t.title) + ' - ' + esc(t.artist) + '</div>' +
         '<div class="mf-ctrls">' +
           '<button class="mf-btn" id="mfPrev" title="上一首">⏮</button>' +
-          '<button class="mf-btn" id="mfToggle" title="展开/收起">' + (STATE.expanded ? "▾" : "▴") + "</button>" +
-          '<button class="mf-btn" id="mfHide" title="隐藏">✕</button>' +
-        "</div>" +
-      "</div>" +
-      '<div class="mf-stage">' + stageInner() + "</div>" +
-    "</div>" +
+          '<button class="mf-btn mf-play" id="mfPlay" title="播放/暂停">▶</button>' +
+          '<button class="mf-btn" id="mfNext" title="下一首">⏭</button>' +
+        '</div>' +
+        '<button class="mf-toggle" id="mfToggle" title="收起/展开">' + (STATE.mini ? "展开 ▲" : "收起 ▼") + '</button>' +
+      '</div>' +
+      '<div class="mf-stage">' + stageInner() + '</div>' +
+    '</div>' +
     '<button id="mfShow" class="mf-show" title="显示音乐播放器" style="display:' + (STATE.hidden ? "flex" : "none") + '">🎵</button>';
   }
 
@@ -114,8 +117,9 @@
     var s = document.getElementById("musicFloat");
     if (!s) return;
     var t = norm(STATE.tracks[STATE.current]);
-    var title = s.querySelector(".mf-title"); if (title) title.textContent = "♪ " + t.title;
-    var artist = s.querySelector(".mf-artist"); if (artist) artist.textContent = t.artist;
+    var title = s.querySelector("#mfTitle"); if (title) title.textContent = "♪ " + t.title;
+    var artist = s.querySelector("#mfArtist"); if (artist) artist.textContent = t.artist;
+    var mini = s.querySelector("#mfMini"); if (mini) mini.textContent = t.title + " - " + t.artist;
     var oldCover = s.querySelector(".mf-cover"); if (oldCover) oldCover.outerHTML = coverHtml(t, STATE.current);
   }
   function selectTrack(i, fromView) {
@@ -132,19 +136,44 @@
       var np = document.getElementById("npTitle"); if (np) np.textContent = norm(STATE.tracks[STATE.current]).title;
     }
   }
+  function togglePlay() {
+    var f = document.getElementById("musicFloat"); if (!f) return;
+    var t = norm(STATE.tracks[STATE.current]);
+    if (t.type === "audio" && t.src) {
+      var au = f.querySelector("audio.mf-audio");
+      if (!au) return;
+      if (au.paused) au.play().catch(function () {}); else au.pause();
+    } else {
+      // QQ 外链 / 外链：展开浮层以显示播放器（iframe 自动播放 / 源站按钮）
+      if (STATE.mini) {
+        STATE.mini = false;
+        f.classList.remove("mini");
+        var tg = document.getElementById("mfToggle"); if (tg) tg.textContent = "收起 ▼";
+      }
+    }
+  }
+
   function bindFloat() {
     var f = document.getElementById("musicFloat"); if (!f) return;
     var prev = document.getElementById("mfPrev"),
+        play = document.getElementById("mfPlay"),
+        next = document.getElementById("mfNext"),
         toggle = document.getElementById("mfToggle"),
-        hide = document.getElementById("mfHide"),
         show = document.getElementById("mfShow");
     if (prev) prev.onclick = function () { selectTrack(STATE.current - 1); };
+    if (play) play.onclick = function () { togglePlay(); };
+    if (next) next.onclick = function () { selectTrack(STATE.current + 1); };
     if (toggle) toggle.onclick = function () {
-      STATE.expanded = !STATE.expanded;
-      f.classList.toggle("expanded", STATE.expanded);
-      toggle.textContent = STATE.expanded ? "▾" : "▴";
+      STATE.mini = !STATE.mini;
+      f.classList.toggle("mini", STATE.mini);
+      toggle.textContent = STATE.mini ? "展开 ▲" : "收起 ▼";
     };
-    if (hide) hide.onclick = function () { f.classList.add("hidden"); if (show) show.style.display = "flex"; };
+    // 音频播放状态同步到播放按钮
+    var au = f.querySelector("audio.mf-audio");
+    if (au) {
+      au.addEventListener("play", function () { var b = document.getElementById("mfPlay"); if (b) b.textContent = "⏸"; });
+      au.addEventListener("pause", function () { var b = document.getElementById("mfPlay"); if (b) b.textContent = "▶"; });
+    }
     if (show) show.onclick = function () { f.classList.remove("hidden"); show.style.display = "none"; if (!document.getElementById("musicFloat")) ensureFloat(); };
   }
   function bindPlaylist() {
