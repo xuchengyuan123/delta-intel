@@ -632,6 +632,17 @@ table.tbl thead th { border-bottom: 2px solid color-mix(in srgb, var(--accent) 4
   .topbar { padding: 0 10px; }
   .logo { font-size: 16px; }
   .content { padding: 12px; }
+  /* 收起与侧栏抽屉重复的页面快捷链接，避免顶栏挤成一团；保留搜索/主题/语言/登录/后台 */
+  .topbar-right .nav-link { display: none; }
+  #authBtn, #adminLink { display: inline-flex; }
+  .brand-en { display: none; }
+  .top-search { width: 86px; }
+}
+@media (max-width: 480px) {
+  /* 超小屏进一步让出空间：隐藏语言切换（桌面端再切），登录/后台用图标即可 */
+  #langToggleI18n { display: none; }
+  .top-search { width: 64px; }
+  .topbar-right .icon-btn { width: 32px; }
 }
 
 /* ===== 图鉴：特战干员 / 武器 ===== */
@@ -1718,3 +1729,59 @@ html.compact .field { margin-bottom: 8px; }
 .wb-link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .wb-link-card { display: flex; justify-content: space-between; align-items: center; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600; transition: .12s; }
 .wb-link-card:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-elev)); }
+
+/* =========================================================
+ * 后台管理通用组件样式（补漏）
+ * 修复：用户管理 / 在线用户 / 国家列表 用 .ui-role-*；
+ *       设备管理用 .dev-*；安全防护表单用 .sa-form；
+ *       工作台「已生成页面」用 .item-table；状态与消息 .status/.msg
+ * ========================================================= */
+
+/* 加载中 / 空状态 / 错误提示 */
+.status { padding: 16px; color: var(--muted); font-size: 13px; text-align: center; }
+.msg { display: inline-block; margin-left: 8px; font-size: 13px; color: var(--muted); vertical-align: middle; }
+.msg.ok { color: #22c55e; }
+.msg.err { color: #ff5b5b; }
+
+/* 用户管理 / 在线用户 / 国家列表（.ui-role-grid） */
+.ui-role-grid { display: flex; flex-direction: column; gap: 10px; }
+.ui-role-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; box-shadow: var(--shadow);
+}
+.ui-role-row:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.ui-role-name { font-weight: 600; line-height: 1.55; min-width: 0; }
+.ui-role-name small { font-weight: 400; }
+.ui-role-actions { display: flex; gap: 8px; flex-wrap: wrap; flex: 0 0 auto; }
+
+/* 设备管理（.dev-*） */
+.dev-tools { margin-bottom: 10px; }
+.dev-list { display: flex; flex-direction: column; gap: 10px; }
+.dev-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; box-shadow: var(--shadow);
+}
+.dev-info { min-width: 0; }
+.dev-name { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dev-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.dev-badge { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--bg-soft); color: var(--muted); border: 1px solid var(--border); }
+.dev-badge.cur { background: color-mix(in srgb, var(--accent-2) 18%, transparent); color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, var(--border)); }
+.dev-empty { padding: 18px; text-align: center; color: var(--muted); }
+
+/* 安全防护表单（.sa-form） */
+.sa-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* 工作台：已生成页面表格（.item-table） */
+.item-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.item-table th, .item-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+.item-table th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.item-table td code { font-family: Consolas, monospace; font-size: 12px; color: var(--accent-2); word-break: break-all; }
+.item-table tbody tr:hover { background: color-mix(in srgb, var(--bg-soft) 60%, transparent); }
+
+/* 移动端：用户管理 / 设备行 让操作按钮整行换行，避免挤压 */
+@media (max-width: 640px) {
+  .ui-role-row, .dev-row { flex-direction: column; align-items: stretch; }
+  .ui-role-actions { justify-content: flex-start; }
+}

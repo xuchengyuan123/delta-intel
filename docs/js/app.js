@@ -1031,7 +1031,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); document.body.classList.remove("has-install-banner"); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=42").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=45").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
@@ -1042,6 +1042,19 @@
           });
         });
       }).catch(function () {});
+      // 合并工作台生成的导航项（data.json.menu 中的 _wb 项）到侧栏
+      try {
+        fetch("data.json").then(function (r) { return r.json(); }).then(function (data) {
+          if (data && Array.isArray(data.menu) && data.menu.length) {
+            var items = data.menu.map(function (it) {
+              return { route: it.route || "", ico: it.ico || "📦", label: it.label || it.route || "未命名", href: it.href || "" };
+            });
+            var idx = MENU.findIndex(function (e) { return e.group === "应用"; });
+            if (idx >= 0) MENU[idx].items = items; else MENU.push({ group: "应用", items: items });
+            render(getRoute());
+          }
+        }).catch(function () {});
+      } catch (e) {}
     });
   }
 

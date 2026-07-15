@@ -1,0 +1,45 @@
+# 三角洲情报台 · 部署说明 v44（2026-07-15）
+
+## 本次更新
+1. **修复后台「用户管理」界面错乱**：补回缺失的 .ui-role-* 样式，注册会员列表改为卡片行（带边框/阴影），操作按钮（搜索/禁用/信任/重置密码/删除）整齐排列；移动端自动换行不再挤压。
+2. **补齐后台组件样式**：设备管理(.dev-*) / 安全防护表单(.sa-form) / 工作台「已生成页面」表格(.item-table) / 状态与消息(.status/.msg)。
+3. **开发工作台接入 Worker 独立 KV（WORKBENCH）**：工作台「工作/版本迭代/功能项目」数据独立存储于 Cloudflare KV，重新上传整包网站也不会丢失。
+
+## 一、前端（GitHub Pages / 任意静态托管）
+1. 把 `docs/` 整包**覆盖上传**到你的静态托管（保持目录结构：index.html / admin.html / css/ / js/ / assets/ …）。
+2. 打开网站首页，**硬刷新一次**（Windows：Ctrl+F5；Mac：Cmd+Shift+R），让新 Service Worker（CACHE=delta-intel-v44）接管并重新预缓存。
+3. 进后台 admin.html 验证：用户管理列表已是整齐卡片；开发工作台可正常增删改工作。
+
+## 二、Cloudflare Worker（仅当要用工作台 KV 存储时需要）
+> 不绑 KV 也能用：未绑定 WORKBENCH 时，工作台会自动回退到 data.json.works，照常工作，只是数据随整包上传覆盖。
+
+### 2.1 创建并绑定 WORKBENCH KV（一次性的事）
+```bash
+cd cloudflare
+wrangler kv namespace create WORKBENCH
+# 把返回的 id（一长串十六进制）替换 wrangler.toml 里：
+#   [[kv_namespaces]]
+#   binding = "WORKBENCH"
+#   id = "REPLACE_WITH_YOUR_WORKBENCH_KV_ID"
+```
+
+### 2.2 部署 Worker
+```bash
+cd cloudflare
+wrangler deploy
+```
+部署后 Worker 新增接口（总管理员可用）：
+- `GET  /api/admin/works`  → `{works:[...]}`
+- `PUT  /api/admin/works`  → `{works:[...]}` body，保存到 WORKBENCH KV
+
+### 2.3 其它可选 KV（历史遗留，按需绑定）
+- TEAMS（战队大厅）、ACCESS（访问日志）、SECURITY（安全队列，不绑则复用 ACCESS）等，详见 wrangler.toml 注释与各 DEPLOY_vXX.txt。
+
+## 三、校验
+- 前端：整站 `?v=44`、sw.js `CACHE="delta-intel-v44"`，无 `?v=43` 残留。
+- Worker：`node --check worker.js` 通过；workbench.js 通过。
+- 后台登录：v42 已修复登录崩溃，本次无回归。
+
+## 四、说明
+- 工作台工作数据若走 KV，与 data.json 解耦，今后手动上传整包不会清空工作台记录。
+- 站点设置、导航菜单、生成页面记录仍存于 data.json（经 /api/admin/data，需 GH_TOKEN）。
