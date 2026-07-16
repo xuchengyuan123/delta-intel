@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>智能卡战备 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=47">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <style>
     .kzb-wrap{max-width:1000px;margin:0 auto;padding:18px 16px 80px;}
     .kzb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -52,6 +52,17 @@
     .kzb-empty,.kzb-tip{color:var(--muted);font-size:13px;}
     .kzb-tip code{background:var(--bg);padding:1px 5px;border-radius:4px;}
     .kzb-sep{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+    .kzb-progress{height:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:6px 0 12px;}
+    .kzb-progress-bar{height:100%;width:0;background:linear-gradient(90deg,#19c3a6,var(--accent));transition:width .25s ease;}
+    .kzb-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;}
+    .kzb-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:13px;cursor:pointer;user-select:none;}
+    .kzb-item.on{border-color:var(--accent);background:rgba(192,57,43,.08);}
+    .kzb-item .cb{width:16px;height:16px;border-radius:4px;border:1px solid var(--border);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;}
+    .kzb-item.on .cb{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .kzb-item .nm{flex:1;min-width:0;}
+    .kzb-item .rv{color:var(--muted);font-size:12px;white-space:nowrap;}
+    .kzb-target-ok{color:#19c3a6;font-weight:700;}
+    .kzb-target-no{color:var(--muted);}
   </style>
 </head>
 <body>
@@ -66,6 +77,7 @@
     <div class="kzb-tabs">
       <div class="kzb-tab active" data-tab="calc">📊 收益计算器</div>
       <div class="kzb-tab" data-tab="rec">🤖 智能出装推荐</div>
+      <div class="kzb-tab" data-tab="kb">🎯 卡战备计算器</div>
     </div>
 
     <div class="kzb-meta" id="priceMeta">实时物价：加载中…</div>
@@ -109,13 +121,46 @@
           </div>
           <button class="kzb-btn" id="recBtn">生成推荐</button>
         </div>
-        <div class="kzb-note">调用三角洲数据帝「智能出装推荐 V4」接口（经本站 Worker 代理，token 不暴露给前端），按档位返回多组实时推荐方案（花费最少、实用优先等）。若未配置接口，则回退到本地模板估算。</div>
+        <div class="kzb-note">「智能出装推荐」当前使用本地配装模板 + 交易行实时价（caiweilv/DeltaForcePrice）估算。若后续接入三角洲数据帝等实时推荐接口，会自动切换为在线方案。</div>
         <div id="recResult"></div>
       </div>
     </div>
 
     <div class="kzb-sep">
       <button class="kzb-btn ghost" id="refreshPrice">🔄 刷新实时物价</button>
+    </div>
+
+    <!-- 卡战备计算器（鼠鼠工具核心：达标最低成本 + DIY 凑战备） -->
+    <div class="kzb-panel" id="panel-kb">
+      <div class="kzb-card">
+        <div class="kzb-row">
+          <div class="kzb-field">
+            <label>目标战备值（万）</label>
+            <input id="kbTarget" type="number" min="1" step="1" value="11">
+          </div>
+          <div class="kzb-field">
+            <label>参考地图档位</label>
+            <select id="kbMap"></select>
+          </div>
+          <button class="kzb-btn" id="kbBtn">计算最低成本配装</button>
+        </div>
+        <div class="kzb-note">输入目标战备值（如机密图 11W、绝密图 55W），自动从配装模板中挑出「战备达标且花费最低」的方案。价格为交易行真实成交价（caiweilv/DeltaForcePrice）。</div>
+        <div id="kbResult"></div>
+      </div>
+
+      <div class="kzb-card">
+        <div class="kzb-row" style="justify-content:space-between;align-items:center">
+          <strong>🛠 DIY 凑战备</strong>
+          <span class="kzb-meta" id="kbDiyStat"></span>
+        </div>
+        <div class="kzb-progress"><div class="kzb-progress-bar" id="kbBar"></div></div>
+        <div id="kbItems" class="kzb-items"></div>
+        <div class="kzb-sep">
+          <button class="kzb-btn ghost" id="kbCopy">📋 复制清单</button>
+          <button class="kzb-btn ghost" id="kbReset">↺ 清空</button>
+        </div>
+        <div class="kzb-note">战备值为参考值，以游戏内显示为准。勾选物品即可实时统计战备值与花费，达到目标即可进图跑刀。</div>
+      </div>
     </div>
     <p class="kzb-tip" style="margin-top:14px">数据可在后台「代码维护」面板编辑 <code>data.json</code> 的 <code>kzb</code> 字段更新（地图掉率、配装与价格）。本页计算用真实交易行价格，调价时自动刷新。</p>
   </div>
@@ -335,6 +380,83 @@
       } catch (e) { alert("复制失败，请手动选择：\n" + txt); }
     }
 
+    /* ---------- 卡战备计算器（鼠鼠工具核心玩法） ---------- */
+    var DIY_ITEMS = [
+      { name: "M4A1突击步枪", reserve: 8.5, price: 12282 },
+      { name: "AKM突击步枪", reserve: 7.0, price: 8000 },
+      { name: "杠杆式步枪", reserve: 5.0, price: 53175 },
+      { name: "DAS防弹头盔(几乎全新)", reserve: 1.4, price: 26388 },
+      { name: "尼龙防弹衣(几乎全新)", reserve: 1.6, price: 2504 },
+      { name: "射手战术背心(几乎全新)", reserve: 1.2, price: 35787 },
+      { name: "模块化AR后握把", reserve: 0.7, price: 44561 },
+      { name: "实用消音器", reserve: 0.6, price: 15154 },
+      { name: "Osight微型瞄准镜", reserve: 0.5, price: 25687 },
+      { name: "G01战术弹挂", reserve: 0.4, price: 9477 },
+      { name: "旅行背包", reserve: 0.3, price: 4962 },
+      { name: "复古摩托头盔(破损)", reserve: 0.5, price: 4369 },
+      { name: "防弹插板", reserve: 0.9, price: 15000 },
+      { name: "急救包", reserve: 0.1, price: 2000 },
+      { name: "战斗刀", reserve: 0.05, price: 1500 }
+    ];
+    var DIY_SEL = {};
+    var DIY_LINES = [], DIY_COST = 0, DIY_RESERVE = 0;
+    function kbItemCost(it) { var live = priceOf(it.name); return (live != null) ? live : (Number(it.price) || 0); }
+    function renderKB() {
+      var target = Number(document.getElementById("kbTarget").value) || 0;
+      var box = document.getElementById("kbResult");
+      if (!target) { box.innerHTML = '<div class="kzb-empty">请输入目标战备值。</div>'; return; }
+      var rows = (KZB.loadouts || []).filter(function (lo) { return (Number(lo.reserve) || 0) >= target; })
+        .map(function (lo) { return { lo: lo, cost: loadoutCost(lo) }; })
+        .sort(function (a, b) { return a.cost - b.cost; });
+      if (!rows.length) {
+        box.innerHTML = '<div class="kzb-empty">当前配装模板中没有战备值 ≥ ' + target + 'W 的方案。可改用下方「DIY 凑战备」，或到后台增加更高战备的模板（kzb.loadouts）。</div>';
+        return;
+      }
+      var best = rows[0];
+      var html = '<div class="kzb-note" style="border-style:solid">💡 达标且最省钱：<b>' + kzbEsc(best.lo.title) + '</b> · 战备 ' + kzbW(best.lo.reserve) + ' · 花费 ' + kzbFmt(best.cost) + ' 元 · 假账 ' + kzbW(best.lo.fake) + '</div>';
+      html += '<table class="kzb-tbl"><thead><tr><th>候选方案（按花费升序）</th><th>战备</th><th>花费</th><th>假账</th></tr></thead><tbody>';
+      rows.forEach(function (r, idx) {
+        html += '<tr class="' + (idx === 0 ? "best" : "") + '"><td>' + kzbEsc(r.lo.title) + (idx === 0 ? ' <span class="pill pill-best">★ 最省钱</span>' : '') + '</td><td>' + kzbW(r.lo.reserve) + '</td><td>' + kzbFmt(r.cost) + '</td><td>' + kzbW(r.lo.fake) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      box.innerHTML = html;
+    }
+    function renderDIY() {
+      var grid = document.getElementById("kbItems");
+      grid.innerHTML = DIY_ITEMS.map(function (it, i) {
+        var on = DIY_SEL[i];
+        return '<div class="kzb-item' + (on ? ' on' : '') + '" data-i="' + i + '"><span class="cb">' + (on ? '✓' : '') + '</span><span class="nm">' + kzbEsc(it.name) + '</span><span class="rv">战备 ' + kzbW(it.reserve) + '</span></div>';
+      }).join("");
+      grid.querySelectorAll(".kzb-item").forEach(function (el) {
+        el.onclick = function () { var i = +el.getAttribute("data-i"); DIY_SEL[i] = !DIY_SEL[i]; updateDIY(); };
+      });
+      updateDIY();
+    }
+    function updateDIY() {
+      var target = Number(document.getElementById("kbTarget").value) || 0;
+      var reserve = 0, cost = 0; DIY_LINES = [];
+      DIY_ITEMS.forEach(function (it, i) {
+        if (DIY_SEL[i]) {
+          reserve += (Number(it.reserve) || 0);
+          var c = kbItemCost(it); cost += c;
+          DIY_LINES.push("- " + it.name + "：" + kzbFmt(c) + "元（战备 " + kzbW(it.reserve) + "）");
+        }
+      });
+      var pct = target > 0 ? Math.min(100, Math.round(reserve / target * 100)) : 0;
+      var bar = document.getElementById("kbBar"); if (bar) bar.style.width = pct + "%";
+      var stat = document.getElementById("kbDiyStat");
+      var ok = reserve >= target && target > 0;
+      if (stat) stat.innerHTML = '战备 <b class="' + (ok ? 'kzb-target-ok' : 'kzb-target-no') + '">' + kzbW(reserve) + '</b> / 目标 ' + kzbW(target) + ' · 花费 ' + kzbFmt(cost) + ' 元' + (ok ? ' · <span class="kzb-target-ok">已达标✓</span>' : '');
+      DIY_COST = cost; DIY_RESERVE = reserve;
+    }
+    function kbCopy() {
+      if (!DIY_LINES.length) { alert("请先勾选物品"); return; }
+      var txt = "【DIY 凑战备】目标战备 " + kzbW(Number(document.getElementById("kbTarget").value) || 0) +
+        "\n实际战备 " + kzbW(DIY_RESERVE) + " / 花费 " + kzbFmt(DIY_COST) + " 元\n" + DIY_LINES.join("\n");
+      copyText(txt);
+    }
+    function kbReset() { DIY_SEL = {}; renderDIY(); }
+
     /* ---------- 初始化 ---------- */
     function fillMapSelect(){
       var sel = document.getElementById("calcMap");
@@ -350,9 +472,15 @@
         KZB.loadouts = k.loadouts || [];
         document.getElementById("kzbUpdated").textContent = k.updatedAt ? ("数据更新：" + k.updatedAt) : "";
         fillMapSelect();
+        var kbMap = document.getElementById("kbMap");
+        if (kbMap) kbMap.innerHTML = (KZB.maps || []).map(function (m) {
+          return '<option value="' + kzbEsc(m.name) + '">' + kzbEsc(m.name) + '（' + kzbEsc(m.tier) + ' · ' + kzbW(m.w) + '）</option>';
+        }).join("") || '<option>暂无地图</option>';
         var first = KZB.maps[0];
         if (first) document.getElementById("calcBudget").value = first.w || 30;
         renderCalc();
+        renderKB();
+        renderDIY();
       }).catch(function (e) {
         document.getElementById("calcResult").innerHTML = '<div class="kzb-empty">加载失败：' + kzbEsc(e.message) + '</div>';
       });
@@ -364,9 +492,13 @@
       document.getElementById("calcRuns").addEventListener("input", renderCalc);
       document.getElementById("recBtn").addEventListener("click", renderRec);
       document.getElementById("recLv").addEventListener("change", renderRec);
+      var kbBtn = document.getElementById("kbBtn"); if (kbBtn) kbBtn.addEventListener("click", renderKB);
+      var kbTarget = document.getElementById("kbTarget"); if (kbTarget) kbTarget.addEventListener("input", function () { renderKB(); updateDIY(); });
+      var kbCopyBtn = document.getElementById("kbCopy"); if (kbCopyBtn) kbCopyBtn.addEventListener("click", kbCopy);
+      var kbResetBtn = document.getElementById("kbReset"); if (kbResetBtn) kbResetBtn.addEventListener("click", kbReset);
       document.getElementById("refreshPrice").addEventListener("click", function () {
         document.getElementById("priceMeta").textContent = "实时物价：刷新中…";
-        loadPrices(true).then(function () { renderPriceMeta(); renderCalc(); renderRec(); });
+        loadPrices(true).then(function () { renderPriceMeta(); renderCalc(); renderRec(); renderKB(); updateDIY(); });
       });
 
       document.querySelectorAll(".kzb-tab").forEach(function (t) {

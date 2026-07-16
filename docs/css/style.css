@@ -815,6 +815,10 @@ table.tbl thead th { border-bottom: 2px solid color-mix(in srgb, var(--accent) 4
   .music-float.mini { left: auto; right: 8px; bottom: 8px; }
   .mf-now { max-width: 32vw; }
   .mf-show { right: 10px; bottom: 10px; }
+  /* 安装横幅上移，避免遮挡底部音乐播放条 */
+  .install-banner { bottom: 64px; }
+  /* 触控目标最小 40px，避免手机误触 */
+  .btn, .btn.sm, .tab, .icon-btn, .menu-item, .menu-item-plain, .nav-link, .top-search, .am-tab, .ib-btn, .ib-close, .mb-btn { min-height: 40px; box-sizing: border-box; }
 }
 
 /* =========================================================
@@ -1608,7 +1612,7 @@ html.compact .field { margin-bottom: 8px; }
 
 @media (max-width: 820px) {
   /* 表格在手机上横向滚动，避免挤爆 */
-  .card > table, .tbl, table.kzb-tbl, .lp-table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .card > table, .tbl, table.kzb-tbl, .lp-table, .codex-table, .lb-table table, .item-table, .content table, .page-wrap table, .friends-wrap table, #cmp-out table, .am-content table, .sr-wrap table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
   /* 卡战备表单竖排、控件占满，便于触控 */
   .kzb-row { flex-direction: column; align-items: stretch; }
   .kzb-field { min-width: 0; }

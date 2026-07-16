@@ -74,6 +74,8 @@
     font-size:11px;padding:2px 8px;border-radius:20px;margin-right:8px;
     border:1px solid var(--border);
   }
+  .gun-img{height:46px;width:auto;object-fit:contain;border-radius:6px;background:#0d1117;padding:3px 8px;display:none;}
+  .col-head .gun-wrap{display:flex;align-items:center;gap:10px;}
   .tag.a{color:var(--green);border-color:rgba(63,185,80,.5);}
   .tag.b{color:var(--amber);border-color:rgba(210,153,34,.5);}
 
@@ -327,6 +329,29 @@ function computeStats(side){
   return res;
 }
 
+/* ===================== 武器图片 API（WaterEve/DeltaForceData 公开源） ===================== */
+var GUN_IMG = {};
+function loadGunImages() {
+  fetch("https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json/gun/gunRifle.json?_=" + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      var list = (j && j.jData && j.jData.data && j.jData.data.data && j.jData.data.data.list) || [];
+      list.forEach(function (it) { if (it.objectName && it.prePic) GUN_IMG[it.objectName] = it.prePic; });
+      updateGunImages();
+    })
+    .catch(function () {});
+}
+function updateGunImages() {
+  SIDES.forEach(function (side) {
+    var img = document.getElementById("gunImg" + side);
+    if (!img) return;
+    var w = WEAPONS.find(function (x) { return x.key === state[side].weapon; }) || WEAPONS[0];
+    var src = null;
+    for (var k in GUN_IMG) { if (k.indexOf(w.key) > -1) { src = GUN_IMG[k]; break; } }
+    if (src) { img.src = src; img.style.display = ""; } else { img.style.display = "none"; }
+  });
+}
+
 /* ===================== 渲染配装栏 ===================== */
 function buildColumn(side){
   const col = document.getElementById('col'+side);
@@ -344,7 +369,10 @@ function buildColumn(side){
 
   col.innerHTML = `
     <div class="col-head">
-      <div class="col-title"><span class="tag ${tagClass}">配装 ${tagText}</span></div>
+      <div class="gun-wrap">
+        <div class="col-title"><span class="tag ${tagClass}">配装 ${tagText}</span></div>
+        <img class="gun-img" id="gunImg${side}" alt="" style="display:none">
+      </div>
       <button class="reset-btn" data-side="${side}">重置</button>
     </div>
     <div class="field">
@@ -363,7 +391,7 @@ function buildColumn(side){
 
   // 事件
   col.querySelector('.weapon').addEventListener('change', e=>{
-    state[side].weapon = e.target.value; afterChange();
+    state[side].weapon = e.target.value; afterChange(); updateGunImages();
   });
   col.querySelectorAll('.att').forEach(sel=>{
     sel.addEventListener('change', e=>{
@@ -488,6 +516,7 @@ function init(){
   loadState();
   SIDES.forEach(buildColumn);
   afterChange();
+  loadGunImages();
 }
 
 // Chart.js 通过 defer 加载，等待 DOM 与脚本都就绪

@@ -38,7 +38,7 @@
     95: ["⛈️", "雷暴"], 96: ["⛈️", "雷暴伴雹"], 99: ["⛈️", "强雷暴伴雹"]
   };
   function wmo(c) { return WMO[c] || ["🌡️", "未知"]; }
-  function esc(s) { var d = document.createElement("div"); d.textContent = (s == null ? "" : String(s)); return d.innerHTML; }
+  function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
 
   var city = { name: "上海", lat: 31.2304, lon: 121.4737 };
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv && sv.lat) city = sv; } catch (e) {}

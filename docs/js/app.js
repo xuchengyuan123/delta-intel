@@ -193,6 +193,7 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  function safeUrl(u) { u = u || ""; if (/^\s*(javascript|data|vbscript):/i.test(u)) return "#"; return u; }
   function fmt(n) { return Number(n || 0).toLocaleString(); }
   function getRoute() {
     var p = new URLSearchParams(location.search).get("viewpage");
@@ -249,7 +250,7 @@
 
   function renderMenuItem(it, active, extraCls) {
     if (it.href) {
-      return '<a class="' + extraCls + '" href="' + esc(it.href) + '">' +
+      return '<a class="' + extraCls + '" href="' + esc(safeUrl(it.href)) + '">' +
              (it.ico ? '<span class="ico">' + it.ico + '</span>' : '') +
              '<span>' + esc(it.label) + "</span></a>";
     }
@@ -1031,7 +1032,7 @@
   function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); document.body.classList.remove("has-install-banner"); }
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=47").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=49").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

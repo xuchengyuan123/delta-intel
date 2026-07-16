@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>音乐台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=47">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <style>
     /* 页面级样式；播放器相关 .mu-* 已统一到 css/style.css（与悬浮播放器共用） */
     .mu-wrap{max-width:980px;margin:0 auto;padding:18px 16px 120px;}
@@ -77,7 +77,7 @@
     var isMini = false;
     var autoPlayed = false;
 
-    function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+    function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
 
     function normalize(it){
       return { title: it.title || it.name || "未知", author: it.author || it.artist || "未知",

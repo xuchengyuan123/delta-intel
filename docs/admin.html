@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=47">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=47"></script>
-  <script defer src="js/i18n.js?v=47"></script>
-  <script defer src="js/workbench.js?v=47"></script>
+  <script src="js/art.js?v=49"></script>
+  <script defer src="js/i18n.js?v=49"></script>
+  <script defer src="js/workbench.js?v=49"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -437,6 +437,9 @@
       workbench:  { label: "开发工作台", icon: "🛠", title: "零代码开发工作台", sub: "管理版本迭代与功能项目，零代码生成新页面、改站点设置、一键发版。", mount: function (c) { if (window.mountWorkbench) return window.mountWorkbench(c); } }
     };
 
+    // 总管理员自动拥有全部面板（新增面板后总管理员也能看到，避免漏面板）
+    ROLES.super.panels = Object.keys(PANELS);
+
     /* 侧边栏分组（按内容域归类，解决"平铺太乱"的问题） */
     var PANEL_GROUPS = [
       { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "secaudit", "usermgr", "devices"] },
@@ -483,7 +486,7 @@
       if (getWorkerSession()) opts.headers["Authorization"] = "Bearer " + getWorkerSession();
       return fetch(apiBase() + path, opts);
     }
-    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
     /* 把底层报错翻译成中文友好提示 */
     function friendlyMsg(err) {
       var msg = (err && err.message) ? String(err.message) : "未知错误";
@@ -567,12 +570,12 @@
       if (adminMode() === "worker") {
         return wkFetch("/api/admin/data").then(function (r) { return r.json(); }).then(function (j) {
           if (j.error) throw new Error(j.error);
-          return { obj: JSON.parse(j.content) };
+          try { return { obj: JSON.parse(j.content) }; } catch (e) { throw new Error("数据解析失败（data.json 格式错误）"); }
         });
       }
       return fetch(API + "/repos/" + REPO + "/contents/docs/data.json", { headers: headers(true) })
         .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-        .then(function (j) { dataSha = j.sha; return { obj: JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha: j.sha }; });
+        .then(function (j) { dataSha = j.sha; try { return { obj: JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha: j.sha }; } catch (e) { throw new Error("data.json 解析失败：文件可能已损坏"); } });
     }
     function getLatestSha() {
       if (adminMode() === "worker") return Promise.resolve("");

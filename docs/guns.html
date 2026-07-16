@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>改枪码 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css?v=47">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <style>
     :root { --gun-accent: #ff8c1a; }
     body { background: var(--bg); color: var(--text); margin: 0; }
@@ -38,6 +38,15 @@
     .g-like.on { color: #ff5b7f; border-color: rgba(255,91,127,.5); background: rgba(255,91,127,.1); }
     .g-empty { text-align: center; color: var(--muted); padding: 50px 0; }
     .g-status { text-align:center; color: var(--muted); padding: 40px 0; }
+    .g-import { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+    .g-import input { flex: 1; min-width: 200px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text); font-size: 14px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .g-import button { padding: 9px 14px; border: 0; border-radius: 9px; background: var(--gun-accent); color: #1a1a1a; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .g-import button.ghost { background: var(--bg-soft); color: var(--muted); border: 1px solid var(--border); }
+    .g-import-hint { font-size: 12px; color: var(--muted); width: 100%; }
+    .g-mine-title { font-size: 14px; color: var(--muted); margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; }
+    .g-mine-title::before { content: ""; width: 4px; height: 14px; background: var(--gun-accent); border-radius: 2px; display: inline-block; }
+    .g-mode { display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; background: color-mix(in srgb, var(--gun-accent) 16%, transparent); color: var(--gun-accent); margin-left:6px; }
+    .g-code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--muted); background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 6px 8px; margin-top: 6px; word-break: break-all; user-select: all; }
   </style>
 </head>
 <body>
@@ -49,6 +58,15 @@
     </div>
     <div class="g-chips" id="gCats"></div>
     <div class="g-chips" id="gChips"></div>
+    <div class="g-import">
+      <input id="gImport" placeholder="粘贴你自己的改枪码（如 6H1921…）" maxlength="40">
+      <button id="gImportBtn">📥 保存我的改枪码</button>
+      <span class="g-import-hint">游戏内路径：仓库 → 选中枪械 → 改装 → 方案导入 → 粘贴使用。本站仅做收藏，不修改任何游戏数据。</span>
+    </div>
+    <div id="gMineBox" style="display:none">
+      <div class="g-mine-title">我的改枪码</div>
+      <div id="gMine" class="g-grid"></div>
+    </div>
     <div id="gGrid" class="g-grid"><div class="g-status">加载中…</div></div>
   </div>
 
@@ -56,7 +74,7 @@
   (function () {
     "use strict";
     var DATA = null, GUNS = [], gunImgMap = {}, activeTag = "", activeCat = "", kw = "";
-    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
     function copyText(t) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(t);
@@ -102,7 +120,10 @@
       "M250": "机枪", "M249": "机枪", "M134": "机枪", "PKM": "机枪",
       "MP5": "冲锋枪", "Vector": "冲锋枪", "P90": "冲锋枪", "MP7": "冲锋枪", "UMP45": "冲锋枪",
       "M870": "霰弹枪", "KS-12": "霰弹枪", "TCSG12": "霰弹枪",
-      "G18": "手枪", "M1911": "手枪", "P320": "手枪", "沙漠之鹰": "手枪"
+      "G18": "手枪", "M1911": "手枪", "P320": "手枪", "沙漠之鹰": "手枪",
+      "SVCH": "射手步枪", "RM277": "突击步枪", "M7": "战斗步枪", "MK4": "冲锋枪", "SR-3M": "紧凑突击",
+      "SKS": "射手步枪", "MK47": "突击步枪", "PSG-1": "射手步枪", "MCX LT": "突击步枪", "QJB201": "轻机枪",
+      "Marlin": "杠杆步枪", "腾龙": "突击步枪"
     };
     function weaponCat(g) {
       var w = (g.weapon || "").trim();
@@ -152,13 +173,16 @@
         var img = imgFor(g);
         var imgHtml = img ? '<img src="' + esc(img) + '" alt="' + esc(g.weapon) + '" loading="lazy">' : '<div style="font-size:44px">🔫</div>';
         var tags = (g.tags || []).map(function (t) { return '<span class="g-tag">' + esc(t) + "</span>"; }).join("");
+        var modeBadge = g.mode ? '<span class="g-mode">' + esc(g.mode) + '</span>' : '';
+        var codeHtml = g.code ? '<div class="g-code">' + esc(g.code) + '</div>' : '';
         return '<div class="g-card">' +
           '<div class="g-img">' + imgHtml + '<span class="g-wtag">' + esc(g.weapon) + '</span></div>' +
           '<div class="g-body">' +
-            '<div class="g-name">' + esc(g.name) + '</div>' +
+            '<div class="g-name">' + esc(g.name) + modeBadge + '</div>' +
             '<div class="g-meta"><span>作者 <b>' + esc(g.author || "—") + '</b></span><span>价格 <b>' + esc(g.price || "免费") + '</b></span></div>' +
             (tags ? '<div class="g-tags">' + tags + '</div>' : '') +
             (g.desc ? '<div class="g-desc">' + esc(g.desc) + '</div>' : '') +
+            codeHtml +
             '<div class="g-foot"><button class="g-like" data-i="' + idx + '">❤ <span class="g-like-n">' + likeCount(g) + '</span></button><button class="g-copy" data-i="' + idx + '">📋 ' + (g.code ? "复制改枪码" : "复制方案") + '</button></div>' +
           '</div></div>';
       }).join("");
@@ -191,12 +215,55 @@
         };
       });
     }
+    /* ---------- 我的改枪码（本地收藏，仅本机） ---------- */
+    var MINE_KEY = "df_gun_mine_v1";
+    function loadMine() { try { return JSON.parse(localStorage.getItem(MINE_KEY) || "[]"); } catch (e) { return []; } }
+    function saveMine(a) { try { localStorage.setItem(MINE_KEY, JSON.stringify(a)); } catch (e) {} }
+    function renderMine() {
+      var box = document.getElementById("gMineBox");
+      var grid = document.getElementById("gMine");
+      var arr = loadMine();
+      if (!arr.length) { box.style.display = "none"; return; }
+      box.style.display = "block";
+      grid.innerHTML = arr.map(function (m, i) {
+        return '<div class="g-card"><div class="g-body">' +
+          '<div class="g-name">我的改枪码 ' + (i + 1) + (m.note ? ' <span class="g-mode">' + esc(m.note) + '</span>' : '') + '</div>' +
+          '<div class="g-code">' + esc(m.code) + '</div>' +
+          '<div class="g-foot"><button class="g-copy-mine" data-i="' + i + '">📋 复制</button><button class="g-del-mine" data-i="' + i + '">🗑 删除</button></div>' +
+          '</div></div>';
+      }).join("");
+      grid.querySelectorAll(".g-copy-mine").forEach(function (b) {
+        b.onclick = function () {
+          copyText(arr[+b.getAttribute("data-i")].code).then(function () {
+            var o = b.textContent; b.textContent = "✅ 已复制"; setTimeout(function () { b.textContent = o; }, 1400);
+          });
+        };
+      });
+      grid.querySelectorAll(".g-del-mine").forEach(function (b) {
+        b.onclick = function () { var a = loadMine(); a.splice(+b.getAttribute("data-i"), 1); saveMine(a); renderMine(); };
+      });
+    }
+    function setupImport() {
+      var btn = document.getElementById("gImportBtn");
+      var inp = document.getElementById("gImport");
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var v = (inp.value || "").trim();
+        if (!/^[0-9A-Za-z]{12,30}$/.test(v)) { alert("改枪码格式不正确（应为字母数字组合，长度 12-30）"); return; }
+        var a = loadMine();
+        if (a.some(function (x) { return x.code === v; })) { alert("该改枪码已收藏"); return; }
+        var note = prompt("给这个改枪码起个备注（如：M4A1 烽火低配）：", "") || "";
+        a.unshift({ code: v, note: note.slice(0, 20), ts: Date.now() });
+        saveMine(a); inp.value = ""; renderMine();
+      });
+    }
+
     function start() {
       fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
         DATA = d; GUNS = d.gunBuilds || [];
         return buildGunImgMap();
       }).then(function () {
-        renderCatChips(); renderChips(); renderGrid();
+        renderCatChips(); renderChips(); renderGrid(); renderMine(); setupImport();
         document.getElementById("gSearch").addEventListener("input", function (e) {
           if (e.isComposing) return; kw = e.target.value.trim().toLowerCase(); renderGrid();
         });

@@ -152,6 +152,32 @@
   .n-stats span { color: var(--muted); }
   .n-stats span:last-child { color: var(--red); }
 
+  /* 分类筛选条 */
+  .catbar { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; }
+  .catbar button {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 999px; padding: 5px 13px; font-size: 13px; cursor: pointer;
+    transition: .15s;
+  }
+  .catbar button:hover { color: var(--text); border-color: var(--green); }
+  .catbar button.on { background: var(--green); border-color: var(--green); color: #0b0e14; font-weight: 600; }
+
+  /* 来源徽标 */
+  .src-badge {
+    display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 6px;
+    color: var(--green); border: 1px solid rgba(63,185,80,.4); background: rgba(63,185,80,.08);
+    font-weight: 600;
+  }
+  /* 展开正文 */
+  .card-content {
+    display: none; font-size: 13.5px; color: var(--muted); margin-top: 6px;
+    line-height: 1.7; border-top: 1px dashed var(--border); padding-top: 8px; white-space: pre-wrap;
+  }
+  .card.expanded .card-content { display: block; }
+  .card-toggle { font-size: 12px; color: var(--blue); margin-top: 6px; cursor: pointer; user-select: none; }
+  .card-link { font-size: 12.5px; color: var(--blue); margin-top: 6px; display: inline-block; }
+
+
   /* Badges */
   .badge {
     display: inline-flex;
@@ -287,7 +313,10 @@
       <button data-tab="videos">视频 <span class="count" id="cnt-videos">0</span></button>
     </nav>
 
-    <section class="tab-panel active" id="panel-news"></section>
+    <section class="tab-panel active" id="panel-news">
+      <div class="catbar" id="newsCats"></div>
+      <div id="newsList"></div>
+    </section>
     <section class="tab-panel" id="panel-live"></section>
     <section class="tab-panel" id="panel-videos"></section>
 
@@ -298,33 +327,18 @@
 (function () {
   "use strict";
 
+  var ALL_NEWS = [];
+  var NEWS_CAT = "";
+
   /* ---------- 内置示例数据（data.json 缺失/失败时回退；
      所有 url 留空表示“暂无官方链接”，请替换为真实地址） ---------- */
   var SAMPLE_NEWS = [
-    {
-      title: "《三角洲行动》S10 赛季「全面交战」正式开启",
-      source: "官方公告",
-      date: "2026-07-14",
-      summary: "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励。",
-      url: "",
-      thumb: "", views: 12840, likes: 932
-    },
-    {
-      title: "干员平衡性调整预告",
-      source: "官方",
-      date: "2026-07-13",
-      summary: "下版本将对部分突击干员的后坐力与技能冷却进行微调，详情见公告。",
-      url: "",
-      thumb: "", views: 8650, likes: 514
-    },
-    {
-      title: "夏日嘉年华限时活动上线",
-      source: "三角洲情报台",
-      date: "2026-07-12",
-      summary: "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。",
-      url: "",
-      thumb: "", views: 5210, likes: 388
-    }
+    { title: "《三角洲行动》S10 赛季「全面交战」正式开启", source: "官方公告", date: "2026-07-14", cat: "版本", summary: "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励与限定头像框。", content: "S10 赛季「全面交战」已全面上线：排位赛段位重置，新增干员与地图轮换，完成赛季任务可领取哈夫币、武器皮肤与通行证奖励。建议先到训练场适应新版本手感。", url: "", thumb: "", views: 12840, likes: 932 },
+    { title: "干员平衡性调整预告", source: "官方", date: "2026-07-13", cat: "版本", summary: "下版本将对部分突击干员后坐力与技能冷却进行微调，详情见公告。", content: "官方预告将对突击位干员的后坐力曲线与技能冷却做平衡性微调，同时优化部分地图的物资分布。正式数值以版本更新公告为准。", url: "", thumb: "", views: 8650, likes: 514 },
+    { title: "夏日嘉年华限时活动上线", source: "三角洲情报台", date: "2026-07-12", cat: "活动", summary: "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。", content: "夏日嘉年华限时开启，每日任务累计可兑换限定皮肤、物资箱与哈夫币礼包，活动持续至本月底，错过需等复刻。", url: "", thumb: "", views: 5210, likes: 388 },
+    { title: "S10 最强改枪方案合集（攻略）", source: "枪械研究室", date: "2026-07-11", cat: "攻略", summary: "覆盖 M4A1 / AKM / M7 等主流枪械从低配到满改的方案与改枪码。", content: "本攻略汇总 S10 主流枪械的低成本到满改配置，并附带可一键导入的改枪码，建议先在训练场试射确认手感再带入实战。", url: "", thumb: "", views: 15200, likes: 1200 },
+    { title: "巴克什跑刀收益路线详解", source: "老六课堂", date: "2026-07-10", cat: "攻略", summary: "低战备进图、高价值撤离点位与避坑指南，适合平民跑刀玩家。", content: "巴克什作为高价值图，跑刀需精准卡战备值并熟悉撤离点。本文梳理了低成本进图路线、高价值物资点位与常见埋伏点，帮助稳定收益。", url: "", thumb: "", views: 9800, likes: 760 },
+    { title: "三角洲杯全民赛事开赛", source: "赛事官方", date: "2026-07-09", cat: "赛事", summary: "全民赛拉开帷幕，报名即送限定头像框，冠军可获得专属称号。", content: "「三角洲杯」全民赛事正式开赛，面向所有段位玩家，单人/组队均可报名，海选采用积分制，决赛为线下表演赛。", url: "", thumb: "", views: 7300, likes: 540 }
   ];
 
   var SAMPLE_LIVE = [
@@ -417,26 +431,42 @@
     return m ? m[1] : "";
   }
 
-  /* ---------- 渲染：资讯（左图右文卡片） ---------- */
+  /* ---------- 渲染：资讯（KK日报风格聚合卡片） ---------- */
   function fmtNum(n) {
     n = n || 0;
     if (n >= 10000) return (n / 10000).toFixed(1) + " 万";
     return String(n);
   }
-  function renderNews(list, panel) {
+  function relTime(dateStr) {
+    if (!dateStr) return "";
+    var t = Date.parse(String(dateStr).replace(/-/g, "/"));
+    if (isNaN(t)) return dateStr;
+    var diff = (Date.now() - t) / 86400000;
+    if (diff < 0) return dateStr;
+    if (diff < 1) return "今天";
+    if (diff < 2) return "昨天";
+    if (diff < 30) return Math.floor(diff) + "天前";
+    return dateStr;
+  }
+  function renderNewsCats() {
+    var box = document.getElementById("newsCats");
+    var cats = [];
+    ALL_NEWS.forEach(function (n) { if (n.cat && cats.indexOf(n.cat) < 0) cats.push(n.cat); });
+    var html = '<button data-c="" class="' + (NEWS_CAT === "" ? "on" : "") + '">全部</button>' +
+      cats.map(function (c) { return '<button data-c="' + esc(c) + '" class="' + (NEWS_CAT === c ? "on" : "") + '">' + esc(c) + "</button>"; }).join("");
+    box.innerHTML = html;
+    box.querySelectorAll("button").forEach(function (b) {
+      b.onclick = function () { NEWS_CAT = b.getAttribute("data-c") || ""; renderNewsCats(); renderNews(); };
+    });
+  }
+  function renderNews() {
+    var list = NEWS_CAT ? ALL_NEWS.filter(function (n) { return n.cat === NEWS_CAT; }) : ALL_NEWS;
+    var panel = document.getElementById("newsList");
     panel.innerHTML = "";
-    if (!list || !list.length) {
-      panel.appendChild(el("div", "empty", "暂无资讯"));
-      return;
-    }
+    if (!list || !list.length) { panel.appendChild(el("div", "empty", "该分类暂无资讯")); return; }
     list.forEach(function (n) {
       var hasUrl = !!(n.url && n.url.trim());
-      var card = el("div", "card clickable news-card" + (hasUrl ? "" : " disabled"));
-      if (hasUrl) {
-        card.addEventListener("click", function (e) {
-          if (e.target.tagName !== "A") window.open(n.url, "_blank", "noopener");
-        });
-      }
+      var card = el("div", "card clickable news-card");
 
       var row = el("div", "row");
       var thumb = el("div", "thumb");
@@ -449,14 +479,14 @@
 
       var body = el("div", "body");
       var head = el("div", "card-head");
-      head.innerHTML = '<div class="card-title">' + (hasUrl ? '<a href="' + esc(n.url) + '" target="_blank" rel="noopener">' + esc(n.title) + '</a>' : esc(n.title)) + "</div>" +
-        (hasUrl ? "" : '<span style="font-size:12px;color:var(--muted);margin-left:8px;">暂无链接</span>');
+      head.innerHTML = '<div class="card-title">' + esc(n.title) + "</div>";
       body.appendChild(head);
 
       var meta = el("div", "card-meta");
       meta.innerHTML =
-        '<span class="src">' + esc(n.source || "未知来源") + "</span>" +
-        "<span>📅 " + esc(n.date || "") + "</span>";
+        '<span class="src-badge">' + esc(n.source || "未知来源") + "</span>" +
+        "<span>📅 " + esc(n.date || "") + "</span>" +
+        (relTime(n.date) ? '<span>🕒 ' + relTime(n.date) + "</span>" : "");
       body.appendChild(meta);
 
       var stats = el("div", "card-meta n-stats");
@@ -466,6 +496,22 @@
       body.appendChild(stats);
 
       if (n.summary) body.appendChild(el("p", "card-summary", esc(n.summary)));
+      if (n.content) {
+        body.appendChild(el("div", "card-content", esc(n.content)));
+        var toggle = el("div", "card-toggle", "▾ 展开全文");
+        toggle.onclick = function (e) {
+          e.stopPropagation();
+          var ex = card.classList.toggle("expanded");
+          toggle.textContent = ex ? "▴ 收起" : "▾ 展开全文";
+        };
+        body.appendChild(toggle);
+      }
+      if (hasUrl) {
+        var link = el("a", "card-link", "🔗 查看原文 ↗");
+        link.href = n.url; link.target = "_blank"; link.rel = "noopener";
+        link.onclick = function (e) { e.stopPropagation(); };
+        body.appendChild(link);
+      }
       row.appendChild(body);
       card.appendChild(row);
       panel.appendChild(card);
@@ -621,14 +667,15 @@
 
   /* ---------- 引导 ---------- */
   function init(data) {
-    var news = (data && Array.isArray(data.news)) ? data.news : SAMPLE_NEWS;
+    ALL_NEWS = (data && Array.isArray(data.news)) ? data.news : SAMPLE_NEWS;
     var live = (data && Array.isArray(data.live)) ? data.live : SAMPLE_LIVE;
     var videos = (data && Array.isArray(data.videos)) ? data.videos : SAMPLE_VIDEOS;
 
-    renderNews(news, document.getElementById("panel-news"));
+    renderNewsCats();
+    renderNews();
     renderLive(live, document.getElementById("panel-live"));
     renderVideos(videos, document.getElementById("panel-videos"));
-    setCounts(news.length, live.length, videos.length);
+    setCounts(ALL_NEWS.length, live.length, videos.length);
   }
 
   setupTabs();

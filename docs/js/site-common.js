@@ -12,7 +12,7 @@
   function getId() { try { return localStorage.getItem(KID) || ""; } catch (e) { return ""; } }
   function getRole() { try { return localStorage.getItem(KR) || ""; } catch (e) { return ""; } }
   function isLogin() { return !!getToken(); }
-  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
   function fmt(ts) {
     try { var d = new Date(ts); if (isNaN(d)) return "";
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }

@@ -16,6 +16,9 @@
 (function () {
   "use strict";
 
+  function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
+  function fmt(n){return Number(n||0).toLocaleString();}
+
   var DEFAULT_URL = "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json";
   var CACHE_KEY = "df_liveprice_v1";
   var TTL = 5 * 60 * 1000; // 5 分钟

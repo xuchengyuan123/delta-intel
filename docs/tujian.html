@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>三角洲图鉴 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css?v=47">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <style>
     :root { --tj-accent: #4d96ff; }
     body { background: var(--bg); color: var(--text); margin: 0; }
@@ -112,7 +112,7 @@
 
     var CFG = DEFAULT_CFG, cats = [], cache = {}, kw = "", curKey = "all";
 
-    function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
     function enabledCats() {
       return (CFG.categories || []).filter(function (c) { return c.enabled; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
     }

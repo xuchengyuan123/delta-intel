@@ -59,7 +59,7 @@
 
   var eqData = [], tyData = [], badgeCount = 0;
 
-  function esc(s) { var d = document.createElement("div"); d.textContent = (s == null ? "" : String(s)); return d.innerHTML; }
+  function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
 
   var DIR = { N: "北", NNE: "北东北", NE: "东北", ENE: "东东北", E: "东", ESE: "东东南", SE: "东南", SSE: "南东南", S: "南", SSW: "南西南", SW: "西南", WSW: "西西南", W: "西", WNW: "西西北", NW: "西北", NNW: "北西北" };
   function dirCn(d) { return DIR[d] || (d || "未知"); }

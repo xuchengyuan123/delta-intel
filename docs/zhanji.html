@@ -173,7 +173,7 @@ function labelFor(k){ const last=k.split(".").pop(); return ZL[k]||ZL[last]||k; 
 function token(){ return localStorage.getItem("di_user_token")||""; }
 function uid(){ return localStorage.getItem("di_user_id")||""; }
 function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
-function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function esc(s){s=String(s==null?'':s);var q=String.fromCharCode(34);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(new RegExp(q,'g'),'&quot;').replace(/'/g,'&#39;');}
 
 async function api(path, opts){
   opts=opts||{}; const h={"Content-Type":"application/json"};

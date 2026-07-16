@@ -83,6 +83,14 @@
     var dataObj = null;
     var apiBase = "https://api.delta.shopping";
 
+    // 持久提示：WORKBENCH KV 绑定要求 + 写入失败时的退路
+    try {
+      var kvHintEl = document.createElement("div");
+      kvHintEl.style.cssText = "background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.4);color:#d29922;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:13px;line-height:1.6";
+      kvHintEl.innerHTML = "💡 生成页面会经 Cloudflare Worker 写入站点仓库（需绑定 <b>WORKBENCH KV</b>）。若写入失败，系统会自动下载 HTML 文件，你手动上传到对应路径即可正常上线。";
+      c.insertBefore(kvHintEl, c.firstChild);
+    } catch (e) {}
+
     /* ----- 数据读写 ----- */
     function loadApps() {
       return getDataObj().then(function (d) {
@@ -891,9 +899,30 @@
     function splitLines(s) { return String(s || "").split("\n").map(function (x) { return x.trim(); }).filter(Boolean); }
 
     /* ====================== 生成页面 HTML ====================== */
+    function downloadHtml(filename, html) {
+      try {
+        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var aEl = document.createElement("a");
+        aEl.href = url; aEl.download = String(filename).replace(/^docs\//, "");
+        document.body.appendChild(aEl); aEl.click(); document.body.removeChild(aEl);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      } catch (e) { /* 忽略下载异常 */ }
+    }
+    function kvHint(e) {
+      return (e && /KV|绑定|bind|namespace/i.test(e.message || ""))
+        ? "多半是 Cloudflare 的 WORKBENCH KV 未绑定：请在 Worker 设置 → 变量/绑定 里新增一个 KV 命名空间，变量名填 WORKBENCH，再重新部署 Worker。"
+        : "";
+    }
     function generatePage(a, m, p) {
       var html = buildPageHtml(a, m, p, apiBase);
-      return putFile(p.path, b64utf8(html), "[workbench] 生成页面 " + p.title, null);
+      return putFile(p.path, b64utf8(html), "[workbench] 生成页面 " + p.title, null)
+        .catch(function (e) {
+          // Worker/KV 写入失败：退化为「下载 HTML」，让站长手动上传到仓库
+          downloadHtml(p.path, html);
+          var base = (e && e.message) ? e.message : "生成失败";
+          throw new Error(base + "。已为你下载 HTML 文件，请手动上传到仓库路径 " + p.path + "。" + kvHint(e));
+        });
     }
     function generateAppHome(a) {
       if (!a.slug) a.slug = slugify(a.name);
@@ -902,7 +931,11 @@
       var msg = { className: "", textContent: "" };
       return putFile(path, b64utf8(html), "[workbench] 生成应用首页 " + a.name, msg)
         .then(function () { alert("已生成应用首页：" + path + "\n可进前台导航让访客访问。"); renderAppDetail(a.id); })
-        .catch(function (e) { alert("生成失败：" + (e && e.message ? e.message : e)); });
+        .catch(function (e) {
+          downloadHtml(path, html);
+          alert("生成失败：" + ((e && e.message) ? e.message : e) + "\n已下载 HTML，可手动上传到 " + path + "。" + kvHint(e));
+          renderAppDetail(a.id);
+        });
     }
 
     function buildPageHtml(a, m, p, apiBase) {
