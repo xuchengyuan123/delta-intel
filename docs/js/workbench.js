@@ -123,11 +123,11 @@
       dataObj.menu = (dataObj.menu || []).filter(function (m) { return m._wb !== key; });
     }
     function syncAppNav(app) {
-      if (app.inNav) ensureNav({ _wb: "app:" + app.id, href: "app-" + app.slug + ".html", ico: app.icon || "📦", label: app.navLabel || app.name });
+      if (app.inNav) ensureNav({ _wb: "app:" + app.id, href: "docs/app-" + app.slug + ".html", ico: app.icon || "📦", label: app.navLabel || app.name });
       else removeNav("app:" + app.id);
     }
     function syncPageNav(page, app) {
-      if (page.inNav) ensureNav({ _wb: "page:" + page.id, href: page.slug + ".html", ico: (app && app.icon) || "📄", label: page.navLabel || page.title });
+      if (page.inNav) ensureNav({ _wb: "page:" + page.id, href: "docs/" + page.slug + ".html", ico: (app && app.icon) || "📄", label: page.navLabel || page.title });
       else removeNav("page:" + page.id);
     }
 
@@ -512,7 +512,7 @@
         rec.navLabel = c.querySelector("#pNavLabel").value.trim();
         rec.inNav = c.querySelector("#pInNav").checked;
         rec.updatedAt = today();
-        rec.path = slug + ".html";
+        rec.path = "docs/" + slug + ".html";
         if (mode === "visual") {
           rec.mode = "visual";
           rec.components = visualComps.slice();
@@ -591,6 +591,34 @@
       }).join("");
       return field("勾选要在看板上展示的指标", '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;">' + mh + '</div>');
     }
+    // ===== 像素级 CSS 样式引擎（零代码自由编辑组件外观） =====
+    function px(n){ n = parseInt(n,10); return isNaN(n) ? "" : n+"px"; }
+    function styleStr(s){ if(!s) return ""; var o={}; if(s.bg)o["background"]=s.bg; if(s.color)o["color"]=s.color; if(s.fs)o["font-size"]=px(s.fs); if(s.fw)o["font-weight"]=s.fw; if(s.lh)o["line-height"]=s.lh; if(s.ta)o["text-align"]=s.ta; if(s.w)o["width"]=s.w; if(s.p)o["padding"]=s.p; if(s.m)o["margin"]=s.m; if(s.radius)o["border-radius"]=px(s.radius); if(s.bw)o["border"]=px(s.bw)+" "+(s.bs||"solid")+" "+(s.bc||"#ccc"); if(s.shadow)o["box-shadow"]=s.shadow; return Object.keys(o).map(function(k){return k+":"+o[k];}).join(";"); }
+    function stylePropForm(s){ s=s||{}; var r=function(l,i){return '<div class="wb-style-row"><label>'+l+'</label><div>'+i+'</div></div>';};
+      var h='<div class="wb-style-box"><div class="wb-style-title">🎨 像素级样式（自由编辑 CSS）</div>';
+      h+=r("背景色",'<input id="sty_bg" value="'+esc(s.bg||"")+'" placeholder="#f0f0f0 / rgba()">');
+      h+=r("文字颜色",'<input id="sty_color" value="'+esc(s.color||"")+'" placeholder="#333">');
+      h+=r("字号(px)",'<input id="sty_fs" type="number" value="'+esc(s.fs||"")+'">');
+      h+=r("粗细",'<select id="sty_fw"><option value="">默认</option><option value="normal"'+(s.fw==="normal"?" selected":"")+'>常规</option><option value="bold"'+(s.fw==="bold"?" selected":"")+'>加粗</option></select>');
+      h+=r("行高",'<input id="sty_lh" value="'+esc(s.lh||"")+'" placeholder="1.6">');
+      h+=r("对齐",'<select id="sty_ta"><option value="">默认</option><option value="left"'+(s.ta==="left"?" selected":"")+'>左</option><option value="center"'+(s.ta==="center"?" selected":"")+'>居中</option><option value="right"'+(s.ta==="right"?" selected":"")+'>右</option></select>');
+      h+=r("宽度",'<input id="sty_w" value="'+esc(s.w||"")+'" placeholder="100% / 300px">');
+      h+=r("内边距",'<input id="sty_p" value="'+esc(s.p||"")+'" placeholder="10px 16px">');
+      h+=r("外边距",'<input id="sty_m" value="'+esc(s.m||"")+'" placeholder="0 auto">');
+      h+=r("圆角(px)",'<input id="sty_radius" type="number" value="'+esc(s.radius||"")+'">');
+      h+=r("边框宽(px)",'<input id="sty_bw" type="number" value="'+esc(s.bw||"")+'">');
+      h+=r("边框样式",'<select id="sty_bs"><option value="solid"'+((s.bs||"solid")==="solid"?" selected":"")+'>实线</option><option value="dashed"'+((s.bs==="dashed")?" selected":"")+'>虚线</option><option value="none"'+((s.bs==="none")?" selected":"")+'>无</option></select>');
+      h+=r("边框色",'<input id="sty_bc" value="'+esc(s.bc||"")+'" placeholder="#ccc">');
+      h+=r("阴影",'<input id="sty_shadow" value="'+esc(s.shadow||"")+'" placeholder="0 2px 8px rgba(0,0,0,.1)">');
+      h+='<div class="wb-style-actions"><button class="btn ghost sm" id="ppClearStyle">清除样式</button></div>';
+      h+='<div class="wb-style-preview" id="ppPreview" style="'+styleStr(s)+'">实时预览 Aa</div>';
+      h+='</div>';
+      return h;
+    }
+    function refreshStylePreview(cmp){
+      var pv=c.querySelector("#ppPreview");
+      if(pv) pv.setAttribute("style", styleStr(cmp.props && cmp.props.style));
+    }
     function renderPropForm(type, props) {
       props = props || {};
       if (type === "heading") return field("文字", '<input id="pp_text" value="' + esc(props.text || "") + '">') + field("级别", '<select id="pp_level"><option value="1"' + (props.level == 1 ? " selected" : "") + '>H1</option><option value="2"' + (props.level == 2 ? " selected" : "") + '>H2</option><option value="3"' + (props.level == 3 ? " selected" : "") + '>H3</option></select>') + field("对齐", alignSel("pp_align", props.align));
@@ -634,11 +662,31 @@
           });
         });
       }
+      // 像素级样式控件绑定：实时写回 cmp.props.style 并刷新预览
+      var styleMap = {
+        "#sty_bg": "bg", "#sty_color": "color", "#sty_fs": "fs", "#sty_fw": "fw",
+        "#sty_lh": "lh", "#sty_ta": "ta", "#sty_w": "w", "#sty_p": "p", "#sty_m": "m",
+        "#sty_radius": "radius", "#sty_bw": "bw", "#sty_bs": "bs", "#sty_bc": "bc", "#sty_shadow": "shadow"
+      };
+      Object.keys(styleMap).forEach(function (sel) {
+        var el = c.querySelector(sel); if (!el) return;
+        var key = styleMap[sel];
+        function set() {
+          var v = el.value;
+          if (!cmp.props.style) cmp.props.style = {};
+          if (v === "") { delete cmp.props.style[key]; } else { cmp.props.style[key] = v; }
+          refreshStylePreview(cmp);
+        }
+        el.addEventListener("input", set);
+        el.addEventListener("change", set);
+      });
+      var clearBtn = c.querySelector("#ppClearStyle");
+      if (clearBtn) clearBtn.onclick = function () { cmp.props.style = {}; openPropPanel(cmp); };
     }
     function openPropPanel(cmp) {
       editingComp = cmp;
       var box = c.querySelector("#pProps"); if (!box) return;
-      box.innerHTML = '<div class="wb-prop-head">🔧 ' + esc(cmpLabel(cmp.type)) + ' <button class="btn ghost sm" id="ppClose">收起</button></div>' + renderPropForm(cmp.type, cmp.props);
+      box.innerHTML = '<div class="wb-prop-head">🔧 ' + esc(cmpLabel(cmp.type)) + ' <button class="btn ghost sm" id="ppClose">收起</button></div>' + renderPropForm(cmp.type, cmp.props) + stylePropForm(cmp.props.style);
       if (cmp.type === "form") drawFormFields(cmp);
       bindProps(cmp);
       var closeBtn = c.querySelector("#ppClose"); if (closeBtn) closeBtn.onclick = function () { box.innerHTML = ""; editingComp = null; };
@@ -708,7 +756,11 @@
         '<\/script></div>';
     }
     function renderComponentsHTML(components, apiBase, appId, pageId) {
-      return (components || []).map(function (cmp) { return renderOneComponent(cmp, apiBase, appId, pageId); }).join("");
+      return (components || []).map(function (cmp) {
+        var inner = renderOneComponent(cmp, apiBase, appId, pageId);
+        var st = styleStr(cmp.props && cmp.props.style);
+        return '<div class="wb-comp"' + (st ? ' style="' + st + '"' : "") + ">" + inner + "</div>";
+      }).join("");
     }
     function renderOneComponent(cmp, apiBase, appId, pageId) {
       var t = cmp.type, pr = cmp.props || {};
@@ -846,7 +898,7 @@
     function generateAppHome(a) {
       if (!a.slug) a.slug = slugify(a.name);
       var html = buildAppHomeHtml(a, apiBase);
-      var path = "app-" + a.slug + ".html";
+      var path = "docs/app-" + a.slug + ".html";
       var msg = { className: "", textContent: "" };
       return putFile(path, b64utf8(html), "[workbench] 生成应用首页 " + a.name, msg)
         .then(function () { alert("已生成应用首页：" + path + "\n可进前台导航让访客访问。"); renderAppDetail(a.id); })
@@ -895,8 +947,8 @@
       return '<!DOCTYPE html>\n<html lang="zh-CN" class="dark">\n<head>' +
         '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">\n' +
         '<title>' + esc(title) + ' · 三角洲情报台</title>\n' +
-        '<link rel="stylesheet" href="css/style.css">\n' +
-        '</head>\n<body>' + body + '\n<a class="wb-back" href="index.html">← 返回首页</a></body>\n</html>';
+        '<link rel="stylesheet" href="../css/style.css">\n' +
+        '</head>\n<body>' + body + '\n<a class="wb-back" href="../index.html">← 返回首页</a></body>\n</html>';
     }
 
     /* ====================== 视图：表单提交查看 ====================== */
