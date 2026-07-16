@@ -1052,7 +1052,22 @@
           '</div>' +
         '</div>' +
         '<h3 style="margin-top:18px">现有账号</h3>' +
-        '<div id="saList"><div class="status">加载中…</div></div>';
+        '<div id="saList"><div class="status">加载中…</div></div>' +
+        '<div id="saEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;align-items:center;justify-content:center">' +
+          '<div class="panel-card" style="width:min(540px,92vw);max-height:88vh;overflow:auto">' +
+            '<h3>✏️ 编辑分管理员</h3>' +
+            '<input type="hidden" id="saEditId">' +
+            '<div class="login-field"><label>角色</label><select id="saEditRole" style="width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft,#11131a);color:inherit;font-size:14px"></select></div>' +
+            '<div class="login-field"><label>可管理面板（多选）</label><div class="sa-panels" id="saEditPanels"></div></div>' +
+            '<div class="login-field"><label>重置密码（留空=不修改；≥6 位）</label><input id="saEditPw" type="password" class="inp" placeholder="留空表示不修改" style="width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft,#11131a);color:inherit;font-size:14px"></div>' +
+            '<div class="login-field"><label style="cursor:pointer"><input type="checkbox" id="saEditDisabled"> 禁用该账号（禁止登录）</label></div>' +
+            '<div class="row" style="gap:10px;margin-top:6px">' +
+              '<button class="btn" id="saEditSave">💾 保存</button>' +
+              '<button class="btn ghost" id="saEditCancel">取消</button>' +
+            '</div>' +
+            '<div class="msg" id="saEditMsg"></div>' +
+          '</div>' +
+        '</div>';
 
       // 绑定角色卡片点击
       document.getElementById("saRoleCards").querySelectorAll(".login-role").forEach(function (el) {
@@ -1132,18 +1147,90 @@
         var list = document.getElementById("saList");
         wkFetch("/api/admin/users").then(function (r) { return r.json(); }).then(function (j) {
           if (j.error) { list.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + "</div>"; return; }
-          var us = (j.users || []);
-          if (!us.length) { list.innerHTML = '<div class="status">暂无账号。</div>'; return; }
+          // 分管理员管理只列「分管理员」，不列总管理员（总管理员不可在此改/删）
+          var us = (j.users || []).filter(function (u) { return u.role && u.role !== "super"; });
+          if (!us.length) { list.innerHTML = '<div class="status">暂无分管理员账号。</div>'; return; }
+          var userMap = {};
           list.innerHTML = '<div class="ui-role-grid">' + us.map(function (u) {
+            var id = (u.email || u.phone || "");
+            userMap[id] = u;
             var r = ROLES[u.role] || { name: u.role, icon: "🛡", color: "#8a7bff" };
             var saContact = u.email || u.phone || "—";
             var saContactSub = (u.email && u.phone) ? esc(u.phone) : (u.email ? "仅邮箱" : "仅手机");
             return '<div class="ui-role-row"><div class="ui-role-name">' + esc(saContact) +
               "<br><small style=\"color:var(--muted)\">" + saContactSub + " · " + r.icon + " " + esc(r.name) + "</small></div>" +
-              (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') + "</div>";
+              (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') +
+              '<div class="row" style="gap:6px;margin-left:auto">' +
+                '<button class="btn ghost sm sa-edit" data-id="' + esc(id) + '">✏️ 编辑</button>' +
+                '<button class="btn ghost sm sa-del" data-id="' + esc(id) + '" style="color:#ff5b5b">🗑 删除</button>' +
+              '</div></div>';
           }).join("") + "</div>";
+          list.querySelectorAll(".sa-edit").forEach(function (b) {
+            b.addEventListener("click", function () { openEdit(userMap[b.getAttribute("data-id")]); });
+          });
+          list.querySelectorAll(".sa-del").forEach(function (b) {
+            b.addEventListener("click", function () { doDelete(b.getAttribute("data-id")); });
+          });
         }).catch(function (e) { showErr(list, e, loadList); });
       }
+
+      function openEdit(u) {
+        if (!u) return;
+        var id = (u.email || u.phone || "");
+        document.getElementById("saEditId").value = id;
+        var sel = document.getElementById("saEditRole");
+        sel.innerHTML = Object.keys(ROLES).filter(function (k) { return k !== "super"; }).map(function (k) {
+          var r = ROLES[k];
+          return '<option value="' + k + '"' + (k === u.role ? " selected" : "") + ">" + r.icon + " " + r.name + "</option>";
+        }).join("");
+        var pbox = document.getElementById("saEditPanels");
+        pbox.innerHTML = allPanelKeys.map(function (p) {
+          var P = PANELS[p];
+          var on = (u.panels || []).indexOf(p) >= 0 ? " checked" : "";
+          return '<label class="sa-panel"><input type="checkbox" value="' + p + '"' + on + "> " + P.icon + " " + P.label + "</label>";
+        }).join("");
+        document.getElementById("saEditPw").value = "";
+        document.getElementById("saEditDisabled").checked = !!u.disabled;
+        document.getElementById("saEditMsg").textContent = "";
+        document.getElementById("saEditModal").style.display = "flex";
+      }
+
+      function doDelete(id) {
+        if (!id) return;
+        if (!confirm("确认删除分管理员「" + id + "」？\n此操作不可恢复，且该账号全部登录会话会立即失效。")) return;
+        wkFetch("/api/admin/subadmin", { method: "DELETE", body: JSON.stringify({ id: id }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) { alert(j.error); return; }
+            loadList();
+          })
+          .catch(function () { alert("删除失败，请检查 Worker 地址。"); });
+      }
+
+      // 编辑弹窗：保存 / 取消
+      var saEditSave = document.getElementById("saEditSave");
+      if (saEditSave) saEditSave.addEventListener("click", function () {
+        var id = document.getElementById("saEditId").value;
+        var role = document.getElementById("saEditRole").value;
+        var panels = Array.prototype.slice.call(document.getElementById("saEditPanels").querySelectorAll("input[type=checkbox]:checked")).map(function (cb) { return cb.value; });
+        var pw = document.getElementById("saEditPw").value;
+        var disabled = document.getElementById("saEditDisabled").checked;
+        var msg = document.getElementById("saEditMsg");
+        if (!panels.length) { msg.className = "msg err"; msg.textContent = "至少选择一个可管理面板。"; return; }
+        msg.className = "msg"; msg.textContent = "保存中…";
+        var body = { id: id, role: role, panels: panels, disabled: disabled };
+        if (pw) body.password = pw;
+        wkFetch("/api/admin/subadmin", { method: "PUT", body: JSON.stringify(body) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) { msg.className = "msg err"; msg.textContent = j.error; return; }
+            msg.className = "msg ok"; msg.textContent = "✅ 已保存。";
+            setTimeout(function () { document.getElementById("saEditModal").style.display = "none"; loadList(); }, 600);
+          })
+          .catch(function () { msg.className = "msg err"; msg.textContent = "保存失败，请检查 Worker 地址。"; });
+      });
+      var saEditCancel = document.getElementById("saEditCancel");
+      if (saEditCancel) saEditCancel.addEventListener("click", function () { document.getElementById("saEditModal").style.display = "none"; });
 
       document.getElementById("saCreate").addEventListener("click", function () {
         var contact = document.getElementById("saContact").value.trim();
