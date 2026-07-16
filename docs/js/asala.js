@@ -5,11 +5,14 @@
  *   内含 54 张扑克（4 花色 2-10 / JQK / A + 大小王），集齐 54 张 + 牌盒后
  *   可在对局内玩「斗地主」，并解锁赛季收藏徽章。
  *   牌/盒均不可交易（无拍卖行），只能局内拾取。
- * 掉率分档：红(牌盒/大王 0.1%) 金(小王) 紫(4 张 A) 蓝(JQK) 绿(2-10)
+ * 掉率分档：红(牌盒/大王 0.1%) 金(小王) 紫(四张A) 蓝(JQK) 绿(2-10)
  * 高掉率容器：大小保险箱 / 衣服 / 鸟窝 / 桌面盒 / 手提箱
  * 推荐地图：零号大坝(机密) / AZ3 核电站 / 长弓溪谷
  *
- * 机制：本页是本地的收集进度追踪器（纯本地，不联网）。
+ * 展示目的：直观展示「干员收集了多少牌」——牌面始终可见（未收集置灰），
+ *   顶部突出「已收集 X / 55」与各档进度，方便一眼看清收集情况。
+ *   卡牌目录可由后台「阿萨拉牌管理」维护（data.json.asalaCards）。
+ *   收集状态纯本地保存，不联网。
  * ========================================================= */
 (function () {
   "use strict";
@@ -20,8 +23,8 @@
   var TIER_COLOR = { "红": "#ff4d4f", "金": "#ffb300", "紫": "#b06bff", "蓝": "#3a7bd5", "绿": "#2ecc71" };
   var TIER_ORDER = ["红", "金", "紫", "蓝", "绿"];
 
-  // 生成 54 张牌 + 牌盒
-  function buildCards() {
+  // 内置默认 54+1 张（可被 data.json.asalaCards 覆盖）
+  function internalCards() {
     var suits = [
       { s: "♠", n: "黑桃" }, { s: "♥", n: "红心" }, { s: "♦", n: "方块" }, { s: "♣", n: "梅花" }
     ];
@@ -33,12 +36,16 @@
         cards.push({ key: su.s + rk, label: su.s + " " + rk, tier: tier, sub: su.n + " " + rk });
       });
     });
-    // 大小王
     cards.push({ key: "大王", label: "大王", tier: "红", sub: "红色品质 · 0.1%" });
     cards.push({ key: "小王", label: "小王", tier: "金", sub: "金色品质" });
-    // 牌盒
     cards.push({ key: "box", label: "阿萨拉牌盒", tier: "红", sub: "红色品质 · 0.1% · 集齐解锁" });
     return cards;
+  }
+
+  function buildCards(D) {
+    var d = D.getData && D.getData();
+    if (d && Array.isArray(d.asalaCards) && d.asalaCards.length) return d.asalaCards;
+    return internalCards();
   }
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return {}; } }
@@ -49,16 +56,17 @@
       html: function () {
         return '<div class="section-title">阿萨拉牌盒收集 <span class="kk-api">S10 裂变</span></div>' +
           '<p class="guide-intro">S10「裂变」赛季红色手工收藏品。集齐 <strong>54 张牌 + 牌盒</strong> 后可在对局内玩「斗地主」并解锁赛季收藏徽章。' +
-          '牌与盒均<strong>不可交易</strong>，只能局内拾取。本页是本地收集进度追踪器。</p>' +
+          '牌与盒均<strong>不可交易</strong>，只能局内拾取。本页直观展示你的收集进度（牌面可见，未收集置灰）。</p>' +
           '<div class="as-bar">' +
-            '<div class="as-progress"><div class="as-progress-fill" id="asFill"></div>' +
-              '<span class="as-progress-txt" id="asTxt">0 / 55</span></div>' +
+            '<div class="as-count" id="asCount">已收集 <b>0</b> / 55</div>' +
+            '<div class="as-progress"><div class="as-progress-fill" id="asFill"></div></div>' +
             '<div class="as-actions">' +
               '<button class="btn-ghost" id="asDraw">模拟开一包</button>' +
               '<button class="btn-ghost" id="asAll">全部标记已得</button>' +
               '<button class="btn-ghost" id="asReset">重置</button>' +
             '</div>' +
           '</div>' +
+          '<div class="as-tiers" id="asTiers"></div>' +
           '<div id="asBody"><div class="kk-empty">加载中…</div></div>' +
           '<div class="as-guide">' +
             '<div class="as-guide-h">🎯 高效 farming 指南（来自社区整理）</div>' +
@@ -75,33 +83,51 @@
           '</div>';
       },
       init: function () {
-        var cards = buildCards();
+        var cards = buildCards(D);
         var got = load();
         var body = document.getElementById("asBody");
+        var tiersEl = document.getElementById("asTiers");
 
         function render() {
           var done = 0;
+          // 各档计数
+          var tierDone = {}; TIER_ORDER.forEach(function (t) { tierDone[t] = 0; });
+          cards.forEach(function (c) { if (got[c.key]) { done++; tierDone[c.tier] = (tierDone[c.tier] || 0) + 1; } });
+          var total = cards.length;
+          var pct = total ? Math.round(done / total * 100) : 0;
+
+          var fill = document.getElementById("asFill");
+          var count = document.getElementById("asCount");
+          if (fill) fill.style.width = pct + "%";
+          if (count) count.innerHTML = '已收集 <b>' + done + '</b> / ' + total + (done === total ? ' 🎉 集齐！' : '');
+
+          if (tiersEl) {
+            tiersEl.innerHTML = TIER_ORDER.map(function (t) {
+              var n = cards.filter(function (c) { return c.tier === t; }).length;
+              var d = tierDone[t] || 0;
+              var col = TIER_COLOR[t];
+              var p = n ? Math.round(d / n * 100) : 0;
+              return '<div class="as-tier-pill" style="--tc:' + col + '">' +
+                '<span class="as-tier-name">' + t + '档</span>' +
+                '<span class="as-tier-num">' + d + '/' + n + '</span>' +
+                '<span class="as-tier-bar"><i style="width:' + p + '%"></i></span>' +
+              '</div>';
+            }).join("");
+          }
+
           var html = TIER_ORDER.map(function (tier) {
             var col = TIER_COLOR[tier];
             var grp = cards.filter(function (c) { return c.tier === tier; });
             var tiles = grp.map(function (c) {
               var on = !!got[c.key];
-              if (on) done++;
               return '<div class="as-card tier-' + tier + (on ? " on" : "") + '" data-key="' + esc(c.key) + '" style="--tc:' + col + '">' +
-                '<div class="as-card-face">' + (on ? esc(c.label) : "?") + '</div>' +
-                (on ? '<div class="as-card-ok">✓</div>' : '') +
+                '<div class="as-card-face">' + esc(c.label) + '</div>' +
+                (on ? '<div class="as-card-ok">✓</div>' : '<div class="as-card-miss">缺</div>') +
               '</div>';
             }).join("");
             return '<div class="as-group"><div class="as-group-h" style="color:' + col + '">' + tier + '档（' + grp.length + '）</div><div class="as-group-grid">' + tiles + '</div></div>';
           }).join("");
           body.innerHTML = html;
-
-          var total = cards.length;
-          var pct = total ? Math.round(done / total * 100) : 0;
-          var fill = document.getElementById("asFill");
-          var txt = document.getElementById("asTxt");
-          if (fill) fill.style.width = pct + "%";
-          if (txt) txt.textContent = done + " / " + total + " · " + pct + "%" + (done === total ? " 🎉 集齐！" : "");
 
           body.querySelectorAll(".as-card").forEach(function (el) {
             el.addEventListener("click", function () {

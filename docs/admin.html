@@ -367,7 +367,7 @@
       code:  { key: "code",  name: "代码维护员",     color: "#2ecc71", icon: "💻", panels: ["code"] },
       opcode:{ key: "opcode",name: "特战干员图鉴管理员", color: "#ff4d6d", icon: "🪖", panels: ["opcode"] },
       wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] },
-      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems"] },
+      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems", "achievements", "asala"] },
       usermgr: { key: "usermgr", name: "用户管理管理员", color: "#ff8c00", icon: "👥", panels: ["usermgr"] },
       tujian:   { key: "tujian", name: "图鉴管理员",     color: "#ff6b9d", icon: "🗂", panels: ["tujian"] },
       /* ===== 按「职务」扩充的分管理员（V32–V34） ===== */
@@ -375,7 +375,7 @@
       community:{ key: "community",name: "用户与社区",   color: "#58a6ff", icon: "👥", panels: ["usermgr","subadmins","access","devices","ugc"] },
       codex:    { key: "codex",    name: "图鉴资料总管", color: "#ff6b9d", icon: "📚", panels: ["opcode","wcodex","trivia","tujian","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems"] },
       artmusic: { key: "artmusic", name: "美术音乐总管", color: "#ff7a59", icon: "🎨", panels: ["art","images","music"] },
-      datatools:{ key: "datatools",name: "数据与工具总管", color: "#a06bff", icon: "🧰", panels: ["armors","scopes","npc","melee","rigs","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","materials","containers","items","bullets","maps","scatter","liveprice","mappass","sim","code","analytics"] },
+      datatools:{ key: "datatools",name: "数据与工具总管", color: "#a06bff", icon: "🧰", panels: ["armors","scopes","npc","melee","rigs","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","materials","containers","items","bullets","maps","scatter","liveprice","mappass","sim","code","analytics","achievements","asala"] },
       biz:      { key: "biz",      name: "商务赞助主管", color: "#e0a106", icon: "💼", panels: ["sponsor","site"] },
       secops:   { key: "secops",   name: "安全运维",     color: "#f85149", icon: "🛡", panels: ["subadmins","usermgr","access","devices","announce","ugc","code"] },
       teamsmgr: { key: "teamsmgr", name: "战队主管",     color: "#39d0d8", icon: "⚔", panels: ["teams"] }
@@ -395,6 +395,8 @@
       gun:       { label: "改枪方案", icon: "🔧", title: "改枪方案管理", sub: "维护前台「资料库·改枪方案」的配装列表（名称/武器/标签/配件）。", mount: mountGun },
       door:      { label: "密码门", icon: "🔑", title: "密码门速查管理", sub: "维护前台「资料库·密码门」的门禁密码列表。", mount: mountDoor },
       events:    { label: "活动日历", icon: "📅", title: "活动日历管理", sub: "维护前台「资料库·活动日历」的限时活动列表。", mount: mountEvents },
+      achievements: { label: "成就管理", icon: "🏅", title: "成就管理（三角洲行动 + 本站）", sub: "维护前台「成就墙」的成就清单。kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就；档位：青铜/白银/黄金/钻石/传说。", mount: mountAchievements },
+      asala:    { label: "阿萨拉牌管理", icon: "🃏", title: "阿萨拉牌盒卡牌管理", sub: "维护前台「阿萨拉牌盒收集」的 54+1 张卡牌目录（名称/档位/说明）。key 为唯一标识，建议用牌面如 ♠A、大王、box。", mount: mountAsala },
       streamer:  { label: "主播设置", icon: "🎮", title: "主播设置管理", sub: "维护前台「资料库·主播设置」的灵敏度/画质参考。", mount: mountStreamer },
       optask:    { label: "干员任务", icon: "🪖", title: "干员任务管理", sub: "维护前台「资料库·干员任务」的个人挑战列表。", mount: mountOpTask },
       melee:     { label: "近战武器", icon: "🔪", title: "近战武器管理", sub: "维护前台「资料库·近战武器」的基础数据。", mount: mountMelee },
@@ -445,6 +447,7 @@
       { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "secaudit", "usermgr", "devices"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign", "news"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
+      { name: "成就与收藏",   panels: ["achievements", "asala"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images", "tujian"] },
       { name: "攻略与互动",   panels: ["guides", "craft", "quiz"] },
       { name: "装备数据",     panels: ["armors", "scopes", "npc", "melee", "rigs"] },
@@ -2806,6 +2809,31 @@
       ],
       addRow: function () { return { name: '', category: '', tier: '', quality: '', effect: '', acquire: '', dmgStages: '', armorDmg: '', penLevel: '', headshot: '', runSpeed: '', walkSpeed: '', attackSpeed: '', range: '', desc: '' }; },
       keep: function (x) { return x.name; } }); }
+
+    /* ============ 成就管理（三角洲行动 + 本站） ============ */
+    function mountAchievements(c) { tablePanel(c, { key: 'achievements', icon: '🏅', title: '成就管理', sub: 'kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就。档位：青铜/白银/黄金/钻石/传说。',
+      cols: [
+        { f: 'kind', label: '类型', type: 'select', opts: ['game', 'site'] },
+        { f: 'name', label: '名称' },
+        { f: 'tier', label: '档位', type: 'select', opts: ['青铜', '白银', '黄金', '钻石', '传说'] },
+        { f: 'ico', label: '图标' },
+        { f: 'mode', label: '模式', type: 'select', opts: ['通用', '烽火地带', '全面战场'] },
+        { f: 'category', label: '分类' },
+        { f: 'desc', label: '说明' }
+      ],
+      addRow: function () { return { kind: 'game', name: '', tier: '青铜', ico: '🏅', mode: '通用', category: '', desc: '' }; },
+      keep: function (x) { return x.name; } }); }
+
+    /* ============ 阿萨拉牌盒卡牌管理 ============ */
+    function mountAsala(c) { tablePanel(c, { key: 'asalaCards', icon: '🃏', title: '阿萨拉牌盒卡牌', sub: '维护 54+1 张卡牌目录。档位：红/金/紫/蓝/绿。key 为唯一标识（建议用牌面，如 ♠A、大王、box）。',
+      cols: [
+        { f: 'key', label: 'key' },
+        { f: 'label', label: '牌面' },
+        { f: 'tier', label: '档位', type: 'select', opts: ['红', '金', '紫', '蓝', '绿'] },
+        { f: 'sub', label: '说明' }
+      ],
+      addRow: function () { return { key: '', label: '', tier: '绿', sub: '' }; },
+      keep: function (x) { return x.key && x.label; } }); }
 
     /* ============ 活动物品需求（实时 API） ============ */
     function mountEventItems(c) {

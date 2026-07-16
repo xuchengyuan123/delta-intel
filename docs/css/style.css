@@ -1937,3 +1937,19 @@ html.compact .field { margin-bottom: 8px; }
 .as-guide-row { font-size: 13px; color: var(--muted); line-height: 1.9; }
 .as-tier { display: inline-block; color: #fff; font-size: 11px; padding: 1px 8px; border-radius: 999px; margin: 0 4px 4px 0; }
 .as-tip { color: var(--accent-2); }
+.as-card-miss { position: absolute; top: 2px; right: 4px; font-size: 11px; color: var(--muted); font-weight: 800; }
+
+/* 成就墙标签切换 */
+.ac-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.ac-tab { background: var(--bg-soft); border: 1px solid var(--border); color: var(--muted); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.ac-tab.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+
+/* 阿萨拉 · 收集计数与分档进度 */
+.as-count { font-size: 15px; font-weight: 700; }
+.as-count b { color: var(--accent); font-size: 22px; margin: 0 2px; }
+.as-tiers { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.as-tier-pill { display: flex; align-items: center; gap: 8px; background: var(--bg-elev); border: 1px solid var(--border); border-left: 3px solid var(--tc); border-radius: 10px; padding: 6px 10px; font-size: 12px; }
+.as-tier-name { font-weight: 700; color: var(--tc); }
+.as-tier-num { font-variant-numeric: tabular-nums; }
+.as-tier-bar { width: 60px; height: 6px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
+.as-tier-bar i { display: block; height: 100%; background: var(--tc); }
