@@ -1825,3 +1825,115 @@ html.compact .field { margin-bottom: 8px; }
 .wb-dash-item { display: inline-block; min-width: 120px; margin: 6px; padding: 12px 16px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; text-align: center; }
 .wb-dash-item .n { font-size: 22px; font-weight: 700; color: var(--accent); }
 .wb-dash-item .l { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* =========================================================
+ * v50：首页精选卡 + 改枪热度榜 + 价格走势图 + 成就墙 + 阿萨拉牌盒
+ * ========================================================= */
+
+/* ---------- 首页精选卡 ---------- */
+.kk-feat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+@media (max-width: 900px) { .kk-feat { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .kk-feat { grid-template-columns: 1fr; } }
+.kk-feat-card {
+  display: flex; gap: 10px; align-items: center; text-decoration: none; color: var(--text);
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; transition: .15s;
+}
+.kk-feat-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+.kk-feat-ico {
+  font-size: 24px; width: 44px; height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-soft); border-radius: 10px;
+}
+.kk-feat-body { min-width: 0; }
+.kk-feat-l { font-size: 12px; color: var(--muted); }
+.kk-feat-v { font-size: 16px; font-weight: 800; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kk-feat-sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- 改枪热度榜 ---------- */
+.gr-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.gr-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.gr-f {
+  padding: 7px 14px; border: 1px solid var(--border); background: var(--bg-elev); color: var(--text);
+  border-radius: 999px; cursor: pointer; font-size: 13px;
+}
+.gr-f.active { background: var(--accent); color: #04211c; border-color: var(--accent); font-weight: 700; }
+.gr-weapon { padding: 7px 10px; border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); border-radius: 8px; font-size: 13px; }
+.gr-tier { margin-bottom: 18px; }
+.gr-tier-h {
+  display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px;
+  margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 10px;
+}
+.gr-tier-dot { width: 10px; height: 10px; border-radius: 50%; }
+.gr-card {
+  display: flex; gap: 12px; align-items: center; background: var(--bg-elev);
+  border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+}
+.gr-rank { font-size: 22px; font-weight: 800; color: var(--muted); width: 34px; text-align: center; flex-shrink: 0; }
+.gr-main { flex: 1; min-width: 0; }
+.gr-name { font-size: 15px; font-weight: 700; }
+.gr-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin: 4px 0; }
+.gr-weapon, .gr-mode { background: var(--bg-soft); padding: 1px 8px; border-radius: 6px; }
+.gr-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0; }
+.gr-tag { font-size: 11px; background: color-mix(in srgb, var(--accent) 14%, var(--bg-soft)); color: var(--accent); padding: 1px 8px; border-radius: 999px; }
+.gr-desc { font-size: 12px; color: var(--muted); margin: 4px 0; line-height: 1.6; }
+.gr-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.gr-price { font-size: 13px; color: var(--text); font-weight: 600; }
+.gr-copy { padding: 6px 12px; font-size: 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-soft); color: var(--text); }
+.gr-copy:hover { border-color: var(--accent); color: var(--accent); }
+.gr-heat { text-align: center; flex-shrink: 0; }
+.gr-heat-n { display: block; font-size: 24px; font-weight: 800; }
+.gr-heat-l { font-size: 11px; color: var(--muted); }
+
+/* ---------- 价格走势图 ---------- */
+.pt-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.pt-meta { font-size: 12px; color: var(--muted); }
+.pt-chart { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 10px; overflow-x: auto; }
+.pt-svg { width: 100%; height: auto; display: block; }
+.pt-legend { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 12px; }
+.pt-leg { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.pt-leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+.pt-leg-c { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pt-top { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+
+/* ---------- 成就墙 / 徽章盒 ---------- */
+.ac-bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 16px; }
+.ac-progress { flex: 1; min-width: 200px; position: relative; height: 22px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.ac-progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .4s ease; }
+.ac-progress-txt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text); }
+.ac-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.ac-badge {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 10px; text-align: center; cursor: pointer; transition: .15s; opacity: .55; position: relative;
+}
+.ac-badge.on { opacity: 1; border-color: var(--bc); box-shadow: 0 0 0 1px var(--bc); }
+.ac-badge-ico { font-size: 34px; line-height: 1; }
+.ac-badge-name { font-weight: 700; font-size: 14px; margin-top: 8px; }
+.ac-badge-tier { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ac-badge-desc { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; min-height: 30px; }
+.ac-badge-ok { font-size: 11px; margin-top: 8px; color: var(--bc); font-weight: 700; }
+.ac-badge-ok.off { color: var(--muted); font-weight: 400; }
+
+/* ---------- 阿萨拉牌盒收集 ---------- */
+.as-bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 16px; }
+.as-progress { flex: 1; min-width: 200px; position: relative; height: 22px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.as-progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, #ff4d4f, var(--accent)); transition: width .4s ease; }
+.as-progress-txt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text); }
+.as-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.as-group { margin-bottom: 16px; }
+.as-group-h { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+.as-group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.as-card {
+  aspect-ratio: 3 / 4; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: .15s; opacity: .5;
+}
+.as-card.on { opacity: 1; background: color-mix(in srgb, var(--tc) 16%, var(--bg-elev)); border-color: var(--tc); }
+.as-card-face { font-size: 20px; font-weight: 800; color: var(--muted); text-align: center; padding: 2px; }
+.as-card.on .as-card-face { color: var(--tc); }
+.as-card-ok { position: absolute; top: 2px; right: 4px; font-size: 11px; color: var(--tc); font-weight: 800; }
+.as-guide { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-top: 18px; }
+.as-guide-h { font-weight: 700; margin-bottom: 10px; }
+.as-guide-row { font-size: 13px; color: var(--muted); line-height: 1.9; }
+.as-tier { display: inline-block; color: #fff; font-size: 11px; padding: 1px 8px; border-radius: 999px; margin: 0 4px 4px 0; }
+.as-tip { color: var(--accent-2); }

@@ -439,18 +439,7 @@
     "apiBase": "https://api.delta.shopping",
     "havkVoiceUrl": "assets/login-voice.wav"
   },
-  "adminLog": [
-    {
-      "time": "2026-07-16 19:18",
-      "role": "总管理员",
-      "action": "更新模拟器数据（护甲19/武器8）"
-    },
-    {
-      "time": "2026-07-16 19:15",
-      "role": "总管理员",
-      "action": "更新新手攻略（6 模块）"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -1172,7 +1161,7 @@
   },
   "weapons": [
     {
-      "name": "AKM",
+      "name": "AKM（示例）",
       "dmg": 40,
       "rof": 600,
       "pen": 40,
@@ -1180,7 +1169,7 @@
       "ammo": "7.62x39"
     },
     {
-      "name": "M4A1",
+      "name": "M4A1（示例）",
       "dmg": 31,
       "rof": 780,
       "pen": 35,
@@ -1188,7 +1177,7 @@
       "ammo": "5.56x45"
     },
     {
-      "name": "ASVAL",
+      "name": "ASVAL（示例）",
       "dmg": 34,
       "rof": 900,
       "pen": 50,
@@ -1196,7 +1185,7 @@
       "ammo": "9x39"
     },
     {
-      "name": "M250",
+      "name": "M250（示例）",
       "dmg": 45,
       "rof": 650,
       "pen": 55,
@@ -1204,7 +1193,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "K416",
+      "name": "K416（示例）",
       "dmg": 33,
       "rof": 820,
       "pen": 38,
@@ -1212,7 +1201,7 @@
       "ammo": "5.56x45"
     },
     {
-      "name": "SR-25",
+      "name": "SR-25（示例）",
       "dmg": 80,
       "rof": 60,
       "pen": 58,
@@ -1220,7 +1209,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "M700",
+      "name": "M700（示例）",
       "dmg": 95,
       "rof": 45,
       "pen": 60,
@@ -1228,7 +1217,7 @@
       "ammo": "7.62x51"
     },
     {
-      "name": "Vector",
+      "name": "Vector（示例）",
       "dmg": 27,
       "rof": 1100,
       "pen": 28,
@@ -1242,152 +1231,285 @@
       "durability": 20,
       "protection": 1,
       "tier": "Ⅰ级",
+      "repairable": true,
       "material": "软质纤维",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "白",
+      "armor": 1,
+      "dura": 20,
+      "dr": "5%",
+      "mob": "无",
+      "desc": "1级甲，新兵过渡装，几乎无防护价值"
     },
     {
       "name": "尼龙防弹衣",
       "durability": 25,
       "protection": 1,
       "tier": "Ⅰ级",
+      "repairable": true,
       "material": "尼龙",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "白",
+      "armor": 1,
+      "dura": 25,
+      "dr": "5%",
+      "mob": "无",
+      "desc": "早期软式防弹衣，只能挡低档弹药"
     },
     {
       "name": "简易防刺服",
       "durability": 30,
       "protection": 2,
       "tier": "Ⅱ级",
+      "repairable": true,
       "material": "芳纶",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "白",
+      "armor": 2,
+      "dura": 30,
+      "dr": "10%",
+      "mob": "无",
+      "desc": "2级入门甲，面对高级弹等同裸奔"
     },
     {
       "name": "TG战术防弹衣",
       "durability": 40,
       "protection": 2,
       "tier": "Ⅱ级",
+      "repairable": true,
       "material": "软质纤维",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "白",
+      "armor": 2,
+      "dura": 40,
+      "dr": "10%",
+      "mob": "无",
+      "desc": "软式内衬，舒适但防弹能力有限"
     },
     {
       "name": "制式防弹背心(阿萨拉蓝甲)",
       "durability": 50,
       "protection": 3,
       "tier": "Ⅲ级",
+      "repairable": true,
       "material": "复合陶瓷",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "蓝",
+      "armor": 3,
+      "dura": 50,
+      "dr": "15%",
+      "mob": "-1%",
+      "desc": "人机常见蓝甲，仅防护胸部，不推荐主动购买"
     },
     {
       "name": "TG-H防弹衣",
       "durability": 75,
       "protection": 3,
       "tier": "Ⅲ级",
+      "repairable": true,
       "material": "复合陶瓷",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "蓝",
+      "armor": 3,
+      "dura": 75,
+      "dr": "18%",
+      "mob": "-3%移速/-1%瞄速",
+      "desc": "3级蓝甲中性价比最高，胸腹全防护"
     },
     {
       "name": "射手战术背心(GTI蓝甲)",
       "durability": 85,
       "protection": 3,
       "tier": "Ⅲ级",
+      "repairable": true,
       "material": "聚乙烯",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "蓝",
+      "armor": 3,
+      "dura": 85,
+      "dr": "18%",
+      "mob": "-4%瞄速/-2%移速",
+      "desc": "蓝甲耐久最高，但负面大、重量沉"
     },
     {
       "name": "武士防弹背心(武士甲)",
       "durability": 80,
       "protection": 4,
       "tier": "Ⅳ级",
+      "repairable": true,
       "material": "陶瓷",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "紫",
+      "armor": 4,
+      "dura": 80,
+      "dr": "22%",
+      "mob": "-5%瞄速/-5%移速",
+      "desc": "紫甲中耐久低、范围小，可从盾兵身上借"
     },
     {
       "name": "DT-AVS防弹衣",
       "durability": 100,
       "protection": 4,
       "tier": "Ⅳ级",
+      "repairable": true,
       "material": "复合插板",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "紫",
+      "armor": 4,
+      "dura": 100,
+      "dr": "24%",
+      "mob": "-4%瞄速/-3%移速",
+      "desc": "负面低、机动好，紫甲折中之选"
     },
     {
       "name": "MK-2战术背心",
       "durability": 110,
       "protection": 4,
       "tier": "Ⅳ级",
+      "repairable": true,
       "material": "复合陶瓷",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "紫",
+      "armor": 4,
+      "dura": 110,
+      "dr": "25%",
+      "mob": "-5%瞄速/-5%移速",
+      "desc": "机密猛攻首选，耐久高、维修损耗适中"
     },
     {
       "name": "HMP特勤防弹衣",
       "durability": 80,
       "protection": 4,
       "tier": "Ⅳ级",
+      "repairable": true,
       "material": "轻型纤维",
-      "repairable": true
+      "type": "半甲",
+      "rarity": "紫",
+      "armor": 4,
+      "dura": 80,
+      "dr": "20%",
+      "mob": "无",
+      "desc": "唯一无负面的紫甲，轻但承伤能力一般"
     },
     {
       "name": "精英防弹背心(牢赛甲)",
       "durability": 95,
       "protection": 5,
       "tier": "Ⅴ级",
+      "repairable": true,
       "material": "复合插板",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "金",
+      "armor": 5,
+      "dura": 95,
+      "dr": "28%",
+      "mob": "-1%移速",
+      "desc": "老赛甲，机动性优秀，耐久在金甲中偏低"
     },
     {
       "name": "FS复合防弹衣",
       "durability": 105,
       "protection": 5,
       "tier": "Ⅴ级",
+      "repairable": true,
       "material": "复合陶瓷",
-      "repairable": true
+      "type": "全甲",
+      "rarity": "金",
+      "armor": 5,
+      "dura": 105,
+      "dr": "30%",
+      "mob": "-5%瞄速/-3%移速",
+      "desc": "属性最均衡的金甲，无明显短板"
     },
     {
       "name": "重型突击背心(GTI金甲)",
       "durability": 125,
       "protection": 5,
       "tier": "Ⅴ级",
+      "repairable": true,
       "material": "重型插板",
-      "repairable": true
+      "type": "重甲",
+      "rarity": "金",
+      "armor": 5,
+      "dura": 125,
+      "dr": "35%",
+      "mob": "-10%瞄速/-5%移速",
+      "desc": "金甲最抗揍，负面大，团队突破首选"
     },
     {
       "name": "Hvk-2防弹衣",
       "durability": 115,
       "protection": 5,
       "tier": "Ⅴ级",
+      "repairable": true,
       "material": "重型插板",
-      "repairable": true
+      "type": "重甲",
+      "rarity": "金",
+      "armor": 5,
+      "dura": 115,
+      "dr": "32%",
+      "mob": "-8%瞄速/-7%移速",
+      "desc": "哈夫克金甲，重且不耐修，两下就碎"
     },
     {
       "name": "金刚防弹衣",
       "durability": 140,
       "protection": 6,
       "tier": "Ⅵ级",
+      "repairable": true,
       "material": "重型插板",
-      "repairable": true
+      "type": "重甲",
+      "rarity": "红",
+      "armor": 6,
+      "dura": 140,
+      "dr": "40%",
+      "mob": "-8%瞄速/-7%移速",
+      "desc": "6级红甲，最硬但最重、维修损耗大"
     },
     {
       "name": "HA-2重型防弹衣",
       "durability": 115,
       "protection": 6,
       "tier": "Ⅵ级",
+      "repairable": true,
       "material": "重型插板",
-      "repairable": true
+      "type": "重甲",
+      "rarity": "红",
+      "armor": 6,
+      "dura": 115,
+      "dr": "38%",
+      "mob": "-3%移速",
+      "desc": "少爷甲，行走的大红，负面相对较轻"
     },
     {
       "name": "特里克MAS2.0装甲",
       "durability": 125,
       "protection": 6,
       "tier": "Ⅵ级",
+      "repairable": true,
       "material": "重型插板",
-      "repairable": true
+      "type": "重甲",
+      "rarity": "红",
+      "armor": 6,
+      "dura": 125,
+      "dr": "40%",
+      "mob": "-6%瞄速/-5%移速",
+      "desc": "6级红甲中最耐修，猛攻哥首选"
     },
     {
       "name": "无护甲(裸血)",
       "durability": 0,
       "protection": 0,
       "tier": "—",
+      "repairable": false,
       "material": "—",
-      "repairable": true
+      "type": "—",
+      "rarity": "—",
+      "armor": 0,
+      "dura": 0,
+      "dr": "0%",
+      "mob": "—",
+      "desc": "无防护，受击直接扣血"
     }
   ],
   "operators": [

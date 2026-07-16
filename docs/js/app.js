@@ -108,6 +108,7 @@
       group: "S10 赛季", collapsed: true, items: [
         { route: "tasks",     label: "赛季任务 / 挑战手册", ico: "📋" },
         { route: "eventitems",label: "活动物品需求", ico: "🎁" },
+        { route: "asala",     label: "阿萨拉牌盒收集", ico: "🃏" },
       ],
     },
     {
@@ -125,6 +126,7 @@
         { route: "streamer", label: "主播设置", ico: "🎥" },
         { route: "optasks",  label: "干员任务", ico: "🎯" },
         { route: "melee",    label: "近战武器", ico: "🗡" },
+        { route: "gunrank",  label: "改枪热度榜", ico: "🔥" },
       ],
     },
     {
@@ -147,6 +149,7 @@
         { route: "prices", label: "实时物价", ico: "💹" },
         { route: "items",  label: "特勤处产物推荐", ico: "🛠" },
         { route: "craft",  label: "制作树 / 科技树", ico: "🌳" },
+        { route: "pricetrend", label: "价格走势图", ico: "📈" },
       ],
     },
     {
@@ -183,6 +186,7 @@
         { href: "profile.html", label: "我的主页", ico: "👤" },
         { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
         { href: "ugc.html",     label: "投稿", ico: "📝" },
+        { route: "achievements", label: "成就墙 / 徽章盒", ico: "🏅" },
       ],
     },
     {
@@ -589,6 +593,60 @@
     }).join("");
   }
 
+  /* ---------- 首页精选卡（一屏速览入口） ---------- */
+  function kkFeaturedBlock() {
+    return '<div class="kk-feat" id="kkFeat">' +
+      '<a class="kk-feat-card" href="?viewpage=maps">' +
+        '<div class="kk-feat-ico">🗺</div>' +
+        '<div class="kk-feat-body"><div class="kk-feat-l">今日地图密码</div>' +
+        '<div class="kk-feat-v" id="kkFeatPass">—</div>' +
+        '<div class="kk-feat-sub" id="kkFeatPassSub">点击查看全部</div></div>' +
+      '</a>' +
+      '<a class="kk-feat-card" href="?viewpage=gunrank">' +
+        '<div class="kk-feat-ico">🔥</div>' +
+        '<div class="kk-feat-body"><div class="kk-feat-l">热门改枪</div>' +
+        '<div class="kk-feat-v" id="kkFeatBuild">—</div>' +
+        '<div class="kk-feat-sub" id="kkFeatBuildSub">改枪热度榜 →</div></div>' +
+      '</a>' +
+      '<a class="kk-feat-card" href="?viewpage=guides">' +
+        '<div class="kk-feat-ico">📖</div>' +
+        '<div class="kk-feat-body"><div class="kk-feat-l">热门攻略</div>' +
+        '<div class="kk-feat-v" id="kkFeatGuide">—</div>' +
+        '<div class="kk-feat-sub" id="kkFeatGuideSub">新手速览 →</div></div>' +
+      '</a>' +
+      '<a class="kk-feat-card" href="?viewpage=pricetrend">' +
+        '<div class="kk-feat-ico">💹</div>' +
+        '<div class="kk-feat-body"><div class="kk-feat-l">物价精选</div>' +
+        '<div class="kk-feat-v" id="kkFeatPrice">—</div>' +
+        '<div class="kk-feat-sub" id="kkFeatPriceSub">价格走势 →</div></div>' +
+      '</a>' +
+    '</div>';
+  }
+  // 首页精选卡填充（静态部分，实时部分在 home.init 内更新）
+  function fillFeaturedStatic() {
+    var builds = (DATA.gunBuilds || []);
+    var topBuild = null;
+    for (var i = 0; i < builds.length; i++) {
+      var t = builds[i].tags || [];
+      if (t.indexOf("绝密") > -1 || t.indexOf("满改") > -1) { topBuild = builds[i]; break; }
+    }
+    topBuild = topBuild || builds[0];
+    var bv = document.getElementById("kkFeatBuild");
+    var bs = document.getElementById("kkFeatBuildSub");
+    if (bv && topBuild) {
+      bv.textContent = (topBuild.name || "").replace(/\s*·\s*/g, "·").slice(0, 14);
+      if (bs) bs.textContent = (topBuild.weapon || "") + " · " + (topBuild.mode || "");
+    }
+    var guides = (DATA.guides || []);
+    var g0 = guides[0];
+    var gv = document.getElementById("kkFeatGuide");
+    var gs = document.getElementById("kkFeatGuideSub");
+    if (gv && g0) {
+      gv.textContent = (g0.title || g0.name || "新手速览").slice(0, 14);
+      if (gs) gs.textContent = (g0.cat || "新手速览") + " →";
+    }
+  }
+
   /* ---------- 赛季任务图谱（纯 CSS 横向分支树，无外部依赖） ---------- */
   var TASK_COLORS = {
     g_phase1: "#3a7bd5",
@@ -710,6 +768,7 @@
           '<p>每日密码 · 产物利润 · 材料价格 · 一屏看全</p></div>' +
           '<div class="kk-hero-u" id="kkHeroTime">每日更新 · 同步中…</div></div>' +
           homeTaskStrip() +
+          kkFeaturedBlock() +
           '<div class="kk-board">' +
             kkMapBlock() + kkItemsBlock() + kkMaterialsBlock() + kkBulletsBlock() + kkEventsBlock() + kkDoorBlock() + kkLivePriceBlock() +
           '</div>';
@@ -718,6 +777,7 @@
         // 首页加载并注入实时数据：地图密码、密码门、实时物价 top5、活动物品价格
         function tryUpdate() {
           updateHeroTime();
+          fillFeaturedStatic();
           if (window.DF && window.DF.mapPass) {
             var mp = window.DF.mapPass;
             var list = mp.list();
@@ -732,6 +792,10 @@
             }
             var doorBody = document.getElementById("kkDoorBody");
             if (doorBody) doorBody.innerHTML = renderDoorRows(list.slice(0, 6).map(function (m) { return { map: m.name, location: m.location || "密码门", code: m.code }; }));
+            var fp = document.getElementById("kkFeatPass");
+            var fps = document.getElementById("kkFeatPassSub");
+            if (fp && list[0]) fp.textContent = list[0].code || "—";
+            if (fps && list[0]) fps.textContent = (list[0].name || "今日") + " 密码";
           }
           if (window.DF && window.DF.livePrice) {
             var lp = window.DF.livePrice;
@@ -742,6 +806,12 @@
               else if (m && m.count) {
                 var top = lp.list().slice().sort(function (a, b) { return (b.price || 0) - (a.price || 0); }).slice(0, 5);
                 body.innerHTML = '最新 ' + m.count + ' 项交易行价格<br>' + top.map(function (x) { return '<span class="lp-mini">' + esc(x.name) + ' <b>' + fmt(x.price) + '</b></span>'; }).join("");
+                var fp2 = document.getElementById("kkFeatPrice");
+                var fps2 = document.getElementById("kkFeatPriceSub");
+                if (fp2 && top.length) {
+                  fp2.textContent = top[0].name.length > 12 ? top[0].name.slice(0, 12) + "…" : top[0].name;
+                  if (fps2) fps2.textContent = fmt(top[0].price) + " · 最新高价";
+                }
               } else { body.textContent = m && m.count === 0 ? "暂无数据" : "正在加载实时物价…"; }
             }
             // 高价格浮动材料：数据源没有独立的「材料」分类，改为展示实时价格 Top 6 高价物品（多为头盔/护甲/背包/钥匙等高价值装备）
