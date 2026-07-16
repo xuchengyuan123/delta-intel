@@ -238,6 +238,42 @@
       .admin-side { top: 48px; }
       .admin-main { padding: 10px 14px; }
     }
+
+    /* ===== 资讯管理编辑器（可视化增删改） ===== */
+    .news-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .news-tabs .nt { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; transition: .15s; }
+    .news-tabs .nt:hover { border-color: var(--accent); color: var(--text); }
+    .news-tabs .nt.on { background: var(--accent); border-color: var(--accent); color: #1a1a1a; font-weight: 700; }
+    .ne-list { display: flex; flex-direction: column; gap: 12px; }
+    .ne-card { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-soft); padding: 14px; }
+    .ne-card .ne-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .ne-card .ne-idx { width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--accent); color: #1a1a1a; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .ne-card .ne-title { flex: 1; font-weight: 700; font-size: 14px; }
+    .ne-card .ne-del { flex: none; }
+    .ne-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .ne-field { display: flex; flex-direction: column; gap: 4px; }
+    .ne-field label { font-size: 12px; color: var(--muted); }
+    .ne-field input, .ne-field textarea, .ne-field select { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 8px 10px; font-size: 13px; box-sizing: border-box; width: 100%; font-family: inherit; }
+    .ne-field textarea { min-height: 64px; resize: vertical; line-height: 1.5; }
+    .ne-field.invalid input { border-color: #ff5b5b; }
+    .ne-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255,91,91,.15); color: #ff5b5b; font-weight: 600; }
+    .ne-badge.ok { background: rgba(46,204,113,.15); color: #2ecc71; }
+    .ne-add { margin-bottom: 14px; }
+    .ne-foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+    .ne-count { font-size: 12px; color: var(--muted); }
+
+    /* ===== 浏览记录图表 ===== */
+    .chart-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .chart-card h3 { margin: 0 0 6px; font-size: 15px; }
+    .chart-card .cc-sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+    .hbar-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-bottom: 7px; }
+    .hbar-row .lbl { width: 130px; flex: none; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hbar-row .track { flex: 1; background: var(--bg-soft); border-radius: 6px; height: 18px; overflow: hidden; }
+    .hbar-row .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--role)); border-radius: 6px; min-width: 2px; }
+    .hbar-row .val { width: 48px; flex: none; text-align: right; font-weight: 700; }
+    .chart-svg { width: 100%; height: auto; display: block; }
+    .chart-empty { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    @media (max-width: 480px) { .hbar-row .lbl { width: 92px; font-size: 11.5px; } }
   </style>
 </head>
 <body>
@@ -439,6 +475,42 @@
       return fetch(apiBase() + path, opts);
     }
     function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    /* 通用 SVG 柱状图（纯矢量，无外部依赖，自适应宽度）。pairs: [[label,value],...] 升序 */
+    function svgBars(pairs) {
+      if (!pairs || !pairs.length) return '<div class="chart-empty">暂无数据</div>';
+      var W = 680, padL = 6, padR = 6, padT = 10, padB = 22, H = 210;
+      var max = 1;
+      pairs.forEach(function (p) { if (p[1] > max) max = p[1]; });
+      var n = pairs.length;
+      var innerW = W - padL - padR, innerH = H - padT - padB;
+      var gap = n > 1 ? Math.min(10, innerW / n * 0.35) : 0;
+      var bw = (innerW - gap * (n - 1)) / n;
+      var bars = "", labels = "";
+      var step = Math.max(1, Math.ceil(n / 9));
+      pairs.forEach(function (p, i) {
+        var v = p[1] || 0;
+        var h = Math.round(innerH * v / max);
+        var x = padL + i * (bw + gap);
+        var y = padT + (innerH - h);
+        bars += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + Math.max(1, bw).toFixed(1) + '" height="' + Math.max(0, h).toFixed(1) + '" rx="2" fill="var(--accent)"><title>' + esc(p[0]) + '：' + v + '</title></rect>';
+        if (i % step === 0 || i === n - 1) {
+          var lx = x + bw / 2;
+          labels += '<text x="' + lx.toFixed(1) + '" y="' + (H - 6) + '" font-size="9" fill="var(--muted)" text-anchor="middle">' + esc(String(p[0]).slice(5)) + '</text>';
+        }
+      });
+      return '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="访问趋势图">' + bars + labels + '</svg>';
+    }
+    /* 通用横向条形（排行榜）。items: [{label,value}] */
+    function hBars(items, maxVal) {
+      if (!items || !items.length) return '<div class="chart-empty">暂无数据</div>';
+      var mx = maxVal || 1;
+      return items.map(function (it) {
+        var pct = Math.max(2, Math.round(it.value / mx * 100));
+        return '<div class="hbar-row"><div class="lbl" title="' + esc(it.label) + '">' + esc(it.label) + '</div>' +
+          '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="val">' + it.value + '</div></div>';
+      }).join("");
+    }
     function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
     function headers(auth) {
       var h = { "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
@@ -1060,51 +1132,176 @@
         c.innerHTML = '<div class="status">此功能需以总/分管理员身份登录 Worker 后使用。</div>';
         return;
       }
+      // 各分类字段 schema（req=必填，ta=多行，num=数字，bool=是否直播中）
+      var SCHEMA = {
+        news: [
+          { k: "title", t: "标题", req: true },
+          { k: "source", t: "来源", ph: "官方公告" },
+          { k: "date", t: "日期", ph: "2026-07-15" },
+          { k: "summary", t: "摘要", ta: true },
+          { k: "url", t: "链接", ph: "https://… 留空表示暂无链接" },
+          { k: "thumb", t: "封面图 URL（可选）" },
+          { k: "views", t: "浏览量（可选）", num: true },
+          { k: "likes", t: "点赞（可选）", num: true }
+        ],
+        live: [
+          { k: "platform", t: "平台", ph: "B站 / 抖音 / YouTube" },
+          { k: "streamer", t: "主播" },
+          { k: "title", t: "标题", req: true },
+          { k: "viewers", t: "观看人数", num: true },
+          { k: "live", t: "是否直播中", bool: true },
+          { k: "url", t: "直播间链接", ph: "留空表示暂无链接" }
+        ],
+        videos: [
+          { k: "platform", t: "平台" },
+          { k: "title", t: "标题", req: true },
+          { k: "author", t: "作者 / UP 主" },
+          { k: "duration", t: "时长", ph: "12:30" },
+          { k: "thumb", t: "封面 URL（可选）" },
+          { k: "url", t: "视频链接", ph: "留空表示暂无链接" }
+        ]
+      };
+      var TABS = [["news", "📰 资讯"], ["live", "🔴 直播"], ["videos", "🎬 视频"]];
+      var LABEL = { news: "资讯", live: "直播", videos: "视频" };
+      var data = { news: [], live: [], videos: [] };
+      var tab = "news";
+      var loaded = false;
+
       c.innerHTML =
         '<div class="panel-card"><h3>📰 资讯 / 直播 / 视频管理</h3>' +
-        '<p class="panel-tip">编辑下方三类内容（JSON 数组），保存后前台「资讯中心」(news.html) 立即生效。格式错误将拒绝保存，不会覆盖原有数据。</p>' +
-        '<div class="login-field"><label>资讯 news（每项：title / source / date / summary / url）</label><textarea id="newsJson" class="code-area" rows="6" placeholder="例如：[{&quot;title&quot;:&quot;版本更新公告&quot;,&quot;source&quot;:&quot;官方&quot;,&quot;date&quot;:&quot;2026-07-14&quot;,&quot;summary&quot;:&quot;…&quot;,&quot;url&quot;:&quot;https://…&quot;}]"></textarea></div>' +
-        '<div class="login-field"><label>直播 live（每项：platform / streamer / title / viewers / live / url）</label><textarea id="liveJson" class="code-area" rows="6" placeholder="例如：[{&quot;platform&quot;:&quot;B站&quot;,&quot;streamer&quot;:&quot;主播名&quot;,&quot;title&quot;:&quot;…&quot;,&quot;viewers&quot;:1234,&quot;live&quot;:true,&quot;url&quot;:&quot;https://…&quot;}]"></textarea></div>' +
-        '<div class="login-field"><label>视频 videos（每项：platform / title / author / duration / thumb / url）</label><textarea id="videoJson" class="code-area" rows="6" placeholder="例如：[{&quot;platform&quot;:&quot;B站&quot;,&quot;title&quot;:&quot;…&quot;,&quot;author&quot;:&quot;UP主&quot;,&quot;duration&quot;:&quot;12:30&quot;,&quot;thumb&quot;:&quot;&quot;,&quot;url&quot;:&quot;https://…&quot;}]"></textarea></div>' +
-        '<div class="dev-tools"><button class="btn sm" id="newsLoad">🔄 拉取当前数据</button> <button class="btn sm primary" id="newsSave">💾 保存</button></div>' +
+        '<p class="panel-tip">可视化维护前台「资讯中心」(news.html) 条目，保存后即时生效（写入 data.json）。<b>链接留空即显示「暂无链接」</b>，不会出现瞎开的假链接。</p>' +
+        '<div class="news-tabs" id="newsTabs"></div>' +
+        '<div class="ne-add"><button class="btn sm primary" id="newsAdd">➕ 新增一条</button> <span class="ne-count" id="newsCount"></span></div>' +
+        '<div id="newsList"><div class="status">加载中…</div></div>' +
+        '<div class="ne-foot"><button class="btn sm" id="newsLoad">🔄 重新拉取</button> <button class="btn sm primary" id="newsSave">💾 保存全部</button> <span class="ne-count">共 <span id="newsTotal">0</span> 条</span></div>' +
         '<div class="msg" id="newsMsg"></div></div>';
 
       function setMsg(t, ok) { var m = document.getElementById("newsMsg"); m.className = "msg" + (ok ? " ok" : " err"); m.textContent = t; }
-      function parseArr(id) {
-        var v = document.getElementById(id).value.trim();
-        if (!v) return [];
-        try { var a = JSON.parse(v); return Array.isArray(a) ? a : []; }
-        catch (e) { throw new Error("「" + id + "」不是合法 JSON 数组"); }
-      }
       function curObj(cb) {
         wkFetch("/api/admin/data").then(function (r) { return r.json(); }).then(function (j) {
-          var obj = {};
-          try { obj = JSON.parse(j.content || "{}"); } catch (e) { obj = {}; }
-          cb(obj);
-        }).catch(function () { setMsg("拉取失败，请检查 Worker。", false); });
+          var o = {}; try { o = JSON.parse(j.content || "{}"); } catch (e) { o = {}; }
+          cb(o);
+        }).catch(function () { setMsg("拉取失败，请检查 Worker 或登录状态。", false); });
       }
-      document.getElementById("newsLoad").addEventListener("click", function () {
-        setMsg("加载中…", true);
+      function renderTabs() {
+        var box = document.getElementById("newsTabs");
+        box.innerHTML = TABS.map(function (t) {
+          return '<div class="nt' + (t[0] === tab ? " on" : "") + '" data-t="' + t[0] + '">' + t[1] + ' <span class="ne-count">(' + (data[t[0]] || []).length + ")</span></div>";
+        }).join("");
+        box.querySelectorAll("[data-t]").forEach(function (b) {
+          b.addEventListener("click", function () { tab = b.getAttribute("data-t"); renderTabs(); renderList(); });
+        });
+      }
+      function fieldHtml(type, idx, f, val) {
+        var id = "nf_" + type + "_" + idx + "_" + f.k;
+        var v = (val == null ? "" : val);
+        var cls = "ne-field" + (f.req && !v ? " invalid" : "");
+        var inp;
+        if (f.ta) inp = '<textarea id="' + id + '" data-t="' + type + '" data-i="' + idx + '" data-k="' + f.k + '" placeholder="' + esc(f.ph || "") + '">' + esc(v) + "</textarea>";
+        else if (f.bool) inp = '<select id="' + id + '" data-t="' + type + '" data-i="' + idx + '" data-k="' + f.k + '"><option value="1"' + (v ? ' selected' : '') + '>直播中</option><option value="0"' + (!v ? ' selected' : '') + '>未直播</option></select>';
+        else inp = '<input id="' + id + '" data-t="' + type + '" data-i="' + idx + '" data-k="' + f.k + '" type="' + (f.num ? "number" : "text") + '" value="' + esc(v) + '" placeholder="' + esc(f.ph || "") + '" />';
+        return '<div class="' + cls + '"><label>' + esc(f.t) + (f.req ? " *" : "") + "</label>" + inp + "</div>";
+      }
+      function renderList() {
+        var box = document.getElementById("newsList");
+        var arr = data[tab] || [];
+        document.getElementById("newsCount").textContent = "当前标签：" + arr.length + " 条";
+        document.getElementById("newsTotal").textContent = (data.news.length + data.live.length + data.videos.length);
+        if (!arr.length) { box.innerHTML = '<div class="um-empty"><span class="ico">🗂</span>该分类暂无条目，点上方「➕ 新增一条」。<div class="hint">保存后前台资讯中心即更新。</div></div>'; return; }
+        box.innerHTML = arr.map(function (it, idx) {
+          var head = it.title || it.streamer || ("第 " + (idx + 1) + " 条");
+          var urlEmpty = !it.url;
+          return '<div class="ne-card"><div class="ne-head"><div class="ne-idx">' + (idx + 1) + '</div>' +
+            '<div class="ne-title">' + esc(head) + "</div>" +
+            (urlEmpty ? '<span class="ne-badge">暂无链接</span>' : '<span class="ne-badge ok">有链接</span>') +
+            '<button class="btn sm danger ne-del" data-del="' + idx + '">删除</button></div>' +
+            '<div class="ne-grid">' + SCHEMA[tab].map(function (f) { return fieldHtml(tab, idx, f, it[f.k]); }).join("") + "</div></div>";
+        }).join("");
+        box.querySelectorAll("[data-t]").forEach(function (inp) { inp.addEventListener("input", onField); inp.addEventListener("change", onField); });
+        box.querySelectorAll("[data-del]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var i = parseInt(b.getAttribute("data-del"), 10);
+            data[tab].splice(i, 1); renderTabs(); renderList();
+          });
+        });
+      }
+      function onField(e) {
+        var t = e.target.getAttribute("data-t"), i = parseInt(e.target.getAttribute("data-i"), 10), k = e.target.getAttribute("data-k");
+        var val = e.target.value;
+        if (e.target.type === "number") val = val === "" ? "" : Number(val);
+        if (e.target.tagName === "SELECT") val = e.target.value === "1";
+        data[t][i][k] = val;
+        var wrap = e.target.closest ? e.target.closest(".ne-field") : null;
+        if (wrap) wrap.classList.remove("invalid");
+      }
+      function buildData() {
+        ["news", "live", "videos"].forEach(function (type) {
+          data[type] = data[type].map(function (it) {
+            var o = {};
+            SCHEMA[type].forEach(function (f) {
+              var v = it[f.k];
+              if (f.num) v = (v === "" || v == null) ? "" : Number(v);
+              o[f.k] = v;
+            });
+            return o;
+          });
+        });
+        return data;
+      }
+      function validate() {
+        for (var ti = 0; ti < TABS.length; ti++) {
+          var type = TABS[ti][0];
+          for (var i = 0; i < data[type].length; i++) {
+            for (var s = 0; s < SCHEMA[type].length; s++) {
+              var f = SCHEMA[type][s];
+              if (f.req && !(data[type][i][f.k])) return { type: type, i: i, f: f };
+            }
+          }
+        }
+        return null;
+      }
+      function loadData() {
+        document.getElementById("newsList").innerHTML = '<div class="status">加载中…</div>';
         curObj(function (obj) {
-          document.getElementById("newsJson").value = JSON.stringify(obj.news || [], null, 2);
-          document.getElementById("liveJson").value = JSON.stringify(obj.live || [], null, 2);
-          document.getElementById("videoJson").value = JSON.stringify(obj.videos || [], null, 2);
+          data.news = Array.isArray(obj.news) ? obj.news : [];
+          data.live = Array.isArray(obj.live) ? obj.live : [];
+          data.videos = Array.isArray(obj.videos) ? obj.videos : [];
+          loaded = true;
+          renderTabs(); renderList();
           setMsg("已拉取当前 data.json 内容。", true);
         });
+      }
+      document.getElementById("newsAdd").addEventListener("click", function () {
+        if (!loaded) { setMsg("请先等数据拉取完成。", false); return; }
+        var item = {}; SCHEMA[tab].forEach(function (f) { item[f.k] = f.bool ? false : ""; });
+        data[tab].push(item); renderTabs(); renderList();
+      });
+      document.getElementById("newsLoad").addEventListener("click", function () {
+        if (!confirm("重新拉取会覆盖当前未保存的修改，确定？")) return;
+        loadData();
       });
       document.getElementById("newsSave").addEventListener("click", function () {
-        var news, live, videos;
-        try { news = parseArr("newsJson"); live = parseArr("liveJson"); videos = parseArr("videoJson"); }
-        catch (e) { setMsg(e.message, false); return; }
+        if (!loaded) { setMsg("数据尚未加载完成，请稍候。", false); return; }
         setMsg("保存中…", true);
         curObj(function (obj) {
-          obj.news = news; obj.live = live; obj.videos = videos;
+          buildData();
+          var err = validate();
+          if (err) {
+            tab = err.type; renderTabs(); renderList();
+            var inp = document.getElementById("nf_" + err.type + "_" + err.i + "_" + err.f.k);
+            if (inp && inp.closest) inp.closest(".ne-field").classList.add("invalid");
+            setMsg("「" + LABEL[err.type] + "」第 " + (err.i + 1) + " 条「" + err.f.t + "」不能为空", false);
+            return;
+          }
+          var built = JSON.parse(JSON.stringify(data));
+          obj.news = built.news; obj.live = built.live; obj.videos = built.videos;
           wkFetch("/api/admin/data", { method: "PUT", body: JSON.stringify({ content: JSON.stringify(obj, null, 2) }) })
             .then(function (r) { return r.json(); })
             .then(function (k) { if (k.error) { setMsg(k.error, false); return; } setMsg("✅ 已保存，前台资讯中心即将更新。", true); })
             .catch(function () { setMsg("保存失败，请检查 Worker。", false); });
         });
       });
+      loadData();
     }
 
     /* ============ 战队管理（V33，总览） ============ */
@@ -1460,11 +1657,14 @@
         return;
       }
       var isSuper = activeRole === "super";
+      function fmt(ts) { if (!ts) return "-"; var d = new Date(ts); var p = function (x) { return String(x).padStart(2, "0"); }; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
       function dot(online) { return '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:' + (online ? "#3ddc84" : "#888") + '"></span>'; }
       function render(data) {
         data = data || {};
         var online = data.online || [];
         var byCountry = data.byCountry || {};
+        var byDay = data.byDay || {};
+        var byPath = data.byPath || [];
         var cf = data.cloudflare;
         var html = "";
         html += '<div class="panel-card" style="margin-bottom:14px"><h3>📡 实时概览</h3><div class="sa-form" style="display:flex;gap:18px;flex-wrap:wrap">';
@@ -1475,13 +1675,23 @@
           html += '<div><div style="font-size:24px;font-weight:700">' + (cf.uniques || 0) + '</div><div class="panel-tip">独立访客(24h)</div></div>';
         }
         html += '</div></div>';
-        var countries = Object.keys(byCountry).sort(function (a, b) { return byCountry[b] - byCountry[a]; });
+        // 按日访问趋势（SVG 柱状图）
+        var dayKeys = Object.keys(byDay).sort();
+        if (dayKeys.length) {
+          var dayPairs = dayKeys.map(function (k) { return [k, byDay[k]]; });
+          var dayTotal = dayPairs.reduce(function (s, p) { return s + p[1]; }, 0);
+          html += '<div class="chart-card"><h3>📈 访问趋势（按日）</h3><p class="cc-sub">最近 ' + dayKeys.length + ' 天共 ' + dayTotal + ' 次访问记录</p>' + svgBars(dayPairs) + '</div>';
+        }
+        // 热门页面 Top
+        if (byPath.length) {
+          var pageItems = byPath.map(function (p) { return { label: p[0], value: p[1] }; });
+          html += '<div class="chart-card"><h3>🔥 热门页面 Top ' + pageItems.length + '</h3><p class="cc-sub">按访问次数排序（分管理员同样可见聚合数据，不含 IP）</p>' + hBars(pageItems, pageItems[0].value) + '</div>';
+        }
+        // 国家/地区 Top
+        var countries = Object.keys(byCountry).sort(function (a, b) { return byCountry[b] - byCountry[a]; }).slice(0, 12);
         if (countries.length) {
-          html += '<div class="panel-card" style="margin-bottom:14px"><h3>🌍 访问来源国家/地区</h3><div class="ui-role-grid">';
-          html += countries.map(function (k) {
-            return '<div class="ui-role-row"><div class="ui-role-name">' + esc(k) + '</div><div style="color:var(--accent);font-weight:700">' + byCountry[k] + '</div></div>';
-          }).join("");
-          html += '</div></div>';
+          var cItems = countries.map(function (k) { return { label: k, value: byCountry[k] }; });
+          html += '<div class="chart-card"><h3>🌍 访问来源国家/地区 Top ' + cItems.length + '</h3>' + hBars(cItems, cItems[0].value) + '</div>';
         }
         if (online.length) {
           html += '<div class="panel-card" style="margin-bottom:14px"><h3>🟢 在线用户</h3><div class="ui-role-grid">';
@@ -1516,7 +1726,7 @@
           if (btn) btn.addEventListener("click", load);
         });
       }
-      c.innerHTML = '<div class="status">加载中…</div>';
+      c.innerHTML = '<div class="panel-card"><div class="um-skel" style="height:96px;margin-bottom:12px"></div><div class="um-skel" style="height:150px;margin-bottom:12px"></div><div class="um-skel" style="height:120px"></div></div>';
       function startAccessPoll() { if (window.__accessTimer) clearInterval(window.__accessTimer); window.__accessTimer = setInterval(load, 120000); load(); }
       function stopAccessPoll() { if (window.__accessTimer) { clearInterval(window.__accessTimer); window.__accessTimer = null; } }
       document.addEventListener("visibilitychange", function () { if (document.hidden) stopAccessPoll(); else startAccessPoll(); });
