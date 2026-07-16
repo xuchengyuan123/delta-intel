@@ -91,17 +91,19 @@
   var DEFAULT = "home";
   var MENU = [
     { route: "home", label: "首页一图流" },
+    { route: "checkin", label: "每日签到", ico: "🪙" },
+    { route: "quiz", label: "DFTI测试" },
     {
-      group: "常用页面", collapsed: false, items: [
-        { href: "profile.html", label: "我的主页", ico: "👤" },
-        { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
-        { href: "ugc.html", label: "投稿", ico: "📝" },
-        { href: "guns.html", label: "改枪码", ico: "🔧" },
-        { href: "tujian.html", label: "图鉴", ico: "🗂" },
-        { route: "checkin", label: "每日签到", ico: "🪙" },
+      group: "常用入口", collapsed: false, items: [
+        { href: "guns-calc.html", label: "武器改装计算器", ico: "🔧" },
+        { href: "guns.html",      label: "改枪码大全",     ico: "🔫" },
+        { href: "kzb.html",       label: "智能卡战备",     ico: "🎴" },
+        { href: "team.html",      label: "战队 / 公会",    ico: "⚔" },
+        { href: "news.html",      label: "资讯中心",       ico: "📰" },
+        { href: "zhanji.html",    label: "战绩查询",       ico: "📊" },
+        { href: "forum.html",     label: "战友论坛",       ico: "💬" },
       ],
     },
-    { route: "quiz", label: "DFTI测试" },
     {
       group: "S10 赛季", collapsed: true, items: [
         { route: "tasks",     label: "赛季任务 / 挑战手册", ico: "📋" },
@@ -137,6 +139,7 @@
         { route: "keyrooms",    label: "钥匙房", ico: "🗝" },
         { route: "collectibles",label: "收集品价值", ico: "💎" },
         { route: "bulletpacks", label: "子弹自选包利润", ico: "📊" },
+        { href:  "tujian.html",  label: "图鉴大全", ico: "🗂" },
       ],
     },
     {
@@ -176,18 +179,15 @@
       ],
     },
     {
-      group: "武器 / 战队 / 资讯", collapsed: true, items: [
-        { href: "guns-calc.html", label: "武器改装计算器", ico: "🔧" },
-        { href: "team.html",      label: "战队 / 公会",    ico: "⚔" },
-        { href: "news.html",      label: "资讯中心",      ico: "📰" },
-        { href: "zhanji.html",    label: "战绩查询",      ico: "📊" },
+      group: "个人", collapsed: true, items: [
+        { href: "profile.html", label: "我的主页", ico: "👤" },
+        { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
+        { href: "ugc.html",     label: "投稿", ico: "📝" },
       ],
     },
     {
       group: "站点信息", collapsed: true, items: [
         { route: "changelog", label: "网站更新速览", ico: "📜" },
-        { href: "forum.html",   label: "战友论坛", ico: "💬" },
-        { href: "kzb.html",    label: "智能卡战备", ico: "🎴" },
         { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
