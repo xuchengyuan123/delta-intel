@@ -776,11 +776,25 @@
       var site = (window.D && window.D.data && window.D.data.site) || {};
       return site.havkVoiceUrl || "";
     }
+    /* 生成候选 URL 列表：兼容「站点根」与「docs/ 子目录」两种部署方式，避免相对路径解析错位导致静音 */
+    function voiceCandidates(raw) {
+      if (!raw) return [];
+      if (/^https?:\/\//i.test(raw) || raw.indexOf("//") === 0) return [raw];
+      var noSlash = raw.replace(/^\/+/, "");
+      var out = [raw, (raw.indexOf("docs/") === 0 ? noSlash : "docs/" + noSlash)];
+      try {
+        var o = location.origin;
+        out.push(o + "/" + noSlash);
+        out.push(o + "/docs/" + noSlash);
+      } catch (e) {}
+      return out.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    }
     /* 在用户点击手势内调用：先建好 Audio 并静音试播一次拿到“用户激活”，随后登录成功再正常播放就不会被拦 */
     function primeLoginVoice() {
       var url = loginVoiceUrl();
       if (url) {
-        if (!_loginAudio) { _loginAudio = new Audio(url); _loginAudio.preload = "auto"; }
+        var c = voiceCandidates(url);
+        if (!_loginAudio) { _loginAudio = new Audio(c[0]); _loginAudio.preload = "auto"; }
         _loginAudio.muted = true;
         var p = _loginAudio.play();
         if (p && p.then) {
@@ -794,27 +808,43 @@
     function speakLoginTTS() {
       try {
         if (!window.speechSynthesis) return;
-        var u = new SpeechSynthesisUtterance("身份验证通过，巴别塔欢迎您");
-        u.lang = "zh-CN"; u.rate = 0.92; u.pitch = 0.85;
-        var voices = window.speechSynthesis.getVoices() || [];
-        var zhVoices = voices.filter(function (v) { return (v.lang || "").toLowerCase().startsWith("zh"); });
-        var pick = voices.find(function (v) { return /male|男|低|沉|deep|yong/i.test(v.name); });
-        if (!pick && zhVoices.length) pick = zhVoices[0];
-        if (pick) u.voice = pick;
-        window.speechSynthesis.speak(u);
+        function go() {
+          var u = new SpeechSynthesisUtterance("身份验证通过，巴别塔欢迎您");
+          u.lang = "zh-CN"; u.rate = 0.92; u.pitch = 0.85;
+          var voices = window.speechSynthesis.getVoices() || [];
+          var zhVoices = voices.filter(function (v) { return (v.lang || "").toLowerCase().startsWith("zh"); });
+          var pick = voices.find(function (v) { return /male|男|低|沉|deep|yong/i.test(v.name); });
+          if (!pick && zhVoices.length) pick = zhVoices[0];
+          if (pick) u.voice = pick;
+          window.speechSynthesis.speak(u);
+        }
+        if (!(window.speechSynthesis.getVoices() || []).length) {
+          window.speechSynthesis.onvoiceschanged = go;
+          setTimeout(go, 800); // 兜底：若 800ms 内未触发 onvoiceschanged 也试一次
+        } else { go(); }
       } catch (e) {}
+    }
+    /* 依次尝试候选 URL；任一个真的播成功即用它；全部失败（404/被拦）才回退 TTS。
+       关键点：audio.play() 在 404 时往往 resolve（错误走 error 事件），所以必须同时监听 error 事件，否则会静音无回退。 */
+    function tryVoice(list, i, onFail) {
+      if (i >= list.length) { onFail(); return; }
+      var a = (i === 0 && _loginAudio) ? _loginAudio : new Audio(list[i]);
+      if (i !== 0) a.volume = 1;
+      var settled = false;
+      a.addEventListener("error", function () {
+        if (settled) return; settled = true;
+        tryVoice(list, i + 1, onFail);
+      });
+      var p = a.play();
+      if (p && p.catch) p.catch(function () {
+        if (settled) return; settled = true;
+        tryVoice(list, i + 1, onFail);
+      });
     }
     function playLoginVoice() {
       try {
         var url = loginVoiceUrl();
-        if (url) {
-          var a = _loginAudio || new Audio(url);
-          a.muted = false; a.volume = 1;
-          try { a.currentTime = 0; } catch (e) {}
-          var p = a.play();
-          if (p && p.catch) p.catch(function () { speakLoginTTS(); }); // 播放被拦或失败时回退到 TTS
-          return;
-        }
+        if (url) { tryVoice(voiceCandidates(url), 0, function () { speakLoginTTS(); }); return; }
         speakLoginTTS();
       } catch (e) { speakLoginTTS(); }
     }

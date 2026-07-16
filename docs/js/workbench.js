@@ -82,40 +82,73 @@
     var editingComp = null;   // 当前在属性面板编辑的组件
     var dataObj = null;
     var apiBase = "https://api.delta.shopping";
+    var LS_KEY = "delta_workbench_apps_v1";   // 本地优先存储：零代码编辑永不丢失、不会保存失败
 
-    // 持久提示：WORKBENCH KV 绑定要求 + 写入失败时的退路
+    // 持久提示：本地优先 + 发布时才走服务器
     try {
       var kvHintEl = document.createElement("div");
-      kvHintEl.style.cssText = "background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.4);color:#d29922;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:13px;line-height:1.6";
-      kvHintEl.innerHTML = "💡 生成页面会经 Cloudflare Worker 写入站点仓库（需绑定 <b>WORKBENCH KV</b>）。若写入失败，系统会自动下载 HTML 文件，你手动上传到对应路径即可正常上线。";
+      kvHintEl.style.cssText = "background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.4);color:#22c55e;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:13px;line-height:1.6";
+      kvHintEl.innerHTML = "✅ 工作台采用「<b>本地优先</b>」保存：你建的 应用 / 模块 / 页面 会即时存进<b>当前浏览器</b>（localStorage），<b>永不丢失、不会保存失败</b>。点「生成页面 / 一键发版」时才经 Worker 发布上线（需绑定 WORKBENCH KV，失败会自动下载 HTML 让你手动上传）。换浏览器/清缓存会丢失本地草稿，重要结构请记得生成发布。";
       c.insertBefore(kvHintEl, c.firstChild);
     } catch (e) {}
 
-    /* ----- 数据读写 ----- */
+    /* ----- 本地存储（零代码编辑的主存储，始终可用） ----- */
+    function lsGet() {
+      try { var s = localStorage.getItem(LS_KEY); if (s) return JSON.parse(s); } catch (e) {}
+      return null;
+    }
+    function lsSet() {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(apps)); return true; } catch (e) { return false; }
+    }
+
+    /* ----- 数据读写：本地优先，服务器仅作为发布同步 ----- */
     function loadApps() {
       return getDataObj().then(function (d) {
         dataObj = d.obj;
         apiBase = (dataObj.site && dataObj.site.apiBase) || apiBase;
+        var local = lsGet();
+        if (local && Array.isArray(local) && local.length) { apps = local; return apps; }
+        // 首次使用（本地无草稿）：从服务器迁移（WORKBENCH KV 或 data.json.apps）
+        var fromServer;
         if (adminMode() === "worker") {
-          return wkFetch("/api/admin/apps").then(function (r) { return r.json(); })
+          fromServer = wkFetch("/api/admin/apps").then(function (r) { return r.json(); })
             .then(function (j) { if (j.error) throw new Error(j.error); return j.apps || []; })
             .catch(function () { return dataObj.apps || []; });
+        } else {
+          fromServer = Promise.resolve(dataObj.apps || []);
         }
-        return dataObj.apps || [];
-      }).then(function (a) { apps = a; return a; });
+        return fromServer;
+      }).then(function (a) {
+        if (!apps || !apps.length) apps = Array.isArray(a) ? a : [];
+        lsSet();   // 立即本地落盘，保证刷新不丢
+        return apps;
+      });
     }
+    // 本地优先保存：① 先写 localStorage（同步、必成功） ② 再尽力同步到服务器，失败不阻塞本地编辑
     function saveApps(msgEl) {
+      lsSet();
+      if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 已本地保存（当前浏览器）"; }
+      var sync = Promise.resolve();
       if (adminMode() === "worker") {
-        return wkFetch("/api/admin/apps", { method: "PUT", body: JSON.stringify({ apps: apps }) })
-          .then(function (r) { return r.json(); }).then(function (j) { if (j.error) throw new Error(j.error); return j; })
-          .catch(function () { dataObj.apps = apps; return putDataObj(dataObj, "更新开发工作台", msgEl); });
+        sync = wkFetch("/api/admin/apps", { method: "PUT", body: JSON.stringify({ apps: apps }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) { if (j.error) throw new Error(j.error); return j; })
+          .catch(function () { dataObj.apps = apps; return putDataObj(dataObj, "同步开发工作台到站点数据", null); });
+      } else {
+        dataObj.apps = apps;
+        sync = putDataObj(dataObj, "同步开发工作台到站点数据", null);
       }
-      dataObj.apps = apps;
-      return putDataObj(dataObj, "更新开发工作台", msgEl);
+      sync.catch(function (e) {
+        if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "✅ 已本地保存；⚠ 服务器同步未成功（" + ((e && e.message) ? e.message : e) + "），不影响本地编辑。"; }
+      });
+      return Promise.resolve();   // 本地已落盘，立即 resolve，绝不弹「保存失败」
     }
     function saveMenu(msgEl) {
       dataObj.menu = dataObj.menu || [];
-      return putDataObj(dataObj, "更新前台导航菜单", msgEl);
+      return putDataObj(dataObj, "更新前台导航菜单", msgEl).catch(function (e) {
+        if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "⚠ 前台导航未同步到服务器（" + ((e && e.message) ? e.message : e) + "），本地结构已保存，可稍后重试点「进前台导航」。"; }
+        return Promise.resolve();   // 不阻断本地编辑
+      });
     }
     function findApp(id) { return apps.find(function (x) { return x.id === id; }); }
     function findModule(app, id) { return app && app.modules ? app.modules.find(function (m) { return m.id === id; }) : null; }

@@ -98,13 +98,13 @@
         { href: "ugc.html", label: "投稿", ico: "📝" },
         { href: "guns.html", label: "改枪码", ico: "🔧" },
         { href: "tujian.html", label: "图鉴", ico: "🗂" },
+        { route: "checkin", label: "每日签到", ico: "🪙" },
       ],
     },
     { route: "quiz", label: "DFTI测试" },
     {
       group: "S10 赛季", collapsed: true, items: [
         { route: "tasks",     label: "赛季任务 / 挑战手册", ico: "📋" },
-        { route: "changelog", label: "网站更新速览", ico: "📜" },
         { route: "eventitems",label: "活动物品需求", ico: "🎁" },
       ],
     },
@@ -119,7 +119,6 @@
       group: "攻略教学", collapsed: true, items: [
         { route: "guides",   label: "新手速览", ico: "📖" },
         { route: "trivia",   label: "小知识", ico: "💡" },
-        { route: "gunbuilds",label: "改枪方案", ico: "🔧" },
         { route: "doorcodes",label: "密码门", ico: "🔑" },
         { route: "streamer", label: "主播设置", ico: "🎥" },
         { route: "optasks",  label: "干员任务", ico: "🎯" },
@@ -171,10 +170,9 @@
       ],
     },
     {
-      group: "网站相关", collapsed: true, items: [
-        { href: "forum.html",   label: "战友论坛", ico: "💬" },
-        { href: "kzb.html",    label: "智能卡战备", ico: "🎴" },
-        { href: "sponsor.html", label: "赞助我们", ico: "💝" },
+      group: "天气 · 预警", collapsed: true, items: [
+        { route: "weather", label: "天气预报", ico: "🌤" },
+        { route: "alerts",  label: "台风 / 地震预警", ico: "🌐" },
       ],
     },
     {
@@ -183,6 +181,14 @@
         { href: "team.html",      label: "战队 / 公会",    ico: "⚔" },
         { href: "news.html",      label: "资讯中心",      ico: "📰" },
         { href: "zhanji.html",    label: "战绩查询",      ico: "📊" },
+      ],
+    },
+    {
+      group: "站点信息", collapsed: true, items: [
+        { route: "changelog", label: "网站更新速览", ico: "📜" },
+        { href: "forum.html",   label: "战友论坛", ico: "💬" },
+        { href: "kzb.html",    label: "智能卡战备", ico: "🎴" },
+        { href: "sponsor.html", label: "赞助我们", ico: "💝" },
       ],
     },
   ];
@@ -1003,33 +1009,7 @@
     } catch (e) {}
   }
 
-  /* ---------- PWA：安装横幅 + Service Worker 注册 ---------- */
-  var deferredPrompt = null;
-  window.addEventListener("beforeinstallprompt", function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    showInstallBanner();
-  });
-  window.addEventListener("appinstalled", function () { hideInstallBanner(); });
-  function showInstallBanner() {
-    if (document.getElementById("dfInstallBanner")) return;
-    var b = document.createElement("div");
-    b.id = "dfInstallBanner";
-    b.className = "install-banner";
-    b.innerHTML = '<span class="ib-icon">📲</span>' +
-      '<span class="ib-text">把「三角洲情报台」安装到桌面，随时查看最新情报</span>' +
-      '<button class="ib-btn" id="ibInstall">安装</button>' +
-      '<button class="ib-close" id="ibClose">×</button>';
-    document.body.appendChild(b);
-    document.body.classList.add("has-install-banner");
-    document.getElementById("ibInstall").addEventListener("click", function () {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function () { deferredPrompt = null; hideInstallBanner(); });
-    });
-    document.getElementById("ibClose").addEventListener("click", hideInstallBanner);
-  }
-  function hideInstallBanner() { var b = document.getElementById("dfInstallBanner"); if (b) b.remove(); document.body.classList.remove("has-install-banner"); }
+  /* ---------- Service Worker 注册（保留更新提示，移除安装横幅）---------- */
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js?v=49").then(function (reg) {
@@ -1090,6 +1070,28 @@
   });
 
   /* ---------- 插件总线（供 js/art.js、simulators.js、games.js、music.js 等扩展）---------- */
+  // 令牌读取：登录后存于 localStorage.di_user_token
+  function diToken() { try { return localStorage.getItem("di_user_token") || ""; } catch (e) { return ""; } }
+
+  /* 统一后端 API 调用：代理 Worker /api/* 路由（GET/POST，JSON 体，Bearer 鉴权）。
+   * 供 games.js(排行榜)、checkin.js、各插件复用，避免重复拼 base/header。
+   * opts.body 若已是字符串则原样发送；若为对象则自动 JSON.stringify 并补 Content-Type。 */
+  function dfApi(path, opts) {
+    opts = opts || {};
+    var base = "https://api.delta.shopping";
+    try { if (DATA && DATA.site && DATA.site.apiBase) base = DATA.site.apiBase; } catch (e) {}
+    var t = diToken();
+    opts.headers = opts.headers || {};
+    if (t) opts.headers["Authorization"] = "Bearer " + t;
+    if (opts.body != null && typeof opts.body !== "string") opts.body = JSON.stringify(opts.body);
+    if (opts.body != null && !opts.headers["Content-Type"]) opts.headers["Content-Type"] = "application/json";
+    var url = base.replace(/\/$/, "") + path;
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) { return r.json().catch(function () { return { error: "HTTP " + r.status }; }); }
+      return r.json();
+    }).catch(function (e) { return { error: (e && e.message) ? e.message : String(e) }; });
+  }
+
   window.DF = {
     VIEWS: VIEWS, MENU: MENU,
     esc: esc, fmt: fmt,
@@ -1098,6 +1100,9 @@
     setData: function (d) { DATA = d; },
     navigate: navigate,
     render: render,
+    api: dfApi,
+    apiBase: "https://api.delta.shopping",
+    getToken: diToken,
     addStyle: function (id, css) {
       if (document.getElementById(id)) return;
       var s = document.createElement("style"); s.id = id; s.textContent = css;

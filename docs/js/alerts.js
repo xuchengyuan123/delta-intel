@@ -1,26 +1,24 @@
-/* 三角洲情报台 · 地震/台风预警悬浮小窗口
+/* 三角洲情报台 · 地震/台风预警
  * 数据来源（均免密钥、浏览器直连、支持 CORS）：
  *   - 地震：Wolfx 代理中国地震台网(CENC) https://api.wolfx.jp/cenc_eqlist.json
  *   - 台风：中央气象台台风网 https://typhoon.nmc.cn/weatherservice/typhoon/jsons/...
- * 用法：首页 <body> 内放 <div id="alertsFab"></div> 即可。
  * 自动匹配地区：复用天气组件的城市 localStorage(di_weather_city)；
  *   地震距用户 <1000km、台风距用户 <2000km 时高亮提示，并显示实时风向/震源。
  * 每 5 分钟自动刷新。
- */
+ * 行为：仅当存在「距你较近」的活跃预警时，右下角出现闪烁悬浮按钮；
+ *       左侧栏「台风 / 地震预警」入口进入独立页面查看完整列表。 */
 (function () {
   "use strict";
   var KEY = "di_weather_city";
-  var CONTAINER = document.getElementById("alertsFab");
-  if (!CONTAINER) return;
 
   // 注入样式
   var st = document.createElement("style");
   st.textContent =
-    ".alerts-fab{position:fixed;right:18px;bottom:18px;z-index:90;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#1a1a1a;border:0;box-shadow:0 4px 18px rgba(0,0,0,.25);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;}" +
+    ".alerts-fab{position:fixed;right:18px;bottom:18px;z-index:90;width:56px;height:56px;border-radius:50%;background:#e23b3b;color:#fff;border:0;box-shadow:0 4px 18px rgba(0,0,0,.25);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;}" +
     ".alerts-fab:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}" +
     ".alerts-fab.blink{animation:alertsBlink 1.2s infinite;}" +
     "@keyframes alertsBlink{0%,100%{box-shadow:0 0 0 0 rgba(255,92,92,.6);}50%{box-shadow:0 0 0 12px rgba(255,92,92,0);}}" +
-    ".alerts-badge{position:absolute;top:-4px;right:-4px;background:#e23b3b;color:#fff;border-radius:999px;padding:2px 7px;font-size:12px;font-weight:700;min-width:22px;text-align:center;border:2px solid var(--bg);}" +
+    ".alerts-badge{position:absolute;top:-4px;right:-4px;background:#fff;color:#e23b3b;border-radius:999px;padding:2px 7px;font-size:12px;font-weight:700;min-width:22px;text-align:center;border:2px solid var(--bg);}" +
     ".alerts-modal .modal-card{width:min(720px,94vw);max-height:86vh;display:flex;flex-direction:column;text-align:left;padding:0;}" +
     ".alerts-modal .modal-card h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px;}" +
     ".alerts-modal .alerts-body{padding:16px;overflow-y:auto;flex:1;}" +
@@ -41,7 +39,10 @@
     ".alerts-modal .ac-meta{font-size:12px;color:var(--muted);}" +
     ".alerts-modal .ac-dim{color:var(--muted);font-weight:400;font-size:12px;}" +
     ".alerts-modal .ac-badge{background:#ff5c5c;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700;}" +
-    ".alerts-modal .ac-empty{padding:6px 2px;color:var(--muted);font-size:13px;}";
+    ".alerts-modal .ac-empty{padding:6px 2px;color:var(--muted);font-size:13px;}" +
+    ".ac-view{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}" +
+    ".ac-view .ac-sec h3{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}" +
+    ".ac-view .ac-body{display:flex;flex-direction:column;gap:8px;}";
   document.head.appendChild(st);
 
   var EQ_URL = "https://api.wolfx.jp/cenc_eqlist.json";
@@ -95,12 +96,17 @@
   function magClass(m) { m = parseFloat(m); if (m >= 5) return "mag-hi"; if (m >= 4) return "mag-mid"; return "mag-lo"; }
 
   function renderFab() {
-    CONTAINER.innerHTML = '<button class="alerts-fab" id="alertsBtn" title="地震/台风预警">🌐</button>';
-    var btn = document.getElementById("alertsBtn");
-    if (badgeCount > 0) {
-      btn.innerHTML += '<span class="alerts-badge">' + badgeCount + '</span>';
-      btn.classList.add("blink");
+    var existing = document.getElementById("alertsFab");
+    if (badgeCount <= 0) { if (existing) existing.remove(); return; }
+    if (!existing) {
+      existing = document.createElement("div");
+      existing.id = "alertsFab";
+      document.body.appendChild(existing);
     }
+    existing.innerHTML = '<button class="alerts-fab" id="alertsBtn" title="地震/台风预警">🌐' +
+      '<span class="alerts-badge">' + badgeCount + '</span></button>';
+    var btn = document.getElementById("alertsBtn");
+    btn.classList.add("blink");
     btn.addEventListener("click", openModal);
   }
 
@@ -170,14 +176,14 @@
   function closeModal() { var m = document.getElementById("alertsModal"); if (m) m.remove(); }
 
   function fillEq() {
-    var box = document.getElementById("alertsTabEq");
-    if (!box) return;
-    box.innerHTML = renderEqHtml(eqData);
+    var h = renderEqHtml(eqData);
+    var a = document.getElementById("alertsTabEq"); if (a) a.innerHTML = h;
+    var b = document.getElementById("acEqList"); if (b) b.innerHTML = h;
   }
   function fillTy() {
-    var box = document.getElementById("alertsTabTy");
-    if (!box) return;
-    box.innerHTML = renderTyHtml(tyData);
+    var h = renderTyHtml(tyData);
+    var a = document.getElementById("alertsTabTy"); if (a) a.innerHTML = h;
+    var b = document.getElementById("acTyList"); if (b) b.innerHTML = h;
   }
 
   function renderEqHtml(items) {
@@ -275,8 +281,22 @@
     });
   }
 
-  renderFab();
   loadEq();
   loadTy();
   setInterval(function () { loadEq(); loadTy(); }, 300000);
+
+  // 注册为左侧栏「台风 / 地震预警」视图（完整列表，无需弹窗；兼容 window.DF 尚未就绪）
+  function reg(D) {
+    D.VIEWS.alerts = {
+      html: function () {
+        return '<div id="alertsView" class="ac-view">' +
+          '<div class="ac-sec"><h3>🌍 地震</h3><div id="acEqList" class="ac-body">加载中…</div></div>' +
+          '<div class="ac-sec"><h3>🌀 台风</h3><div id="acTyList" class="ac-body">加载中…</div></div>' +
+          '</div>';
+      },
+      init: function () { fillEq(); fillTy(); }
+    };
+  }
+  if (window.DF) reg(window.DF);
+  else (window.__df_plugins = window.__df_plugins || []).push(reg);
 })();

@@ -16,6 +16,7 @@
     --amber:#d29922;
     --red:#f85149;
     --danger:#da3633;
+    --accent:#19c3a6;
     --radius:10px;
   }
   *{box-sizing:border-box;}
@@ -30,7 +31,6 @@
   a{color:var(--green);text-decoration:none;}
   a:hover{text-decoration:underline;}
 
-  /* 顶栏 */
   .topbar{
     background:linear-gradient(180deg,#11161f,#0d1117);
     border-bottom:1px solid var(--border);
@@ -38,7 +38,7 @@
     backdrop-filter:blur(4px);
   }
   .topbar-inner{
-    max-width:960px;margin:0 auto;padding:14px 16px;
+    max-width:1000px;margin:0 auto;padding:14px 16px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
   }
   .topbar h1{
@@ -51,16 +51,12 @@
   }
   .back{font-size:14px;white-space:nowrap;}
 
-  .container{max-width:960px;margin:0 auto;padding:16px;}
+  .container{max-width:1000px;margin:0 auto;padding:16px;}
 
-  .intro{
-    color:var(--muted);font-size:14px;margin:4px 0 18px;
-  }
+  .intro{color:var(--muted);font-size:14px;margin:4px 0 18px;}
 
   /* 双栏配装 */
-  .columns{
-    display:grid;grid-template-columns:1fr 1fr;gap:16px;
-  }
+  .columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .col{
     background:var(--panel);border:1px solid var(--border);
     border-radius:var(--radius);padding:14px;
@@ -81,15 +77,12 @@
 
   .reset-btn{
     background:transparent;border:1px solid var(--border);color:var(--muted);
-    font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;
-    transition:.15s;
+    font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;transition:.15s;
   }
   .reset-btn:hover{border-color:var(--danger);color:var(--red);}
 
   .field{margin-bottom:10px;}
-  .field label{
-    display:block;font-size:12px;color:var(--muted);margin-bottom:4px;
-  }
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
   select{
     width:100%;background:#0d1117;color:var(--text);
     border:1px solid var(--border);border-radius:6px;
@@ -101,28 +94,45 @@
   }
   select:focus{outline:none;border-color:var(--green);}
 
+  /* 武器数据面板（真实数据，来自 data.json weaponCodex） */
+  .wp-panel{
+    background:#0d1117;border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;margin:6px 0 12px;
+  }
+  .wp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .wp-chip{font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:2px 8px;border-radius:6px;}
+  .wp-chip b{color:var(--text);}
+  .wp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 10px;}
+  .wp-cell{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed var(--border);}
+  .wp-cell span{color:var(--muted);}
+  .wp-cell b{color:var(--text);font-variant-numeric:tabular-nums;}
+  .wp-missing{font-size:11px;color:var(--amber);margin-top:6px;}
+
   .att-grid{
     display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;
     margin-top:4px;padding-top:10px;border-top:1px dashed var(--border);
   }
 
+  /* 哈夫币花费 */
+  .hafu-side{margin-top:12px;border-top:1px solid var(--border);padding-top:10px;}
+  .hafu-side h4{font-size:13px;margin:0 0 8px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+  .hafu-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
+  .hafu-line .hn{color:var(--text);}
+  .hafu-line .hv{font-variant-numeric:tabular-nums;}
+  .hafu-tag{font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;}
+  .hafu-tag.live{color:var(--green);border:1px solid rgba(63,185,80,.5);}
+  .hafu-tag.est{color:var(--amber);border:1px solid rgba(210,153,34,.5);}
+  .hafu-tot{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+  .hafu-tot .hv{color:var(--accent);}
+
   /* 属性条 */
   .stats{margin-top:12px;}
   .stat-row{margin-bottom:9px;}
-  .stat-row .top{
-    display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;
-  }
+  .stat-row .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;}
   .stat-row .top .name{color:var(--text);}
   .stat-row .top .val{color:var(--muted);font-variant-numeric:tabular-nums;}
-  .bar{
-    height:8px;background:#0d1117;border-radius:6px;overflow:hidden;
-    border:1px solid var(--border);
-  }
-  .bar > span{
-    display:block;height:100%;border-radius:6px;
-    background:linear-gradient(90deg,#2ea043,var(--green));
-    transition:width .35s ease;
-  }
+  .bar{height:8px;background:#0d1117;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  .bar > span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#2ea043,var(--green));transition:width .35s ease;}
 
   /* 对比区 */
   .compare{
@@ -142,25 +152,36 @@
   .better{color:var(--green);}
   .worse{color:var(--red);}
   .equal{color:var(--muted);}
-  .score{
-    display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;
-    border:1px solid var(--border);
-  }
+  .score{display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;border:1px solid var(--border);}
   .score.a{color:var(--green);border-color:rgba(63,185,80,.5);}
   .score.b{color:var(--amber);border-color:rgba(210,153,34,.5);}
   .winner{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;}
 
-  footer{
-    max-width:960px;margin:0 auto;padding:20px 16px 40px;
-    color:var(--muted);font-size:12px;text-align:center;
+  /* 哈夫币总览 */
+  .hafu-total{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px;margin-top:18px;
   }
+  .hafu-total h2{font-size:16px;margin:0 0 4px;letter-spacing:1px;}
+  .hafu-total .sub{color:var(--muted);font-size:13px;margin-bottom:12px;}
+  .hafu-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .hafu-sum .hs{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .hafu-sum .hs .lab{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .hafu-sum .hs .big{font-size:22px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .hafu-sum .hs .big.alt{color:var(--amber);}
+  .hafu-grand{text-align:center;font-size:14px;color:var(--muted);margin-top:12px;}
+  .hafu-grand b{color:var(--text);font-size:18px;}
+  .hafu-note{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
 
-  /* 移动端 */
+  footer{max-width:1000px;margin:0 auto;padding:20px 16px 40px;color:var(--muted);font-size:12px;text-align:center;}
+
   @media (max-width:720px){
     .columns{grid-template-columns:1fr;}
     .compare-grid{grid-template-columns:1fr;}
     .radar-wrap{max-width:320px;margin:0 auto;}
     .att-grid{grid-template-columns:1fr;}
+    .hafu-sum{grid-template-columns:1fr;}
+    .wp-grid{grid-template-columns:1fr 1fr;}
   }
 </style>
 </head>
@@ -173,7 +194,7 @@
 </header>
 
 <main class="container">
-  <p class="intro">为你的干员搭配枪械与配件，实时演算最终属性并左右对比。所有改动自动保存到本地，下次打开自动恢复。</p>
+  <p class="intro">选择武器与配件，实时演算最终属性并左右对比；下方同步显示「哈夫币花费」，实时物价取自游戏内交易行真实成交价（查不到的配件用估值）。所有改动自动保存到本地。</p>
 
   <div class="columns">
     <section class="col" id="colA"></section>
@@ -194,12 +215,23 @@
       </div>
     </div>
   </section>
+
+  <section class="hafu-total">
+    <h2>哈夫币花费估算</h2>
+    <div class="sub">实时物价取自游戏内交易行真实成交价（caiweilv/DeltaForcePrice，每 10 分钟更新）；查不到的物品使用站内估值并标注「估值」。</div>
+    <div class="hafu-sum">
+      <div class="hs"><div class="lab">配装 A 花费</div><div class="big" id="hafuA_total">—</div></div>
+      <div class="hs"><div class="lab">配装 B 花费</div><div class="big alt" id="hafuB_total">—</div></div>
+    </div>
+    <div class="hafu-grand">两套合计约 <b id="hafuGrand">—</b> 哈夫币</div>
+    <div class="hafu-note" id="hafuNote">正在加载实时物价…</div>
+  </section>
 </main>
 
-<footer>三角洲情报台 · 武器改装计算器 (V32) · 数据基于游戏手感模拟，仅供参考</footer>
+<footer>三角洲情报台 · 武器改装计算器 · 武器面板取自 data.json（真实数据，后台可维护）；哈夫币花费实时估算</footer>
 
 <script>
-/* ===================== 数据 ===================== */
+/* ===================== 属性定义 ===================== */
 const STATS = [
   {key:'damage',     name:'伤害',     isCount:false},
   {key:'rpm',        name:'射速',     isCount:false},
@@ -212,70 +244,152 @@ const STATS = [
   {key:'mag',        name:'弹匣容量', isCount:true}
 ];
 
-const WEAPONS = [
-  {key:'AKM', name:'AKM', type:'突击步枪',
-    base:{damage:78,rpm:60,range:65,accuracy:55,handling:50,recoil:40,ergonomics:55,moveSpeed:62,mag:30}},
-  {key:'M4A1', name:'M4A1', type:'突击步枪',
-    base:{damage:62,rpm:75,range:62,accuracy:68,handling:65,recoil:60,ergonomics:68,moveSpeed:68,mag:30}},
-  {key:'AK-12', name:'AK-12', type:'突击步枪',
-    base:{damage:64,rpm:78,range:60,accuracy:66,handling:62,recoil:55,ergonomics:62,moveSpeed:66,mag:30}},
-  {key:'K416', name:'K416', type:'突击步枪',
-    base:{damage:60,rpm:80,range:64,accuracy:70,handling:70,recoil:65,ergonomics:70,moveSpeed:70,mag:30}},
-  {key:'M250', name:'M250', type:'机枪',
-    base:{damage:85,rpm:70,range:70,accuracy:58,handling:35,recoil:45,ergonomics:30,moveSpeed:40,mag:100}},
-  {key:'Vector', name:'Vector', type:'冲锋枪',
-    base:{damage:50,rpm:95,range:35,accuracy:55,handling:80,recoil:55,ergonomics:78,moveSpeed:82,mag:25}},
-  {key:'SR-25', name:'SR-25', type:'射手步枪',
-    base:{damage:90,rpm:45,range:85,accuracy:80,handling:45,recoil:35,ergonomics:45,moveSpeed:50,mag:20}},
-  {key:'M700', name:'M700', type:'狙击枪',
-    base:{damage:95,rpm:25,range:92,accuracy:88,handling:40,recoil:30,ergonomics:38,moveSpeed:48,mag:5}},
-  {key:'AWM', name:'AWM', type:'狙击枪',
-    base:{damage:100,rpm:20,range:95,accuracy:92,handling:35,recoil:28,ergonomics:32,moveSpeed:45,mag:5}}
-];
+/* 内置基线（武器面板尚未在后台填真实值时使用，保证计算器可用） */
+const BASELINE = {
+  'AKM':   {damage:78,rpm:60,range:65,accuracy:55,handling:50,recoil:40,ergonomics:55,moveSpeed:62,mag:30},
+  'M4A1':  {damage:62,rpm:75,range:62,accuracy:68,handling:65,recoil:60,ergonomics:68,moveSpeed:68,mag:30},
+  'AK-12': {damage:64,rpm:78,range:60,accuracy:66,handling:62,recoil:55,ergonomics:62,moveSpeed:66,mag:30},
+  'K416':  {damage:60,rpm:80,range:64,accuracy:70,handling:70,recoil:65,ergonomics:70,moveSpeed:70,mag:30},
+  'M250':  {damage:85,rpm:70,range:70,accuracy:58,handling:35,recoil:45,ergonomics:30,moveSpeed:40,mag:100},
+  'Vector':{damage:50,rpm:95,range:35,accuracy:55,handling:80,recoil:55,ergonomics:78,moveSpeed:82,mag:25},
+  'SR-25': {damage:90,rpm:45,range:85,accuracy:80,handling:45,recoil:35,ergonomics:45,moveSpeed:50,mag:20},
+  'M700':  {damage:95,rpm:25,range:92,accuracy:88,handling:40,recoil:30,ergonomics:38,moveSpeed:48,mag:5},
+  'AWM':   {damage:100,rpm:20,range:95,accuracy:92,handling:35,recoil:28,ergonomics:32,moveSpeed:45,mag:5}
+};
+const TYPE_SPEED = {'狙击枪':45,'射手步枪':50,'机枪':40,'突击步枪':66,'冲锋枪':82,'步枪':66,'霰弹枪':70,'手枪':85};
+const TYPE_COST  = {'狙击枪':60000,'射手步枪':45000,'机枪':50000,'突击步枪':25000,'冲锋枪':20000,'步枪':25000,'霰弹枪':18000,'手枪':8000};
+const DEFAULT_BASE = {damage:60,rpm:60,range:60,accuracy:60,handling:60,recoil:50,ergonomics:60,moveSpeed:60,mag:30};
 
-const ATTACH_SLOTS = [
+/* 配件槽（含哈夫币估值 cost，实时物价优先）
+   可在 data.json 增加 "gunCalc": { "attachments": [...] } 由后台维护；缺省用下方内置值 */
+let ATTACH_SLOTS = [
   {key:'barrel', name:'枪管', options:[
-    {name:'默认枪管', mods:{}},
-    {name:'重型枪管', mods:{recoil:8, accuracy:6, range:5, handling:-4, moveSpeed:-2}},
-    {name:'短枪管',   mods:{handling:8, moveSpeed:5, recoil:-5, range:-6}},
-    {name:'长枪管',   mods:{range:10, accuracy:5, recoil:3, handling:-5}}
+    {name:'默认枪管', mods:{}, cost:0},
+    {name:'重型枪管', mods:{recoil:8, accuracy:6, range:5, handling:-4, moveSpeed:-2}, cost:12000},
+    {name:'短枪管',   mods:{handling:8, moveSpeed:5, recoil:-5, range:-6}, cost:9000},
+    {name:'长枪管',   mods:{range:10, accuracy:5, recoil:3, handling:-5}, cost:11000}
   ]},
   {key:'muzzle', name:'枪口', options:[
-    {name:'无枪口',   mods:{}},
-    {name:'补偿器',   mods:{recoil:12, accuracy:3, handling:-2}},
-    {name:'消音器',   mods:{recoil:5, accuracy:2, handling:-3, range:-2}},
-    {name:'制退器',   mods:{recoil:15, handling:-4}}
+    {name:'无枪口',   mods:{}, cost:0},
+    {name:'补偿器',   mods:{recoil:12, accuracy:3, handling:-2}, cost:6000},
+    {name:'消音器',   mods:{recoil:5, accuracy:2, handling:-3, range:-2}, cost:9000},
+    {name:'制退器',   mods:{recoil:15, handling:-4}, cost:7000}
   ]},
   {key:'grip', name:'握把', options:[
-    {name:'无握把',   mods:{}},
-    {name:'垂直握把', mods:{recoil:8, handling:3}},
-    {name:'倾斜握把', mods:{handling:8, ergonomics:5, recoil:2}},
-    {name:'战术握把', mods:{recoil:5, ergonomics:6, handling:2}}
+    {name:'无握把',   mods:{}, cost:0},
+    {name:'垂直握把', mods:{recoil:8, handling:3}, cost:5000},
+    {name:'倾斜握把', mods:{handling:8, ergonomics:5, recoil:2}, cost:5000},
+    {name:'战术握把', mods:{recoil:5, ergonomics:6, handling:2}, cost:6000}
   ]},
   {key:'magazine', name:'弹匣', options:[
-    {name:'标准弹匣',   mods:{}},
-    {name:'扩容弹匣',   mods:{mag:20, handling:-3, moveSpeed:-2}},
-    {name:'快拆弹匣',   mods:{ergonomics:8, handling:4, mag:5}},
-    {name:'大容量弹鼓', mods:{mag:70, handling:-8, moveSpeed:-5, ergonomics:-5}}
+    {name:'标准弹匣',   mods:{}, cost:0},
+    {name:'扩容弹匣',   mods:{mag:20, handling:-3, moveSpeed:-2}, cost:4000},
+    {name:'快拆弹匣',   mods:{ergonomics:8, handling:4, mag:5}, cost:5000},
+    {name:'大容量弹鼓', mods:{mag:70, handling:-8, moveSpeed:-5, ergonomics:-5}, cost:9000}
   ]},
   {key:'stock', name:'枪托', options:[
-    {name:'无枪托',   mods:{}},
-    {name:'战术枪托', mods:{recoil:10, accuracy:4, handling:-3}},
-    {name:'轻量枪托', mods:{handling:8, moveSpeed:4, recoil:3}},
-    {name:'稳固枪托', mods:{accuracy:8, recoil:6, handling:-5}}
+    {name:'无枪托',   mods:{}, cost:0},
+    {name:'战术枪托', mods:{recoil:10, accuracy:4, handling:-3}, cost:8000},
+    {name:'轻量枪托', mods:{handling:8, moveSpeed:4, recoil:3}, cost:7000},
+    {name:'稳固枪托', mods:{accuracy:8, recoil:6, handling:-5}, cost:9000}
   ]},
   {key:'scope', name:'瞄准镜', options:[
-    {name:'机械瞄具', mods:{}},
-    {name:'红点瞄具', mods:{accuracy:5, handling:2}},
-    {name:'全息瞄具', mods:{accuracy:6, handling:1}},
-    {name:'高倍镜',   mods:{accuracy:12, range:8, handling:-6, moveSpeed:-2}}
+    {name:'机械瞄具', mods:{}, cost:0},
+    {name:'红点瞄具', mods:{accuracy:5, handling:2}, cost:3000},
+    {name:'全息瞄具', mods:{accuracy:6, handling:1}, cost:3500},
+    {name:'高倍镜',   mods:{accuracy:12, range:8, handling:-6, moveSpeed:-2}, cost:8000}
   ]},
   {key:'laser', name:'镭射', options:[
-    {name:'无镭射',     mods:{}},
-    {name:'激光指示器', mods:{accuracy:6, ergonomics:4, handling:2}},
-    {name:'战术镭射',   mods:{accuracy:4, recoil:3, ergonomics:3}}
+    {name:'无镭射',     mods:{}, cost:0},
+    {name:'激光指示器', mods:{accuracy:6, ergonomics:4, handling:2}, cost:2000},
+    {name:'战术镭射',   mods:{accuracy:4, recoil:3, ergonomics:3}, cost:2500}
   ]}
 ];
+
+/* ===================== 数据加载 ===================== */
+let WEAPONS = [];        // 由 data.json weaponCodex 合并基线得到
+let CODEX = {};          // name -> codex 原始对象
+let liveMap = null;      // 实时物价 name->price
+let liveReady = false;
+
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function norm(s){ return String(s==null?'':s).trim().toLowerCase(); }
+
+function baseFor(w){
+  // 后台已填真实值则优先使用真实数据。
+  // 约定：weaponCodex 各字段统一按游戏面板「0-100 评分」填写（与 BASELINE 同尺度），
+  // 因此全部字段均 1:1 映射，不再做 rof/10、effectiveRange/2.5 之类的二次缩放，
+  // 避免后台填真实值后射速/射程显示异常。
+  if((w.baseDamage>0) || (w.rof>0)){
+    return {
+      damage: clamp(Math.round(w.baseDamage),0,100),
+      rpm: clamp(Math.round(w.rof),0,100),
+      range: clamp(Math.round(w.effectiveRange),0,100),
+      accuracy: clamp(w.stability||0,0,100),
+      handling: clamp(w.handlingSpeed||0,0,100),
+      recoil: clamp(w.recoilControl||0,0,100),
+      ergonomics: clamp(w.hipFireAccuracy||0,0,100),
+      moveSpeed: TYPE_SPEED[w.type]||60,
+      mag: w.capacity||30
+    };
+  }
+  if(BASELINE[w.name]) return Object.assign({}, BASELINE[w.name]);
+  return Object.assign({}, DEFAULT_BASE, {moveSpeed: TYPE_SPEED[w.type]||60, mag:30});
+}
+
+function buildWeapons(codexList){
+  const list = (codexList||[]).map(function(w){
+    return {
+      key: w.name, name: w.name, type: w.type||'', ammo: w.ammo||'',
+      codex: w, base: baseFor(w)
+    };
+  });
+  // 确保内置 9 把始终存在（保持与原版一致的手感基线）
+  Object.keys(BASELINE).forEach(function(nm){
+    if(!list.some(function(x){return x.name===nm;})){
+      list.unshift({ key:nm, name:nm, type:'突击步枪', ammo:'', codex:null, base:Object.assign({},BASELINE[nm]) });
+    }
+  });
+  return list;
+}
+
+function loadData(){
+  return fetch('data.json?_=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      const cx = (d && d.weaponCodex) || [];
+      cx.forEach(function(w){ CODEX[w.name] = w; });
+      WEAPONS = buildWeapons(cx);
+      // 后台可在 data.json.gunCalc.attachments 维护配件（含每配件 cost 估值）
+      if(d && d.gunCalc && Array.isArray(d.gunCalc.attachments) && d.gunCalc.attachments.length){
+        ATTACH_SLOTS = d.gunCalc.attachments.map(function(s){
+          s.options = (s.options||[]).map(function(o){ if(typeof o.cost==='undefined') o.cost=0; if(!o.mods) o.mods={}; return o; });
+          return s;
+        });
+      }
+    })
+    .catch(function(){ WEAPONS = buildWeapons([]); });
+}
+
+function loadHafu(){
+  const url = "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json";
+  return fetch(url + "?_=" + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(arr){
+      if(!Array.isArray(arr)) throw new Error('格式异常');
+      const m = {};
+      arr.forEach(function(it){ if(it && it.name) m[norm(it.name)] = it.price; });
+      liveMap = m; liveReady = true;
+    })
+    .catch(function(){ liveMap = {}; liveReady = false; });
+}
+
+/* 查价：实时优先，回退估值 */
+function priceOf(name, fallback){
+  if(liveReady && liveMap && liveMap[norm(name)]!=null) return {v: liveMap[norm(name)], live:true};
+  return {v: fallback, live:false};
+}
+function weaponCostFallback(type){ return TYPE_COST[type] || 25000; }
 
 /* ===================== 状态 ===================== */
 const STORE_KEY = 'delta_guns_calc_v32';
@@ -284,7 +398,7 @@ const SIDES = ['A','B'];
 function defaultState(){
   const att = {};
   ATTACH_SLOTS.forEach(s => att[s.key] = s.options[0].name);
-  return { weapon: WEAPONS[0].key, attachments: att };
+  return { weapon: WEAPONS[0] ? WEAPONS[0].key : 'AKM', attachments: att };
 }
 
 let state = { A: defaultState(), B: defaultState() };
@@ -305,18 +419,16 @@ function loadState(){
         }
       }
     });
-  }catch(e){/* 忽略损坏数据 */}
+  }catch(e){}
 }
-function saveState(){
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-}
+function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 
 /* ===================== 计算 ===================== */
-function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function getWeapon(side){ return WEAPONS.find(x=>x.key===state[side].weapon) || WEAPONS[0]; }
 
 function computeStats(side){
   const st = state[side];
-  const w = WEAPONS.find(x=>x.key===st.weapon) || WEAPONS[0];
+  const w = getWeapon(side);
   const res = {};
   STATS.forEach(s=>{
     let v = w.base[s.key];
@@ -329,26 +441,82 @@ function computeStats(side){
   return res;
 }
 
-/* ===================== 武器图片 API（WaterEve/DeltaForceData 公开源） ===================== */
-var GUN_IMG = {};
-function loadGunImages() {
-  fetch("https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json/gun/gunRifle.json?_=" + Date.now())
-    .then(function (r) { return r.json(); })
-    .then(function (j) {
-      var list = (j && j.jData && j.jData.data && j.jData.data.data && j.jData.data.data.list) || [];
-      list.forEach(function (it) { if (it.objectName && it.prePic) GUN_IMG[it.objectName] = it.prePic; });
-      updateGunImages();
-    })
-    .catch(function () {});
+/* ===================== 武器真实数据面板 ===================== */
+function renderWeaponPanel(side){
+  const w = getWeapon(side);
+  const c = w.codex;
+  const box = document.getElementById('wp'+side);
+  if(!box) return;
+  const cell = function(label, val){ return '<div class="wp-cell"><span>'+label+'</span><b>'+(val==null||val===''||val===0?'—':val)+'</b></div>'; };
+  let filled = false;
+  let cells = '';
+  if(c){
+    filled = (c.baseDamage>0)||(c.rof>0);
+    cells += cell('基础伤害', c.baseDamage||'—');
+    cells += cell('护甲伤害', c.armorDamage||'—');
+    cells += cell('射速(RPM)', c.rof||'—');
+    cells += cell('有效射程', c.effectiveRange?(c.effectiveRange+'m'):'—');
+    cells += cell('后坐力控制', c.recoilControl||'—');
+    cells += cell('操控速度', c.handlingSpeed||'—');
+    cells += cell('稳定性', c.stability||'—');
+    cells += cell('腰射精度', c.hipFireAccuracy||'—');
+    cells += cell('弹匣容量', c.capacity||'—');
+  } else {
+    cells = '<div class="wp-cell"><span>提示</span><b>无图鉴数据</b></div>';
+  }
+  const chips = '<div class="wp-chips">'+
+    '<span class="wp-chip">类型 <b>'+esc(w.type||'—')+'</b></span>'+
+    '<span class="wp-chip">弹药 <b>'+esc(w.ammo||'—')+'</b></span>'+
+    (filled?'<span class="wp-chip" style="border-color:rgba(63,185,80,.5);color:var(--green)">真实数据</span>'
+          :'<span class="wp-chip" style="border-color:rgba(210,153,34,.5);color:var(--amber)">手感基线</span>')+
+    '</div>';
+  box.innerHTML = chips + '<div class="wp-grid">'+cells+'</div>' +
+    (filled?'':'<div class="wp-missing">该武器真实数值尚未在后台「武器图鉴」填写，当前显示手感基线值。</div>');
 }
-function updateGunImages() {
-  SIDES.forEach(function (side) {
-    var img = document.getElementById("gunImg" + side);
-    if (!img) return;
-    var w = WEAPONS.find(function (x) { return x.key === state[side].weapon; }) || WEAPONS[0];
-    var src = null;
-    for (var k in GUN_IMG) { if (k.indexOf(w.key) > -1) { src = GUN_IMG[k]; break; } }
-    if (src) { img.src = src; img.style.display = ""; } else { img.style.display = "none"; }
+function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ===================== 哈夫币花费 ===================== */
+function renderHafu(side){
+  const w = getWeapon(side);
+  const st = state[side];
+  const box = document.getElementById('hafu'+side);
+  if(!box) return;
+  const wp = priceOf(w.name, weaponCostFallback(w.type));
+  let lines = '<div class="hafu-line"><span class="hn">'+esc(w.name)+'（本体）</span>'+
+    '<span class="hv">'+fmt(wp.v)+'<span class="hafu-tag '+(wp.live?'live':'est')+'">'+(wp.live?'实时':'估值')+'</span></span></div>';
+  let total = wp.v||0;
+  ATTACH_SLOTS.forEach(slot=>{
+    const opt = slot.options.find(o=>o.name===st.attachments[slot.key]) || slot.options[0];
+    if(opt.cost===0 && opt.name.indexOf('默认')>-1) return; // 默认件不计费
+    const p = priceOf(opt.name, opt.cost||0);
+    total += (p.v||0);
+    lines += '<div class="hafu-line"><span class="hn">'+esc(slot.name)+'：'+esc(opt.name)+'</span>'+
+      '<span class="hv">'+fmt(p.v)+(p.v?'<span class="hafu-tag '+(p.live?'live':'est')+'">'+(p.live?'实时':'估值')+'</span>':'')+'</span></div>';
+  });
+  box.innerHTML = '<h4>哈夫币花费</h4>'+lines+
+    '<div class="hafu-tot"><span>小计</span><span class="hv">'+fmt(total)+'</span></div>';
+  document.getElementById('hafu'+side+'_total').textContent = fmt(total);
+  return total;
+}
+function fmt(n){ return Number(n||0).toLocaleString(); }
+
+/* ===================== 武器图片 API（WaterEve/DeltaForceData） ===================== */
+var GUN_IMG = {};
+function loadGunImages(){
+  fetch("https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json/gun/gunRifle.json?_=" + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var list = (j && j.jData && j.jData.data && j.jData.data.data && j.jData.data.data.list) || [];
+      list.forEach(function(it){ if(it.objectName && it.prePic) GUN_IMG[it.objectName] = it.prePic; });
+      updateGunImages();
+    }).catch(function(){});
+}
+function updateGunImages(){
+  SIDES.forEach(function(side){
+    var img = document.getElementById("gunImg"+side); if(!img) return;
+    var w = getWeapon(side); var src=null;
+    for(var k in GUN_IMG){ if(k.indexOf(w.key)>-1){ src=GUN_IMG[k]; break; } }
+    if(src){ img.src=src; img.style.display=""; } else { img.style.display="none"; }
   });
 }
 
@@ -357,14 +525,10 @@ function buildColumn(side){
   const col = document.getElementById('col'+side);
   const tagClass = side==='A' ? 'a' : 'b';
   const tagText  = side==='A' ? 'A' : 'B';
-
-  let weaponOpts = WEAPONS.map(w=>`<option value="${w.key}">${w.name}（${w.type}）</option>`).join('');
+  let weaponOpts = WEAPONS.map(w=>`<option value="${esc(w.key)}">${esc(w.name)}（${esc(w.type)}）</option>`).join('');
   let attFields = ATTACH_SLOTS.map(slot=>{
-    const opts = slot.options.map(o=>`<option value="${o.name}">${o.name}</option>`).join('');
-    return `<div class="field">
-      <label>${slot.name}</label>
-      <select class="att" data-side="${side}" data-slot="${slot.key}">${opts}</select>
-    </div>`;
+    const opts = slot.options.map(o=>`<option value="${esc(o.name)}">${esc(o.name)}</option>`).join('');
+    return `<div class="field"><label>${esc(slot.name)}</label><select class="att" data-side="${side}" data-slot="${esc(slot.key)}">${opts}</select></div>`;
   }).join('');
 
   col.innerHTML = `
@@ -375,23 +539,18 @@ function buildColumn(side){
       </div>
       <button class="reset-btn" data-side="${side}">重置</button>
     </div>
-    <div class="field">
-      <label>选择武器</label>
-      <select class="weapon" data-side="${side}">${weaponOpts}</select>
-    </div>
+    <div class="field"><label>选择武器</label><select class="weapon" data-side="${side}">${weaponOpts}</select></div>
+    <div class="wp-panel" id="wp${side}"></div>
     <div class="att-grid">${attFields}</div>
+    <div class="hafu-side" id="hafu${side}"></div>
     <div class="stats" id="stats${side}"></div>
   `;
 
-  // 回填当前值
   col.querySelector('.weapon').value = state[side].weapon;
-  col.querySelectorAll('.att').forEach(sel=>{
-    sel.value = state[side].attachments[sel.dataset.slot];
-  });
+  col.querySelectorAll('.att').forEach(sel=>{ sel.value = state[side].attachments[sel.dataset.slot]; });
 
-  // 事件
   col.querySelector('.weapon').addEventListener('change', e=>{
-    state[side].weapon = e.target.value; afterChange(); updateGunImages();
+    state[side].weapon = e.target.value; afterChange();
   });
   col.querySelectorAll('.att').forEach(sel=>{
     sel.addEventListener('change', e=>{
@@ -400,7 +559,6 @@ function buildColumn(side){
   });
   col.querySelector('.reset-btn').addEventListener('click', ()=>{
     state[side] = defaultState();
-    // 同步 UI
     col.querySelector('.weapon').value = state[side].weapon;
     col.querySelectorAll('.att').forEach(s=> s.value = state[side].attachments[s.dataset.slot]);
     afterChange();
@@ -413,10 +571,7 @@ function renderBars(side){
   box.innerHTML = STATS.map(s=>{
     const v = stats[s.key];
     const pct = s.isCount ? clamp(v,0,100) : v;
-    return `<div class="stat-row">
-      <div class="top"><span class="name">${s.name}</span><span class="val">${v}${s.isCount?' 发':''}</span></div>
-      <div class="bar"><span style="width:${pct}%"></span></div>
-    </div>`;
+    return `<div class="stat-row"><div class="top"><span class="name">${s.name}</span><span class="val">${v}${s.isCount?' 发':''}</span></div><div class="bar"><span style="width:${pct}%"></span></div></div>`;
   }).join('');
 }
 
@@ -429,35 +584,22 @@ function renderCompare(){
     let ca='equal', cb='equal';
     if(va>vb){ca='better';cb='worse';}
     else if(vb>va){cb='better';ca='worse';}
-    rows += `<tr>
-      <td class="name">${s.name}</td>
-      <td><span class="v ${ca}">${va}${s.isCount?'':''}</span></td>
-      <td><span class="v ${cb}">${vb}${s.isCount?'':''}</span></td>
-    </tr>`;
+    rows += `<tr><td class="name">${s.name}</td><td><span class="v ${ca}">${va}${s.isCount?'':''}</span></td><td><span class="v ${cb}">${vb}${s.isCount?'':''}</span></td></tr>`;
   });
-
-  // 综合评分：8 项 0-100 属性均值
   const scoreKeys = STATS.filter(s=>!s.isCount).map(s=>s.key);
   const scoreA = Math.round(scoreKeys.reduce((a,k)=>a+sa[k],0)/scoreKeys.length);
   const scoreB = Math.round(scoreKeys.reduce((a,k)=>a+sb[k],0)/scoreKeys.length);
   let scA='equal', scB='equal';
   if(scoreA>scoreB){scA='better';scB='worse';}
   else if(scoreB>scoreA){scB='better';scA='worse';}
-
   const table = document.getElementById('cmpTable');
-  table.innerHTML = `
-    <thead><tr><th style="text-align:left">属性</th>
-      <th><span class="score a">A · ${scoreA}</span></th>
-      <th><span class="score b">B · ${scoreB}</span></th>
-    </tr></thead>
-    <tbody>${rows}</tbody>`;
-
+  table.innerHTML = `<thead><tr><th style="text-align:left">属性</th><th><span class="score a">A · ${scoreA}</span></th><th><span class="score b">B · ${scoreB}</span></th></tr></thead><tbody>${rows}</tbody>`;
   const winner = document.getElementById('winner');
   if(scoreA===scoreB) winner.textContent = '综合评分持平';
   else winner.innerHTML = `综合评分优势：<span class="${scoreA>scoreB?'better':'worse'}">配装 ${scoreA>scoreB?'A':'B'}</span>`;
 }
 
-/* ===================== 雷达图（Chart.js 可选） ===================== */
+/* ===================== 雷达图 ===================== */
 let radarChart = null;
 function renderRadar(){
   const canvas = document.getElementById('radar');
@@ -471,55 +613,58 @@ function renderRadar(){
   const sa = computeStats('A'), sb = computeStats('B');
   const dataA = radarStats.map(s=>sa[s.key]);
   const dataB = radarStats.map(s=>sb[s.key]);
-
   const cfg = {
     type:'radar',
-    data:{
-      labels,
-      datasets:[
-        {label:'配装 A', data:dataA,
-          borderColor:'#3fb950', backgroundColor:'rgba(63,185,80,.20)',
-          pointBackgroundColor:'#3fb950', borderWidth:2},
-        {label:'配装 B', data:dataB,
-          borderColor:'#d29922', backgroundColor:'rgba(210,153,34,.20)',
-          pointBackgroundColor:'#d29922', borderWidth:2}
-      ]
-    },
+    data:{ labels, datasets:[
+      {label:'配装 A', data:dataA, borderColor:'#3fb950', backgroundColor:'rgba(63,185,80,.20)', pointBackgroundColor:'#3fb950', borderWidth:2},
+      {label:'配装 B', data:dataB, borderColor:'#d29922', backgroundColor:'rgba(210,153,34,.20)', pointBackgroundColor:'#d29922', borderWidth:2}
+    ]},
     options:{
       responsive:true,
       plugins:{legend:{labels:{color:'#e6edf3', font:{size:12}}}},
-      scales:{
-        r:{
-          min:0, max:100,
-          angleLines:{color:'#30363d'},
-          grid:{color:'#30363d'},
-          pointLabels:{color:'#8b949e', font:{size:11}},
-          ticks:{color:'#8b949e', backdropColor:'transparent', stepSize:20}
-        }
-      }
+      scales:{ r:{ min:0, max:100, angleLines:{color:'#30363d'}, grid:{color:'#30363d'}, pointLabels:{color:'#8b949e', font:{size:11}}, ticks:{color:'#8b949e', backdropColor:'transparent', stepSize:20} } }
     }
   };
   if(radarChart){ radarChart.data.datasets[0].data=dataA; radarChart.data.datasets[1].data=dataB; radarChart.update(); }
   else { radarChart = new window.Chart(canvas, cfg); }
 }
 
+/* ===================== 哈夫币总览 ===================== */
+function renderHafuTotal(){
+  const ta = renderHafu('A');
+  const tb = renderHafu('B');
+  document.getElementById('hafuGrand').textContent = fmt((ta||0)+(tb||0));
+  const note = document.getElementById('hafuNote');
+  if(liveReady) note.textContent = '实时物价已加载：标注「实时」为交易行真实成交价，「估值」为站内参考价。';
+  else note.textContent = '实时物价源暂不可用，当前全部为站内估值（联网后自动切换为真实成交价）。';
+}
+
 /* ===================== 统一刷新 ===================== */
 function afterChange(){
-  SIDES.forEach(renderBars);
+  SIDES.forEach(function(side){ renderWeaponPanel(side); renderBars(side); });
   renderCompare();
   renderRadar();
+  renderHafuTotal();
+  updateGunImages();
   saveState();
 }
 
 /* ===================== 初始化 ===================== */
 function init(){
   loadState();
-  SIDES.forEach(buildColumn);
-  afterChange();
+  Promise.all([loadData(), loadHafu()]).then(function(){
+    // 数据到达后，若存档武器不在新列表则回退
+    SIDES.forEach(function(side){
+      if(!WEAPONS.some(function(w){return w.key===state[side].weapon;})) state[side].weapon = WEAPONS[0].key;
+    });
+    SIDES.forEach(buildColumn);
+    afterChange();
+  }).catch(function(){
+    SIDES.forEach(buildColumn);
+    afterChange();
+  });
   loadGunImages();
 }
-
-// Chart.js 通过 defer 加载，等待 DOM 与脚本都就绪
 window.addEventListener('DOMContentLoaded', init);
 window.addEventListener('load', ()=>{ if(radarChart) renderRadar(); });
 </script>

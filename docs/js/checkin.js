@@ -1,8 +1,8 @@
-/* 三角洲情报台 · 每日签到 + 积分（轻量悬浮组件）
- * 自包含：优先用 window.D.api()，否则自己带 Bearer 请求 /api/checkin。
- * 仅在已登录（localStorage 有 di_user_token）时显示。
- * v31 优化：缩小为右下角圆球，不挡内容；点击展开详细面板。 */
+/* 三角洲情报台 · 每日签到 + 积分（独立页面视图）
+ * 仅在已登录（localStorage 有 di_user_token）时可用。
+ * 注册 window.DF.VIEWS.checkin，由左侧栏「每日签到」入口进入，不再使用悬浮球。 */
 (function () {
+  "use strict";
   var TOKEN_KEY = "di_user_token";
 
   function token() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
@@ -18,80 +18,54 @@
     return fetch(base.replace(/\/$/, "") + path, opts).then(function (r) { return r.json(); });
   }
 
-  function el(tag, cls, html) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (html != null) e.innerHTML = html;
-    return e;
-  }
+  /* 注入样式（视图内卡片） */
+  var st = document.createElement("style");
+  st.textContent =
+    '#df-checkin .ck-card{max-width:420px;margin:18px auto;background:var(--card,#1c1f26);color:var(--text,#fff);' +
+    'border:1px solid var(--border,#333);border-radius:18px;padding:20px;box-shadow:0 10px 32px rgba(0,0,0,.4);}' +
+    '#df-checkin .ck-h{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:18px;}' +
+    '#df-checkin .ck-pts{font-size:15px;color:var(--accent,#4da3ff);font-weight:800;}' +
+    '#df-checkin .ck-sub{font-size:12px;color:var(--muted);margin:2px 0 14px;}' +
+    '#df-checkin .ck-bar{height:9px;border-radius:6px;background:var(--border,#333);overflow:hidden;margin:6px 0 14px;}' +
+    '#df-checkin .ck-bar>i{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#7ee0c0);transition:width .3s;}' +
+    '#df-checkin .ck-streak{display:flex;gap:6px;margin-bottom:16px;}' +
+    '#df-checkin .ck-dot{flex:1;height:30px;border-radius:8px;background:var(--border,#333);display:flex;align-items:center;justify-content:center;font-size:12px;color:#888;}' +
+    '#df-checkin .ck-dot.on{background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;font-weight:700;}' +
+    '#df-checkin .ck-btn{width:100%;border:0;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;' +
+    'background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;}' +
+    '#df-checkin .ck-btn:disabled{opacity:.6;cursor:default;}' +
+    '#df-checkin .ck-tip{font-size:12px;color:var(--muted);margin-top:10px;text-align:center;}' +
+    '#df-checkin .ck-empty{padding:10px 0 14px;text-align:center;color:var(--muted);}' +
+    '#df-checkin .ck-login{display:block;text-align:center;color:var(--accent,#4da3ff);font-weight:600;}' +
+    '@media(max-width:480px){#df-checkin .ck-card{margin:12px;}}';
+  document.head.appendChild(st);
 
-  function mount() {
-    if (!isLogin()) return;
-    if (document.getElementById("df-checkin")) return;
-
-    var root = el("div");
-    root.id = "df-checkin";
-    root.innerHTML =
-      '<style>' +
-      '#df-checkin .ck-fab{position:fixed;right:16px;bottom:16px;z-index:60;width:52px;height:52px;border-radius:50%;' +
-      'display:flex;align-items:center;justify-content:center;gap:3px;flex-direction:column;' +
-      'background:linear-gradient(135deg,#f7c948,#e6a91a);color:#2b1d05;border:1px solid rgba(255,255,255,.15);' +
-      'box-shadow:0 6px 18px rgba(0,0,0,.45);cursor:pointer;user-select:none;transition:transform .15s,bottom .2s;}' +
-      'body.has-install-banner #df-checkin .ck-fab{bottom:76px;}' +
-      '#df-checkin .ck-fab:active{transform:scale(.94);}' +
-      '#df-checkin .ck-fab .ck-coin{font-size:18px;line-height:1;}' +
-      '#df-checkin .ck-fab .ck-pts{font-size:11px;font-weight:700;line-height:1;}' +
-      '#df-checkin .ck-panel{position:fixed;right:16px;bottom:78px;z-index:61;width:260px;background:var(--card,#1c1f26);' +
-      'color:var(--text,#fff);border:1px solid var(--border,#333);border-radius:16px;padding:14px;box-shadow:0 10px 32px rgba(0,0,0,.5);' +
-      'display:none;transform-origin:bottom right;}' +
-      'body.has-install-banner #df-checkin .ck-panel{bottom:138px;}' +
-      '#df-checkin .ck-panel.show{display:block;animation:ckPop .18s ease-out;}' +
-      '@keyframes ckPop{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}' +
-      '#df-checkin .ck-h{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:8px;}' +
-      '#df-checkin .ck-lv{font-size:12px;color:var(--accent,#4da3ff);}' +
-      '#df-checkin .ck-bar{height:7px;border-radius:6px;background:var(--border,#333);overflow:hidden;margin:6px 0 10px;}' +
-      '#df-checkin .ck-bar>i{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#7ee0c0);transition:width .3s;}' +
-      '#df-checkin .ck-streak{display:flex;gap:4px;margin-bottom:10px;}' +
-      '#df-checkin .ck-dot{flex:1;height:24px;border-radius:6px;background:var(--border,#333);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;}' +
-      '#df-checkin .ck-dot.on{background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;font-weight:700;}' +
-      '#df-checkin .ck-btn{width:100%;border:0;border-radius:10px;padding:9px;font-size:14px;font-weight:700;cursor:pointer;' +
-      'background:linear-gradient(135deg,#4da3ff,#7ee0c0);color:#06251f;}' +
-      '#df-checkin .ck-btn:disabled{opacity:.6;cursor:default;}' +
-      '#df-checkin .ck-tip{font-size:11px;color:#9aa;margin-top:8px;text-align:center;}' +
-      '#df-checkin .ck-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;}' +
-      '@media(max-width:480px){#df-checkin .ck-panel{right:12px;bottom:72px;width:calc(100vw - 24px);max-width:320px;}body.has-install-banner #df-checkin .ck-panel{bottom:132px;}}' +
-      '</style>' +
-      '<div class="ck-fab"><span class="ck-coin">🪙</span><span class="ck-pts">0</span></div>' +
-      '<div class="ck-panel">' +
-      '  <button class="ck-close">×</button>' +
-      '  <div class="ck-h"><span>每日签到</span><span class="ck-lv">Lv.1</span></div>' +
+  function renderInto(el) {
+    if (!isLogin()) {
+      el.innerHTML = '<div class="ck-card"><div class="ck-empty">🔒 请先登录后再来签到领积分</div>' +
+        '<a class="ck-login" href="index.html">前往首页登录</a></div>';
+      return;
+    }
+    el.innerHTML =
+      '<div class="ck-card">' +
+      '  <div class="ck-h"><span>每日签到</span><span class="ck-pts">0 积分</span></div>' +
+      '  <div class="ck-sub">Lv.1</div>' +
       '  <div class="ck-bar"><i style="width:0%"></i></div>' +
       '  <div class="ck-streak"></div>' +
-      '  <button class="ck-btn">签到</button>' +
+      '  <button class="ck-btn">签到领积分</button>' +
       '  <div class="ck-tip"></div>' +
       '</div>';
-    document.body.appendChild(root);
 
-    var fab = root.querySelector(".ck-fab");
-    var panel = root.querySelector(".ck-panel");
-    var closeBtn = root.querySelector(".ck-close");
-    var ptsEl = root.querySelector(".ck-pts");
-    var lvEl = root.querySelector(".ck-lv");
-    var barEl = root.querySelector(".ck-bar>i");
-    var streakEl = root.querySelector(".ck-streak");
-    var btn = root.querySelector(".ck-btn");
-    var tip = root.querySelector(".ck-tip");
-
-    function toggle() { panel.classList.toggle("show"); }
-    fab.addEventListener("click", toggle);
-    closeBtn.addEventListener("click", function () { panel.classList.remove("show"); });
-    document.addEventListener("click", function (e) {
-      if (panel.classList.contains("show") && !root.contains(e.target)) panel.classList.remove("show");
-    });
+    var ptsEl = el.querySelector(".ck-pts");
+    var lvEl = el.querySelector(".ck-sub");
+    var barEl = el.querySelector(".ck-bar>i");
+    var streakEl = el.querySelector(".ck-streak");
+    var btn = el.querySelector(".ck-btn");
+    var tip = el.querySelector(".ck-tip");
 
     function render(d) {
       d = d || {};
-      ptsEl.textContent = d.points || 0;
+      ptsEl.textContent = (d.points || 0) + " 积分";
       lvEl.textContent = "Lv." + (d.level || 1);
       var into = d.into || 0, next = d.next || 100;
       barEl.style.width = Math.max(0, Math.min(100, Math.round(into / next * 100))) + "%";
@@ -114,8 +88,10 @@
     function load() {
       api("/api/checkin", { method: "GET" }).then(function (j) {
         if (j && (j.points != null || j.level != null)) render(j);
-        else { root.remove(); }
-      }).catch(function () { root.remove(); });
+        else { el.innerHTML = '<div class="ck-card"><div class="ck-empty">⚠️ 加载失败，请稍后重试</div></div>'; }
+      }).catch(function () {
+        el.innerHTML = '<div class="ck-card"><div class="ck-empty">⚠️ 加载失败，请检查网络</div></div>';
+      });
     }
 
     btn.addEventListener("click", function () {
@@ -124,10 +100,7 @@
       api("/api/checkin", { method: "POST" }).then(function (j) {
         if (j && j.ok) {
           render(j);
-          if (!j.already) {
-            tip.textContent = "签到成功 +" + (j.gained || 0) + " 积分 🎉";
-            fab.animate([{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 360 });
-          }
+          if (!j.already) tip.textContent = "签到成功 +" + (j.gained || 0) + " 积分 🎉";
         } else { btn.disabled = false; btn.textContent = "签到领积分"; }
       }).catch(function () { btn.disabled = false; btn.textContent = "签到领积分"; });
     });
@@ -135,15 +108,13 @@
     load();
   }
 
-  function tryMount() {
-    try { if (isLogin() && !document.getElementById("df-checkin")) mount(); }
-    catch (e) {}
+  /* 注册为左侧栏「每日签到」视图（兼容 window.DF 尚未就绪的情况） */
+  function reg(D) {
+    D.VIEWS.checkin = {
+      html: function () { return '<div id="df-checkin"></div>'; },
+      init: function () { var el = document.getElementById("df-checkin"); if (el) renderInto(el); }
+    };
   }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tryMount);
-  else tryMount();
-
-  window.addEventListener("storage", function (e) { if (e.key === TOKEN_KEY) tryMount(); });
-  setTimeout(tryMount, 1500);
-  setTimeout(tryMount, 5000);
+  if (window.DF) reg(window.DF);
+  else (window.__df_plugins = window.__df_plugins || []).push(reg);
 })();

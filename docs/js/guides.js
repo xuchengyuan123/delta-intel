@@ -1,33 +1,91 @@
 /* =========================================================
  * guides.js — 攻略 / 资料库 / 小知识 / 实用工具 插件
  * 注册：
- *  VIEWS.guides(新手攻略·模块化) / VIEWS.quiz(电竞测试) / VIEWS.trivia(小知识)
+ *  VIEWS.guides(新手攻略·卡片式) / VIEWS.quiz(电竞测试·卡片化) / VIEWS.trivia(小知识)
  *  VIEWS.gunbuilds(改枪方案) / VIEWS.doorcodes(密码门) / VIEWS.events(活动日历)
  *  VIEWS.streamer(主播设置) / VIEWS.optasks(干员任务) / VIEWS.melee(近战武器)
  *  VIEWS.treasure(宝藏开箱) / VIEWS.loot(随机舔包) / VIEWS.scatter(散落物资点)
- * 向 DF.MENU 注入「攻略」「资料库」「工具」分组。
+ * 向 DF.MENU 注入分组（实际菜单在 app.js 统一编排）。
  * ========================================================= */
 (function () {
   "use strict";
   function reg(D) {
     var esc = D.esc;
 
-    /* ---------------- 新手攻略（模块化） ---------------- */
+    /* ---------- 本插件自带的卡片样式（一次性注入，避免依赖缺失的全局类） ---------- */
+    D.addStyle("guides-cards", `
+      /* 新手攻略卡片（KK日报风格模块化卡片） */
+      .df-guides{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+      .df-gmod{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;}
+      .df-gmod-head{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:var(--text);padding-bottom:10px;border-bottom:1px solid var(--border);}
+      .df-gmod-head .ico{font-size:20px;}
+      .df-gcards{display:flex;flex-direction:column;gap:10px;}
+      .df-gcard{background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:11px 13px;transition:.12s;}
+      .df-gcard:hover{border-color:var(--accent);transform:translateY(-1px);}
+      .df-gcard .gt{font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+      .df-gcard .gt::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);flex:0 0 auto;}
+      .df-gcard .gx{font-size:13px;color:var(--muted);line-height:1.75;}
+
+      /* DFTI 电竞测试 · 卡片化 */
+      .df-quiz{max-width:780px;margin:0 auto;}
+      .df-quiz-progress{display:flex;align-items:center;gap:10px;margin:4px 0 18px;font-size:13px;color:var(--muted);}
+      .df-quiz-bar{flex:1;height:6px;background:var(--bg-soft);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+      .df-quiz-bar > span{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .25s;}
+      .df-qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+      .df-qhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+      .df-qnum{flex:0 0 30px;height:30px;border-radius:9px;background:var(--accent);color:#11161f;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;}
+      .df-qt{font-size:16px;font-weight:700;color:var(--text);line-height:1.55;padding-top:3px;}
+      .df-qopts{display:grid;gap:10px;}
+      .df-qopt{position:relative;display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;color:var(--text);transition:.15s;}
+      .df-qopt:hover{border-color:var(--accent);background:var(--bg-elev);}
+      .df-qopt.is-sel{border-color:var(--accent);background:var(--bg-elev);font-weight:700;}
+      .df-qopt.is-sel::after{content:"✓";margin-left:auto;color:var(--accent);font-weight:800;}
+      .df-qopt input{position:absolute;opacity:0;pointer-events:none;}
+      .df-quiz-actions{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap;}
+      .df-quiz-actions .btn-primary{padding:11px 22px;}
+      .df-qprev{background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--muted);margin-bottom:14px;}
+      .df-qprev b{color:var(--accent);}
+      .df-result{background:var(--card);border:1px solid var(--accent);border-radius:var(--radius);padding:24px;text-align:center;box-shadow:var(--shadow);}
+      .df-result .rico{font-size:52px;margin-bottom:8px;}
+      .df-result .rname{font-size:24px;font-weight:800;color:var(--accent);margin-bottom:10px;}
+      .df-result .rdesc{font-size:15px;color:var(--text);line-height:1.7;margin-bottom:10px;}
+      .df-result .rtip{font-size:13px;color:var(--muted);margin-bottom:16px;}
+      .df-result .df-quiz-actions{justify-content:center;}
+
+      /* 宝藏开箱 / 随机舔包 结果卡片 */
+      .df-tool{max-width:620px;}
+      .df-tool-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+      .df-tool-row label{flex:0 0 76px;color:var(--muted);font-size:13px;}
+      .df-tool-row select,.df-tool-row input{flex:1;}
+      .df-loot-grid{display:grid;gap:8px;margin-top:14px;}
+      .df-loot-line{display:flex;align-items:center;gap:12px;background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;}
+      .df-loot-line .li{flex:0 0 44px;color:var(--muted);font-size:13px;}
+      .df-loot-line .lx{flex:1;color:var(--text);font-weight:600;}
+      .df-loot-line.rare{border-color:var(--accent);background:var(--bg-elev);}
+      .df-loot-line.rare .lx{color:var(--accent);}
+      @media (max-width:640px){
+        .df-guides{grid-template-columns:1fr;}
+        .df-tool-row{flex-direction:column;align-items:stretch;gap:6px;}
+        .df-tool-row label{flex:none;}
+      }
+    `);
+
+    /* ---------------- 新手攻略（卡片式） ---------------- */
     function guidesHtml(o) {
       var g = o.guides || { modules: [] };
       var mods = (g.modules || []).map(function (m) {
         var cards = (m.cards || []).map(function (c) {
-          return '<div class="g-card"><div class="g-card-title">' + esc(c.title) + '</div><div class="g-card-text">' + esc(c.text) + '</div></div>';
+          return '<div class="df-gcard"><div class="gt">' + esc(c.title) + '</div><div class="gx">' + esc(c.text) + '</div></div>';
         }).join("");
-        return '<div class="g-module"><div class="g-mod-head"><span class="g-mod-ico">' + esc(m.icon || "📌") + "</span>" + esc(m.title) + "</div>" +
-          '<div class="g-card-grid">' + (cards || '<div class="g-card">暂无要点</div>') + "</div></div>";
+        return '<div class="df-gmod"><div class="df-gmod-head"><span class="ico">' + esc(m.icon || "📌") + '</span>' + esc(m.title) + '</div>' +
+          '<div class="df-gcards">' + (cards || '<div class="df-gcard"><div class="gx">暂无要点</div></div>') + '</div></div>';
       }).join("");
       return '<div class="section-title">🎯 新手攻略</div>' +
         '<p class="guide-intro">' + esc(g.intro || "从零上手《三角洲行动》。") + "</p>" +
-        (mods || '<div class="card"><p style="color:var(--muted)">暂无攻略模块，管理员可在后台添加。</p></div>');
+        '<div class="df-guides">' + (mods || '<div class="card"><p style="color:var(--muted)">暂无攻略模块，管理员可在后台添加。</p></div>') + '</div>';
     }
 
-    /* ---------------- 电竞选手测试 ---------------- */
+    /* ---------------- 电竞选手测试（卡片化） ---------------- */
     function quizResult(q, scores) {
       var results = [];
       if (Array.isArray(q.results)) {
@@ -42,27 +100,51 @@
       results.forEach(function (r) { if ((cnt[r.key] || 0) > max) { max = cnt[r.key] || 0; best = r.key; } });
       return results.find(function (r) { return r.key === best; }) || results[0];
     }
+    function quizCard(Q, i) {
+      var opts = Q.options.map(function (op) {
+        return '<label class="df-qopt" data-q="' + i + '">' +
+          '<input type="radio" name="qq' + i + '" value="' + esc(op.s) + '">' +
+          '<span>' + esc(op.text) + '</span></label>';
+      }).join("");
+      return '<div class="df-qcard"><div class="df-qhead"><div class="df-qnum">' + (i + 1) + '</div>' +
+        '<div class="df-qt">' + esc(Q.q) + '</div></div><div class="df-qopts">' + opts + '</div></div>';
+    }
     function quizHtml(o) {
       var q = o.quiz;
       if (!q) return '<div class="section-title">🎮 电竞选手测试</div><div class="card">暂无测试数据。</div>';
       var prevHtml = "";
       try {
         var pr = JSON.parse(localStorage.getItem("df-quiz") || "null");
-        if (pr) { var res = quizResult(q, pr); prevHtml = '<div class="quiz-prev">你上次的测试结果：<b>' + (res.icon || "🎮") + " " + esc(res.name) + '</b> · <button class="btn ghost sm" id="quizRetake">重新测试</button></div>'; }
+        if (pr) { var res = quizResult(q, pr); prevHtml = '<div class="df-qprev">你上次的测试结果：<b>' + (res.icon || "🎮") + " " + esc(res.name) + '</b> · <button class="btn ghost sm" id="quizRetake">重新测试</button></div>'; }
       } catch (e) {}
-      var qs = q.questions.map(function (Q, i) {
-        var opts = Q.options.map(function (op) {
-          return '<label class="quiz-opt" data-q="' + i + '" data-s="' + esc(op.s) + '"><input type="radio" name="qq' + i + '" value="' + esc(op.s) + '"> <span>' + esc(op.text) + "</span></label>";
-        }).join("");
-        return '<div class="quiz-q"><div class="quiz-qt">' + (i + 1) + ". " + esc(Q.q) + "</div>" + opts + "</div>";
-      }).join("");
+      var qs = q.questions.map(function (Q, i) { return quizCard(Q, i); }).join("");
       return '<div class="section-title">🎮 ' + esc(q.title) + "</div>" +
-        '<p class="guide-intro">' + esc(q.sub || "") + "</p>" + prevHtml +
-        '<div class="quiz-box" id="quizBox">' + qs +
-          '<div class="quiz-actions"><button class="btn-primary" id="quizGo">查看我的结果</button><span class="t-msg" id="quizMsg"></span></div></div>' +
+        '<p class="guide-intro">' + esc(q.sub || "") + '</p>' + prevHtml +
+        '<div class="df-quiz">' +
+          '<div class="df-quiz-progress"><span id="quizProgText">0 / ' + q.questions.length + ' 题已答</span>' +
+          '<div class="df-quiz-bar"><span id="quizProgBar" style="width:0%"></span></div></div>' +
+          '<div id="quizBox">' + qs + '</div>' +
+          '<div class="df-quiz-actions"><button class="btn-primary" id="quizGo">查看我的结果</button><span class="t-msg" id="quizMsg"></span></div>' +
+        '</div>' +
         '<div id="quizResult"></div>';
     }
     function quizInit(D) {
+      function refresh() {
+        var q = D.getData().quiz; if (!q) return;
+        var total = q.questions.length, done = 0;
+        for (var i = 0; i < total; i++) {
+          var el = document.querySelector('input[name="qq' + i + '"]:checked');
+          var labs = document.querySelectorAll('.df-qopt[data-q="' + i + '"]');
+          labs.forEach(function (lab) { lab.classList.remove("is-sel"); });
+          if (el) { done++; el.closest(".df-qopt").classList.add("is-sel"); }
+        }
+        var bar = document.getElementById("quizProgBar"), txt = document.getElementById("quizProgText");
+        if (bar) bar.style.width = (done / total * 100) + "%";
+        if (txt) txt.textContent = done + " / " + total + " 题已答";
+      }
+      var box = document.getElementById("quizBox");
+      if (box) box.addEventListener("change", function (e) { if (e.target && e.target.name && e.target.name.indexOf("qq") === 0) refresh(); });
+
       function showResult() {
         var q = D.getData().quiz; if (!q) return;
         var scores = [];
@@ -74,11 +156,11 @@
         var res = quizResult(q, scores);
         try { localStorage.setItem("df-quiz", JSON.stringify(scores)); } catch (e) {}
         document.getElementById("quizResult").innerHTML =
-          '<div class="quiz-result"><div class="qr-icon">' + (res.icon || "🎮") + '</div>' +
-            '<div class="qr-name">' + esc(res.name) + '</div>' +
-            '<div class="qr-desc">' + esc(res.desc) + '</div>' +
-            '<div class="qr-tip">💡 ' + esc(res.tip || res.suggest || "多练习，战无不胜！") + '</div>' +
-            '<div class="quiz-actions"><button class="btn-primary" id="quizShare">复制结果分享</button>' +
+          '<div class="df-result"><div class="rico">' + (res.icon || "🎮") + '</div>' +
+            '<div class="rname">' + esc(res.name) + '</div>' +
+            '<div class="rdesc">' + esc(res.desc) + '</div>' +
+            '<div class="rtip">💡 ' + esc(res.tip || res.suggest || "多练习，战无不胜！") + '</div>' +
+            '<div class="df-quiz-actions"><button class="btn-primary" id="quizShare">复制结果分享</button>' +
             '<button class="btn ghost" id="quizAgain">再测一次</button></div>' +
             '<span class="t-msg" id="quizShareMsg"></span></div>';
         document.getElementById("quizShare").onclick = function () {
@@ -87,8 +169,9 @@
           var s = document.getElementById("quizShareMsg"); s.textContent = "已复制，去分享吧！"; s.style.color = "#2ecc71";
         };
         document.getElementById("quizAgain").onclick = function () {
-          document.querySelectorAll('.quiz-opt input').forEach(function (r) { r.checked = false; });
-          document.getElementById("quizResult").innerHTML = "";
+          document.querySelectorAll('.df-qopt input').forEach(function (r) { r.checked = false; });
+          document.querySelectorAll('.df-qopt').forEach(function (l) { l.classList.remove("is-sel"); });
+          document.getElementById("quizResult").innerHTML = ""; refresh();
         };
       }
       var go = document.getElementById("quizGo"); if (go) go.onclick = showResult;
@@ -244,14 +327,31 @@
         '<div class="ml-grid">' + (cards || '<div class="kk-empty">暂无数据</div>') + '</div>';
     }
 
-    /* ---------------- 宝藏开箱模拟 ---------------- */
+    /* ---------------- 宝藏开箱模拟（接入 data.json 容器与产出归类） ---------------- */
+    function buildLootPools() {
+      var CAT = {
+        "工具": ["扳手", "螺丝刀", "机械零件", "工业材料", "钛合金板", "碳纤维"],
+        "零件": ["齿轮", "轴承", "弹簧", "精密螺丝", "导线"],
+        "材料": ["铝合金", "聚合物", "战术布料", "橡胶垫"],
+        "枪械": ["M4A1 上机匣", "AK-12 枪管", "K416 护木", "Vector 机匣", "SR-25 枪身"],
+        "配件": ["战术枪托", "红点瞄具", "全息瞄具", "垂直握把", "补偿器", "消音器", "扩容弹匣", "快拆弹匣"],
+        "药品": ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器"],
+        "电子": ["显卡", "内存条", "主控芯片", "电路板", "精密镜头", "固态硬盘", "电容"],
+        "元件": ["电阻", "晶振", "继电器", "传感器"],
+        "弹药": ["M855A1 子弹×120", "M62 子弹×120", "PBP 子弹×120", "12号霰弹×60", "穿甲弹×90", "独头弹×40"],
+        "情报": ["机密文件", "情报硬盘", "研究手稿", "人员名单", "通行证"],
+        "文件": ["行动记录", "蓝图", "合同"]
+      };
+      var RARE = ["金条", "显卡", "镜头", "固态硬盘", "名表", "钻石", "古董"];
+      return { CAT: CAT, RARE: RARE };
+    }
     function treasureHtml(o) {
       var boxes = (o.containers || []).map(function (c) { return c.name; });
       var opts = boxes.map(function (b) { return '<option>' + esc(b) + "</option>"; }).join("");
       return '<div class="section-title">🎁 宝藏开箱模拟</div>' +
-        '<div class="tool-card"><p class="guide-intro">模拟开箱，看看今天手气如何。结果随机，纯娱乐。</p>' +
-          '<div class="tool-row"><label>选择容器</label><select id="trBox">' + opts + "</select></div>" +
-          '<div class="tool-row"><label>开箱次数</label><input id="trN" type="number" min="1" max="20" value="3"></div>' +
+        '<div class="tool-card df-tool"><p class="guide-intro">模拟开箱，看看今天手气如何。结果随机，纯娱乐；物品按容器产出类型归类（稀有物概率更低）。</p>' +
+          '<div class="df-tool-row"><label>选择容器</label><select id="trBox">' + (opts || "<option>无容器</option>") + "</select></div>" +
+          '<div class="df-tool-row"><label>开箱次数</label><input id="trN" type="number" min="1" max="20" value="3"></div>' +
           '<button class="btn-primary" id="trGo">开箱！</button><div class="tool-result" id="trResult"></div></div>';
     }
     function treasureInit(D) {
@@ -260,33 +360,50 @@
         var o = D.getData();
         var box = document.getElementById("trBox").value;
         var n = Math.max(1, Math.min(20, +document.getElementById("trN").value || 1));
-        var container = (o.containers || []).find(function (c) { return c.name === box; }) || { output: "未知物资" };
-        var pool = ["金条", "显卡", "镜头", "固态硬盘", "M62子弹×120", "M855A1子弹×120", "PBP子弹×120", "高级护甲维修包", "战术快拆手术包", "绷带×5", "止疼片×3", "空", "空", "普通物资", container.output];
+        var container = (o.containers || []).find(function (c) { return c.name === box; }) || { output: "普通物资" };
+        var pools = buildLootPools();
+        var pick = [];
+        Object.keys(pools.CAT).forEach(function (k) { if (container.output && container.output.indexOf(k) > -1) pick = pick.concat(pools.CAT[k]); });
+        if (!pick.length) pick = ["普通物资", "零件", "材料", "工具"];
         var res = [];
-        for (var i = 0; i < n; i++) res.push(pool[Math.floor(Math.random() * pool.length)]);
-        document.getElementById("trResult").innerHTML = res.map(function (r, i) {
-          return '<div class="loot-line"><span class="loot-i">#' + (i + 1) + "</span><span class=\"loot-x\">" + esc(r) + "</span></div>";
-        }).join("");
+        for (var i = 0; i < n; i++) {
+          var item = (Math.random() < 0.10) ? pools.RARE[Math.floor(Math.random() * pools.RARE.length)] : pick[Math.floor(Math.random() * pick.length)];
+          res.push(item);
+        }
+        document.getElementById("trResult").innerHTML = '<div class="df-loot-grid">' + res.map(function (r, i) {
+          var rare = pools.RARE.indexOf(r) > -1;
+          return '<div class="df-loot-line' + (rare ? ' rare' : '') + '"><span class="li">#' + (i + 1) + '</span><span class="lx">' + esc(r) + '</span></div>';
+        }).join("") + '</div>';
       });
     }
 
-    /* ---------------- 随机舔包 ---------------- */
+    /* ---------------- 随机舔包（接入 data.json 武器/护甲库） ---------------- */
     function lootHtml() {
       return '<div class="section-title">🥡 随机舔包生成器</div>' +
-        '<div class="tool-card"><p class="guide-intro">帮你随机生成一套撤离背包配置，作为配装思路参考。</p>' +
+        '<div class="tool-card df-tool"><p class="guide-intro">随机生成一套撤离背包配置，作为配装思路参考。武器/护甲取自本站图鉴与护甲库。</p>' +
           '<button class="btn-primary" id="loGo">帮我舔一包</button><div class="tool-result" id="loResult"></div></div>';
     }
     function lootInit(D) {
       var btn = document.getElementById("loGo"); if (!btn) return;
-      var guns = ["M4A1", "AK-12", "K416", "M7", "AS Val", "AWM", "SR-25", "MP5", "MP7", "M870", "G18", "沙漠之鹰", "P90", "M250"];
-      var armor = ["无甲", "3级 TG-H防弹衣", "4级 MK-2战术背心", "5级 重型突击背心", "6级 特里克MAS2.0装甲"];
-      var item = ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器", "护甲维修包", "工具箱", "安全箱扩容", "防弹插板", "5.56x45mm M855A1", "9x19mm PBP", "7.62x51mm M62"];
+      var o = D.getData();
+      var guns = (o.weaponCodex || []).map(function (w) { return w.name; }).filter(Boolean);
+      if (!guns.length) guns = ["M4A1", "AK-12", "K416", "M7", "AS Val", "AWM", "SR-25", "MP5", "MP7", "M870", "G18", "沙漠之鹰", "P90", "M250", "Vector"];
+      var armor = (o.armors || []).map(function (a) { return a.name; });
+      if (!armor.length) armor = ["无甲", "3级 TG-H 防弹衣", "4级 MK-2 战术背心", "5级 重型突击背心", "6级 特里克 MAS2.0 装甲"];
+      var meds = ["绷带", "弹力绷带", "急救包", "野战急救包", "止血带", "战术快拆手术包", "止疼片", "体能强化剂", "强效注射器", "护甲维修包", "工具箱"];
+      var ammo = ["5.56x45mm M855A1", "9x19mm PBP", "7.62x51mm M62", "5.45x39mm PP", "12号独头弹"];
       btn.addEventListener("click", function () {
         function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
-        var bag = [pick(guns), pick(armor), pick(item), pick(item), pick(item)];
-        document.getElementById("loResult").innerHTML = bag.map(function (b, i) {
-          return '<div class="loot-line"><span class="loot-i">槽' + (i + 1) + '</span><span class="loot-x">' + esc(b) + "</span></div>";
-        }).join("");
+        var bag = [
+          { slot: "主武器", item: pick(guns) },
+          { slot: "防具", item: pick(armor) },
+          { slot: "药品", item: pick(meds) },
+          { slot: "药品", item: pick(meds) },
+          { slot: "弹药", item: pick(ammo) }
+        ];
+        document.getElementById("loResult").innerHTML = '<div class="df-loot-grid">' + bag.map(function (b) {
+          return '<div class="df-loot-line"><span class="li">' + esc(b.slot) + '</span><span class="lx">' + esc(b.item) + '</span></div>';
+        }).join("") + '</div>';
       });
     }
 

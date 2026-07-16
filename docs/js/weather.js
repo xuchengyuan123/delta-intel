@@ -1,12 +1,9 @@
 /* 三角洲情报台 · 天气小组件（Open-Meteo，免密钥、浏览器直连、支持 CORS）
- * 用法：首页 <main> 内放 <div id="weatherCard"></div> 即可。
- * 默认城市存 localStorage(di_weather_city)，可输入城市名切换（经 Open-Meteo Geocoding）。
- */
+ * 首页 <main> 内 <div id="weatherCard"></div> 自动填充；
+ * 同时注册 window.DF.VIEWS.weather，由左侧栏「天气预报」入口进入独立页面。 */
 (function () {
   "use strict";
   var KEY = "di_weather_city";
-  var card = document.getElementById("weatherCard");
-  if (!card) return;
 
   // 注入样式（与站点 --card/--border/--accent/--text/--muted 变量一致）
   var st = document.createElement("style");
@@ -43,31 +40,35 @@
   var city = { name: "上海", lat: 31.2304, lon: 121.4737 };
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv && sv.lat) city = sv; } catch (e) {}
 
-  function render(w) {
+  function renderInto(el, w) {
+    if (!el) return;
     var m = wmo(w.weather_code);
-    card.innerHTML =
+    el.innerHTML =
+      '<div class="weather-card">' +
       '<div class="wx-top"><span class="wx-ico">' + m[0] + '</span>' +
       '<div class="wx-main"><div class="wx-temp">' + Math.round(w.temperature_2m) + '°</div>' +
       '<div class="wx-desc">' + m[1] + '</div></div>' +
-      '<div class="wx-city" id="wxCityName">' + esc(city.name) + '</div></div>' +
+      '<div class="wx-city">' + esc(city.name) + '</div></div>' +
       '<div class="wx-meta">💧 ' + Math.round(w.relative_humidity_2m) + '% · 💨 ' + Math.round(w.wind_speed_10m) + ' km/h</div>' +
-      '<div class="wx-edit"><input id="wxInput" placeholder="切换城市，如：北京 / 广州" /><button id="wxBtn">查询</button></div>';
-    var inp = card.querySelector("#wxInput");
-    var btn = card.querySelector("#wxBtn");
+      '<div class="wx-edit"><input id="wxInput" placeholder="切换城市，如：北京 / 广州" /><button id="wxBtn">查询</button></div>' +
+      '</div>';
+    var inp = el.querySelector("#wxInput");
+    var btn = el.querySelector("#wxBtn");
     function go() { var v = inp.value.trim(); if (v) geocode(v); }
     btn.onclick = go;
     inp.onkeydown = function (e) { if (e.key === "Enter") go(); };
   }
 
-  function load() {
-    card.innerHTML = '<div class="wx-loading">天气加载中…</div>';
+  function loadInto(el) {
+    if (!el) return;
+    el.innerHTML = '<div class="weather-card"><div class="wx-loading">天气加载中…</div></div>';
     var u = "https://api.open-meteo.com/v1/forecast?latitude=" + city.lat + "&longitude=" + city.lon +
       "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto";
     fetch(u).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.current) render(j.current);
-      else card.innerHTML = '<div class="wx-err">天气数据暂不可用</div>';
+      if (j && j.current) renderInto(el, j.current);
+      else el.innerHTML = '<div class="weather-card"><div class="wx-err">天气数据暂不可用</div></div>';
     }).catch(function () {
-      card.innerHTML = '<div class="wx-err">天气获取失败（可能是网络限制，可换城市重试）</div>';
+      el.innerHTML = '<div class="weather-card"><div class="wx-err">天气获取失败（可能是网络限制，可换城市重试）</div></div>';
     });
   }
 
@@ -78,14 +79,27 @@
       if (r0) {
         city = { name: r0.name, lat: r0.latitude, lon: r0.longitude };
         try { localStorage.setItem(KEY, JSON.stringify(city)); } catch (e) {}
-        load();
-      } else if (card.querySelector("#wxInput")) {
-        card.querySelector("#wxInput").value = "未找到该城市";
+        loadInto(document.getElementById("weatherCard"));
+        loadInto(document.getElementById("weatherView"));
+      } else {
+        var c = document.getElementById("wxInput"); if (c) c.value = "未找到该城市";
       }
     }).catch(function () {
-      if (card.querySelector("#wxInput")) card.querySelector("#wxInput").value = "查询失败";
+      var c = document.getElementById("wxInput"); if (c) c.value = "查询失败";
     });
   }
 
-  load();
+  // 首页自动填充
+  var homeCard = document.getElementById("weatherCard");
+  if (homeCard) loadInto(homeCard);
+
+  // 注册为左侧栏「天气预报」视图（兼容 window.DF 尚未就绪的情况）
+  function reg(D) {
+    D.VIEWS.weather = {
+      html: function () { return '<div id="weatherView"></div>'; },
+      init: function () { loadInto(document.getElementById("weatherView")); }
+    };
+  }
+  if (window.DF) reg(window.DF);
+  else (window.__df_plugins = window.__df_plugins || []).push(reg);
 })();
