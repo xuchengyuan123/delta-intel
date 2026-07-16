@@ -1391,7 +1391,7 @@
                 .catch(function () { alert("操作失败"); });
             });
           });
-        }).catch(function () { box.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败，请检查 Worker。</div>'; });
+        }).catch(function (e) { showErr(box, e, load); });
       }
       document.getElementById("teamsRefresh").addEventListener("click", load);
       load();
@@ -1586,9 +1586,7 @@
         getDataObj().then(function (d) {
           var tj = d.obj.tujian || { enabled: true, source: "https://cdn.jsdelivr.net/gh/WaterEve/DeltaForceData@main/public/json", categories: [], featured: [] };
           render(tj);
-        }).catch(function (e) {
-          c.innerHTML = '<div class="status" style="color:#ff5b5b">读取 data.json 失败：' + esc(e.message) + '</div>';
-        });
+        }).catch(function (e) { showErr(c, e, reload); });
       }
       function render(tj) {
         var catsHtml = (tj.categories || []).map(function (cat, i) {
@@ -1682,9 +1680,7 @@
                 }).catch(function (e) { alert("网络错误：" + e.message); });
             });
           });
-        }).catch(function (e) {
-          document.getElementById("devList").innerHTML = '<div class="status" style="color:#ff5b5b">加载失败：' + esc(e.message) + '</div>';
-        });
+        }).catch(function (e) { showErr(document.getElementById("devList"), e, load); });
       }
       document.getElementById("devRefresh").addEventListener("click", load);
       load();
@@ -1759,12 +1755,7 @@
         }).then(function (j) {
           if (j.error) { c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(j.error) + '</div>'; return; }
           render(j);
-        }).catch(function (e) {
-          var msg = (e && e.message) ? e.message : "加载失败，请检查 Worker 地址。";
-          c.innerHTML = '<div class="status" style="color:#ff5b5b">' + esc(msg) + '</div><div style="text-align:center;margin-top:10px"><button class="btn" id="umRetry">重新调取</button></div>';
-          var btn = document.getElementById("umRetry");
-          if (btn) btn.addEventListener("click", load);
-        });
+        }).catch(function (e) { showErr(c, e, load); });
       }
       c.innerHTML = '<div class="panel-card"><div class="um-skel" style="height:96px;margin-bottom:12px"></div><div class="um-skel" style="height:150px;margin-bottom:12px"></div><div class="um-skel" style="height:120px"></div></div>';
       function startAccessPoll() { if (window.__accessTimer) clearInterval(window.__accessTimer); window.__accessTimer = setInterval(load, 120000); load(); }
@@ -2261,7 +2252,7 @@
                 .catch(function (e) { alert("操作失败：" + (e.message || e)); });
             };
           });
-        }).catch(function () { box.innerHTML = '<div class="status err">加载失败，请确认 Token 权限。</div>'; });
+        }).catch(function (e) { showErr(box, e, loadPosts); });
     }
 
     /* ============ 特战干员图鉴管理 ============ */
@@ -3161,7 +3152,7 @@
           }).join("");
           list.querySelectorAll("[data-toggle]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-toggle"); wkFetch("/api/admin/announce/" + id, { method: "PUT", body: JSON.stringify({ active: !b.textContent.includes("启用") }) }).then(function () { load(); }); }; });
           list.querySelectorAll("[data-del]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-del"); wkFetch("/api/admin/announce/" + id, { method: "DELETE" }).then(function () { load(); }); }; });
-        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+        }).catch(function (e) { showErr(list, e, load); });
       }
       c.querySelector("#anAdd").onclick = function () {
         var msg = c.querySelector("#anMsg");
@@ -3225,7 +3216,7 @@
                 .then(function (r) { return r.json(); }).then(function () { load(); }).catch(function () {});
             };
           });
-        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+        }).catch(function (e) { showErr(list, e, load); });
       }
       load();
     }
@@ -3342,7 +3333,7 @@
       function loadGrid() {
         getDataObj().then(function (d) {
           renderGrid((d.obj.images && d.obj.images.images) || []);
-        }).catch(function () { c.querySelector('#imgGrid').innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+        }).catch(function (e) { showErr(c.querySelector('#imgGrid'), e, loadGrid); });
       }
       c.querySelector('#imgAdd').onclick = function () {
         var msg = c.querySelector('#imgMsg');
