@@ -101,6 +101,15 @@
     .fld-label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 2px; }
     .hr { border: 0; border-top: 1px dashed var(--border); margin: 16px 0; }
     .status { color: var(--muted); font-size: 13px; padding: 18px; text-align: center; }
+    /* 错误卡片（友好报错 + 重试） */
+    .err-card { display: flex; gap: 14px; align-items: flex-start; background: var(--bg-elev); border: 1px solid #ff5b5b55; border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+    .err-card .err-ico { font-size: 30px; line-height: 1; flex: 0 0 auto; }
+    .err-card .err-body { flex: 1 1 auto; min-width: 0; }
+    .err-card .err-title { font-size: 15px; font-weight: 700; color: #ff7b7b; margin-bottom: 4px; }
+    .err-card .err-detail { font-size: 13px; color: var(--text); line-height: 1.7; opacity: .92; }
+    .err-card .err-retry { margin-top: 12px; }
+    .err-card .err-retry::before { content: "🔄 "; }
+    @media (max-width: 480px) { .err-card { flex-direction: column; gap: 10px; } }
     .editor { width: 100%; min-height: 340px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 11px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; box-sizing: border-box; line-height: 1.5; resize: vertical; }
 
     /* 仪表盘 KPI */
@@ -475,6 +484,37 @@
       return fetch(apiBase() + path, opts);
     }
     function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+    /* 把底层报错翻译成中文友好提示 */
+    function friendlyMsg(err) {
+      var msg = (err && err.message) ? String(err.message) : "未知错误";
+      if (/Failed to fetch|NetworkError|网络|timeout|超时|abort/i.test(msg)) {
+        return { title: "无法连接后端服务", detail: "请检查网络是否通畅，并确认后端地址 api.delta.shopping 可正常访问。若使用了代理 / VPN，请临时关闭后重试。" };
+      }
+      if (/401|403|未授权|无权限|登录失效|token|会话/i.test(msg)) {
+        return { title: "登录已失效或没有权限", detail: "请点击右上角「退出」，然后重新以总管理员身份登录后再试。" };
+      }
+      if (/404|GitHub 读取失败|Not Found|找不到|不存在/i.test(msg)) {
+        return { title: "数据文件读取失败（404）", detail: "后端找不到 data.json。请确认：① Worker 的 GitHub 仓库配置（REPO / 分支）填写正确；② 上传包已上传到 Pages 仓库根目录（含 data.json）。重新部署 Worker 后通常需要等待 1-2 分钟生效。" };
+      }
+      if (/500|502|503|504|服务器错误|Server Error|Internal|Bad Gateway/i.test(msg)) {
+        return { title: "后端服务暂时异常", detail: "Cloudflare Worker 返回了服务器错误。请稍等片刻后点「重试」，或到 Cloudflare 控制台查看 Worker 运行日志。" };
+      }
+      if (/repo 权限|GitHub|gh_|commit/i.test(msg)) {
+        return { title: "GitHub 数据读写失败", detail: "Worker 在向 GitHub 写入时出错。请确认 GH_TOKEN 拥有该仓库的 repo 权限，且仓库名 / 分支填写正确。" };
+      }
+      return { title: "加载失败", detail: msg };
+    }
+    /* 在容器 c 内渲染友好错误卡片，并绑定重试按钮 */
+    function showErr(c, err, retryFn) {
+      if (!c) return;
+      var m = friendlyMsg(err);
+      c.innerHTML = '<div class="err-card"><div class="err-ico">⚠️</div>' +
+        '<div class="err-body"><div class="err-title">' + esc(m.title) + '</div>' +
+        '<div class="err-detail">' + esc(m.detail) + '</div>' +
+        '<button class="btn err-retry" type="button">重试</button></div></div>';
+      var btn = c.querySelector(".err-retry");
+      if (btn) btn.onclick = function () { if (retryFn) retryFn(); };
+    }
     /* 通用 SVG 柱状图（纯矢量，无外部依赖，自适应宽度）。pairs: [[label,value],...] 升序 */
     function svgBars(pairs) {
       if (!pairs || !pairs.length) return '<div class="chart-empty">暂无数据</div>';
@@ -1102,7 +1142,7 @@
               "<br><small style=\"color:var(--muted)\">" + saContactSub + " · " + r.icon + " " + esc(r.name) + "</small></div>" +
               (u.disabled ? '<span style="color:#ff5b5b">已禁用</span>' : '<span style="color:#2ecc71">正常</span>') + "</div>";
           }).join("") + "</div>";
-        }).catch(function () { list.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败</div>'; });
+        }).catch(function (e) { showErr(list, e, loadList); });
       }
 
       document.getElementById("saCreate").addEventListener("click", function () {
@@ -1860,7 +1900,7 @@
         });
         // 应用主题色预览（如果美术管理员改过）
         if (o.site && o.site.accent2) document.documentElement.style.setProperty("--accent-2", o.site.accent2);
-      }).catch(function (e) { c.innerHTML = '<div class="status" style="color:#ff5b5b">加载失败：' + esc(e.message) + "（请确认 Token 有 repo 权限）</div>"; });
+      }).catch(function (e) { showErr(c, e, function () { mountDashboard(c); }); });
     }
 
     /* ============ 赛季任务管理 ============ */
