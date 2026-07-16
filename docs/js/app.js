@@ -116,6 +116,7 @@
         { route: "maps",     label: "每日地图密码", ico: "🗺" },
         { route: "bullets",  label: "热门子弹利润", ico: "🔫" },
         { route: "materials",label: "高价格浮动材料", ico: "📈" },
+        { route: "keycard",  label: "钥匙卡补卡预测", ico: "🗝" },
       ],
     },
     {
@@ -127,6 +128,9 @@
         { route: "optasks",  label: "干员任务", ico: "🎯" },
         { route: "melee",    label: "近战武器", ico: "🗡" },
         { route: "gunrank",  label: "改枪热度榜", ico: "🔥" },
+        { route: "sens",     label: "灵敏度布局库", ico: "🎯" },
+        { route: "gunrec",   label: "个性化改枪推荐", ico: "🤖" },
+        { route: "tactic",   label: "战术预案生成", ico: "🧭" },
       ],
     },
     {
@@ -141,6 +145,8 @@
         { route: "keyrooms",    label: "钥匙房", ico: "🗝" },
         { route: "collectibles",label: "收集品价值", ico: "💎" },
         { route: "bulletpacks", label: "子弹自选包利润", ico: "📊" },
+        { route: "weaponcmp", label: "武器对比", ico: "⚔" },
+        { route: "gallery",   label: "收藏馆 / 海报", ico: "🖼" },
         { href:  "tujian.html",  label: "图鉴大全", ico: "🗂" },
       ],
     },
@@ -150,6 +156,7 @@
         { route: "items",  label: "特勤处产物推荐", ico: "🛠" },
         { route: "craft",  label: "制作树 / 科技树", ico: "🌳" },
         { route: "pricetrend", label: "价格走势图", ico: "📈" },
+        { route: "matneed",  label: "物资类型矩阵", ico: "🧮" },
       ],
     },
     {
@@ -165,6 +172,7 @@
         { route: "sim_armor", label: "护甲模拟", ico: "🛡" },
         { route: "sim_damage",label: "伤害模拟", ico: "💥" },
         { route: "analytics", label: "数据分析", ico: "📊" },
+        { route: "profit",   label: "净收益结算器", ico: "💰" },
       ],
     },
     {
@@ -187,6 +195,7 @@
         { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
         { href: "ugc.html",     label: "投稿", ico: "📝" },
         { route: "achievements", label: "成就墙 / 徽章盒", ico: "🏅" },
+        { route: "myassets", label: "我的资产", ico: "🎒" },
       ],
     },
     {

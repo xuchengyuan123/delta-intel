@@ -1953,3 +1953,128 @@ html.compact .field { margin-bottom: 8px; }
 .as-tier-num { font-variant-numeric: tabular-nums; }
 .as-tier-bar { width: 60px; height: 6px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
 .as-tier-bar i { display: block; height: 100%; background: var(--tc); }
+
+/* ===== 2026-07-16 新增功能样式（matneed/weaponcmp/sens/profit/gunrec/myassets/gallery/tactic/keycard）===== */
+.profit-down { color: #19c3a6; font-weight: 700; }   /* 中国习惯：跌=绿 */
+
+/* 通用控件 */
+.mn-f, .mn-search, .wc-sel, .tc-sel, .sens-sel,
+.pf-cost input, .pf-add input, .ma-add select, .ma-add input {
+  padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg-soft); color: var(--text); font-size: 13px;
+}
+.mn-f { cursor: pointer; background: var(--bg-elev); }
+.mn-f.active, .gr-f.active { background: var(--accent); color: #04211c; border-color: var(--accent); font-weight: 700; }
+
+/* 物资类型矩阵 matneed */
+.mn-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.mn-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.mn-search { flex: 1; min-width: 160px; }
+.mn-head, .mn-row { display: grid; grid-template-columns: 1.4fr 1fr 1.4fr 1fr 1.2fr; gap: 8px; }
+.mn-head { padding: 6px 10px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.mn-row { padding: 8px 10px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; font-size: 13px; align-items: center; }
+.mn-name { font-weight: 600; }
+.mn-cur, .mn-range { font-variant-numeric: tabular-nums; }
+.mn-time { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.mn-tip b { color: var(--accent); }
+
+/* 武器对比 weaponcmp */
+.wc-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.wc-vs { font-weight: 800; color: var(--accent); }
+.wc-cards { display: flex; gap: 12px; margin-bottom: 12px; }
+.wc-cardA, .wc-cardB { flex: 1; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.wc-cardA { border-top: 3px solid var(--accent); }
+.wc-cardB { border-top: 3px solid var(--accent-2); }
+.wc-cname { font-weight: 800; font-size: 16px; }
+.wc-ctype { color: var(--muted); font-size: 12px; }
+.wc-compare { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.wc-row { display: grid; grid-template-columns: 44px 1fr 92px 1fr 44px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.wc-track { display: flex; height: 8px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
+.wc-track.wc-right { justify-content: flex-end; }
+.wc-barA { height: 100%; background: var(--accent); border-radius: 999px; }
+.wc-barB { height: 100%; background: var(--accent-2); border-radius: 999px; }
+.wc-valA, .wc-valB { font-variant-numeric: tabular-nums; font-weight: 700; text-align: center; }
+.wc-label { font-size: 12px; color: var(--muted); text-align: center; }
+
+/* 灵敏度库 sens */
+.sens-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+#sensBody { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.sens-col-h { font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+.sens-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.sens-name { font-weight: 700; font-size: 15px; }
+.sens-device { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+.sens-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sens-grid > div { background: var(--bg-soft); border-radius: 8px; padding: 6px 8px; }
+.sens-grid span { display: block; font-size: 11px; color: var(--muted); }
+.sens-grid b { font-size: 15px; }
+.sens-remark { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.sens-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.sens-code { font-size: 11px; background: var(--bg-soft); padding: 4px 8px; border-radius: 8px; color: var(--accent-2); }
+
+/* 净收益结算器 profit */
+.pf-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.pf-cost { margin-bottom: 10px; }
+.pf-cost label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.pf-add { display: flex; gap: 8px; flex-wrap: wrap; }
+.pf-add input { flex: 1; min-width: 100px; }
+.pf-list { margin: 12px 0; }
+.pf-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--bg-soft); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+.pf-i-name { font-weight: 600; flex: 1; }
+.pf-i-sub { color: var(--muted); font-size: 12px; }
+.pf-sum { margin-top: 8px; }
+.pf-line { padding: 4px 0; font-size: 14px; }
+.pf-net { font-size: 16px; font-weight: 800; }
+.pf-actions { display: flex; gap: 8px; margin-top: 8px; }
+.pf-history { margin-top: 8px; }
+.pf-h-title { font-weight: 700; margin-bottom: 8px; }
+.pf-h-item { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+.pf-h-top { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.pf-h-sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+/* 改枪推荐 gunrec（复用 gr-*，补充评分条） */
+.gr-scorebar { height: 6px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+.gr-scorefill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.gr-scoretxt { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* 我的资产 myassets */
+.ma-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.ma-add { display: flex; gap: 8px; flex-wrap: wrap; }
+.ma-add select, .ma-add input { flex: 1; min-width: 90px; }
+.ma-total { font-size: 16px; margin-bottom: 12px; }
+.ma-total b { color: var(--accent); }
+.ma-cat { margin-bottom: 14px; }
+.ma-cat-h { font-weight: 700; margin-bottom: 6px; }
+.ma-cat-sub { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 6px; }
+.ma-list { display: flex; flex-direction: column; gap: 6px; }
+.ma-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--bg-soft); border-radius: 8px; font-size: 13px; }
+.ma-i-name { flex: 1; font-weight: 600; }
+.ma-i-sub { color: var(--muted); font-size: 12px; }
+
+/* 收藏馆 gallery */
+.gl-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.gl-prog { flex: 1; min-width: 120px; height: 10px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
+.gl-prog-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s; }
+.gl-prog-txt { font-size: 13px; color: var(--muted); }
+.gl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.gl-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 10px; cursor: pointer; transition: transform .1s; }
+.gl-card:hover { transform: translateY(-2px); }
+.gl-card.gl-has { border-color: var(--accent-2); box-shadow: 0 0 0 1px var(--accent-2) inset; }
+.gl-top { font-size: 18px; }
+.gl-name { font-weight: 700; font-size: 13px; margin: 4px 0; }
+.gl-val { font-size: 12px; color: var(--accent); }
+.gl-tip { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* 战术预案 tactic */
+.tc-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.tc-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.tc-h { font-weight: 800; font-size: 16px; margin-bottom: 10px; }
+.tc-sec { margin-bottom: 10px; }
+.tc-k { display: block; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.tc-sec p { margin: 0; font-size: 13px; line-height: 1.6; }
+
+/* 钥匙卡预测 keycard */
+.kc-note { display: inline-block; margin-bottom: 12px; }
+.kc-list { display: flex; flex-direction: column; gap: 8px; }
+.kc-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; }
+.kc-time { font-weight: 700; }
+.kc-count { font-size: 13px; }
