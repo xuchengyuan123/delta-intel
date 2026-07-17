@@ -4389,32 +4389,7 @@
     }
   ],
   "live": [],
-  "videos": [
-    {
-      "platform": "B站",
-      "title": "S10 最强改枪方案合集（示例）",
-      "author": "枪械研究室",
-      "duration": "12:30",
-      "thumb": "",
-      "url": ""
-    },
-    {
-      "platform": "B站",
-      "title": "新手避坑指南：这些物资别乱卖（示例）",
-      "author": "老六课堂",
-      "duration": "08:15",
-      "thumb": "",
-      "url": ""
-    },
-    {
-      "platform": "YouTube",
-      "title": "Top 10 Loadouts S10（示例）",
-      "author": "DeltaPros",
-      "duration": "15:02",
-      "thumb": "",
-      "url": ""
-    }
-  ],
+  "videos": [],
   "changelog": [
     {
       "date": "2026-07-17",
