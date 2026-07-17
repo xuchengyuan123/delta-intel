@@ -1089,7 +1089,7 @@
   /* ---------- Service Worker 注册（保留更新提示，移除安装横幅）---------- */
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=51").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=52").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
