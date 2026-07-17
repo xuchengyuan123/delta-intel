@@ -41,7 +41,19 @@
     ".wx-edit{display:flex;gap:8px;}" +
     ".wx-edit input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);}" +
     ".wx-edit button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}" +
-    ".wx-loading,.wx-err{padding:8px 0;color:var(--muted);font-size:13px;}";
+    ".wx-loading,.wx-err{padding:8px 0;color:var(--muted);font-size:13px;}" +
+    ".wx-mini{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:0 0 16px;display:flex;flex-direction:column;gap:8px;}" +
+    ".wx-mini .wx-top{display:flex;align-items:center;gap:12px;}" +
+    ".wx-mini .wx-ico{font-size:34px;line-height:1;}" +
+    ".wx-mini .wx-main{display:flex;flex-direction:column;}" +
+    ".wx-mini .wx-temp{font-size:26px;font-weight:800;line-height:1;}" +
+    ".wx-mini .wx-desc{font-size:13px;color:var(--muted);}" +
+    ".wx-mini .wx-city{margin-left:auto;font-size:13px;color:var(--accent);font-weight:600;}" +
+    ".wx-mini .wx-meta{font-size:12px;color:var(--muted);}" +
+    ".wx-mini .wx-edit{display:flex;gap:8px;}" +
+    ".wx-mini .wx-edit input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);}" +
+    ".wx-mini .wx-edit button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}" +
+    ".wx-mini .wx-loading,.wx-mini .wx-err{padding:8px 0;color:var(--muted);font-size:13px;}";
   document.head.appendChild(st);
 
   var WMO = {
@@ -155,6 +167,28 @@
     inp.onkeydown = function (e) { if (e.key === "Enter") go(); };
   }
 
+  // 首页精简卡（只显示当前概况，不占大空间）
+  function renderCompact(el, j) {
+    if (!el || !j || !j.current) return;
+    var c = j.current;
+    var m = wmo(c.weather_code);
+    el.innerHTML =
+      '<div class="wx-mini">' +
+      '<div class="wx-top"><span class="wx-ico">' + m[0] + '</span>' +
+      '<div class="wx-main"><div class="wx-temp">' + Math.round(c.temperature_2m) + '°</div>' +
+      '<div class="wx-desc">' + m[1] + '</div></div>' +
+      '<div class="wx-city">' + esc(city.name) + '</div></div>' +
+      '<div class="wx-meta">💧 ' + Math.round(c.relative_humidity_2m) + '% · 💨 ' + Math.round(c.wind_speed_10m) + ' km/h · 体感 ' +
+      (c.apparent_temperature != null ? Math.round(c.apparent_temperature) + '°' : '—') + '</div>' +
+      '<div class="wx-edit"><input id="wxInput" placeholder="切换城市，如：北京 / 广州" /><button id="wxBtn">查询</button></div>' +
+      '</div>';
+    var inp = el.querySelector("#wxInput");
+    var btn = el.querySelector("#wxBtn");
+    function go() { var v = inp.value.trim(); if (v) geocode(v); }
+    btn.onclick = go;
+    inp.onkeydown = function (e) { if (e.key === "Enter") go(); };
+  }
+
   function loadInto(el) {
     if (!el) return;
     el.innerHTML = '<div class="weather-wrap"><div class="wx-loading">天气加载中…</div></div>';
@@ -164,10 +198,14 @@
       "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
       "&timezone=auto&forecast_days=7";
     fetch(u).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.current) renderInto(el, j);
-      else el.innerHTML = '<div class="weather-wrap"><div class="wx-err">天气数据暂不可用</div></div>';
+      if (j && j.current) {
+        if (el.id === "weatherCard") renderCompact(el, j);
+        else renderInto(el, j);
+      } else {
+        el.innerHTML = '<div class="' + (el.id === "weatherCard" ? "wx-mini" : "weather-wrap") + '"><div class="wx-err">天气数据暂不可用</div></div>';
+      }
     }).catch(function () {
-      el.innerHTML = '<div class="weather-wrap"><div class="wx-err">天气获取失败（可能是网络限制，可换城市重试）</div></div>';
+      el.innerHTML = '<div class="' + (el.id === "weatherCard" ? "wx-mini" : "weather-wrap") + '"><div class="wx-err">天气获取失败（可能是网络限制，可换城市重试）</div></div>';
     });
   }
 
