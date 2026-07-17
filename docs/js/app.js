@@ -20,11 +20,22 @@
     }
   });
 
-  // 统一取数：本站在 GitHub Pages 纯静态托管，直接读同源 data.json（相对路径，自动适配子目录 /delta-intel/）。
-  // 不再探测 /api/data（那是 Cloudflare Worker 场景才需要的，纯静态下只会 404 浪费一次请求）。
+  // 统一取数：v55.5 起优先从 Worker + D1 读（GET /api/data），彻底规避根域 data.json 404；
+  // 失败（D1 未绑定 / Worker 不可达）时回退同源静态 data.json（兼容未部署 D1 或子目录托管）。
   function fetchData() {
-    return fetch("data.json?_=" + Date.now())
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+    var api = "https://api.delta.shopping";
+    try { if (DATA && DATA.site && DATA.site.apiBase) api = DATA.site.apiBase; } catch (e) {}
+    api = api.replace(/\/$/, "");
+    return fetch(api + "/api/data")
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .catch(function () {
+        // 回退：同源静态 data.json（相对路径自动适配 /delta-intel/ 子目录）
+        return fetch("data.json?_=" + Date.now())
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+      });
   }
 
   /* ---------- 赞助弹窗与更新日志 ---------- */

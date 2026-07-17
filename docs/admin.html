@@ -329,6 +329,7 @@
       </div>
       <div class="at-right">
         <span class="who" id="who">未登录</span>
+        <button class="btn ghost sm" id="syncD1Btn" title="把 GitHub 上的 data.json 同步进 D1 数据库（绑定 D1 后首次必点）">🔄 同步到 D1</button>
         <button class="btn ghost sm" id="logoutBtn">退出</button>
         <a class="btn ghost sm" href="index.html">首页</a>
       </div>
@@ -1004,6 +1005,39 @@
       clearToken();
       location.reload();
     });
+
+    /* 同步到 D1：把 GitHub 现有 data.json 一次性导入 D1（v55.5 数据层迁移） */
+    try {
+      var syncD1Btn = document.getElementById("syncD1Btn");
+      if (syncD1Btn) syncD1Btn.addEventListener("click", function () {
+        if (adminMode() !== "worker") {
+          alert("请先以总管理员身份登录（Worker 模式）才能同步到 D1。");
+          return;
+        }
+        if (!confirm("将把 GitHub 仓库中的 data.json 同步（覆盖）进 D1 数据库。\n确定继续？")) return;
+        syncD1Btn.disabled = true;
+        var oldTxt = syncD1Btn.textContent;
+        syncD1Btn.textContent = "同步中…";
+        wkFetch("/api/admin/migrate", { method: "POST", body: JSON.stringify({}) })
+          .then(function (r) {
+            return r.json().catch(function () { throw new Error("HTTP " + r.status); }).then(function (j) {
+              if (j.error || !r.ok) throw new Error(j.error || ("HTTP " + r.status));
+              return j;
+            });
+          })
+          .then(function (j) {
+            alert("✅ 已同步到 D1 数据库（" + (j.bytes || 0) + " 字节）。\n现在前台会从 D1 读取数据，根域 404 问题已解决。");
+          })
+          .catch(function (e) {
+            var m = (e && e.message) ? e.message : String(e);
+            if (/Failed to fetch|NetworkError/i.test(m)) m = "无法连接后端 Worker（api.delta.shopping），请确认 Worker 已部署且可访问";
+            else if (/401|403|未登录|登录失效/i.test(m)) m = "登录已失效，请点右上角「退出」后重新以总管理员身份登录";
+            else if (/未绑定 D1|DB/i.test(m)) m = "Worker 尚未绑定 D1 数据库（绑定变量名 DB）。请先在 Cloudflare 控制台创建 D1 并绑定到 Worker。";
+            alert("同步失败：" + m);
+          })
+          .finally(function () { syncD1Btn.disabled = false; syncD1Btn.textContent = oldTxt; });
+      });
+    } catch (e) {}
 
     /* 移动端抽屉：汉堡按钮开合侧边栏，点遮罩收起 */
     try {
