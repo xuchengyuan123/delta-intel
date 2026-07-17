@@ -108,6 +108,17 @@
   function messages(withId) { return api("/api/messages?with=" + encodeURIComponent(withId), { method: "GET" }); }
   function sendMessage(to, text) { return api("/api/messages", { method: "POST", body: JSON.stringify({ to: to, text: text }) }); }
   function uploadAvatar(dataUrl) { return api("/api/user/avatar", { method: "PUT", body: JSON.stringify({ image: dataUrl }) }); }
+  /* ===== 好友群聊 ===== */
+  function myGroups() { return api("/api/groups/mine", { method: "GET" }); }
+  function createGroup(name, members) { return api("/api/groups", { method: "POST", body: JSON.stringify({ name: name, members: members || [] }) }); }
+  function groupInfo(id) { return api("/api/groups/" + encodeURIComponent(id), { method: "GET" }); }
+  function groupChat(id) { return api("/api/groups/" + encodeURIComponent(id) + "/chat", { method: "GET" }); }
+  function sendGroupMessage(id, text) { return api("/api/groups/" + encodeURIComponent(id) + "/chat", { method: "POST", body: JSON.stringify({ text: text }) }); }
+  function groupAdd(id, email) { return api("/api/groups/" + encodeURIComponent(id) + "/add", { method: "POST", body: JSON.stringify({ email: email }) }); }
+  function groupLeave(id) { return api("/api/groups/" + encodeURIComponent(id) + "/leave", { method: "POST" }); }
+  /* ===== 战队群聊 ===== */
+  function teamChat(id) { return api("/api/teams/" + encodeURIComponent(id) + "/chat", { method: "GET" }); }
+  function sendTeamMessage(id, text) { return api("/api/teams/" + encodeURIComponent(id) + "/chat", { method: "POST", body: JSON.stringify({ text: text }) }); }
   function poll(fn, ms) { if (typeof fn !== "function") return null; var t = setInterval(fn, ms || 20000); fn(); return t; }
 
   window.DeltaCommon = {
@@ -115,7 +126,10 @@
     esc: esc, fmt: fmt, renderAnnouncements: renderAnnouncements, mountComments: mountComments,
     me: me, friends: friends, friendSearch: friendSearch, friendRequest: friendRequest,
     friendRespond: friendRespond, friendRemove: friendRemove, messages: messages,
-    sendMessage: sendMessage, uploadAvatar: uploadAvatar, poll: poll
+    sendMessage: sendMessage, uploadAvatar: uploadAvatar,
+    myGroups: myGroups, createGroup: createGroup, groupInfo: groupInfo, groupChat: groupChat,
+    sendGroupMessage: sendGroupMessage, groupAdd: groupAdd, groupLeave: groupLeave,
+    teamChat: teamChat, sendTeamMessage: sendTeamMessage, poll: poll
   };
 
   // 页面加载后自动渲染公告横幅

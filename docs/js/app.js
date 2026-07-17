@@ -98,7 +98,6 @@
         { href: "guns-calc.html", label: "武器改装计算器", ico: "🔧" },
         { href: "guns.html",      label: "改枪码大全",     ico: "🔫" },
         { href: "kzb.html",       label: "智能卡战备",     ico: "🎴" },
-        { href: "team.html",      label: "战队 / 公会",    ico: "⚔" },
         { href: "news.html",      label: "资讯中心",       ico: "📰" },
         { href: "zhanji.html",    label: "战绩查询",       ico: "📊" },
         { href: "forum.html",     label: "战友论坛",       ico: "💬" },
@@ -192,7 +191,6 @@
     {
       group: "个人", collapsed: true, items: [
         { href: "profile.html", label: "我的主页", ico: "👤" },
-        { href: "friends.html", label: "好友", ico: "🧑‍🤝‍🧑" },
         { href: "ugc.html",     label: "投稿", ico: "📝" },
         { route: "achievements", label: "成就墙 / 徽章盒", ico: "🏅" },
         { route: "myassets", label: "我的资产", ico: "🎒" },
@@ -1104,7 +1102,7 @@
       }).catch(function () {});
       // 合并工作台生成的导航项（data.json.menu 中的 _wb 项）到侧栏
       try {
-        fetch("data.json").then(function (r) { return r.json(); }).then(function (data) {
+        fetch("data.json?_=" + Date.now()).then(function (r) { return r.json(); }).then(function (data) {
           if (data && Array.isArray(data.menu) && data.menu.length) {
             var items = data.menu.map(function (it) {
               return { route: it.route || "", ico: it.ico || "📦", label: it.label || it.route || "未命名", href: it.href || "" };

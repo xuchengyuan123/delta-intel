@@ -33,7 +33,9 @@
     .panel h2 {
       font-size: 15px; margin: 0 0 10px; color: var(--muted);
       text-transform: none; letter-spacing: .3px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
+    .panel h2 .mini { font-size: 12px; font-weight: 600; }
 
     /* 加好友搜索 */
     .add-row { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -51,12 +53,13 @@
     .btn.sm { padding: 4px 10px; font-size: 12px; }
     .btn.danger:hover { color: #ff5a5a; }
 
-    .search-results, .incoming-list, .friend-list { display: flex; flex-direction: column; gap: 6px; }
+    .search-results, .incoming-list, .friend-list, .group-list { display: flex; flex-direction: column; gap: 6px; }
     .row {
       display: flex; align-items: center; gap: 10px;
       padding: 8px; border-radius: 10px; background: var(--bg);
-      border: 1px solid transparent;
+      border: 1px solid transparent; cursor: pointer;
     }
+    .row:hover { border-color: var(--border); }
     .row.active { border-color: var(--accent); }
     .row .avatar {
       width: 38px; height: 38px; border-radius: 50%; flex: none;
@@ -64,6 +67,7 @@
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); font-weight: 600; font-size: 14px; overflow: hidden;
     }
+    .row .avatar.grp { border-radius: 10px; font-size: 18px; }
     .row .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .row .meta { flex: 1; min-width: 0; }
     .row .name { font-size: 14px; font-weight: 600; }
@@ -76,6 +80,16 @@
 
     .section + .section { margin-top: 16px; }
 
+    /* 建群表单 */
+    .create-group { margin-top: 10px; display: none; }
+    .create-group.show { display: block; }
+    .create-group input, .create-group textarea {
+      width: 100%; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text);
+      font-size: 14px; font-family: inherit; margin-bottom: 8px; resize: vertical;
+    }
+    .create-group .btn-row { display: flex; gap: 8px; }
+
     /* 聊天区 */
     .chat-panel { display: flex; flex-direction: column; min-height: 480px; }
     .chat-head { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
@@ -85,12 +99,14 @@
       flex-direction: column; gap: 10px; min-height: 280px;
     }
     .bubble { max-width: 72%; padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-break: break-word; }
+    .bubble .sender { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
     .bubble .time { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
     .msg.them { align-self: flex-start; }
     .msg.them .bubble { background: var(--bg-soft, #1f242d); border: 1px solid var(--border); }
     .msg.me { align-self: flex-end; }
     .msg.me .bubble { background: var(--accent); color: #1a1300; }
     .msg.me .bubble .time { color: #5a4a00; }
+    .msg.me .bubble .sender { color: #5a4a00; }
     .chat-input { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 8px; }
     .chat-input input {
       flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
@@ -122,7 +138,7 @@
 
     <!-- 已登录主体 -->
     <div id="mainUI" class="friends-grid" style="display:none">
-      <!-- 左侧：好友 + 加好友 + 请求 -->
+      <!-- 左侧：好友 + 加好友 + 请求 + 群聊 -->
       <div class="left-col">
         <div class="panel section">
           <h2 data-i18n="add_friend" data-i18n-zh="添加好友">添加好友</h2>
@@ -143,17 +159,37 @@
           <h2 data-i18n="friends_title" data-i18n-zh="好友列表">好友列表</h2>
           <div class="friend-list" id="friendList"></div>
         </div>
+
+        <!-- 群聊 -->
+        <div class="panel section">
+          <h2>
+            <span>💬 我的群聊</span>
+            <button class="btn sm primary mini" id="newGroupBtn">＋ 新建群聊</button>
+          </h2>
+          <div class="group-list" id="groupList"></div>
+          <!-- 建群表单 -->
+          <div class="create-group" id="createGroupPanel">
+            <input id="groupNameInput" type="text" maxlength="30" placeholder="群名（1–30 字）">
+            <textarea id="groupMembersInput" rows="3" placeholder="邀请成员账号（邮箱），多个用逗号或换行分隔；留空则仅自己"></textarea>
+            <div class="btn-row">
+              <button class="btn primary sm" id="groupCreateSubmit">创建</button>
+              <button class="btn sm" id="groupCreateCancel">取消</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 右侧：私聊 -->
+      <!-- 右侧：聊天（好友私聊 / 群聊） -->
       <div class="panel chat-panel">
-        <div id="chatEmpty" class="chat-empty">选择一个好友开始聊天 💬</div>
+        <div id="chatEmpty" class="chat-empty">选择一个好友或群聊开始聊天 💬</div>
         <div id="chatView" style="display:none;flex:1;flex-direction:column;min-height:0">
           <div class="chat-head">
             <span id="chatAvatarWrap"></span>
             <span class="name" id="chatName"></span>
             <span class="dot off" id="chatDot"></span>
-            <button class="btn sm danger" id="removeBtn" style="margin-left:auto">移除</button>
+            <button class="btn sm" id="grpAddBtn" style="margin-left:auto;display:none">＋ 成员</button>
+            <button class="btn sm danger" id="grpLeaveBtn" style="display:none">退群</button>
+            <button class="btn sm danger" id="removeBtn" style="margin-left:auto;display:none">移除</button>
           </div>
           <div class="chat-body" id="chatBody"></div>
           <div class="chat-input">
@@ -186,6 +222,13 @@
         searchResults: document.getElementById("searchResults"),
         incomingList: document.getElementById("incomingList"),
         friendList: document.getElementById("friendList"),
+        groupList: document.getElementById("groupList"),
+        newGroupBtn: document.getElementById("newGroupBtn"),
+        createGroupPanel: document.getElementById("createGroupPanel"),
+        groupNameInput: document.getElementById("groupNameInput"),
+        groupMembersInput: document.getElementById("groupMembersInput"),
+        groupCreateSubmit: document.getElementById("groupCreateSubmit"),
+        groupCreateCancel: document.getElementById("groupCreateCancel"),
         chatEmpty: document.getElementById("chatEmpty"),
         chatView: document.getElementById("chatView"),
         chatAvatarWrap: document.getElementById("chatAvatarWrap"),
@@ -194,18 +237,31 @@
         chatBody: document.getElementById("chatBody"),
         msgInput: document.getElementById("msgInput"),
         sendBtn: document.getElementById("sendBtn"),
-        removeBtn: document.getElementById("removeBtn")
+        removeBtn: document.getElementById("removeBtn"),
+        grpAddBtn: document.getElementById("grpAddBtn"),
+        grpLeaveBtn: document.getElementById("grpLeaveBtn")
       };
 
       var myId = D.getId();
-      var activeId = null;       // 当前打开聊天的好友 id
+      var activeKind = null;     // 'friend' | 'group'
+      var activeId = null;       // 好友 id 或 群 id
       var activeName = "";
+      var activeRole = "";       // 群角色：owner / member
       var friendsCache = [];     // 最近一次拉取的好友列表
+      var groupsCache = [];      // 最近一次拉取的群列表
 
       function avatarHtml(av, name) {
         if (av) return '<span class="avatar"><img src="' + D.esc(av) + '" alt=""></span>';
         var ch = (name || "?").slice(0, 1);
         return '<span class="avatar">' + D.esc(ch) + '</span>';
+      }
+      function maskEmail(e) {
+        if (!e) return "未知战友";
+        var at = e.indexOf("@");
+        if (at < 0) return e;
+        var name = e.slice(0, at), dom = e.slice(at);
+        if (name.length <= 1) return "*" + dom;
+        return name.slice(0, 2) + "***" + dom;
       }
 
       // 渲染好友列表（由 poll 周期性调用，不触碰聊天区）
@@ -222,7 +278,7 @@
               var dotCls = f.online ? "on" : "off";
               var sub = f.online ? '<span data-i18n="online" data-i18n-zh="在线">在线</span>'
                                  : ('<span data-i18n="offline" data-i18n-zh="离线">离线</span> · ' + D.fmt(f.lastSeen));
-              return '<div class="row' + (f.id === activeId ? ' active' : '') + '" data-id="' + D.esc(f.id) + '">' +
+              return '<div class="row' + (activeKind === "friend" && f.id === activeId ? ' active' : '') + '" data-id="' + D.esc(f.id) + '">' +
                 avatarHtml(f.avatar, f.name) +
                 '<div class="meta"><div class="name">' + D.esc(f.name) + '</div>' +
                 '<div class="sub">' + sub + '</div></div>' +
@@ -259,11 +315,33 @@
           }
 
           // 同步聊天头部在线点（不打断聊天内容）
-          if (activeId) {
+          if (activeKind === "friend" && activeId) {
             var af = friendsCache.filter(function (f) { return f.id === activeId; })[0];
             if (af) el.chatDot.className = "dot " + (af.online ? "on" : "off");
           }
         }).catch(function (e) { /* 静默，等待下次 poll */ });
+      }
+
+      // 渲染群聊列表
+      function renderGroups() {
+        D.myGroups().then(function (j) {
+          groupsCache = j.groups || [];
+          if (!groupsCache.length) {
+            el.groupList.innerHTML = '<div class="empty">还没有群聊，点右上「＋ 新建群聊」拉个战友群～</div>';
+            return;
+          }
+          el.groupList.innerHTML = groupsCache.map(function (g) {
+            var roleTxt = g.owner === myId.toLowerCase() ? "群主" : "成员";
+            return '<div class="row' + (activeKind === "group" && g.id === activeId ? ' active' : '') + '" data-gid="' + D.esc(g.id) + '">' +
+              '<span class="avatar grp">💬</span>' +
+              '<div class="meta"><div class="name">' + D.esc(g.name) + '</div>' +
+              '<div class="sub">' + (g.members ? g.members.length : 0) + ' 人 · ' + D.esc(roleTxt) + '</div></div>' +
+              '</div>';
+          }).join("");
+          el.groupList.querySelectorAll(".row").forEach(function (r) {
+            r.addEventListener("click", function () { openGroup(r.getAttribute("data-gid")); });
+          });
+        }).catch(function (e) { /* 静默 */ });
       }
 
       // 搜索用户
@@ -302,45 +380,84 @@
       function openChat(id) {
         var f = (friendsCache || []).filter(function (x) { return x.id === id; })[0];
         if (!f) return;
-        activeId = id; activeName = f.name;
-        el.chatEmpty.style.display = "none";
-        el.chatView.style.display = "flex";
+        activeKind = "friend"; activeId = id; activeName = f.name; activeRole = "";
+        showChatUI();
         el.chatAvatarWrap.innerHTML = avatarHtml(f.avatar, f.name);
         el.chatName.textContent = f.name;
+        el.chatDot.style.display = "";
         el.chatDot.className = "dot " + (f.online ? "on" : "off");
+        el.removeBtn.style.display = "";
+        el.grpAddBtn.style.display = "none";
+        el.grpLeaveBtn.style.display = "none";
         el.msgInput.value = "";
         loadMessages();
-        // 更新列表高亮
+        syncListHighlight();
+      }
+
+      // 打开群聊
+      function openGroup(gid) {
+        var g = (groupsCache || []).filter(function (x) { return x.id === gid; })[0];
+        if (!g) return;
+        activeKind = "group"; activeId = gid; activeName = g.name;
+        activeRole = (g.owner && g.owner.toLowerCase() === myId.toLowerCase()) ? "owner" : "member";
+        showChatUI();
+        el.chatAvatarWrap.innerHTML = '<span class="avatar grp">💬</span>';
+        el.chatName.textContent = g.name;
+        el.chatDot.style.display = "none";
+        el.removeBtn.style.display = "none";
+        el.grpAddBtn.style.display = (activeRole === "owner") ? "" : "none";
+        el.grpLeaveBtn.style.display = "";
+        el.msgInput.value = "";
+        loadMessages();
+        syncListHighlight();
+      }
+
+      function showChatUI() {
+        el.chatEmpty.style.display = "none";
+        el.chatView.style.display = "flex";
+      }
+      function syncListHighlight() {
         el.friendList.querySelectorAll(".row").forEach(function (r) {
-          r.classList.toggle("active", r.getAttribute("data-id") === id);
+          r.classList.toggle("active", activeKind === "friend" && r.getAttribute("data-id") === activeId);
+        });
+        el.groupList.querySelectorAll(".row").forEach(function (r) {
+          r.classList.toggle("active", activeKind === "group" && r.getAttribute("data-gid") === activeId);
         });
       }
 
-      // 拉取消息
+      // 拉取消息（好友 / 群聊 分支）
       function loadMessages() {
         if (!activeId) return;
-        D.messages(activeId).then(function (j) {
+        var req = (activeKind === "group") ? D.groupChat(activeId) : D.messages(activeId);
+        req.then(function (j) {
           var msgs = j.messages || [];
           if (!msgs.length) {
             el.chatBody.innerHTML = '<div class="empty" style="align-self:center;margin:auto">还没有消息，打个招呼吧 👋</div>';
             return;
           }
           el.chatBody.innerHTML = msgs.map(function (m) {
-            var me = (m.from === myId);
+            var me = (m.from === myId.toLowerCase());
+            var sender = "";
+            if (activeKind === "group" && !me) {
+              sender = '<span class="sender">' + D.esc(maskEmail(m.name || m.from)) + '</span>';
+            }
             return '<div class="msg ' + (me ? "me" : "them") + '">' +
-              '<div class="bubble">' + D.esc(m.text) +
+              '<div class="bubble">' + sender + D.esc(m.text) +
               '<span class="time">' + D.fmt(m.ts) + '</span></div></div>';
           }).join("");
           el.chatBody.scrollTop = el.chatBody.scrollHeight;
         }).catch(function (e) { el.chatBody.innerHTML = '<div class="empty">消息加载失败</div>'; });
       }
 
-      // 发送消息
+      // 发送消息（好友 / 群聊 分支）
       function send() {
         var text = (el.msgInput.value || "").trim();
         if (!text || !activeId) return;
         el.sendBtn.disabled = true;
-        D.sendMessage(activeId, text).then(function () {
+        var req = (activeKind === "group")
+          ? D.sendGroupMessage(activeId, text)
+          : D.sendMessage(activeId, text);
+        req.then(function () {
           el.msgInput.value = "";
           loadMessages();
         }).catch(function (e) { alert(e.message || "发送失败"); })
@@ -352,11 +469,56 @@
         if (!activeId) return;
         if (!confirm("确定移除好友 " + (activeName || "") + " ？")) return;
         D.friendRemove(activeId).then(function () {
-          activeId = null; activeName = "";
-          el.chatView.style.display = "none";
-          el.chatEmpty.style.display = "flex";
+          resetChat();
           renderFriends();
         }).catch(function (e) { alert(e.message || "移除失败"); });
+      }
+
+      // 退群
+      function leaveGroup() {
+        if (!activeId) return;
+        if (!confirm("确定退出群聊「" + (activeName || "") + "」？")) return;
+        D.groupLeave(activeId).then(function () {
+          resetChat();
+          renderGroups();
+        }).catch(function (e) { alert(e.message || "退群失败"); });
+      }
+
+      // 群主添加成员
+      function addMember() {
+        if (!activeId) return;
+        var email = prompt("输入要邀请的成员账号（邮箱）：");
+        if (!email) return;
+        email = email.trim();
+        D.groupAdd(activeId, email).then(function () {
+          loadMessages();
+          renderGroups();
+        }).catch(function (e) { alert(e.message || "添加失败"); });
+      }
+
+      // 新建群聊
+      function toggleCreateGroup() {
+        var show = !el.createGroupPanel.classList.contains("show");
+        el.createGroupPanel.classList.toggle("show", show);
+        if (show) { el.groupNameInput.value = ""; el.groupMembersInput.value = ""; el.groupNameInput.focus(); }
+      }
+      function submitCreateGroup() {
+        var name = el.groupNameInput.value.trim();
+        if (!name) { alert("请填写群名"); return; }
+        var members = el.groupMembersInput.value.split(/[\n,，;；]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+        el.groupCreateSubmit.disabled = true;
+        D.createGroup(name, members).then(function (j) {
+          el.createGroupPanel.classList.remove("show");
+          renderGroups();
+          if (j && j.group) openGroup(j.group.id);
+        }).catch(function (e) { alert(e.message || "创建失败"); })
+          .then(function () { el.groupCreateSubmit.disabled = false; });
+      }
+
+      function resetChat() {
+        activeKind = null; activeId = null; activeName = ""; activeRole = "";
+        el.chatView.style.display = "none";
+        el.chatEmpty.style.display = "flex";
       }
 
       // 事件绑定
@@ -365,9 +527,15 @@
       el.sendBtn.addEventListener("click", send);
       el.msgInput.addEventListener("keydown", function (e) { if (e.key === "Enter") send(); });
       el.removeBtn.addEventListener("click", removeFriend);
+      el.grpLeaveBtn.addEventListener("click", leaveGroup);
+      el.grpAddBtn.addEventListener("click", addMember);
+      el.newGroupBtn.addEventListener("click", toggleCreateGroup);
+      el.groupCreateSubmit.addEventListener("click", submitCreateGroup);
+      el.groupCreateCancel.addEventListener("click", toggleCreateGroup);
 
       // 首次加载
       renderFriends();
+      renderGroups();
 
       // 保持自己在线（刷新 me 状态），5 分钟一次，切后台暂停
       function startMePoll() { if (window.__meTimer) clearInterval(window.__meTimer); window.__meTimer = setInterval(function () { D.me().catch(function () {}); }, 300000); D.me().catch(function () {}); }
@@ -375,11 +543,16 @@
       document.addEventListener("visibilitychange", function () { if (document.hidden) stopMePoll(); else startMePoll(); });
       startMePoll();
 
-      // 在线刷新：周期性更新好友列表，1 分钟一次，切后台暂停
-      function startFriendsPoll() { if (window.__friendsTimer) clearInterval(window.__friendsTimer); window.__friendsTimer = setInterval(function () { renderFriends(); }, 60000); renderFriends(); }
+      // 在线刷新：周期性更新好友列表与群列表，1 分钟一次，切后台暂停
+      function startFriendsPoll() { if (window.__friendsTimer) clearInterval(window.__friendsTimer); window.__friendsTimer = setInterval(function () { renderFriends(); renderGroups(); }, 60000); renderFriends(); renderGroups(); }
       function stopFriendsPoll() { if (window.__friendsTimer) { clearInterval(window.__friendsTimer); window.__friendsTimer = null; } }
       document.addEventListener("visibilitychange", function () { if (document.hidden) stopFriendsPoll(); else startFriendsPoll(); });
       startFriendsPoll();
+
+      // 群消息轮询：当前打开群聊时每 8 秒刷新一次
+      setInterval(function () {
+        if (activeKind === "group" && activeId && !document.hidden) loadMessages();
+      }, 8000);
     })();
   </script>
 <script src="js/checkin.js?v=49"></script>

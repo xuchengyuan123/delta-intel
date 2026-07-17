@@ -42,7 +42,10 @@
     ".alerts-modal .ac-empty{padding:6px 2px;color:var(--muted);font-size:13px;}" +
     ".ac-view{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}" +
     ".ac-view .ac-sec h3{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}" +
-    ".ac-view .ac-body{display:flex;flex-direction:column;gap:8px;}";
+    ".ac-view .ac-body{display:flex;flex-direction:column;gap:8px;}" +
+    ".alerts-map{height:440px;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:4px;background:var(--bg);}" +
+    ".alerts-map .leaflet-popup-content{font-size:12px;line-height:1.5;margin:8px 10px;}" +
+    ".alerts-map-loading{padding:24px;color:var(--muted);font-size:13px;text-align:center;}";
   document.head.appendChild(st);
 
   var EQ_URL = "https://api.wolfx.jp/cenc_eqlist.json";
@@ -241,6 +244,70 @@
     renderFab();
   }
 
+  // ---------- 实时地图（Leaflet + 高德免 key 瓦片） ----------
+  var mapObj = null, mapReady = false;
+  function loadLeaflet(cb) {
+    if (window.L) { cb(window.L); return; }
+    var css = document.createElement("link");
+    css.id = "leafletCss"; css.rel = "stylesheet";
+    css.href = "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(css);
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js";
+    s.onload = function () { cb(window.L); };
+    s.onerror = function () { cb(null); };
+    document.head.appendChild(s);
+  }
+  function ensureMap() {
+    var el = document.getElementById("alertsMap");
+    if (!el || mapObj) return;
+    loadLeaflet(function (Lib) {
+      if (!Lib) { el.innerHTML = '<div class="alerts-map-loading">地图组件加载失败（可能网络受限），仅显示下方列表</div>'; return; }
+      mapObj = Lib.map("alertsMap").setView([userCity.lat, userCity.lon], 4);
+      Lib.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+        { subdomains: "1234", maxZoom: 18, attribution: "高德地图" }).addTo(mapObj);
+      mapReady = true;
+      drawMap();
+    });
+  }
+  function drawMap() {
+    if (!mapReady || !mapObj) return;
+    var Lb = window.L;
+    mapObj.eachLayer(function (layer) {
+      if (layer instanceof Lb.Polyline || layer instanceof Lb.CircleMarker) mapObj.removeLayer(layer);
+    });
+    // 台风：路径线 + 当前点
+    tyData.forEach(function (o) {
+      if (!o.tracks || !o.tracks.length) return;
+      var pts = o.tracks.map(function (tr) {
+        return [parseFloat(tr[5]), parseFloat(tr[4])];
+      }).filter(function (p) { return !isNaN(p[0]) && !isNaN(p[1]); });
+      if (pts.length) Lb.polyline(pts, { color: "#e23b3b", weight: 2, opacity: 0.85 }).addTo(mapObj);
+      var last = o.tracks[o.tracks.length - 1];
+      var lat = parseFloat(last[5]), lon = parseFloat(last[4]);
+      var dist = haversine(userCity.lat, userCity.lon, lat, lon);
+      Lb.circleMarker([lat, lon], { radius: 6, color: dist <= 2000 ? "#ff5c5c" : "#fff", weight: 2, fillColor: "#e23b3b", fillOpacity: 1 })
+        .addTo(mapObj)
+        .bindPopup("🌀 <b>" + esc(o.cn) + "</b> <span style='color:#888'>" + esc(o.en) + "</span><br>类型 " + (TY_TYPE[last[3]] || last[3]) +
+          "<br>最大风速 " + esc(last[7]) + " m/s · 气压 " + esc(last[6]) + " hPa<br>移向 " + dirCn(last[8]) + " · 移速 " + esc(last[9]) +
+          " km/h<br>中心 " + lat.toFixed(1) + "°N," + lon.toFixed(1) + "°E<br>距你约 " + dist + " km");
+    });
+    // 地震：震中散点（半径随震级、远近高亮）
+    eqData.forEach(function (it) {
+      var lat = parseFloat(it.latitude), lon = parseFloat(it.longitude), m = parseFloat(it.magnitude);
+      var dist = haversine(userCity.lat, userCity.lon, lat, lon);
+      Lb.circleMarker([lat, lon], {
+        radius: Math.max(4, m * 1.4),
+        color: dist <= 1000 ? "#ff5c5c" : "#fff", weight: 1,
+        fillColor: m >= 5 ? "#e23b3b" : (m >= 4 ? "#e8923b" : "#3b8ee2"), fillOpacity: 0.85
+      }).addTo(mapObj)
+        .bindPopup("🌍 <b>M" + m + " " + esc(it.placeName || it.location) + "</b><br>深度 " + esc(it.depth) + " km<br>" +
+          fmtAgo(it.time) + "<br>距你约 " + dist + " km");
+    });
+    mapObj.invalidateSize();
+  }
+  function refreshMap() { ensureMap(); drawMap(); }
+
   function loadEq() {
     fetch(EQ_URL).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
       eqData = Object.keys(d).map(function (k) { return d[k]; })
@@ -251,6 +318,7 @@
         .slice(0, 12);
       updateBadge();
       fillEq();
+      refreshMap();
     }).catch(function () {
       eqData = [];
       fillEq();
@@ -261,19 +329,20 @@
     fetch(TY_LIST_URL).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (txt) {
       var data = parseJsonp(txt);
       var list = (data.typhoonList || []).filter(function (t) { return t[7] === "start"; });
-      if (!list.length) { tyData = []; updateBadge(); fillTy(); return; }
+      if (!list.length) { tyData = []; updateBadge(); fillTy(); refreshMap(); return; }
       Promise.all(list.map(function (t) {
         var id = t[0], cn = t[2], en = t[1];
         return fetch(tyViewUrl(id)).then(function (r) { return r.text(); }).then(function (vt) {
           var vd = parseJsonp(vt);
           var tp = vd.typhoon || [];
           var tracks = tp[8] || [];
-          return { id: id, cn: cn, en: en, track: tracks[tracks.length - 1] };
+          return { id: id, cn: cn, en: en, track: tracks[tracks.length - 1], tracks: tracks };
         }).catch(function () { return null; });
       })).then(function (arr) {
         tyData = arr.filter(Boolean);
         updateBadge();
         fillTy();
+        refreshMap();
       });
     }).catch(function () {
       tyData = [];
@@ -290,11 +359,12 @@
     D.VIEWS.alerts = {
       html: function () {
         return '<div id="alertsView" class="ac-view">' +
+          '<div class="ac-sec"><h3>🗺️ 实时地图（台风路径 / 地震震中）</h3><div id="alertsMap" class="alerts-map"><div class="alerts-map-loading">地图加载中…</div></div></div>' +
           '<div class="ac-sec"><h3>🌍 地震</h3><div id="acEqList" class="ac-body">加载中…</div></div>' +
           '<div class="ac-sec"><h3>🌀 台风</h3><div id="acTyList" class="ac-body">加载中…</div></div>' +
           '</div>';
       },
-      init: function () { fillEq(); fillTy(); }
+      init: function () { fillEq(); fillTy(); refreshMap(); }
     };
   }
   if (window.DF) reg(window.DF);

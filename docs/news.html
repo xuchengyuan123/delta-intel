@@ -681,7 +681,7 @@
   setupTabs();
 
   // 优先读取 data.json，失败则回退到内置示例
-  fetch("data.json", { cache: "no-store" })
+  fetch("data.json?_=" + Date.now(), { cache: "no-store" })
     .then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r.json();

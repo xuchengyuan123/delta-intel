@@ -372,16 +372,30 @@ function loadData(){
 }
 
 function loadHafu(){
-  const url = "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json";
-  return fetch(url + "?_=" + Date.now(), {cache:'no-store'})
-    .then(function(r){ return r.json(); })
-    .then(function(arr){
-      if(!Array.isArray(arr)) throw new Error('格式异常');
-      const m = {};
-      arr.forEach(function(it){ if(it && it.name) m[norm(it.name)] = it.price; });
-      liveMap = m; liveReady = true;
-    })
-    .catch(function(){ liveMap = {}; liveReady = false; });
+  // 实时物价：优先经本站 Worker 自定义域 api.delta.shopping 代理（服务端拉取+缓存，国内稳定可达），
+  // 失败再回退 jsDelivr / fastly / raw 镜像；任一可达即用，绝不编造价格。
+  const sources = [
+    "https://api.delta.shopping/api/price",
+    "https://cdn.jsdelivr.net/gh/caiweilv/DeltaForcePrice@master/price.json",
+    "https://fastly.jsdelivr.net/gh/caiweilv/DeltaForcePrice@master/price.json",
+    "https://raw.githubusercontent.com/caiweilv/DeltaForcePrice/master/price.json"
+  ];
+  let idx = 0;
+  function tryNext(){
+    if(idx >= sources.length){ liveMap = {}; liveReady = false; return Promise.resolve(); }
+    const base = sources[idx++];
+    const url = base + (base.indexOf("?") > -1 ? "&" : "?") + "_=" + Date.now();
+    return fetch(url, {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(arr){
+        if(!Array.isArray(arr)) throw new Error('格式异常');
+        const m = {};
+        arr.forEach(function(it){ if(it && it.name) m[norm(it.name)] = it.price; });
+        liveMap = m; liveReady = true;
+      })
+      .catch(function(){ return tryNext(); });
+  }
+  return tryNext();
 }
 
 /* 查价：实时优先，回退估值 */
