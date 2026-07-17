@@ -440,7 +440,13 @@
     "havkVoiceUrl": "assets/login-voice.wav",
     "version": "v51"
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-17 15:10",
+      "role": "总管理员",
+      "action": "更新新手攻略（6 模块）"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
