@@ -438,25 +438,9 @@
     "art": {},
     "apiBase": "https://api.delta.shopping",
     "havkVoiceUrl": "assets/login-voice.wav",
-    "version": "v50"
+    "version": "v51"
   },
-  "adminLog": [
-    {
-      "time": "2026-07-17 13:28",
-      "role": "总管理员",
-      "action": "更新前台导航菜单"
-    },
-    {
-      "time": "2026-07-17 13:25",
-      "role": "总管理员",
-      "action": "更新成就管理（36）"
-    },
-    {
-      "time": "2026-07-17 13:24",
-      "role": "总管理员",
-      "action": "更新成就管理（36）"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -4376,7 +4360,9 @@
       "title": "《三角洲行动》S10 赛季「全面交战」正式开启",
       "source": "官方公告",
       "date": "2026-07-14",
+      "cat": "版本",
       "summary": "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励与限定头像框。",
+      "content": "S10 赛季「全面交战」已全面上线：排位赛段位重置，新增干员与地图轮换，完成赛季任务可领取哈夫币、武器皮肤与通行证奖励。建议先到训练场适应新版本手感。",
       "url": "",
       "thumb": "",
       "views": 12840,
@@ -4386,11 +4372,61 @@
       "title": "干员平衡性调整预告",
       "source": "官方",
       "date": "2026-07-13",
+      "cat": "版本",
       "summary": "下版本将对部分突击干员后坐力与技能冷却进行微调，详情见公告。",
+      "content": "官方预告将对突击位干员的后坐力曲线与技能冷却做平衡性微调，同时优化部分地图的物资分布。正式数值以版本更新公告为准。",
       "url": "",
       "thumb": "",
       "views": 8650,
       "likes": 514
+    },
+    {
+      "title": "夏日嘉年华限时活动上线",
+      "source": "三角洲情报台",
+      "date": "2026-07-12",
+      "cat": "活动",
+      "summary": "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。",
+      "content": "夏日嘉年华限时开启，每日任务累计可兑换限定皮肤、物资箱与哈夫币礼包，活动持续至本月底，错过需等复刻。",
+      "url": "",
+      "thumb": "",
+      "views": 5210,
+      "likes": 388
+    },
+    {
+      "title": "S10 最强改枪方案合集（攻略）",
+      "source": "枪械研究室",
+      "date": "2026-07-11",
+      "cat": "攻略",
+      "summary": "覆盖 M4A1 / AKM / M7 等主流枪械从低配到满改的方案与改枪码。",
+      "content": "本攻略汇总 S10 主流枪械的低成本到满改配置，并附带可一键导入的改枪码，建议先在训练场试射确认手感再带入实战。",
+      "url": "",
+      "thumb": "",
+      "views": 15200,
+      "likes": 1200
+    },
+    {
+      "title": "巴克什跑刀收益路线详解",
+      "source": "老六课堂",
+      "date": "2026-07-10",
+      "cat": "攻略",
+      "summary": "低战备进图、高价值撤离点位与避坑指南，适合平民跑刀玩家。",
+      "content": "巴克什作为高价值图，跑刀需精准卡战备值并熟悉撤离点。本文梳理了低成本进图路线、高价值物资点位与常见埋伏点，帮助稳定收益。",
+      "url": "",
+      "thumb": "",
+      "views": 9800,
+      "likes": 760
+    },
+    {
+      "title": "三角洲杯全民赛事开赛",
+      "source": "赛事官方",
+      "date": "2026-07-09",
+      "cat": "赛事",
+      "summary": "全民赛拉开帷幕，报名即送限定头像框，冠军可获得专属称号。",
+      "content": "「三角洲杯」全民赛事正式开赛，面向所有段位玩家，单人/组队均可报名，海选采用积分制，决赛为线下表演赛。",
+      "url": "",
+      "thumb": "",
+      "views": 7300,
+      "likes": 540
     }
   ],
   "live": [
@@ -4426,7 +4462,8 @@
       "author": "枪械研究室",
       "duration": "12:30",
       "thumb": "",
-      "url": ""
+      "url": "",
+      "embed": ""
     },
     {
       "platform": "B站",
@@ -4434,7 +4471,8 @@
       "author": "老六课堂",
       "duration": "08:15",
       "thumb": "",
-      "url": ""
+      "url": "",
+      "embed": ""
     },
     {
       "platform": "YouTube",
@@ -4442,10 +4480,21 @@
       "author": "DeltaPros",
       "duration": "15:02",
       "thumb": "",
-      "url": ""
+      "url": "",
+      "embed": ""
     }
   ],
   "changelog": [
+    {
+      "date": "2026-07-17",
+      "title": "v51 · 移除成就墙",
+      "items": [
+        "移除「成就墙 / 徽章盒」功能：后台成就管理长期无法保存，按需下线，删除前台导航入口、成就插件脚本与后台「成就管理」面板",
+        "「行动周报」同步移除成就相关聚合（点亮成就卡片与档位分布），保留阿萨拉收藏 / 收藏馆 / 物价快照三项",
+        "清理 data.json 中孤立的 achievements 种子数据",
+        "全站静态资源缓存版本号 ?v=50 → ?v=51，Service Worker 缓存名 delta-intel-v50 → v51"
+      ]
+    },
     {
       "date": "2026-07-16",
       "title": "v50 · 成就管理补完 + 行动周报",
@@ -4951,375 +5000,5 @@
     ],
     "featured": []
   },
-  "sens": [],
-  "achievements": [
-    {
-      "id": "g_genius",
-      "kind": "game",
-      "name": "天才少年",
-      "tier": "传说",
-      "ico": "🌟",
-      "mode": "通用",
-      "category": "战斗战绩",
-      "desc": "烽火地带：机密/绝密单局击败12名特战干员；全面战场：晋升之路/胜者为王单局击败140名"
-    },
-    {
-      "id": "g_tide",
-      "kind": "game",
-      "name": "潮汐的救赎",
-      "tier": "钻石",
-      "ico": "🌊",
-      "mode": "烽火地带",
-      "category": "战斗战绩",
-      "desc": "囚徒状态撤离且单局收获达 100 万"
-    },
-    {
-      "id": "g_chain",
-      "kind": "game",
-      "name": "锁链与自由IV",
-      "tier": "钻石",
-      "ico": "⛓",
-      "mode": "烽火地带",
-      "category": "战斗战绩",
-      "desc": "潮汐监狱累计击败典狱长与渡鸦各 50 次"
-    },
-    {
-      "id": "g_godfather",
-      "kind": "game",
-      "name": "教父IV",
-      "tier": "钻石",
-      "ico": "👑",
-      "mode": "烽火地带",
-      "category": "战斗战绩",
-      "desc": "累计击败赛伊德/雷斯/老太各 50 次"
-    },
-    {
-      "id": "g_beast",
-      "kind": "game",
-      "name": "战争巨兽IV",
-      "tier": "传说",
-      "ico": "🚜",
-      "mode": "全面战场",
-      "category": "战斗战绩",
-      "desc": "①坦克击败35人×100 ②飞行载具击败25人×100 ③战车类载具击败25人×100 ④防空车击败20人或造成2000伤害×100"
-    },
-    {
-      "id": "g_map",
-      "kind": "game",
-      "name": "地图通",
-      "tier": "白银",
-      "ico": "🗺",
-      "mode": "通用",
-      "category": "探索收集",
-      "desc": "单张地图找齐全部隐藏彩蛋点"
-    },
-    {
-      "id": "g_africa",
-      "kind": "game",
-      "name": "非洲之心(宝石)",
-      "tier": "黄金",
-      "ico": "💎",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "全游戏最稀有宝石；单局带出即获评价「一颗永流传」，带出 5 次解锁成就「钻石大亨IV」"
-    },
-    {
-      "id": "g_diamond",
-      "kind": "game",
-      "name": "钻石大亨IV",
-      "tier": "传说",
-      "ico": "💎",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "累计获得评价「一颗永流传」5 次"
-    },
-    {
-      "id": "g_jewel",
-      "kind": "game",
-      "name": "珠宝藏家IV",
-      "tier": "钻石",
-      "ico": "🔷",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "累计获得评价「深海遗珠」5 次"
-    },
-    {
-      "id": "g_mandel",
-      "kind": "game",
-      "name": "曼德尔砖收藏家IV",
-      "tier": "传说",
-      "ico": "🧱",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "破译并带出曼德尔砖 400 次"
-    },
-    {
-      "id": "g_star",
-      "kind": "game",
-      "name": "星际拓荒者",
-      "tier": "钻石",
-      "ico": "🚀",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "将「太空配送员」徽章进阶到第二阶段（炫彩勇敢者进化）解锁"
-    },
-    {
-      "id": "g_birdnest",
-      "kind": "game",
-      "name": "黄金鸟窝纪念",
-      "tier": "黄金",
-      "ico": "🪺",
-      "mode": "通用",
-      "category": "探索收集",
-      "desc": "5 张地图收集 8 个协议箱"
-    },
-    {
-      "id": "g_lone",
-      "kind": "game",
-      "name": "独狼尖兵",
-      "tier": "传说",
-      "ico": "🐺",
-      "mode": "通用",
-      "category": "挑战",
-      "desc": "黑鹰坠落单人最高评价通关全部关卡"
-    },
-    {
-      "id": "g_tiezj",
-      "kind": "game",
-      "name": "铁三角",
-      "tier": "钻石",
-      "ico": "🔺",
-      "mode": "烽火地带",
-      "category": "社交互动",
-      "desc": "机密/绝密模式小队3人全存活且每人至少击败4名敌方单位（S8）"
-    },
-    {
-      "id": "g_saiyid",
-      "kind": "game",
-      "name": "天才赛伊德",
-      "tier": "传说",
-      "ico": "🎯",
-      "mode": "烽火地带",
-      "category": "战斗战绩",
-      "desc": "赤枭巡猎玩法中单局击败12名特战干员（S8）"
-    },
-    {
-      "id": "g_hammer",
-      "kind": "game",
-      "name": "一锤定音",
-      "tier": "钻石",
-      "ico": "💥",
-      "mode": "全面战场",
-      "category": "战斗战绩",
-      "desc": "晋升之路/胜者为王单发制导导弹获得8000积分（S8）"
-    },
-    {
-      "id": "g_hualai",
-      "kind": "game",
-      "name": "花来",
-      "tier": "钻石",
-      "ico": "🌺",
-      "mode": "烽火地带",
-      "category": "战斗战绩",
-      "desc": "击败一名特战干员并完整穿戴其头盔/护甲/主武器/胸挂/背包后撤离（S9）"
-    },
-    {
-      "id": "g_shuang",
-      "kind": "game",
-      "name": "好事成双",
-      "tier": "钻石",
-      "ico": "🐟",
-      "mode": "烽火地带",
-      "category": "探索收集",
-      "desc": "机密/绝密带出2个相同的9格+红色品质收藏品，暗星燃料除外（S9）"
-    },
-    {
-      "id": "g_real3",
-      "kind": "game",
-      "name": "真铁三角",
-      "tier": "钻石",
-      "ico": "🔻",
-      "mode": "烽火地带",
-      "category": "社交互动",
-      "desc": "三人小队全存活且每人至少击败4名敌方特战干员（S9）"
-    },
-    {
-      "id": "g_kongzhai",
-      "kind": "game",
-      "name": "空摘",
-      "tier": "钻石",
-      "ico": "🚁",
-      "mode": "全面战场",
-      "category": "战斗战绩",
-      "desc": "晋升之路/胜者为王用狙击步枪击落飞行载具驾驶员（S9）"
-    },
-    {
-      "id": "g_friend10",
-      "kind": "site",
-      "name": "战友",
-      "tier": "青铜",
-      "ico": "🤝",
-      "mode": "通用",
-      "category": "社交互动",
-      "desc": "添加 10 位游戏好友"
-    },
-    {
-      "id": "g_team",
-      "kind": "site",
-      "name": "战队组建",
-      "tier": "白银",
-      "ico": "⚔",
-      "mode": "通用",
-      "category": "社交互动",
-      "desc": "加入或创建战队并打 10 局战队赛"
-    },
-    {
-      "id": "a_signin",
-      "kind": "site",
-      "name": "初出茅庐",
-      "tier": "青铜",
-      "ico": "🪙",
-      "mode": "通用",
-      "category": "",
-      "desc": "完成第一次每日签到"
-    },
-    {
-      "id": "a_copy",
-      "kind": "site",
-      "name": "抄作业",
-      "tier": "青铜",
-      "ico": "🔫",
-      "mode": "通用",
-      "category": "",
-      "desc": "复制第一个改枪码"
-    },
-    {
-      "id": "a_codex",
-      "kind": "site",
-      "name": "看图说话",
-      "tier": "青铜",
-      "ico": "📖",
-      "mode": "通用",
-      "category": "",
-      "desc": "查看任意图鉴条目"
-    },
-    {
-      "id": "a_pass",
-      "kind": "site",
-      "name": "密码通",
-      "tier": "白银",
-      "ico": "🔑",
-      "mode": "通用",
-      "category": "",
-      "desc": "记住 5 张地图密码"
-    },
-    {
-      "id": "a_build3",
-      "kind": "site",
-      "name": "改枪学徒",
-      "tier": "白银",
-      "ico": "🛠",
-      "mode": "通用",
-      "category": "",
-      "desc": "收藏 3 套改枪方案"
-    },
-    {
-      "id": "a_forum",
-      "kind": "site",
-      "name": "论坛萌新",
-      "tier": "白银",
-      "ico": "💬",
-      "mode": "通用",
-      "category": "",
-      "desc": "发布第一条论坛帖子"
-    },
-    {
-      "id": "a_build10",
-      "kind": "site",
-      "name": "改枪大师",
-      "tier": "黄金",
-      "ico": "🎯",
-      "mode": "通用",
-      "category": "",
-      "desc": "抄过 10 套改枪码"
-    },
-    {
-      "id": "a_asala",
-      "kind": "site",
-      "name": "收藏家",
-      "tier": "黄金",
-      "ico": "🃏",
-      "mode": "通用",
-      "category": "",
-      "desc": "集齐阿萨拉牌盒 54+1"
-    },
-    {
-      "id": "a_price20",
-      "kind": "site",
-      "name": "物价猎人",
-      "tier": "黄金",
-      "ico": "💹",
-      "mode": "通用",
-      "category": "",
-      "desc": "记录 20 次价格快照"
-    },
-    {
-      "id": "a_full5",
-      "kind": "site",
-      "name": "满改土豪",
-      "tier": "钻石",
-      "ico": "💎",
-      "mode": "通用",
-      "category": "",
-      "desc": "拥有 5 套满改方案"
-    },
-    {
-      "id": "a_friend",
-      "kind": "site",
-      "name": "战友遍布",
-      "tier": "钻石",
-      "ico": "🤝",
-      "mode": "通用",
-      "category": "",
-      "desc": "添加 10 位站内好友"
-    },
-    {
-      "id": "a_zhanji",
-      "kind": "site",
-      "name": "战绩达人",
-      "tier": "钻石",
-      "ico": "📊",
-      "mode": "通用",
-      "category": "",
-      "desc": "绑定战绩查询"
-    },
-    {
-      "id": "a_veteran",
-      "kind": "site",
-      "name": "情报台元老",
-      "tier": "传说",
-      "ico": "👑",
-      "mode": "通用",
-      "category": "",
-      "desc": "连续签到 30 天"
-    },
-    {
-      "id": "a_all",
-      "kind": "site",
-      "name": "全能情报员",
-      "tier": "传说",
-      "ico": "🏆",
-      "mode": "通用",
-      "category": "",
-      "desc": "解锁全部其它本站成就"
-    }
-  ],
-  "menu": [
-    {
-      "_wb": "app:w-mrohyxgn-cgyo",
-      "href": "docs/app-1.html",
-      "ico": "📦",
-      "label": "1"
-    }
-  ]
+  "sens": []
 }

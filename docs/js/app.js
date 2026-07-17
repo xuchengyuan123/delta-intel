@@ -192,7 +192,6 @@
       group: "个人", collapsed: true, items: [
         { href: "profile.html", label: "我的主页", ico: "👤" },
         { href: "ugc.html",     label: "投稿", ico: "📝" },
-        { route: "achievements", label: "成就墙 / 徽章盒", ico: "🏅" },
         { route: "myassets", label: "我的资产", ico: "🎒" },
         { route: "weekly", label: "行动周报", ico: "📊" },
       ],
@@ -1090,7 +1089,7 @@
   /* ---------- Service Worker 注册（保留更新提示，移除安装横幅）---------- */
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js?v=50").then(function (reg) {
+      navigator.serviceWorker.register("sw.js?v=51").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {

@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=50">
+  <link rel="stylesheet" href="css/style.css?v=51">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=50"></script>
-  <script defer src="js/i18n.js?v=50"></script>
-  <script defer src="js/workbench.js?v=50"></script>
+  <script src="js/art.js?v=51"></script>
+  <script defer src="js/i18n.js?v=51"></script>
+  <script defer src="js/workbench.js?v=51"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -367,7 +367,7 @@
       code:  { key: "code",  name: "代码维护员",     color: "#2ecc71", icon: "💻", panels: ["code"] },
       opcode:{ key: "opcode",name: "特战干员图鉴管理员", color: "#ff4d6d", icon: "🪖", panels: ["opcode"] },
       wcodex:{ key: "wcodex",name: "武器图鉴管理员", color: "#4d96ff", icon: "🔫", panels: ["wcodex"] },
-      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems", "achievements", "asala", "sens"] },
+      data:  { key: "data",  name: "资料管理员",     color: "#e0a106", icon: "📚", panels: ["gun", "door", "events", "streamer", "optask", "melee", "feedback", "armors", "scopes", "npc", "upgrades", "expansion", "keyrooms", "collectibles", "bulletpacks", "eventitems", "asala", "sens"] },
       usermgr: { key: "usermgr", name: "用户管理管理员", color: "#ff8c00", icon: "👥", panels: ["usermgr"] },
       tujian:   { key: "tujian", name: "图鉴管理员",     color: "#ff6b9d", icon: "🗂", panels: ["tujian"] },
       /* ===== 按「职务」扩充的分管理员（V32–V34） ===== */
@@ -375,7 +375,7 @@
       community:{ key: "community",name: "用户与社区",   color: "#58a6ff", icon: "👥", panels: ["usermgr","subadmins","access","devices","ugc"] },
       codex:    { key: "codex",    name: "图鉴资料总管", color: "#ff6b9d", icon: "📚", panels: ["opcode","wcodex","trivia","tujian","gun","door","events","streamer","optask","melee","feedback","armors","scopes","npc","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","sens"] },
       artmusic: { key: "artmusic", name: "美术音乐总管", color: "#ff7a59", icon: "🎨", panels: ["art","images","music"] },
-      datatools:{ key: "datatools",name: "数据与工具总管", color: "#a06bff", icon: "🧰", panels: ["armors","scopes","npc","melee","rigs","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","materials","containers","items","bullets","maps","scatter","liveprice","mappass","sim","code","analytics","achievements","asala","sens"] },
+      datatools:{ key: "datatools",name: "数据与工具总管", color: "#a06bff", icon: "🧰", panels: ["armors","scopes","npc","melee","rigs","upgrades","expansion","keyrooms","collectibles","bulletpacks","eventitems","materials","containers","items","bullets","maps","scatter","liveprice","mappass","sim","code","analytics","asala","sens"] },
       biz:      { key: "biz",      name: "商务赞助主管", color: "#e0a106", icon: "💼", panels: ["sponsor","site"] },
       secops:   { key: "secops",   name: "安全运维",     color: "#f85149", icon: "🛡", panels: ["subadmins","usermgr","access","devices","announce","ugc","code"] },
       teamsmgr: { key: "teamsmgr", name: "战队主管",     color: "#39d0d8", icon: "⚔", panels: ["teams"] }
@@ -395,7 +395,6 @@
       gun:       { label: "改枪方案", icon: "🔧", title: "改枪方案管理", sub: "维护前台「资料库·改枪方案」的配装列表（名称/武器/标签/配件）。", mount: mountGun },
       door:      { label: "密码门", icon: "🔑", title: "密码门速查管理", sub: "维护前台「资料库·密码门」的门禁密码列表。", mount: mountDoor },
       events:    { label: "活动日历", icon: "📅", title: "活动日历管理", sub: "维护前台「资料库·活动日历」的限时活动列表。", mount: mountEvents },
-      achievements: { label: "成就管理", icon: "🏅", title: "成就管理（三角洲行动 + 本站）", sub: "维护前台「成就墙」的成就清单。kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就；档位：青铜/白银/黄金/钻石/传说。", mount: mountAchievements },
       asala:    { label: "阿萨拉牌管理", icon: "🃏", title: "阿萨拉牌盒卡牌管理", sub: "维护前台「阿萨拉牌盒收集」的 54+1 张卡牌目录（名称/档位/说明）。key 为唯一标识，建议用牌面如 ♠A、大王、box。", mount: mountAsala },
       streamer:  { label: "主播设置", icon: "🎮", title: "主播设置管理", sub: "维护前台「资料库·主播设置」的灵敏度/画质参考。", mount: mountStreamer },
       optask:    { label: "干员任务", icon: "🪖", title: "干员任务管理", sub: "维护前台「资料库·干员任务」的个人挑战列表。", mount: mountOpTask },
@@ -448,7 +447,7 @@
       { name: "总览与账号",   panels: ["dashboard", "subadmins", "access", "secaudit", "usermgr", "devices"] },
       { name: "站点与运营",   panels: ["site", "announce", "ugc", "changelog", "feedback", "sponsor", "analytics", "uidesign", "news"] },
       { name: "任务与活动",   panels: ["tasks", "optask", "events", "streamer", "door", "gun"] },
-      { name: "成就与收藏",   panels: ["achievements", "asala"] },
+      { name: "收藏",         panels: ["asala"] },
       { name: "图鉴与美术",   panels: ["opcode", "wcodex", "trivia", "art", "images", "tujian"] },
       { name: "攻略与互动",   panels: ["guides", "craft", "quiz", "sens"] },
       { name: "装备数据",     panels: ["armors", "scopes", "npc", "melee", "rigs"] },
@@ -596,8 +595,20 @@
 
       if (adminMode() === "worker") {
         return wkFetch("/api/admin/data", { method: "PUT", body: JSON.stringify({ content: JSON.stringify(obj, null, 2) }) })
-          .then(function (r) { return r.json(); })
-          .then(function (j) { if (j.error) throw new Error(j.error); if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功，网站已更新。"; } });
+          .then(function (r) {
+            return r.json().catch(function () { throw new Error("HTTP " + r.status + "（响应不是 JSON，可能是网关 / Worker 错误）"); })
+              .then(function (j) {
+                if (!r.ok || j.error) throw new Error(j.error || ("HTTP " + r.status));
+                if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "✅ 保存成功，网站已更新。"; }
+              });
+          })
+          .catch(function (e) {
+            var m = (e && e.message) ? e.message : String(e);
+            if (/Failed to fetch|NetworkError|timeout|abort/i.test(m)) m = "无法连接后端 Worker（api.delta.shopping），请检查网络，并确认 Worker 已在 Cloudflare 部署且自定义域可访问";
+            else if (/401|403|未登录|会话|登录失效/i.test(m)) m = "登录已失效，请点右上角「退出」后重新以总管理员身份登录";
+            else if (/GitHub|写入失败|sha|404|409|repo|commit/i.test(m)) m = "GitHub 写入被拒绝：" + m + "（请确认 Worker 的 GH_TOKEN 有该仓库写权限，且仓库里只有一份 data.json）";
+            throw new Error(m);
+          });
       }
 
       function attemptWrite() {
@@ -2816,21 +2827,6 @@
       ],
       addRow: function () { return { name: '', category: '', tier: '', quality: '', effect: '', acquire: '', dmgStages: '', armorDmg: '', penLevel: '', headshot: '', runSpeed: '', walkSpeed: '', attackSpeed: '', range: '', desc: '' }; },
       keep: function (x) { return x.name; } }); }
-
-    /* ============ 成就管理（三角洲行动 + 本站） ============ */
-    function mountAchievements(c) { tablePanel(c, { key: 'achievements', icon: '🏅', title: '成就管理', sub: 'kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就。档位：青铜/白银/黄金/钻石/传说。ID 为唯一标识，前台按 id 标记点亮，请勿重复。',
-      cols: [
-        { f: 'id', label: 'ID' },
-        { f: 'kind', label: '类型', type: 'select', opts: ['game', 'site'] },
-        { f: 'name', label: '名称' },
-        { f: 'tier', label: '档位', type: 'select', opts: ['青铜', '白银', '黄金', '钻石', '传说'] },
-        { f: 'ico', label: '图标' },
-        { f: 'mode', label: '模式', type: 'select', opts: ['通用', '烽火地带', '全面战场'] },
-        { f: 'category', label: '分类' },
-        { f: 'desc', label: '说明' }
-      ],
-      addRow: function () { return { id: '', kind: 'game', name: '', tier: '青铜', ico: '🏅', mode: '通用', category: '', desc: '' }; },
-      keep: function (x) { return x.id && x.name; } }); }
 
     /* ============ 阿萨拉牌盒卡牌管理 ============ */
     function mountAsala(c) { tablePanel(c, { key: 'asalaCards', icon: '🃏', title: '阿萨拉牌盒卡牌', sub: '维护 54+1 张卡牌目录。档位：红/金/紫/蓝/绿。key 为唯一标识（建议用牌面，如 ♠A、大王、box）。',

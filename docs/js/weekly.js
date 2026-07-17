@@ -2,7 +2,6 @@
  * weekly.js — 行动周报（纯前端聚合本地数据，无后端、无地图）
  *
  * 聚合本地已产生的「干员行为数据」，生成本周战报：
- *   - 成就点亮：localStorage["df_achievements_v1"]（id→true）
  *   - 阿萨拉牌盒收集：localStorage["df_asala_v1"]（key→true）
  *   - 收藏馆拥有：localStorage["df_gallery_owned"]（[id,…]）
  *   - 物价快照：localStorage["df_pricetrend_v1"]（[…]）
@@ -20,20 +19,13 @@
   function reg(D) {
     var esc = D.esc || function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
 
-    var TIER_COLOR = { "青铜": "#cd7f32", "白银": "#9fb3c8", "黄金": "#ffb300", "钻石": "#19c3a6", "传说": "#b06bff" };
-    var TIER_ORDER = ["青铜", "白银", "黄金", "钻石", "传说"];
-
     D.VIEWS.weekly = {
       html: function () {
         return '' +
           '<div class="section-title">📊 行动周报</div>' +
-          '<p class="guide-intro">把你在情报台留下的「足迹」汇成一份周报：成就点亮、阿萨拉收藏、收藏馆、物价快照，外加你手写的本周目标与高光。' +
+          '<p class="guide-intro">把你在情报台留下的「足迹」汇成一份周报：阿萨拉收藏、收藏馆、物价快照，外加你手写的本周目标与高光。' +
           '<b>全部来自本地浏览器数据，不联网、不上传</b>，可一键生成分享文本。</p>' +
           '<div class="wk-stats" id="wkStats"></div>' +
-          '<div class="wk-block">' +
-            '<div class="wk-sub">成就档位分布（已点亮）</div>' +
-            '<div class="wk-bars" id="wkBars"><div class="kk-empty">加载中…</div></div>' +
-          '</div>' +
           '<div class="wk-block">' +
             '<div class="wk-form">' +
               '<label class="wk-label">本周目标</label>' +
@@ -57,31 +49,18 @@
           '</div>';
       },
       init: function () {
-        var DATA = D.getData && D.getData();
-        var catalog = (DATA && Array.isArray(DATA.achievements)) ? DATA.achievements : [];
-
-        var got = lsGet("df_achievements_v1", {}) || {};
         var asala = lsGet("df_asala_v1", {}) || {};
         var gallery = lsGet("df_gallery_owned", []) || [];
         var price = lsGet("df_pricetrend_v1", []) || [];
 
-        var litCount = Object.keys(got).filter(function (k) { return got[k]; }).length;
         var asalaCount = Object.keys(asala).filter(function (k) { return asala[k]; }).length;
         var galleryCount = Array.isArray(gallery) ? gallery.length : 0;
         var priceCount = Array.isArray(price) ? price.length : 0;
-
-        // 统计已点亮成就的档位分布
-        var tierCount = {};
-        TIER_ORDER.forEach(function (t) { tierCount[t] = 0; });
-        catalog.forEach(function (a) {
-          if (got[a.id]) { tierCount[a.tier] = (tierCount[a.tier] || 0) + 1; }
-        });
 
         // ① 概览卡片
         var statsEl = document.getElementById("wkStats");
         if (statsEl) {
           var cards = [
-            { n: litCount + " / " + catalog.length, l: "点亮成就", c: "#ffb300" },
             { n: asalaCount + " / 55", l: "阿萨拉牌盒", c: "#ff4d4f" },
             { n: String(galleryCount), l: "收藏馆拥有", c: "#19c3a6" },
             { n: String(priceCount), l: "物价快照", c: "#3a7bd5" }
@@ -93,24 +72,7 @@
           }).join("");
         }
 
-        // ② 档位条
-        var barsEl = document.getElementById("wkBars");
-        if (barsEl) {
-          var max = 1;
-          TIER_ORDER.forEach(function (t) { if (tierCount[t] > max) max = tierCount[t]; });
-          barsEl.innerHTML = TIER_ORDER.map(function (t) {
-            var v = tierCount[t] || 0;
-            var pct = Math.round(v / max * 100);
-            var col = TIER_COLOR[t] || "#888";
-            return '<div class="wk-bar-row">' +
-              '<span class="wk-bar-label" style="color:' + col + '">' + esc(t) + '</span>' +
-              '<span class="wk-bar-track"><span class="wk-bar-fill" style="width:' + pct + '%;background:' + col + '"></span></span>' +
-              '<span class="wk-bar-val">' + v + '</span>' +
-            '</div>';
-          }).join("");
-        }
-
-        // ③ 载入已保存的本周记录
+        // ② 载入已保存的本周记录
         var saved = lsGet(KEY, {}) || {};
         var goalsEl = document.getElementById("wkGoals");
         var hlEl = document.getElementById("wkHighlight");
@@ -125,13 +87,9 @@
           lines.push("生成时间：" + new Date().toLocaleString("zh-CN"));
           lines.push("");
           lines.push("▸ 累计概览");
-          lines.push("  点亮成就：" + litCount + " / " + catalog.length);
           lines.push("  阿萨拉牌盒：" + asalaCount + " / 55");
           lines.push("  收藏馆拥有：" + galleryCount);
           lines.push("  物价快照：" + priceCount);
-          lines.push("");
-          lines.push("▸ 成就档位分布");
-          TIER_ORDER.forEach(function (t) { lines.push("  " + t + "：" + (tierCount[t] || 0)); });
           lines.push("");
           lines.push("▸ 本周目标");
           lines.push("  " + (goalsEl && goalsEl.value ? goalsEl.value : "（未填写）"));
@@ -191,7 +149,7 @@
 
     // 视图样式（仅注入一次）
     D.addStyle("wk-style", '' +
-      '.wk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 18px}' +
+      '.wk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 18px}' +
       '.wk-card{background:linear-gradient(135deg,color-mix(in srgb,var(--c) 18%,#fff),#fff);border:1px solid color-mix(in srgb,var(--c) 35%,#e5e7eb);border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}' +
       '.wk-card-n{font-size:22px;font-weight:800;color:var(--c)}' +
       '.wk-card-l{font-size:12px;color:#6b7280;margin-top:4px}' +
