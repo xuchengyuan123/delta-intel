@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <title>管理后台 · 三角洲情报台</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <link rel="stylesheet" href="css/style.css?v=49">
+  <link rel="stylesheet" href="css/style.css?v=50">
   <!-- 美术管理员实时预览需要内置建筑线描 -->
-  <script src="js/art.js?v=49"></script>
-  <script defer src="js/i18n.js?v=49"></script>
-  <script defer src="js/workbench.js?v=49"></script>
+  <script src="js/art.js?v=50"></script>
+  <script defer src="js/i18n.js?v=50"></script>
+  <script defer src="js/workbench.js?v=50"></script>
   <style>
     :root { --role: #ffb300; }
     body { background: var(--bg); }
@@ -2814,8 +2814,9 @@
       keep: function (x) { return x.name; } }); }
 
     /* ============ 成就管理（三角洲行动 + 本站） ============ */
-    function mountAchievements(c) { tablePanel(c, { key: 'achievements', icon: '🏅', title: '成就管理', sub: 'kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就。档位：青铜/白银/黄金/钻石/传说。',
+    function mountAchievements(c) { tablePanel(c, { key: 'achievements', icon: '🏅', title: '成就管理', sub: 'kind=game 为三角洲行动游戏成就，kind=site 为本站行为成就。档位：青铜/白银/黄金/钻石/传说。ID 为唯一标识，前台按 id 标记点亮，请勿重复。',
       cols: [
+        { f: 'id', label: 'ID' },
         { f: 'kind', label: '类型', type: 'select', opts: ['game', 'site'] },
         { f: 'name', label: '名称' },
         { f: 'tier', label: '档位', type: 'select', opts: ['青铜', '白银', '黄金', '钻石', '传说'] },
@@ -2824,8 +2825,8 @@
         { f: 'category', label: '分类' },
         { f: 'desc', label: '说明' }
       ],
-      addRow: function () { return { kind: 'game', name: '', tier: '青铜', ico: '🏅', mode: '通用', category: '', desc: '' }; },
-      keep: function (x) { return x.name; } }); }
+      addRow: function () { return { id: '', kind: 'game', name: '', tier: '青铜', ico: '🏅', mode: '通用', category: '', desc: '' }; },
+      keep: function (x) { return x.id && x.name; } }); }
 
     /* ============ 阿萨拉牌盒卡牌管理 ============ */
     function mountAsala(c) { tablePanel(c, { key: 'asalaCards', icon: '🃏', title: '阿萨拉牌盒卡牌', sub: '维护 54+1 张卡牌目录。档位：红/金/紫/蓝/绿。key 为唯一标识（建议用牌面，如 ♠A、大王、box）。',
