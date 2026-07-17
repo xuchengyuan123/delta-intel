@@ -4388,32 +4388,7 @@
       "likes": 514
     }
   ],
-  "live": [
-    {
-      "platform": "B站",
-      "streamer": "三角洲情报台",
-      "title": "S10 上分实况（请替换为官方直播间房间号）",
-      "viewers": 12400,
-      "live": true,
-      "url": ""
-    },
-    {
-      "platform": "抖音",
-      "streamer": "战术大师",
-      "title": "凌晨上分不掉分（请替换为官方直播间房间号）",
-      "viewers": 8600,
-      "live": false,
-      "url": ""
-    },
-    {
-      "platform": "YouTube",
-      "streamer": "DeltaPros",
-      "title": "Ranked Grind（请替换为官方直播间房间号）",
-      "viewers": 3200,
-      "live": false,
-      "url": ""
-    }
-  ],
+  "live": [],
   "videos": [
     {
       "platform": "B站",
