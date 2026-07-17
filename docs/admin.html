@@ -833,7 +833,11 @@
     function tryVoice(list, i, onFail) {
       if (i >= list.length) { onFail(); return; }
       var a = (i === 0 && _loginAudio) ? _loginAudio : new Audio(list[i]);
-      if (i !== 0) a.volume = 1;
+      /* 关键修复：播放前强制取消静音并拉满音量。
+         登录点击时 primeLoginVoice 会用 muted=true 静音播一次来绕过自动播放策略，
+         若登录很快成功，此处复用的 _loginAudio 可能仍处静音态——若不强制 unmute，
+         就会“静默播完”且因未触发 error 而不回退 TTS，表现为完全没声。 */
+      a.muted = false; a.volume = 1;
       var settled = false;
       a.addEventListener("error", function () {
         if (settled) return; settled = true;

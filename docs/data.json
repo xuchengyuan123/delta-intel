@@ -440,13 +440,7 @@
     "havkVoiceUrl": "assets/login-voice.wav",
     "version": "v50"
   },
-  "adminLog": [
-    {
-      "time": "2026-07-17 13:10",
-      "role": "总管理员",
-      "action": "更新成就管理（36）"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -4999,363 +4993,385 @@
   "sens": [],
   "achievements": [
     {
-      "id": "g_genius",
+      "id": "g_lv10",
+      "name": "初入战场",
+      "tier": "青铜",
+      "ico": "🪖",
       "kind": "game",
+      "mode": "通用",
+      "category": "基础成长",
+      "desc": "干员等级达到 10 级"
+    },
+    {
+      "id": "g_weapon",
+      "name": "军火库",
+      "tier": "青铜",
+      "ico": "🔫",
+      "kind": "game",
+      "mode": "通用",
+      "category": "基础成长",
+      "desc": "解锁 10 把不同永久主武器"
+    },
+    {
+      "id": "g_op3",
+      "name": "干员集结",
+      "tier": "白银",
+      "ico": "🪖",
+      "kind": "game",
+      "mode": "通用",
+      "category": "基础成长",
+      "desc": "集齐 3 名不同干员"
+    },
+    {
+      "id": "g_k100",
+      "name": "百人斩",
+      "tier": "白银",
+      "ico": "⚔",
+      "kind": "game",
+      "mode": "通用",
+      "category": "战斗战绩",
+      "desc": "累计击杀 100 名敌人"
+    },
+    {
+      "id": "g_k1000",
+      "name": "千杀统帅",
+      "tier": "黄金",
+      "ico": "⚔",
+      "kind": "game",
+      "mode": "通用",
+      "category": "战斗战绩",
+      "desc": "累计击杀 1000 名敌人"
+    },
+    {
+      "id": "g_genius",
       "name": "天才少年",
       "tier": "传说",
       "ico": "🌟",
-      "mode": "通用",
+      "kind": "game",
+      "mode": "双模式",
       "category": "战斗战绩",
       "desc": "烽火地带：机密/绝密单局击败12名特战干员；全面战场：晋升之路/胜者为王单局击败140名"
     },
     {
       "id": "g_tide",
-      "kind": "game",
       "name": "潮汐的救赎",
       "tier": "钻石",
       "ico": "🌊",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "战斗战绩",
       "desc": "囚徒状态撤离且单局收获达 100 万"
     },
     {
       "id": "g_chain",
-      "kind": "game",
       "name": "锁链与自由IV",
       "tier": "钻石",
       "ico": "⛓",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "战斗战绩",
       "desc": "潮汐监狱累计击败典狱长与渡鸦各 50 次"
     },
     {
       "id": "g_godfather",
-      "kind": "game",
       "name": "教父IV",
       "tier": "钻石",
       "ico": "👑",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "战斗战绩",
       "desc": "累计击败赛伊德/雷斯/老太各 50 次"
     },
     {
       "id": "g_beast",
-      "kind": "game",
       "name": "战争巨兽IV",
       "tier": "传说",
       "ico": "🚜",
+      "kind": "game",
       "mode": "全面战场",
       "category": "战斗战绩",
       "desc": "①坦克击败35人×100 ②飞行载具击败25人×100 ③战车类载具击败25人×100 ④防空车击败20人或造成2000伤害×100"
     },
     {
       "id": "g_map",
-      "kind": "game",
       "name": "地图通",
       "tier": "白银",
       "ico": "🗺",
+      "kind": "game",
       "mode": "通用",
       "category": "探索收集",
       "desc": "单张地图找齐全部隐藏彩蛋点"
     },
     {
       "id": "g_africa",
-      "kind": "game",
       "name": "非洲之心(宝石)",
       "tier": "黄金",
       "ico": "💎",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "全游戏最稀有宝石；单局带出即获评价「一颗永流传」，带出 5 次解锁成就「钻石大亨IV」"
     },
     {
       "id": "g_diamond",
-      "kind": "game",
       "name": "钻石大亨IV",
       "tier": "传说",
       "ico": "💎",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "累计获得评价「一颗永流传」5 次"
     },
     {
       "id": "g_jewel",
-      "kind": "game",
       "name": "珠宝藏家IV",
       "tier": "钻石",
       "ico": "🔷",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "累计获得评价「深海遗珠」5 次"
     },
     {
       "id": "g_mandel",
-      "kind": "game",
       "name": "曼德尔砖收藏家IV",
       "tier": "传说",
       "ico": "🧱",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "破译并带出曼德尔砖 400 次"
     },
     {
       "id": "g_star",
-      "kind": "game",
       "name": "星际拓荒者",
       "tier": "钻石",
       "ico": "🚀",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "将「太空配送员」徽章进阶到第二阶段（炫彩勇敢者进化）解锁"
     },
     {
       "id": "g_birdnest",
-      "kind": "game",
       "name": "黄金鸟窝纪念",
       "tier": "黄金",
       "ico": "🪺",
+      "kind": "game",
       "mode": "通用",
       "category": "探索收集",
       "desc": "5 张地图收集 8 个协议箱"
     },
     {
       "id": "g_lone",
-      "kind": "game",
       "name": "独狼尖兵",
       "tier": "传说",
       "ico": "🐺",
+      "kind": "game",
       "mode": "通用",
       "category": "挑战",
       "desc": "黑鹰坠落单人最高评价通关全部关卡"
     },
     {
       "id": "g_tiezj",
-      "kind": "game",
       "name": "铁三角",
       "tier": "钻石",
       "ico": "🔺",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "社交互动",
       "desc": "机密/绝密模式小队3人全存活且每人至少击败4名敌方单位（S8）"
     },
     {
       "id": "g_saiyid",
-      "kind": "game",
       "name": "天才赛伊德",
       "tier": "传说",
       "ico": "🎯",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "战斗战绩",
       "desc": "赤枭巡猎玩法中单局击败12名特战干员（S8）"
     },
     {
       "id": "g_hammer",
-      "kind": "game",
       "name": "一锤定音",
       "tier": "钻石",
       "ico": "💥",
+      "kind": "game",
       "mode": "全面战场",
       "category": "战斗战绩",
       "desc": "晋升之路/胜者为王单发制导导弹获得8000积分（S8）"
     },
     {
       "id": "g_hualai",
-      "kind": "game",
       "name": "花来",
       "tier": "钻石",
       "ico": "🌺",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "战斗战绩",
       "desc": "击败一名特战干员并完整穿戴其头盔/护甲/主武器/胸挂/背包后撤离（S9）"
     },
     {
       "id": "g_shuang",
-      "kind": "game",
       "name": "好事成双",
       "tier": "钻石",
       "ico": "🐟",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "探索收集",
       "desc": "机密/绝密带出2个相同的9格+红色品质收藏品，暗星燃料除外（S9）"
     },
     {
       "id": "g_real3",
-      "kind": "game",
       "name": "真铁三角",
       "tier": "钻石",
       "ico": "🔻",
+      "kind": "game",
       "mode": "烽火地带",
       "category": "社交互动",
       "desc": "三人小队全存活且每人至少击败4名敌方特战干员（S9）"
     },
     {
       "id": "g_kongzhai",
-      "kind": "game",
       "name": "空摘",
       "tier": "钻石",
       "ico": "🚁",
+      "kind": "game",
       "mode": "全面战场",
       "category": "战斗战绩",
       "desc": "晋升之路/胜者为王用狙击步枪击落飞行载具驾驶员（S9）"
     },
     {
       "id": "g_friend10",
-      "kind": "site",
       "name": "战友",
       "tier": "青铜",
       "ico": "🤝",
+      "kind": "game",
       "mode": "通用",
       "category": "社交互动",
       "desc": "添加 10 位游戏好友"
     },
     {
       "id": "g_team",
-      "kind": "site",
       "name": "战队组建",
       "tier": "白银",
       "ico": "⚔",
+      "kind": "game",
       "mode": "通用",
       "category": "社交互动",
       "desc": "加入或创建战队并打 10 局战队赛"
     },
     {
       "id": "a_signin",
-      "kind": "site",
       "name": "初出茅庐",
       "tier": "青铜",
       "ico": "🪙",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "完成第一次每日签到"
     },
     {
       "id": "a_copy",
-      "kind": "site",
       "name": "抄作业",
       "tier": "青铜",
       "ico": "🔫",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "复制第一个改枪码"
     },
     {
       "id": "a_codex",
-      "kind": "site",
       "name": "看图说话",
       "tier": "青铜",
       "ico": "📖",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "查看任意图鉴条目"
     },
     {
       "id": "a_pass",
-      "kind": "site",
       "name": "密码通",
       "tier": "白银",
       "ico": "🔑",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "记住 5 张地图密码"
     },
     {
       "id": "a_build3",
-      "kind": "site",
       "name": "改枪学徒",
       "tier": "白银",
       "ico": "🛠",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "收藏 3 套改枪方案"
     },
     {
       "id": "a_forum",
-      "kind": "site",
       "name": "论坛萌新",
       "tier": "白银",
       "ico": "💬",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "发布第一条论坛帖子"
     },
     {
       "id": "a_build10",
-      "kind": "site",
       "name": "改枪大师",
       "tier": "黄金",
       "ico": "🎯",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "抄过 10 套改枪码"
     },
     {
       "id": "a_asala",
-      "kind": "site",
       "name": "收藏家",
       "tier": "黄金",
       "ico": "🃏",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "集齐阿萨拉牌盒 54+1"
     },
     {
       "id": "a_price20",
-      "kind": "site",
       "name": "物价猎人",
       "tier": "黄金",
       "ico": "💹",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "记录 20 次价格快照"
     },
     {
       "id": "a_full5",
-      "kind": "site",
       "name": "满改土豪",
       "tier": "钻石",
       "ico": "💎",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "拥有 5 套满改方案"
     },
     {
       "id": "a_friend",
-      "kind": "site",
       "name": "战友遍布",
       "tier": "钻石",
       "ico": "🤝",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "添加 10 位站内好友"
     },
     {
       "id": "a_zhanji",
-      "kind": "site",
       "name": "战绩达人",
       "tier": "钻石",
       "ico": "📊",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "绑定战绩查询"
     },
     {
       "id": "a_veteran",
-      "kind": "site",
       "name": "情报台元老",
       "tier": "传说",
       "ico": "👑",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "连续签到 30 天"
     },
     {
       "id": "a_all",
-      "kind": "site",
       "name": "全能情报员",
       "tier": "传说",
       "ico": "🏆",
-      "mode": "通用",
-      "category": "",
+      "kind": "site",
       "desc": "解锁全部其它本站成就"
     }
   ]
