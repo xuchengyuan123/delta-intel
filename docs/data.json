@@ -438,7 +438,7 @@
     "art": {},
     "apiBase": "https://api.delta.shopping",
     "havkVoiceUrl": "assets/login-voice.wav",
-    "version": "v52"
+    "version": "v55"
   },
   "adminLog": [],
   "tasks": {
@@ -4497,6 +4497,37 @@
     }
   ],
   "changelog": [
+    {
+      "date": "2026-07-17",
+      "title": "v55 · 应用防火墙加固至 15 层",
+      "items": [
+        "修复 OPTIONS 预检请求完全绕过防火墙的漏洞（现预检也过轻量 WAF）",
+        "新增第11层：来源(Origin/Referer)同源校验，拦截跨站伪造请求（CSRF）",
+        "新增第12层：管理/写接口（admin/ugc/posts/comments/teams）按 IP 独立限流",
+        "新增第13层：深度攻击特征补强（Unicode 全角/双重编码/Base64 载荷/二次注入）",
+        "新增第14层：传输安全 + 响应头加固（HSTS/CSP/X-XSS-Protection/Permissions-Policy）",
+        "新增第15层：存储型 XSS 净化，对帖子/评论/UGC/聊天/公告等用户输入文本统一清洗",
+        "第8层登录防暴力破解改为 KV 持久化并新增账号维度（修复多实例重置绕过的 bug）"
+      ]
+    },
+    {
+      "date": "2026-07-17",
+      "title": "v54 · 统一修复后台保存前台不更新",
+      "items": [
+        "Worker 保存 data.json 成功后自动删除仓库内残留的 docs/data.json，彻底消除双文件导致的前后台不一致",
+        "后台 admin.html 非 Worker 直连模式读写的 data.json 路径统一改为根目录（原硬编码 docs/data.json）",
+        "全站静态资源缓存版本号 ?v=53 → ?v=54，Service Worker 缓存名同步"
+      ]
+    },
+    {
+      "date": "2026-07-17",
+      "title": "v53 · 资讯中心前后台不一致诊断",
+      "items": [
+        "后台『资讯管理』顶部新增 Worker 当前读取路径显示，若路径为 docs/data.json 会红色提示与前台根目录 data.json 不一致，并引导删除 docs/data.json",
+        "Worker /api/admin/data GET 接口增加返回 path 字段，供后台诊断",
+        "全站静态资源缓存版本号 ?v=52 → ?v=53，Service Worker 缓存名同步"
+      ]
+    },
     {
       "date": "2026-07-17",
       "title": "v52 · 修复后台保存 sha mismatch",
