@@ -437,10 +437,16 @@
     "accent2": "#19c3a6",
     "art": {},
     "apiBase": "https://api.delta.shopping",
-    "havkVoiceUrl": "assets/login-voice.wav",
+    "havkVoiceUrl": "docs/assets/_______.wav",
     "version": "v51"
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-17 14:14",
+      "role": "总管理员",
+      "action": "更新站点设置"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
