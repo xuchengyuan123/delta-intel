@@ -4377,58 +4377,8 @@
       "likes": 514
     }
   ],
-  "live": [
-    {
-      "platform": "B站",
-      "streamer": "三角洲情报台",
-      "title": "S10 上分实况（请替换为官方直播间房间号）",
-      "viewers": 12400,
-      "live": true,
-      "url": ""
-    },
-    {
-      "platform": "抖音",
-      "streamer": "战术大师",
-      "title": "凌晨上分不掉分（请替换为官方直播间房间号）",
-      "viewers": 8600,
-      "live": false,
-      "url": ""
-    },
-    {
-      "platform": "YouTube",
-      "streamer": "DeltaPros",
-      "title": "Ranked Grind（请替换为官方直播间房间号）",
-      "viewers": 3200,
-      "live": false,
-      "url": ""
-    }
-  ],
-  "videos": [
-    {
-      "platform": "B站",
-      "title": "S10 最强改枪方案合集（示例）",
-      "author": "枪械研究室",
-      "duration": "12:30",
-      "thumb": "",
-      "url": ""
-    },
-    {
-      "platform": "B站",
-      "title": "新手避坑指南：这些物资别乱卖（示例）",
-      "author": "老六课堂",
-      "duration": "08:15",
-      "thumb": "",
-      "url": ""
-    },
-    {
-      "platform": "YouTube",
-      "title": "Top 10 Loadouts S10（示例）",
-      "author": "DeltaPros",
-      "duration": "15:02",
-      "thumb": "",
-      "url": ""
-    }
-  ],
+  "live": [],
+  "videos": [],
   "changelog": [
     {
       "date": "2026-07-17",
