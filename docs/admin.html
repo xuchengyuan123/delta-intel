@@ -3124,7 +3124,14 @@
         '<div class="login-field"><label>站点名称</label><input id="stName" placeholder="三角洲情报台"></div>' +
         '<div class="login-field"><label>赞助链接（爱发电等）</label><input id="stAfdian" placeholder="https://afdian.com/a/xxx"></div>' +
         '<div class="login-field"><label>辅助主题色</label><input id="stAccent" type="color"></div>' +
-        '<div class="login-field"><label>登录欢迎语音 URL（留空则使用浏览器 TTS）</label><input id="stHavkVoice" placeholder="https://example.com/havk.mp3"></div>' +
+        '<div class="login-field"><label>登录欢迎语音（可上传本地音频，或填 URL）</label>' +
+        '<div class="up-row" style="display:flex;gap:8px;align-items:center">' +
+        '  <input id="stHavkVoice" placeholder="docs/assets/login-voice.wav 或 https://...">' +
+        '  <button type="button" class="btn role-b sm" id="stVoicePick">📁 上传语音</button>' +
+        '  <input type="file" id="stVoiceFile" accept="audio/*" hidden>' +
+        '</div>' +
+        '<div class="up-tip" id="stVoiceTip" style="font-size:12px;color:#8a93a6;margin-top:4px">支持 mp3 / wav / ogg，自动存入 docs/assets/ 目录（需总管理员或「代码维护」权限）。也可把文件命名为 login-voice.wav 直接放进上传包 docs/assets/ 覆盖默认，无需配置。</div>' +
+        '</div>' +
         '<div class="row"><button class="btn role-c" id="stSave">保存</button><span class="msg" id="stMsg"></span></div></div>';
       getDataObj().then(function (d) {
         var s = d.obj.site || {};
@@ -3133,6 +3140,7 @@
         c.querySelector("#stAccent").value = s.accent2 || "#19c3a6";
         c.querySelector("#stHavkVoice").value = s.havkVoiceUrl || "";
       }).catch(function () {});
+      setupVoiceUpload(c);
       c.querySelector("#stSave").onclick = function () {
         var msg = c.querySelector("#stMsg");
         getDataObj().then(function (d) {
@@ -3143,6 +3151,39 @@
           d.obj.site.havkVoiceUrl = c.querySelector("#stHavkVoice").value.trim();
           return putDataObj(d.obj, "更新站点设置", msg);
         }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
+      };
+    }
+
+    function setupVoiceUpload(c) {
+      var pick = c.querySelector("#stVoicePick");
+      var file = c.querySelector("#stVoiceFile");
+      var tip = c.querySelector("#stVoiceTip");
+      var input = c.querySelector("#stHavkVoice");
+      if (!pick || !file) return;
+      pick.onclick = function () { try { file.click(); } catch (e) {} };
+      file.onchange = function () {
+        var f = file.files && file.files[0];
+        if (!f) return;
+        var safe = (f.name || "voice.bin").replace(/[^\w.\-]/g, "_");
+        tip.textContent = "上传中：" + safe + "（" + (f.size / 1024).toFixed(0) + " KB）…";
+        tip.style.color = "";
+        var reader = new FileReader();
+        reader.onload = function () {
+          var b64 = String(reader.result).split(",")[1];
+          if (!b64) { tip.textContent = "❌ 无法读取文件内容"; tip.style.color = "#e5484d"; return; }
+          var path = "docs/assets/" + safe;
+          wkFetch("/api/admin/file", { method: "PUT", body: JSON.stringify({ path: path, content: b64, message: "上传登录语音 " + safe }) })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              if (j.error) throw new Error(j.error);
+              input.value = "docs/assets/" + safe;
+              tip.textContent = "✅ 已上传到 " + path + "，点「保存」即可生效";
+              tip.style.color = "#19c3a6";
+            })
+            .catch(function (e) { tip.textContent = "❌ 上传失败：" + e.message + "（也可把文件命名为 login-voice.wav 直接放进上传包 docs/assets/ 目录）"; tip.style.color = "#e5484d"; });
+        };
+        reader.onerror = function () { tip.textContent = "❌ 读取文件失败"; tip.style.color = "#e5484d"; };
+        reader.readAsDataURL(f);
       };
     }
 

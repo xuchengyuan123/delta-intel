@@ -437,16 +437,10 @@
     "accent2": "#19c3a6",
     "art": {},
     "apiBase": "https://api.delta.shopping",
-    "havkVoiceUrl": "https://app.zjg.me/046afaafb05757d4c14655425754f455.html",
+    "havkVoiceUrl": "assets/login-voice.wav",
     "version": "v51"
   },
-  "adminLog": [
-    {
-      "time": "2026-07-17 14:01",
-      "role": "总管理员",
-      "action": "更新站点设置"
-    }
-  ],
+  "adminLog": [],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -4363,11 +4357,13 @@
   ],
   "news": [
     {
-      "title": "《三角洲行动》S10 赛季「裂变」正式开启",
+      "title": "《三角洲行动》S10 赛季「全面交战」正式开启",
       "source": "官方公告",
       "date": "2026-07-14",
+      "cat": "版本",
       "summary": "新赛季新增多张地图与干员，排位赛同步重置，登录即领赛季奖励与限定头像框。",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=5396732595353450215",
+      "content": "S10 赛季「全面交战」已全面上线：排位赛段位重置，新增干员与地图轮换，完成赛季任务可领取哈夫币、武器皮肤与通行证奖励。建议先到训练场适应新版本手感。",
+      "url": "",
       "thumb": "",
       "views": 12840,
       "likes": 932
@@ -4376,25 +4372,118 @@
       "title": "干员平衡性调整预告",
       "source": "官方",
       "date": "2026-07-13",
+      "cat": "版本",
       "summary": "下版本将对部分突击干员后坐力与技能冷却进行微调，详情见公告。",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=11404866535670476517",
+      "content": "官方预告将对突击位干员的后坐力曲线与技能冷却做平衡性微调，同时优化部分地图的物资分布。正式数值以版本更新公告为准。",
+      "url": "",
       "thumb": "",
       "views": 8650,
       "likes": 514
     },
     {
-      "title": "7月15日更新公告",
-      "source": "官方公告",
-      "date": "2026.7.15",
-      "summary": "上线乌鲁鲁红皮，干员平衡性调整",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=10617611864694923356",
+      "title": "夏日嘉年华限时活动上线",
+      "source": "三角洲情报台",
+      "date": "2026-07-12",
+      "cat": "活动",
+      "summary": "完成每日任务可兑换限定皮肤与物资箱，活动持续至月底。",
+      "content": "夏日嘉年华限时开启，每日任务累计可兑换限定皮肤、物资箱与哈夫币礼包，活动持续至本月底，错过需等复刻。",
+      "url": "",
       "thumb": "",
-      "views": "",
-      "likes": ""
+      "views": 5210,
+      "likes": 388
+    },
+    {
+      "title": "S10 最强改枪方案合集（攻略）",
+      "source": "枪械研究室",
+      "date": "2026-07-11",
+      "cat": "攻略",
+      "summary": "覆盖 M4A1 / AKM / M7 等主流枪械从低配到满改的方案与改枪码。",
+      "content": "本攻略汇总 S10 主流枪械的低成本到满改配置，并附带可一键导入的改枪码，建议先在训练场试射确认手感再带入实战。",
+      "url": "",
+      "thumb": "",
+      "views": 15200,
+      "likes": 1200
+    },
+    {
+      "title": "巴克什跑刀收益路线详解",
+      "source": "老六课堂",
+      "date": "2026-07-10",
+      "cat": "攻略",
+      "summary": "低战备进图、高价值撤离点位与避坑指南，适合平民跑刀玩家。",
+      "content": "巴克什作为高价值图，跑刀需精准卡战备值并熟悉撤离点。本文梳理了低成本进图路线、高价值物资点位与常见埋伏点，帮助稳定收益。",
+      "url": "",
+      "thumb": "",
+      "views": 9800,
+      "likes": 760
+    },
+    {
+      "title": "三角洲杯全民赛事开赛",
+      "source": "赛事官方",
+      "date": "2026-07-09",
+      "cat": "赛事",
+      "summary": "全民赛拉开帷幕，报名即送限定头像框，冠军可获得专属称号。",
+      "content": "「三角洲杯」全民赛事正式开赛，面向所有段位玩家，单人/组队均可报名，海选采用积分制，决赛为线下表演赛。",
+      "url": "",
+      "thumb": "",
+      "views": 7300,
+      "likes": 540
     }
   ],
-  "live": [],
-  "videos": [],
+  "live": [
+    {
+      "platform": "B站",
+      "streamer": "三角洲情报台",
+      "title": "S10 上分实况（请替换为官方直播间房间号）",
+      "viewers": 12400,
+      "live": true,
+      "url": ""
+    },
+    {
+      "platform": "抖音",
+      "streamer": "战术大师",
+      "title": "凌晨上分不掉分（请替换为官方直播间房间号）",
+      "viewers": 8600,
+      "live": false,
+      "url": ""
+    },
+    {
+      "platform": "YouTube",
+      "streamer": "DeltaPros",
+      "title": "Ranked Grind（请替换为官方直播间房间号）",
+      "viewers": 3200,
+      "live": false,
+      "url": ""
+    }
+  ],
+  "videos": [
+    {
+      "platform": "B站",
+      "title": "S10 最强改枪方案合集（示例）",
+      "author": "枪械研究室",
+      "duration": "12:30",
+      "thumb": "",
+      "url": "",
+      "embed": ""
+    },
+    {
+      "platform": "B站",
+      "title": "新手避坑指南：这些物资别乱卖（示例）",
+      "author": "老六课堂",
+      "duration": "08:15",
+      "thumb": "",
+      "url": "",
+      "embed": ""
+    },
+    {
+      "platform": "YouTube",
+      "title": "Top 10 Loadouts S10（示例）",
+      "author": "DeltaPros",
+      "duration": "15:02",
+      "thumb": "",
+      "url": "",
+      "embed": ""
+    }
+  ],
   "changelog": [
     {
       "date": "2026-07-17",
