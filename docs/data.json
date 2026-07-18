@@ -5104,5 +5104,617 @@
     ],
     "featured": []
   },
-  "sens": []
+  "sens": [],
+  "gunCalc": {
+    "attachments": [
+      {
+        "key": "barrel",
+        "name": "枪管",
+        "options": [
+          {
+            "name": "默认枪管",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "重型枪管",
+            "mods": {
+              "recoil": 8,
+              "accuracy": 6,
+              "range": 5,
+              "handling": -4,
+              "moveSpeed": -2
+            },
+            "cost": 12000
+          },
+          {
+            "name": "短枪管",
+            "mods": {
+              "handling": 8,
+              "moveSpeed": 5,
+              "recoil": -5,
+              "range": -6
+            },
+            "cost": 9000
+          },
+          {
+            "name": "长枪管",
+            "mods": {
+              "range": 10,
+              "accuracy": 5,
+              "recoil": 3,
+              "handling": -5
+            },
+            "cost": 11000
+          }
+        ]
+      },
+      {
+        "key": "muzzle",
+        "name": "枪口",
+        "options": [
+          {
+            "name": "无枪口",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "补偿器",
+            "mods": {
+              "recoil": 12,
+              "accuracy": 3,
+              "handling": -2
+            },
+            "cost": 6000
+          },
+          {
+            "name": "消音器",
+            "mods": {
+              "recoil": 5,
+              "accuracy": 2,
+              "handling": -3,
+              "range": -2
+            },
+            "cost": 9000
+          },
+          {
+            "name": "制退器",
+            "mods": {
+              "recoil": 15,
+              "handling": -4
+            },
+            "cost": 7000
+          }
+        ]
+      },
+      {
+        "key": "grip",
+        "name": "握把",
+        "options": [
+          {
+            "name": "无握把",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "垂直握把",
+            "mods": {
+              "recoil": 8,
+              "handling": 3
+            },
+            "cost": 5000
+          },
+          {
+            "name": "倾斜握把",
+            "mods": {
+              "handling": 8,
+              "ergonomics": 5,
+              "recoil": 2
+            },
+            "cost": 5000
+          },
+          {
+            "name": "战术握把",
+            "mods": {
+              "recoil": 5,
+              "ergonomics": 6,
+              "handling": 2
+            },
+            "cost": 6000
+          }
+        ]
+      },
+      {
+        "key": "magazine",
+        "name": "弹匣",
+        "options": [
+          {
+            "name": "标准弹匣",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "扩容弹匣",
+            "mods": {
+              "mag": 20,
+              "handling": -3,
+              "moveSpeed": -2
+            },
+            "cost": 4000
+          },
+          {
+            "name": "快拆弹匣",
+            "mods": {
+              "ergonomics": 8,
+              "handling": 4,
+              "mag": 5
+            },
+            "cost": 5000
+          },
+          {
+            "name": "大容量弹鼓",
+            "mods": {
+              "mag": 70,
+              "handling": -8,
+              "moveSpeed": -5,
+              "ergonomics": -5
+            },
+            "cost": 9000
+          }
+        ]
+      },
+      {
+        "key": "stock",
+        "name": "枪托",
+        "options": [
+          {
+            "name": "无枪托",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "战术枪托",
+            "mods": {
+              "recoil": 10,
+              "accuracy": 4,
+              "handling": -3
+            },
+            "cost": 8000
+          },
+          {
+            "name": "轻量枪托",
+            "mods": {
+              "handling": 8,
+              "moveSpeed": 4,
+              "recoil": 3
+            },
+            "cost": 7000
+          },
+          {
+            "name": "稳固枪托",
+            "mods": {
+              "accuracy": 8,
+              "recoil": 6,
+              "handling": -5
+            },
+            "cost": 9000
+          }
+        ]
+      },
+      {
+        "key": "scope",
+        "name": "瞄准镜",
+        "options": [
+          {
+            "name": "机械瞄具",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "红点瞄具",
+            "mods": {
+              "accuracy": 5,
+              "handling": 2
+            },
+            "cost": 3000
+          },
+          {
+            "name": "全息瞄具",
+            "mods": {
+              "accuracy": 6,
+              "handling": 1
+            },
+            "cost": 3500
+          },
+          {
+            "name": "高倍镜",
+            "mods": {
+              "accuracy": 12,
+              "range": 8,
+              "handling": -6,
+              "moveSpeed": -2
+            },
+            "cost": 8000
+          }
+        ]
+      },
+      {
+        "key": "laser",
+        "name": "镭射",
+        "options": [
+          {
+            "name": "无镭射",
+            "mods": {},
+            "cost": 0
+          },
+          {
+            "name": "激光指示器",
+            "mods": {
+              "accuracy": 6,
+              "ergonomics": 4,
+              "handling": 2
+            },
+            "cost": 2000
+          },
+          {
+            "name": "战术镭射",
+            "mods": {
+              "accuracy": 4,
+              "recoil": 3,
+              "ergonomics": 3
+            },
+            "cost": 2500
+          }
+        ]
+      }
+    ]
+  },
+  "asalaCards": [
+    {
+      "key": "♠2",
+      "label": "♠ 2",
+      "tier": "绿",
+      "sub": "黑桃 2"
+    },
+    {
+      "key": "♠3",
+      "label": "♠ 3",
+      "tier": "绿",
+      "sub": "黑桃 3"
+    },
+    {
+      "key": "♠4",
+      "label": "♠ 4",
+      "tier": "绿",
+      "sub": "黑桃 4"
+    },
+    {
+      "key": "♠5",
+      "label": "♠ 5",
+      "tier": "绿",
+      "sub": "黑桃 5"
+    },
+    {
+      "key": "♠6",
+      "label": "♠ 6",
+      "tier": "绿",
+      "sub": "黑桃 6"
+    },
+    {
+      "key": "♠7",
+      "label": "♠ 7",
+      "tier": "绿",
+      "sub": "黑桃 7"
+    },
+    {
+      "key": "♠8",
+      "label": "♠ 8",
+      "tier": "绿",
+      "sub": "黑桃 8"
+    },
+    {
+      "key": "♠9",
+      "label": "♠ 9",
+      "tier": "绿",
+      "sub": "黑桃 9"
+    },
+    {
+      "key": "♠10",
+      "label": "♠ 10",
+      "tier": "绿",
+      "sub": "黑桃 10"
+    },
+    {
+      "key": "♠J",
+      "label": "♠ J",
+      "tier": "蓝",
+      "sub": "黑桃 J"
+    },
+    {
+      "key": "♠Q",
+      "label": "♠ Q",
+      "tier": "蓝",
+      "sub": "黑桃 Q"
+    },
+    {
+      "key": "♠K",
+      "label": "♠ K",
+      "tier": "蓝",
+      "sub": "黑桃 K"
+    },
+    {
+      "key": "♠A",
+      "label": "♠ A",
+      "tier": "紫",
+      "sub": "黑桃 A"
+    },
+    {
+      "key": "♥2",
+      "label": "♥ 2",
+      "tier": "绿",
+      "sub": "红心 2"
+    },
+    {
+      "key": "♥3",
+      "label": "♥ 3",
+      "tier": "绿",
+      "sub": "红心 3"
+    },
+    {
+      "key": "♥4",
+      "label": "♥ 4",
+      "tier": "绿",
+      "sub": "红心 4"
+    },
+    {
+      "key": "♥5",
+      "label": "♥ 5",
+      "tier": "绿",
+      "sub": "红心 5"
+    },
+    {
+      "key": "♥6",
+      "label": "♥ 6",
+      "tier": "绿",
+      "sub": "红心 6"
+    },
+    {
+      "key": "♥7",
+      "label": "♥ 7",
+      "tier": "绿",
+      "sub": "红心 7"
+    },
+    {
+      "key": "♥8",
+      "label": "♥ 8",
+      "tier": "绿",
+      "sub": "红心 8"
+    },
+    {
+      "key": "♥9",
+      "label": "♥ 9",
+      "tier": "绿",
+      "sub": "红心 9"
+    },
+    {
+      "key": "♥10",
+      "label": "♥ 10",
+      "tier": "绿",
+      "sub": "红心 10"
+    },
+    {
+      "key": "♥J",
+      "label": "♥ J",
+      "tier": "蓝",
+      "sub": "红心 J"
+    },
+    {
+      "key": "♥Q",
+      "label": "♥ Q",
+      "tier": "蓝",
+      "sub": "红心 Q"
+    },
+    {
+      "key": "♥K",
+      "label": "♥ K",
+      "tier": "蓝",
+      "sub": "红心 K"
+    },
+    {
+      "key": "♥A",
+      "label": "♥ A",
+      "tier": "紫",
+      "sub": "红心 A"
+    },
+    {
+      "key": "♦2",
+      "label": "♦ 2",
+      "tier": "绿",
+      "sub": "方块 2"
+    },
+    {
+      "key": "♦3",
+      "label": "♦ 3",
+      "tier": "绿",
+      "sub": "方块 3"
+    },
+    {
+      "key": "♦4",
+      "label": "♦ 4",
+      "tier": "绿",
+      "sub": "方块 4"
+    },
+    {
+      "key": "♦5",
+      "label": "♦ 5",
+      "tier": "绿",
+      "sub": "方块 5"
+    },
+    {
+      "key": "♦6",
+      "label": "♦ 6",
+      "tier": "绿",
+      "sub": "方块 6"
+    },
+    {
+      "key": "♦7",
+      "label": "♦ 7",
+      "tier": "绿",
+      "sub": "方块 7"
+    },
+    {
+      "key": "♦8",
+      "label": "♦ 8",
+      "tier": "绿",
+      "sub": "方块 8"
+    },
+    {
+      "key": "♦9",
+      "label": "♦ 9",
+      "tier": "绿",
+      "sub": "方块 9"
+    },
+    {
+      "key": "♦10",
+      "label": "♦ 10",
+      "tier": "绿",
+      "sub": "方块 10"
+    },
+    {
+      "key": "♦J",
+      "label": "♦ J",
+      "tier": "蓝",
+      "sub": "方块 J"
+    },
+    {
+      "key": "♦Q",
+      "label": "♦ Q",
+      "tier": "蓝",
+      "sub": "方块 Q"
+    },
+    {
+      "key": "♦K",
+      "label": "♦ K",
+      "tier": "蓝",
+      "sub": "方块 K"
+    },
+    {
+      "key": "♦A",
+      "label": "♦ A",
+      "tier": "紫",
+      "sub": "方块 A"
+    },
+    {
+      "key": "♣2",
+      "label": "♣ 2",
+      "tier": "绿",
+      "sub": "梅花 2"
+    },
+    {
+      "key": "♣3",
+      "label": "♣ 3",
+      "tier": "绿",
+      "sub": "梅花 3"
+    },
+    {
+      "key": "♣4",
+      "label": "♣ 4",
+      "tier": "绿",
+      "sub": "梅花 4"
+    },
+    {
+      "key": "♣5",
+      "label": "♣ 5",
+      "tier": "绿",
+      "sub": "梅花 5"
+    },
+    {
+      "key": "♣6",
+      "label": "♣ 6",
+      "tier": "绿",
+      "sub": "梅花 6"
+    },
+    {
+      "key": "♣7",
+      "label": "♣ 7",
+      "tier": "绿",
+      "sub": "梅花 7"
+    },
+    {
+      "key": "♣8",
+      "label": "♣ 8",
+      "tier": "绿",
+      "sub": "梅花 8"
+    },
+    {
+      "key": "♣9",
+      "label": "♣ 9",
+      "tier": "绿",
+      "sub": "梅花 9"
+    },
+    {
+      "key": "♣10",
+      "label": "♣ 10",
+      "tier": "绿",
+      "sub": "梅花 10"
+    },
+    {
+      "key": "♣J",
+      "label": "♣ J",
+      "tier": "蓝",
+      "sub": "梅花 J"
+    },
+    {
+      "key": "♣Q",
+      "label": "♣ Q",
+      "tier": "蓝",
+      "sub": "梅花 Q"
+    },
+    {
+      "key": "♣K",
+      "label": "♣ K",
+      "tier": "蓝",
+      "sub": "梅花 K"
+    },
+    {
+      "key": "♣A",
+      "label": "♣ A",
+      "tier": "紫",
+      "sub": "梅花 A"
+    },
+    {
+      "key": "大王",
+      "label": "大王",
+      "tier": "红",
+      "sub": "红色品质 · 0.1%"
+    },
+    {
+      "key": "小王",
+      "label": "小王",
+      "tier": "金",
+      "sub": "金色品质"
+    },
+    {
+      "key": "box",
+      "label": "阿萨拉牌盒",
+      "tier": "红",
+      "sub": "红色品质 · 0.1% · 集齐解锁"
+    }
+  ],
+  "achievements": {
+    "game": [],
+    "site": []
+  },
+  "forumBoards": [],
+  "checkin": {
+    "enabled": true,
+    "dailyPoints": 10,
+    "streakBonus": [
+      50,
+      100,
+      200
+    ],
+    "levelStep": 100
+  },
+  "weatherCities": []
 }
