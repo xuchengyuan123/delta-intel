@@ -2395,7 +2395,8 @@
         '<div class="panel-card"><h3>💻 原始数据（data.json）</h3>' +
           '<p class="panel-tip">直接编辑 JSON 保存后生效。地图密码/材料价格每日自动更新；其余手动改的会被保留。</p>' +
           '<textarea class="editor" id="dataEditor" spellcheck="false"></textarea>' +
-          '<div class="row"><button class="btn role-c" id="saveData">保存数据</button><span class="msg" id="dataMsg"></span></div></div>' +
+          '<div class="row"><button class="btn role-c" id="saveData">保存数据</button><button class="btn" id="backupGithub">📤 导出备份到 GitHub</button><span class="msg" id="dataMsg"></span></div>' +
+          '<p class="panel-tip" style="margin-top:8px">💡 运行时数据全部存于 D1，<b>GitHub 已退出运行时</b>、仅作手动备份。点「导出备份」会把 D1 当前完整数据写回 GitHub 仓库的 <code>docs/delta-intel-backup/data.json</code>（需 Worker 配置了 GH_TOKEN）。<b>本部署不使用 R2</b>（Cloudflare R2 需绑卡已排除），所以「代码维护」的文件上传为只读——站点文件（如登录语音）请直接放进上传包 <code>docs/assets/</code> 目录，再重新上传 Cloudflare Pages。论坛管理也走 Worker（KV: POSTS），与公开论坛同一存储。</p></div>' +
         '<div class="panel-card"><h3>⚙️ 站点配置</h3>' +
           '<div class="field"><label>站点名称</label><input id="siteName"></div>' +
           '<div class="field"><label>爱发电链接（Afdian）</label><input id="afdianUrl" placeholder="https://afdian.com/a/你的ID"></div>' +
@@ -2412,6 +2413,17 @@
         try { JSON.parse(txt); } catch (e) { msg.className = "msg err"; msg.textContent = "JSON 格式错误：" + e.message; return; }
         putDataObj(JSON.parse(txt), "编辑原始数据", msg).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; });
       };
+      document.getElementById("backupGithub").onclick = function () {
+        var btn = this; var msg = document.getElementById("dataMsg");
+        if (!confirm("将把当前 D1 中的完整数据导出写回 GitHub 仓库（仅作备份，不影响线上运行）。确定继续？")) return;
+        btn.disabled = true; msg.className = "msg"; msg.textContent = "备份中…";
+        wkFetch("/api/admin/backup", { method: "POST", body: JSON.stringify({ message: "手动备份 · " + new Date().toLocaleString() }) })
+          .then(function (r) { return r.json(); }).then(function (j) {
+            if (j.error) throw new Error(j.error);
+            msg.className = "msg ok"; msg.textContent = "✅ 已备份到 GitHub（" + (j.bytes || 0) + " 字节）";
+          }).catch(function (e) { msg.className = "msg err"; msg.textContent = "❌ " + e.message; })
+          .finally(function () { btn.disabled = false; });
+      };
       document.getElementById("saveSite").onclick = function () {
         var msg = document.getElementById("siteMsg");
         getDataObj().then(function (d) {
@@ -2424,6 +2436,36 @@
     function loadPosts() {
       var box = document.getElementById("posts");
       box.innerHTML = '<div class="status">加载中…</div>';
+      // —— 运行时默认走 Worker（KV: POSTS），GitHub Issues 仅作无 Worker 部署的兜底 ——
+      if (adminMode() === "worker") {
+        wkFetch("/api/forum/posts?limit=50&offset=0", { method: "GET" })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.error) throw new Error(j.error);
+            var list = j.posts || [];
+            if (!list.length) { box.innerHTML = '<div class="status">还没有帖子。</div>'; return; }
+            box.innerHTML = list.map(function (it) {
+              var d = it.createdAt ? new Date(it.createdAt) : null;
+              var ds = d ? d.toLocaleString() : "";
+              return '<div class="post" data-id="' + esc(it.id) + '">' +
+                '<div class="pmeta"><span class="pauthor">' + esc(it.author) + '</span><span>💬 ' + (it.replyCount || 0) + '</span>' + (ds ? '<span>' + esc(ds) + '</span>' : '') + '</div>' +
+                '<div class="ptitle">' + esc(it.title) + '</div>' +
+                (it.snippet ? '<div class="pbody">' + esc(it.snippet) + '</div>' : '') +
+                '<div class="row" style="margin-top:8px"><button class="btn danger sm act-del" data-id="' + esc(it.id) + '">删除帖子</button></div></div>';
+            }).join("");
+            box.querySelectorAll(".act-del").forEach(function (b) {
+              b.onclick = function () {
+                if (!confirm("确定删除该帖子？此操作不可恢复。")) return;
+                wkFetch("/api/admin/forum/delete", { method: "POST", body: JSON.stringify({ id: b.getAttribute("data-id") }) })
+                  .then(function (r) { return r.json(); })
+                  .then(function (j) { if (j.error) throw new Error(j.error); loadPosts(); })
+                  .catch(function (e) { alert("删除失败：" + (e.message || e)); });
+              };
+            });
+          }).catch(function (e) { showErr(box, e, loadPosts); });
+        return;
+      }
+      // —— 兜底：无 Worker 时直连 GitHub Issues（保留兼容，运行时已不用）——
       fetch(API + "/repos/" + REPO + "/issues?labels=" + encodeURIComponent("💬 论坛") + "&state=all&sort=created&direction=desc&per_page=50", { headers: headers(false) })
         .then(function (r) { return r.json(); })
         .then(function (list) {
@@ -3180,7 +3222,7 @@
         '  <button type="button" class="btn role-b sm" id="stVoicePick">📁 上传语音</button>' +
         '  <input type="file" id="stVoiceFile" accept="audio/*" hidden>' +
         '</div>' +
-        '<div class="up-tip" id="stVoiceTip" style="font-size:12px;color:#8a93a6;margin-top:4px">支持 mp3 / wav / ogg，自动存入 docs/assets/ 目录（需总管理员或「代码维护」权限）。也可把文件命名为 login-voice.wav 直接放进上传包 docs/assets/ 覆盖默认，无需配置。</div>' +
+        '<div class="up-tip" id="stVoiceTip" style="font-size:12px;color:#8a93a6;margin-top:4px">本部署未启用 R2（需绑卡已排除），上传按钮暂不可用。请把语音文件命名为 <b>login-voice.wav</b> 直接放进上传包 <code>docs/assets/</code> 目录，重新上传 Pages 即生效，无需在此配置。</div>' +
         '</div>' +
         '<div class="row"><button class="btn role-c" id="stSave">保存</button><span class="msg" id="stMsg"></span></div></div>';
       getDataObj().then(function (d) {
@@ -3209,6 +3251,10 @@
       var file = c.querySelector("#stVoiceFile");
       var tip = c.querySelector("#stVoiceTip");
       var input = c.querySelector("#stHavkVoice");
+      // 本部署不使用 R2（需绑卡已排除）：禁用上传按钮，引导直接把文件放进上传包 docs/assets/
+      if (pick) { pick.disabled = true; pick.title = "本部署未启用 R2（需绑卡），请直接把文件放进上传包 docs/assets/"; }
+      if (file) { file.disabled = true; }
+      return;
       if (!pick || !file) return;
       pick.onclick = function () { try { file.click(); } catch (e) {} };
       file.onchange = function () {
