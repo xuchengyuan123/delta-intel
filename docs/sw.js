@@ -81,18 +81,15 @@ self.addEventListener("fetch", function (e) {
     return;
   }
 
-  // 其余静态资源：缓存优先，后台更新缓存（重复访问极快）
+  // 其余静态资源：网络优先（保证后台改完、刷新即见最新 JS/CSS/HTML），失败回退缓存（离线可用）
   e.respondWith(
-    caches.match(req).then(function (cached) {
-      var net = fetch(req).then(function (res) {
-        if (res && res.status === 200) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () { return cached; });
-      return cached || net;
-    })
+    fetch(req).then(function (res) {
+      if (res && res.status === 200) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    }).catch(function () { return caches.match(req); })
   );
 });
 

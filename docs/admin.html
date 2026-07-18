@@ -1014,10 +1014,11 @@
           alert("请先以总管理员身份登录（Worker 模式）才能同步到 D1。");
           return;
         }
-        if (!confirm("将把 GitHub 仓库中的 data.json 同步（覆盖）进 D1 数据库。\n确定继续？")) return;
+        if (!confirm("将把 GitHub 仓库里的完整 data.json（自动选根目录/docs 中较大的那份）同步（覆盖）进 D1 数据库。\n确定继续？\n\n提示：若后台改了东西想立刻生效，请先点对应面板的「保存」，再点本按钮。")) return;
         syncD1Btn.disabled = true;
         var oldTxt = syncD1Btn.textContent;
         syncD1Btn.textContent = "同步中…";
+        // 让 Worker 服务端直接从 GitHub 拉取「完整」data.json 写进 D1（绕开浏览器 service worker 缓存与网络差异，最可靠）
         wkFetch("/api/admin/migrate", { method: "POST", body: JSON.stringify({}) })
           .then(function (r) {
             return r.json().catch(function () { throw new Error("HTTP " + r.status); }).then(function (j) {
