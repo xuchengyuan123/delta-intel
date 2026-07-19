@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-19 16:05",
+      "role": "总管理员",
+      "action": "更新地图密码配置（含静态录入 0 条）"
+    },
+    {
       "time": "2026-07-19 16:00",
       "role": "总管理员",
       "action": "更新地图密码配置（含静态录入 0 条）"
@@ -4979,7 +4984,7 @@
   },
   "mapPass": {
     "enabled": true,
-    "url": "https://tmini.net/api/sjzmm?type=json",
+    "url": "https://orzice.com/workApi/v1/sjz_api/map_pwd?token=2d82f6620ea3b9664cfdb976cd9e84fe",
     "url2": "",
     "source": "自定义接口",
     "static": []
