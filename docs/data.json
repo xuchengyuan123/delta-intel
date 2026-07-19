@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-19 13:16",
+      "role": "总管理员",
+      "action": "更新 AI 助手计费规则（每千 token 15 分，区间 1–100）"
+    },
+    {
       "time": "2026-07-19 11:44",
       "role": "总管理员",
       "action": "更新干员图鉴（15 名）"
@@ -5705,5 +5710,10 @@
     ],
     "levelStep": 100
   },
-  "weatherCities": []
+  "weatherCities": [],
+  "aiPricing": {
+    "per1k": 15,
+    "min": 1,
+    "max": 100
+  }
 }
