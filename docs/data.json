@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-19 21:51",
+      "role": "总管理员",
+      "action": "更新地图密码静态兜底（1 条）"
+    },
+    {
       "time": "2026-07-19 20:07",
       "role": "总管理员",
       "action": "更新干员图鉴（15 名）"
@@ -5035,10 +5040,13 @@
   },
   "mapPass": {
     "enabled": true,
-    "url": "https://api.delta.shopping/api/proxy/mappass",
-    "url2": "",
-    "source": "Worker 代理 /api/proxy/mappass（多上游自动回退；当前公开源 apicx/yuafeng/tmini 均失效，若代理也无数据，请在后台「地图密码源→静态录入」手动填当天密码兜底）",
-    "static": []
+    "static": [
+      {
+        "map": "AZ3彩六联动",
+        "code": "901",
+        "location": "进AZ3→海水处理区上方/北侧管道入口下地下，走到尽头彩蛋房（第一道门输每日密码，第二道固定密码091，需队伍带无人机+破译人质旁摩斯码）"
+      }
+    ]
   },
   "_cl": [
     {
