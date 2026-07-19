@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-19 19:35",
+      "role": "总管理员",
+      "action": "更新干员图鉴（15 名）"
+    },
+    {
       "time": "2026-07-19 16:25",
       "role": "总管理员",
       "action": "更新地图密码静态兜底（6 条）"
@@ -1597,7 +1602,7 @@
         "火力": 88,
         "辅助": 55
       },
-      "cover": "https://bkimg.cdn.bcebos.com/pic/d62a6059252dd42a28346c7ae2614cb5c9ea14ce1295?x-bce-process=image/format,f_auto/quality,Q_70/resize,m_lfit,limit_1,w_536",
+      "cover": "https://storage.moegirl.org.cn/moegirl/commons/2/2f/%E7%BA%A2%E7%8B%BC-%E8%9A%80%E9%87%91%E7%8E%AB%E7%91%B0.jpg",
       "desc": "全能均衡突击，全赛季通用 T0，新手开荒首选。",
       "video": "",
       "passive": {
