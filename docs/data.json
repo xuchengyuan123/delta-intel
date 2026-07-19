@@ -4418,7 +4418,16 @@
     }
   ],
   "live": [],
-  "videos": [],
+  "videos": [
+    {
+      "platform": "billbill",
+      "title": "6月26日全新赛季【裂变】| 更新内容速览！",
+      "author": "三角洲行动",
+      "duration": "10：40",
+      "thumb": "",
+      "url": "https://www.bilibili.com/video/BV1Pzj96NEMA/?spm_id_from=333.337.search-card.all.click&vd_source=9cd28d155dd748780f94d16310b9ace9"
+    }
+  ],
   "changelog": [
     {
       "date": "2026-07-17",
