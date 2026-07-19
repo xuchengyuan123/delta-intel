@@ -440,7 +440,13 @@
     "havkVoiceUrl": "assets/login-voice.wav",
     "version": "v55.5"
   },
-  "adminLog": [],
+  "adminLog": [
+    {
+      "time": "2026-07-19 11:26",
+      "role": "总管理员",
+      "action": "更新地图密码配置（含静态录入 7 条）"
+    }
+  ],
   "tasks": {
     "season": "S10",
     "updated": "2026-07-12",
@@ -4934,7 +4940,45 @@
   "mapPass": {
     "enabled": true,
     "url": "https://tmini.net/api/sjzmm?type=json",
-    "source": "tmini.net（免费公开接口，每日自动更新三角洲行动各地图密码）"
+    "url2": "",
+    "source": "自定义接口",
+    "static": [
+      {
+        "map": "零号大坝",
+        "code": "8935",
+        "location": ""
+      },
+      {
+        "map": "长弓溪谷",
+        "code": "9433",
+        "location": ""
+      },
+      {
+        "map": "航天基地",
+        "code": "7491",
+        "location": ""
+      },
+      {
+        "map": "巴克什",
+        "code": "8891",
+        "location": ""
+      },
+      {
+        "map": "潮汐监狱",
+        "code": "2117",
+        "location": ""
+      },
+      {
+        "map": "AZ3",
+        "code": "1715",
+        "location": ""
+      },
+      {
+        "map": "AZ3彩六联动",
+        "code": "901",
+        "location": ""
+      }
+    ]
   },
   "_cl": [
     {
