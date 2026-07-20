@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-20 10:27",
+      "role": "总管理员",
+      "action": "更新反馈设置"
+    },
+    {
       "time": "2026-07-20 09:47",
       "role": "总管理员",
       "action": "更新地图密码静态兜底（1 条）"
@@ -4207,12 +4212,11 @@
   ],
   "meleeSource": "S10「裂变」刀皮资料来自 18183 攻略（2026-06）：https://m.18183.com/gonglue/202606/ff05jqo0.html（赛季手册6款/足球限定3款/核电站掉落2款/体验服1款，共12款）",
   "feedback": {
-    "email": "delta.intel.feedback@example.com",
-    "mailSubject": "三角洲情报台·网站反馈",
+    "email": "18612602599@163.com",
+    "mailSubject": "18612602599@163.com",
     "formUrl": "",
     "formEmbed": "",
-    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md",
-    "note": "在后台「代码维护 / 反馈设置」中修改邮箱与第三方表单链接。"
+    "github": "https://github.com/xuchengyuan123/delta-intel/issues/new?labels=feedback&template=feedback.md"
   },
   "images": {
     "images": []
