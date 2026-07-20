@@ -442,16 +442,6 @@
   },
   "adminLog": [
     {
-      "time": "2026-07-20 17:49",
-      "role": "总管理员",
-      "action": "更新反馈设置"
-    },
-    {
-      "time": "2026-07-20 17:49",
-      "role": "总管理员",
-      "action": "更新反馈设置"
-    },
-    {
       "time": "2026-07-20 17:48",
       "role": "总管理员",
       "action": "更新反馈设置"
@@ -1527,6 +1517,1081 @@
       "dr": "0%",
       "mob": "—",
       "desc": "无防护，受击直接扣血"
+    }
+  ],
+  "operators": [
+    {
+      "name": "红狼",
+      "realname": "凯·席尔瓦",
+      "role": "突击",
+      "skill": "手炮 · 常驻机动",
+      "skillDesc": "常驻移速 / 开镜 / 滑铲三重加成，手炮近距离爆发，击杀重置全部被动。",
+      "desc": "全能均衡突击，全赛季通用 T0，新手开荒首选。",
+      "stats": {
+        "机动": 92,
+        "生存": 82,
+        "火力": 88,
+        "辅助": 55
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "威龙",
+      "realname": "王宇昊",
+      "role": "突击",
+      "skill": "喷气推进 + 虎蹲炮/磁吸炸弹",
+      "skillDesc": "喷气突进快速转点、全额坠伤减免；虎蹲炮范围爆炸、磁吸炸弹可穿掩体打击。",
+      "desc": "立体机动突击，地形战神，攻坚破点兼备。",
+      "stats": {
+        "机动": 88,
+        "生存": 78,
+        "火力": 86,
+        "辅助": 50
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "疾风",
+      "realname": "克莱尔·安·拜尔斯",
+      "role": "突击",
+      "skill": "战术翻滚 + 回溯锚点",
+      "skillDesc": "连续战术翻滚规避子弹，大招放置回溯锚点，倒地后自动复活自救。",
+      "desc": "容错突击，残局翻盘核心，适合先锋探点。",
+      "stats": {
+        "机动": 90,
+        "生存": 74,
+        "火力": 80,
+        "辅助": 55
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "无名",
+      "realname": "埃利·德·蒙贝尔",
+      "role": "突击",
+      "skill": "流荧集群无人机 + 隐身",
+      "skillDesc": "释放无人机干扰视野 / 听觉 / 生命上限，大招进入隐身状态绕后收割。",
+      "desc": "渗透型突击，克制抱团推进，残局收割机器。",
+      "stats": {
+        "机动": 84,
+        "生存": 72,
+        "火力": 85,
+        "辅助": 60
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "乌鲁鲁",
+      "realname": "",
+      "role": "突击",
+      "skill": "爆炸道具 + 临时掩体",
+      "skillDesc": "大范围爆炸分割战场、堵桥卡点，快速搭建临时掩体分割敌方阵型。",
+      "desc": "阵地封锁突击，功能性极强，整活二创多。",
+      "stats": {
+        "机动": 70,
+        "生存": 86,
+        "火力": 82,
+        "辅助": 60
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "比特",
+      "realname": "",
+      "role": "突击",
+      "skill": "巡逻机械蜘蛛 + 弹道稳定",
+      "skillDesc": "被动提升远距离弹道稳定性，部署巡逻机械蜘蛛限制敌人移动。",
+      "desc": "阿萨拉本土突击，中距离持续压制，适配开阔地图。",
+      "stats": {
+        "机动": 76,
+        "生存": 80,
+        "火力": 84,
+        "辅助": 50
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "银翼",
+      "realname": "兰登·哈里森",
+      "role": "突击",
+      "skill": "钩爪位移 + 空中打击",
+      "skillDesc": "钩爪实现高空位移，空中完成打击，适合地形复杂的航天 / 山区地图。",
+      "desc": "高操作上限突击，非常规点位之王。",
+      "stats": {
+        "机动": 86,
+        "生存": 70,
+        "火力": 82,
+        "辅助": 48
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "露娜",
+      "realname": "金卢娜",
+      "role": "侦察",
+      "skill": "探测箭矢 + 电击箭",
+      "skillDesc": "探测箭 200 米扫描标记敌人 / 陷阱，电击箭范围伤害 + 麻痹，大招透视共享信息。",
+      "desc": "全能侦察，信息 + 输出双在线，路人组队必备。",
+      "stats": {
+        "机动": 86,
+        "生存": 72,
+        "火力": 78,
+        "辅助": 72
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "骇爪",
+      "realname": "麦晓雯",
+      "role": "侦察",
+      "skill": "信号破译器 + 巡飞器",
+      "skillDesc": "X 技能扫描前方 60 米内最多 6 个电子信号并显示轨迹线；闪光巡飞器致盲、数据飞刀沉默打断。",
+      "desc": "信息之王，容错极高，跑刀猛攻双适配。",
+      "stats": {
+        "机动": 82,
+        "生存": 70,
+        "火力": 68,
+        "辅助": 80
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "回响",
+      "realname": "卢克·埃弗利",
+      "role": "侦察",
+      "skill": "声纹感知 + 次声波干扰",
+      "skillDesc": "声纹感知监听敌人脚步 / 换弹声；四颗次声波干扰道具封锁敌方视野与沟通。",
+      "desc": "S9 新干员，T0 级侦察，信息获取断层领先。",
+      "stats": {
+        "机动": 80,
+        "生存": 74,
+        "火力": 65,
+        "辅助": 85
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蜂医",
+      "realname": "罗伊·斯米",
+      "role": "支援",
+      "skill": "激素枪 + 治疗烟雾",
+      "skillDesc": "V/G 技能释放长烟与短烟，X 大招给自己扎针回血；激素枪远程追踪治疗，治疗烟高效救援。",
+      "desc": "团队基石，最强烟位，组排续航核心。",
+      "stats": {
+        "机动": 72,
+        "生存": 84,
+        "火力": 55,
+        "辅助": 95
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蛊",
+      "realname": "佐娅·庞琴科娃",
+      "role": "支援",
+      "skill": "流荧无人机 + 致盲毒雾",
+      "skillDesc": "V 放小型无人机增开镜 / 移速，G 致盲烟雾，X 集群无人机造成伤害并缓慢掉血，增益队友。",
+      "desc": "化学作战专家，增益与干扰兼顾的团战控场。",
+      "stats": {
+        "机动": 74,
+        "生存": 76,
+        "火力": 65,
+        "辅助": 90
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "蝶",
+      "realname": "莉娜·范德梅尔",
+      "role": "支援",
+      "skill": "仿生蝴蝶群 + 纳米粉尘",
+      "skillDesc": "仿生蝴蝶群无人机自动救援倒地队友，纳米医疗粉尘持续回血，遥控烟雾加速 / 减速。",
+      "desc": "远程救援型支援，持久战与兜底救援强。",
+      "stats": {
+        "机动": 70,
+        "生存": 80,
+        "火力": 50,
+        "辅助": 92
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "深蓝",
+      "realname": "阿列克谢·彼得罗夫",
+      "role": "工程",
+      "skill": "防爆盾 + 电磁护盾",
+      "skillDesc": "重型防爆套装大幅减伤，防爆盾击退后方敌人；主动释放全屏电磁护盾，喷枪切割维修。",
+      "desc": "重装工程，正面抗压与阵地构建顶尖。",
+      "stats": {
+        "机动": 58,
+        "生存": 95,
+        "火力": 70,
+        "辅助": 72
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "牧羊人",
+      "realname": "泰瑞·缪萨",
+      "role": "工程",
+      "skill": "声波陷阱 + 震慑无人机",
+      "skillDesc": "部署声波陷阱减速 / 穿透伤害；大招声波无人机范围震撼减速、模糊视野；被动减振降低全队爆伤。",
+      "desc": "防御之王，区域封锁与守点无解。",
+      "stats": {
+        "机动": 62,
+        "生存": 90,
+        "火力": 68,
+        "辅助": 85
+      },
+      "cover": "",
+      "video": "",
+      "passive": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "ultimate": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill2": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "skill3": {
+        "name": "",
+        "desc": "",
+        "video": "",
+        "image": ""
+      },
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    }
+  ],
+  "weaponCodex": [
+    {
+      "name": "AKM",
+      "type": "突击步枪",
+      "ammo": "7.62x39",
+      "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M4A1",
+      "type": "突击步枪",
+      "ammo": "5.56x45",
+      "desc": "稳定好上手，新手到进阶都合适的全能步枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "98K",
+      "type": "狙击枪",
+      "ammo": "7.62x54R",
+      "desc": "经典栓动狙，远距离一枪一个的浪漫。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "MP5",
+      "type": "冲锋枪",
+      "ammo": "9x19",
+      "desc": "近距离扫射王者，室内近战称霸。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M870",
+      "type": "霰弹枪",
+      "ammo": "12号",
+      "desc": "贴脸爆发极高，适合守点与突袭。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M249",
+      "type": "机枪",
+      "ammo": "5.56x45",
+      "desc": "持续压制与封锁火力的重火力担当。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "G18",
+      "type": "手枪",
+      "ammo": "9x19",
+      "desc": "高射速副武器，近身应急与补枪好手。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "SVD",
+      "type": "射手步枪",
+      "ammo": "7.62x54R",
+      "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M250",
+      "type": "轻机枪",
+      "ammo": "7.62x51",
+      "desc": "高弹容持续火力，封锁与压制兼备的通用机枪。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "M700",
+      "type": "狙击枪",
+      "ammo": "7.62x51",
+      "desc": "栓动狙，轻便易上手，远距离精准猎杀。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "ASVAL",
+      "type": "突击步枪",
+      "ammo": "9x39",
+      "desc": "一体化消音，近中距隐蔽突袭的利器。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "SR-25",
+      "type": "射手步枪",
+      "ammo": "7.62x51",
+      "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
     }
   ],
   "music": [
@@ -4634,1080 +5699,5 @@
     ],
     "levelStep": 100
   },
-  "weatherCities": [],
-  "operators": [
-    {
-      "name": "红狼",
-      "realname": "凯·席尔瓦",
-      "role": "突击",
-      "skill": "手炮 · 常驻机动",
-      "skillDesc": "常驻移速 / 开镜 / 滑铲三重加成，手炮近距离爆发，击杀重置全部被动。",
-      "desc": "全能均衡突击，全赛季通用 T0，新手开荒首选。",
-      "stats": {
-        "机动": 92,
-        "生存": 82,
-        "火力": 88,
-        "辅助": 55
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "威龙",
-      "realname": "王宇昊",
-      "role": "突击",
-      "skill": "喷气推进 + 虎蹲炮/磁吸炸弹",
-      "skillDesc": "喷气突进快速转点、全额坠伤减免；虎蹲炮范围爆炸、磁吸炸弹可穿掩体打击。",
-      "desc": "立体机动突击，地形战神，攻坚破点兼备。",
-      "stats": {
-        "机动": 88,
-        "生存": 78,
-        "火力": 86,
-        "辅助": 50
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "疾风",
-      "realname": "克莱尔·安·拜尔斯",
-      "role": "突击",
-      "skill": "战术翻滚 + 回溯锚点",
-      "skillDesc": "连续战术翻滚规避子弹，大招放置回溯锚点，倒地后自动复活自救。",
-      "desc": "容错突击，残局翻盘核心，适合先锋探点。",
-      "stats": {
-        "机动": 90,
-        "生存": 74,
-        "火力": 80,
-        "辅助": 55
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "无名",
-      "realname": "埃利·德·蒙贝尔",
-      "role": "突击",
-      "skill": "流荧集群无人机 + 隐身",
-      "skillDesc": "释放无人机干扰视野 / 听觉 / 生命上限，大招进入隐身状态绕后收割。",
-      "desc": "渗透型突击，克制抱团推进，残局收割机器。",
-      "stats": {
-        "机动": 84,
-        "生存": 72,
-        "火力": 85,
-        "辅助": 60
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "乌鲁鲁",
-      "realname": "",
-      "role": "突击",
-      "skill": "爆炸道具 + 临时掩体",
-      "skillDesc": "大范围爆炸分割战场、堵桥卡点，快速搭建临时掩体分割敌方阵型。",
-      "desc": "阵地封锁突击，功能性极强，整活二创多。",
-      "stats": {
-        "机动": 70,
-        "生存": 86,
-        "火力": 82,
-        "辅助": 60
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "比特",
-      "realname": "",
-      "role": "突击",
-      "skill": "巡逻机械蜘蛛 + 弹道稳定",
-      "skillDesc": "被动提升远距离弹道稳定性，部署巡逻机械蜘蛛限制敌人移动。",
-      "desc": "阿萨拉本土突击，中距离持续压制，适配开阔地图。",
-      "stats": {
-        "机动": 76,
-        "生存": 80,
-        "火力": 84,
-        "辅助": 50
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "银翼",
-      "realname": "兰登·哈里森",
-      "role": "突击",
-      "skill": "钩爪位移 + 空中打击",
-      "skillDesc": "钩爪实现高空位移，空中完成打击，适合地形复杂的航天 / 山区地图。",
-      "desc": "高操作上限突击，非常规点位之王。",
-      "stats": {
-        "机动": 86,
-        "生存": 70,
-        "火力": 82,
-        "辅助": 48
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "露娜",
-      "realname": "金卢娜",
-      "role": "侦察",
-      "skill": "探测箭矢 + 电击箭",
-      "skillDesc": "探测箭 200 米扫描标记敌人 / 陷阱，电击箭范围伤害 + 麻痹，大招透视共享信息。",
-      "desc": "全能侦察，信息 + 输出双在线，路人组队必备。",
-      "stats": {
-        "机动": 86,
-        "生存": 72,
-        "火力": 78,
-        "辅助": 72
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "骇爪",
-      "realname": "麦晓雯",
-      "role": "侦察",
-      "skill": "信号破译器 + 巡飞器",
-      "skillDesc": "X 技能扫描前方 60 米内最多 6 个电子信号并显示轨迹线；闪光巡飞器致盲、数据飞刀沉默打断。",
-      "desc": "信息之王，容错极高，跑刀猛攻双适配。",
-      "stats": {
-        "机动": 82,
-        "生存": 70,
-        "火力": 68,
-        "辅助": 80
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "回响",
-      "realname": "卢克·埃弗利",
-      "role": "侦察",
-      "skill": "声纹感知 + 次声波干扰",
-      "skillDesc": "声纹感知监听敌人脚步 / 换弹声；四颗次声波干扰道具封锁敌方视野与沟通。",
-      "desc": "S9 新干员，T0 级侦察，信息获取断层领先。",
-      "stats": {
-        "机动": 80,
-        "生存": 74,
-        "火力": 65,
-        "辅助": 85
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "蜂医",
-      "realname": "罗伊·斯米",
-      "role": "支援",
-      "skill": "激素枪 + 治疗烟雾",
-      "skillDesc": "V/G 技能释放长烟与短烟，X 大招给自己扎针回血；激素枪远程追踪治疗，治疗烟高效救援。",
-      "desc": "团队基石，最强烟位，组排续航核心。",
-      "stats": {
-        "机动": 72,
-        "生存": 84,
-        "火力": 55,
-        "辅助": 95
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "蛊",
-      "realname": "佐娅·庞琴科娃",
-      "role": "支援",
-      "skill": "流荧无人机 + 致盲毒雾",
-      "skillDesc": "V 放小型无人机增开镜 / 移速，G 致盲烟雾，X 集群无人机造成伤害并缓慢掉血，增益队友。",
-      "desc": "化学作战专家，增益与干扰兼顾的团战控场。",
-      "stats": {
-        "机动": 74,
-        "生存": 76,
-        "火力": 65,
-        "辅助": 90
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "蝶",
-      "realname": "莉娜·范德梅尔",
-      "role": "支援",
-      "skill": "仿生蝴蝶群 + 纳米粉尘",
-      "skillDesc": "仿生蝴蝶群无人机自动救援倒地队友，纳米医疗粉尘持续回血，遥控烟雾加速 / 减速。",
-      "desc": "远程救援型支援，持久战与兜底救援强。",
-      "stats": {
-        "机动": 70,
-        "生存": 80,
-        "火力": 50,
-        "辅助": 92
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "深蓝",
-      "realname": "阿列克谢·彼得罗夫",
-      "role": "工程",
-      "skill": "防爆盾 + 电磁护盾",
-      "skillDesc": "重型防爆套装大幅减伤，防爆盾击退后方敌人；主动释放全屏电磁护盾，喷枪切割维修。",
-      "desc": "重装工程，正面抗压与阵地构建顶尖。",
-      "stats": {
-        "机动": 58,
-        "生存": 95,
-        "火力": 70,
-        "辅助": 72
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "牧羊人",
-      "realname": "泰瑞·缪萨",
-      "role": "工程",
-      "skill": "声波陷阱 + 震慑无人机",
-      "skillDesc": "部署声波陷阱减速 / 穿透伤害；大招声波无人机范围震撼减速、模糊视野；被动减振降低全队爆伤。",
-      "desc": "防御之王，区域封锁与守点无解。",
-      "stats": {
-        "机动": 62,
-        "生存": 90,
-        "火力": 68,
-        "辅助": 85
-      },
-      "cover": "",
-      "video": "",
-      "passive": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "ultimate": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill2": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "skill3": {
-        "name": "",
-        "desc": "",
-        "video": "",
-        "image": ""
-      },
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    }
-  ],
-  "weaponCodex": [
-    {
-      "name": "AKM",
-      "type": "突击步枪",
-      "ammo": "7.62x39",
-      "desc": "高单发伤害与可靠性能，泛用性极强的中坚步枪。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "M4A1",
-      "type": "突击步枪",
-      "ammo": "5.56x45",
-      "desc": "稳定好上手，新手到进阶都合适的全能步枪。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "98K",
-      "type": "狙击枪",
-      "ammo": "7.62x54R",
-      "desc": "经典栓动狙，远距离一枪一个的浪漫。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "MP5",
-      "type": "冲锋枪",
-      "ammo": "9x19",
-      "desc": "近距离扫射王者，室内近战称霸。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "M870",
-      "type": "霰弹枪",
-      "ammo": "12号",
-      "desc": "贴脸爆发极高，适合守点与突袭。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "M249",
-      "type": "机枪",
-      "ammo": "5.56x45",
-      "desc": "持续压制与封锁火力的重火力担当。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "G18",
-      "type": "手枪",
-      "ammo": "9x19",
-      "desc": "高射速副武器，近身应急与补枪好手。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "SVD",
-      "type": "射手步枪",
-      "ammo": "7.62x54R",
-      "desc": "半自动连狙，兼顾射速与远距离打击。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "M250",
-      "type": "轻机枪",
-      "ammo": "7.62x51",
-      "desc": "高弹容持续火力，封锁与压制兼备的通用机枪。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "M700",
-      "type": "狙击枪",
-      "ammo": "7.62x51",
-      "desc": "栓动狙，轻便易上手，远距离精准猎杀。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "ASVAL",
-      "type": "突击步枪",
-      "ammo": "9x39",
-      "desc": "一体化消音，近中距隐蔽突袭的利器。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    },
-    {
-      "name": "SR-25",
-      "type": "射手步枪",
-      "ammo": "7.62x51",
-      "desc": "半自动连狙，兼顾射速与远距离打击。",
-      "cover": "",
-      "video": "",
-      "baseDamage": 0,
-      "armorDamage": 0,
-      "effectiveRange": 0,
-      "recoilControl": 0,
-      "handlingSpeed": 0,
-      "stability": 0,
-      "hipFireAccuracy": 0,
-      "rof": 0,
-      "capacity": 0,
-      "newbieGuide": "",
-      "mods": [],
-      "analysis": {
-        "text": "",
-        "images": [],
-        "video": ""
-      },
-      "reviews": {
-        "score": "",
-        "items": []
-      }
-    }
-  ]
+  "weatherCities": []
 }
