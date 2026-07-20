@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-20 09:34",
+      "role": "总管理员",
+      "action": "更新地图密码静态兜底（7 条）"
+    },
+    {
       "time": "2026-07-20 09:33",
       "role": "总管理员",
       "action": "更新地图密码静态兜底（7 条）"
@@ -5079,7 +5084,7 @@
     "source": "caiweilv/DeltaForcePrice（GitHub 公开仓库，数据来自《三角洲行动》游戏内交易行真实成交价，每 10 分钟更新；主源经本站 Worker 自定义域 api.delta.shopping/api/price 服务端转发，国内稳定可达；失败自动回退 jsDelivr/fastly/raw 镜像，免费、非官方）"
   },
   "mapPass": {
-    "enabled": true,
+    "enabled": false,
     "static": [
       {
         "map": "零号大坝",
