@@ -442,6 +442,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-07-20 10:35",
+      "role": "总管理员",
+      "action": "更新反馈设置"
+    },
+    {
       "time": "2026-07-20 10:28",
       "role": "总管理员",
       "action": "更新反馈设置"
@@ -4219,7 +4224,7 @@
   "feedback": {
     "email": "18612602599@163.com",
     "mailSubject": "18612602599@163.com",
-    "formUrl": "",
+    "formUrl": "https://f.wps.cn/g/ti3mtdwH/ 【WPS表单】邀你填写「三角洲情报台反馈表单收集」",
     "formEmbed": "",
     "github": ""
   },
