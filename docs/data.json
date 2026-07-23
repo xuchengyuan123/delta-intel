@@ -3240,7 +3240,16 @@
     }
   ],
   "live": [],
-  "videos": [],
+  "videos": [
+    {
+      "platform": "billbill",
+      "title": "用巴别塔写出神级作文",
+      "author": "茉莉老师讲语文",
+      "duration": "06:39",
+      "thumb": "",
+      "url": "https://www.bilibili.com/video/BV1smNd6jEXu?t=46.6"
+    }
+  ],
   "changelog": [
     {
       "date": "2026-07-17",
