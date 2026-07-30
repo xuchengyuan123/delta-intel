@@ -115,38 +115,7 @@
       }
     ]
   },
-  "maps": [
-    {
-      "name": "零号大坝",
-      "code": "0213",
-      "date": "2026-07-10 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "0991",
-      "date": "2026-07-10 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "0341",
-      "date": "2026-07-10 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "0729",
-      "date": "2026-07-10 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "0035",
-      "date": "2026-07-10 更新"
-    },
-    {
-      "name": "AZ3",
-      "code": "0510",
-      "date": "2026-07-10 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -1477,7 +1446,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-07-29T08:02:15.945Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
@@ -3299,22 +3268,6 @@
   "videos": [
     {
       "platform": "billbill",
-      "title": "用巴别塔写出神级作文",
-      "author": "茉莉老师讲语文",
-      "duration": "06:39",
-      "thumb": "",
-      "url": "https://www.bilibili.com/video/BV1smNd6jEXu?t=46.6"
-    },
-    {
-      "platform": "billbill",
-      "title": "轻飘--兄弟（拯救大兵）",
-      "author": "杨齐家",
-      "duration": "12:42",
-      "thumb": "https://www.bilibili.com/video/BV1hVK667ExW/?spm_id_from=333.337.search-card.all.click",
-      "url": "https://www.bilibili.com/video/BV1hVK667ExW?t=0.6"
-    },
-    {
-      "platform": "billbill",
       "title": "双赛季核电站ARG解密全流程！摩斯密码，声纹，AES加密，万人撞车趟迷宫！「三角洲S10赛季",
       "author": "key725",
       "duration": "27:08",
@@ -3344,6 +3297,14 @@
       "duration": "01:39",
       "thumb": "https://www.bilibili.com/video/BV1Hy336wEuv/?spm_id_from=333.337.search-card.all.click",
       "url": "https://www.bilibili.com/video/BV1Hy336wEuv?t=20.8"
+    },
+    {
+      "platform": "billbill",
+      "title": "宝藏月」8月8日重磅回归，发枪发券助你得瓷！",
+      "author": "三角洲行动",
+      "duration": "01:09",
+      "thumb": "",
+      "url": "https://www.bilibili.com/video/BV1LQ3C62ECj?t=2.4"
     }
   ],
   "changelog": [
