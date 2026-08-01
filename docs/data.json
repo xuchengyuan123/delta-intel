@@ -444,6 +444,11 @@
     {
       "time": "2026-08-01 21:28",
       "role": "总管理员",
+      "action": "更新武器图鉴（13 把）"
+    },
+    {
+      "time": "2026-08-01 21:28",
+      "role": "总管理员",
       "action": "更新武器图鉴（12 把）"
     },
     {
@@ -6209,6 +6214,35 @@
       "type": "射手步枪",
       "ammo": "7.62x51",
       "desc": "半自动连狙，兼顾射速与远距离打击。",
+      "cover": "",
+      "video": "",
+      "baseDamage": 0,
+      "armorDamage": 0,
+      "effectiveRange": 0,
+      "recoilControl": 0,
+      "handlingSpeed": 0,
+      "stability": 0,
+      "hipFireAccuracy": 0,
+      "rof": 0,
+      "capacity": 0,
+      "priceName": "",
+      "newbieGuide": "",
+      "mods": [],
+      "analysis": {
+        "text": "",
+        "images": [],
+        "video": ""
+      },
+      "reviews": {
+        "score": "",
+        "items": []
+      }
+    },
+    {
+      "name": "SKS",
+      "type": "射手步枪",
+      "ammo": "7.62x39",
+      "desc": "",
       "cover": "",
       "video": "",
       "baseDamage": 0,
