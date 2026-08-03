@@ -115,43 +115,7 @@
       }
     ]
   },
-  "maps": [
-    {
-      "name": "彩六联动房",
-      "code": "069",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "AZ3核电站",
-      "code": "8405",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "9390",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "0062",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "2341",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "4878",
-      "date": "2026-08-03 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "3958",
-      "date": "2026-08-03 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -1497,7 +1461,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-08-03T10:56:10.450Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
@@ -3346,6 +3310,14 @@
       "duration": "01:09",
       "thumb": "",
       "url": "https://www.bilibili.com/video/BV1LQ3C62ECj?t=2.4"
+    },
+    {
+      "platform": "billbill",
+      "title": "8月8日，我打算去寻宝，谁赞成，谁反对？",
+      "author": "三角洲行动",
+      "duration": "03:01",
+      "thumb": "",
+      "url": "https://www.bilibili.com/video/BV1SvMQ6UEKR?t=2.2"
     }
   ],
   "changelog": [
