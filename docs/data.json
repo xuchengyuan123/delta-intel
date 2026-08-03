@@ -3269,7 +3269,16 @@
       "likes": ""
     }
   ],
-  "live": [],
+  "live": [
+    {
+      "platform": "B站",
+      "streamer": "老飞宇",
+      "title": "各位78",
+      "viewers": "",
+      "live": true,
+      "url": "https://live.bilibili.com/7878?hotRank=0&session_id=6bb0beaa4df87e9d091249adc26a7085_dac29108-932e-4783-a265-d918234cd0bc&launch_id=1000229&live_from=71003&trackid=live_feed_0.router-live-2482124-wtblt.1785759058574.328"
+    }
+  ],
   "videos": [
     {
       "platform": "billbill",
