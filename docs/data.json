@@ -441,9 +441,14 @@
     "adminEmail": "18612602599@163.com，18612602599（微信同号）",
     "betVisible": true,
     "watchEnabled": true,
-    "watchRoomId": "https://live.bilibili.com/1921272912"
+    "watchRoomId": "1921272912"
   },
   "adminLog": [
+    {
+      "time": "2026-08-19 13:38",
+      "role": "总管理员",
+      "action": "更新站点设置"
+    },
     {
       "time": "2026-08-19 13:37",
       "role": "总管理员",
