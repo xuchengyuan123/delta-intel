@@ -439,9 +439,16 @@
     "havkVoiceUrl": "assets/login-voice.wav",
     "version": "v55.5",
     "adminEmail": "18612602599@163.com，18612602599（微信同号）",
-    "betVisible": true
+    "betVisible": true,
+    "watchEnabled": true,
+    "watchRoomId": ""
   },
   "adminLog": [
+    {
+      "time": "2026-08-19 13:36",
+      "role": "总管理员",
+      "action": "更新站点设置"
+    },
     {
       "time": "2026-08-19 12:35",
       "role": "总管理员",
