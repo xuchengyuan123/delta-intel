@@ -445,6 +445,11 @@
   },
   "adminLog": [
     {
+      "time": "2026-08-20 16:52",
+      "role": "总管理员",
+      "action": "更新网站更新内容（44 条）"
+    },
+    {
       "time": "2026-08-20 13:26",
       "role": "总管理员",
       "action": "更新站点设置"
@@ -3394,17 +3399,6 @@
   "changelog": [
     {
       "date": "2026-07-17",
-      "title": "v55.5 · 数据层迁移到 Cloudflare D1（根治根域 404）",
-      "items": [
-        "数据层从『GitHub 直写 data.json』改为 Cloudflare D1 数据库（绑定变量名 DB，表 kv，键 data），规避根域 delta.shopping/data.json 404（GitHub Pages 项目站路径问题）",
-        "新增公开接口 GET /api/data：前台优先从此读全站数据，D1 不可达时自动回退同源 data.json（兼容未部署 D1）",
-        "后台保存 PUT /api/admin/data 与读取 GET /api/admin/data 改为优先 D1，未绑 D1 时回退 GitHub 直写（向后兼容）",
-        "新增『同步到 D1』按钮：后台首次绑定 D1 后点此，把 GitHub 现有 data.json 一次性导入 D1（POST /api/admin/migrate）",
-        "D1 单行约 1MB 上限，data.json 约 160KB 整文件存一行完全可行；写入仍做 JSON 合法性校验，避免整站数据损坏"
-      ]
-    },
-    {
-      "date": "2026-07-17",
       "title": "v55 · 应用防火墙加固至 15 层",
       "items": [
         "修复 OPTIONS 预检请求完全绕过防火墙的漏洞（现预检也过轻量 WAF）",
@@ -3425,15 +3419,6 @@
         "修复第11层来源校验的 CSRF 绕过漏洞：原逻辑在 Referer 缺失时会放行不信任的 Origin（evil.com 可绕过），已改为以 Origin 为准、不信任即拦截",
         "登录防暴力破解：总管理员（站长）永不被锁定，避免自己测试时连错几次被锁死进不了后台",
         "防御性兜底：SUPER_EMAIL/SUPER_PASSWORD/ALLOWED_ORIGINS 引用统一 String() 包裹，避免非字符串配置导致 500 崩溃"
-      ]
-    },
-    {
-      "date": "2026-07-17",
-      "title": "v55.3 · 彻底移除第 11 层（来源/Origin 同源校验）",
-      "items": [
-        "按用户要求彻底删除第 11 层防火墙（来源/Origin/Referer 同源校验）。原因：V55 初版该层误墙已登录用户的正常浏览（带 token 的 GET 被 403），减弱后仍非必需",
-        "同步移除仅被该层使用的 getTrustedOrigins / originHostAllowed 两个死函数",
-        "现防火墙共 14 层（原 15 层），第12/13/14/15 层编号保持不变。注意：移除后不再对跨站写请求做 CSRF 来源校验，第三方网站可伪造写请求"
       ]
     },
     {
