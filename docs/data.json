@@ -3296,16 +3296,7 @@
       "likes": ""
     }
   ],
-  "live": [
-    {
-      "platform": "B站",
-      "streamer": "华为终端",
-      "title": "享界G9及鸿蒙智行全场景新品发布",
-      "viewers": "",
-      "live": true,
-      "url": "https://live.bilibili.com/22237535"
-    }
-  ],
+  "live": [],
   "videos": [
     {
       "platform": "billbill",
@@ -3314,46 +3305,6 @@
       "duration": "27:08",
       "thumb": "https://i0.hdslb.com/bfs/archive/fc0e71b04fb5966a22d1b581b3f1484a906259df.jpg@672w_378h_1c_!web-search-common-cover.avif",
       "url": "https://www.bilibili.com/video/BV1MbT86nEZC?t=1.1"
-    },
-    {
-      "platform": "billbill",
-      "title": "我从地狱归来（拯救大兵）",
-      "author": "杨齐家",
-      "duration": "14:51",
-      "thumb": "https://i0.hdslb.com/bfs/archive/a9e0fdb72b968006d8a71fdb1dff66bd2acf4a65.jpg@672w_378h_1c_!web-search-common-cover.avif",
-      "url": "https://www.bilibili.com/video/BV1uF3M6vE8T?t=1.8"
-    },
-    {
-      "platform": "billbill",
-      "title": "景德镇联动！3个联动红！宝藏月来了！送传说枪皮和2600劵！今年第三次2600限时劵！",
-      "author": "key725",
-      "duration": "02:51",
-      "thumb": "https://i0.hdslb.com/bfs/archive/394b021754ba2c4adb378163f7dbe2b00a5796f7.jpg@672w_378h_1c_!web-search-common-cover.avif",
-      "url": "https://www.bilibili.com/video/BV1gc3J6eEco?t=1.1"
-    },
-    {
-      "platform": "billbill",
-      "title": "一瓷藏千年，一局寻文脉｜2600限时三角券宝藏月免费送！",
-      "author": "三角洲行动",
-      "duration": "01:39",
-      "thumb": "https://www.bilibili.com/video/BV1Hy336wEuv/?spm_id_from=333.337.search-card.all.click",
-      "url": "https://www.bilibili.com/video/BV1Hy336wEuv?t=20.8"
-    },
-    {
-      "platform": "billbill",
-      "title": "宝藏月」8月8日重磅回归，发枪发券助你得瓷！",
-      "author": "三角洲行动",
-      "duration": "01:09",
-      "thumb": "",
-      "url": "https://www.bilibili.com/video/BV1LQ3C62ECj?t=2.4"
-    },
-    {
-      "platform": "billbill",
-      "title": "8月8日，我打算去寻宝，谁赞成，谁反对？",
-      "author": "三角洲行动",
-      "duration": "03:01",
-      "thumb": "",
-      "url": "https://www.bilibili.com/video/BV1SvMQ6UEKR?t=2.2"
     }
   ],
   "changelog": [
