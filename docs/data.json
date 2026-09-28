@@ -115,38 +115,7 @@
       }
     ]
   },
-  "maps": [
-    {
-      "name": "AZ3核电站",
-      "code": "6330",
-      "date": "2026-09-28 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "8093",
-      "date": "2026-09-28 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "0450",
-      "date": "2026-09-28 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "4885",
-      "date": "2026-09-28 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "2925",
-      "date": "2026-09-28 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "2154",
-      "date": "2026-09-28 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -1570,7 +1539,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-09-28T00:11:40.512Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
@@ -3317,36 +3286,6 @@
       "likes": ""
     },
     {
-      "title": "《三角洲行动》祝贺景德镇申遗成功｜千年窑火灼耀于今，2600限时三角券宝藏月免费送！",
-      "source": "官方公众号",
-      "date": "2027-7-26",
-      "summary": "《三角洲行动》祝贺景德镇申遗成功｜千年窑火灼耀于今，2600限时三角券宝藏月免费送！",
-      "url": "https://mp.weixin.qq.com/s/YN9QqkWgPYYZYCh1od7FNw",
-      "thumb": "https://mmbiz.qpic.cn/sz_mmbiz_png/ILx7lpk6iaTlicardbiccUhSDdy1PvzbBDAicb6MhR7lcibrh4AuQ1HdvkyjLU6Uicia7CuOdibRzrSykLq31G6DzqwXLU54ESSlM9UFbjSfLM14Rss/640?wx_fmt=png&from=appmsg&tp=webp&wxfrom=5&wx_lazy=1#imgIndex=2",
-      "views": "",
-      "likes": ""
-    },
-    {
-      "title": "2026烽火职业联赛夏季赛8月5日正式开赛!",
-      "source": "官方公告",
-      "date": "2026-07-28",
-      "summary": "热血赛场重启，巅峰对决将至！2026三角洲行动烽火职业联赛夏季赛将于8月5日开赛，各路职业强者齐聚赛场，他们将在瞬息万变的战局中展开战术协作的全面较量，用全力以赴的对决书写全新赛场篇章，诠释“赢出定义，我即定义”的电竞态度。",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=6900377064182821055",
-      "thumb": "https://static.gametalk.qq.com/image/423/1785308371_f4331ffc07572ca75c5670d2ebab0b84.jpg",
-      "views": "",
-      "likes": ""
-    },
-    {
-      "title": "7月30日更新公告|2600限时三角券&宝藏月捆绑包免费 送!",
-      "source": "官方公告",
-      "date": "2026-7-29",
-      "summary": "寻\"枪\"：「拾花」传说武器捆绑包，参与宝藏月活动免费送！\n\n寻\"宝\"：双模式玩法同步升级——烽火地带上线特殊藏宝图玩法，双8号「必出红」点位，检视藏宝图、寻找失落秘宝，登录即送8号藏宝图；全面战场上线全新玩法\"疯狂的盒子\"，乱斗夺宝。\n\n寻\"瓷\"：三款景德镇御窑博物院联动大红——岁岁鸭、得吃鸡缸杯、白里出红瓶，镇\"洲\"之宝，等你来寻。\n\n寻\"秘\"：8月8日登录即送藏宝图，循线索解锁专属联动惊喜宝藏，幸运鸟窝重磅开启，传说近战\"北极星\"\"黑海\"限时返场。\n\n四重宝藏一路寻，一路发！7月30日起，更有2600限时三角券和「拾花」传说武器捆绑包免费送，8月宝藏月，送枪送券助你得瓷！",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=15139070556128236959",
-      "thumb": "https://static.gametalk.qq.com/image/423/1785382272_f3ccdd27d2000e3f9255a7e3e2c48800.jpg",
-      "views": "",
-      "likes": ""
-    },
-    {
       "title": "战备就位,集结出发!《三角洲行动》×RAZER联名 外设系列正式登场",
       "source": "官方广告",
       "date": "2026-7-20",
@@ -3354,16 +3293,6 @@
       "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=13225167670786470919",
       "thumb": "https://static.gametalk.qq.com/image/423/1784553645_f3ccdd27d2000e3f9255a7e3e2c48800.jpg",
       "views": "",
-      "likes": ""
-    },
-    {
-      "title": "8月19号更新公告",
-      "source": "官方公告",
-      "date": "2026-8-19",
-      "summary": "七夕活动上线",
-      "url": "https://df.qq.com/cp/a20240906main/newsdetail.html?id=7443862542971890342",
-      "thumb": "https://static.gametalk.qq.com/image/423/1787045863_dcd859eb223ba5987ed8faab0397a895.jpg",
-      "views": 100000,
       "likes": ""
     }
   ],
