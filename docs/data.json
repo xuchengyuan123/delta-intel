@@ -115,38 +115,7 @@
       }
     ]
   },
-  "maps": [
-    {
-      "name": "AZ3核电站",
-      "code": "2516",
-      "date": "2026-09-29 更新"
-    },
-    {
-      "name": "零号大坝",
-      "code": "1690",
-      "date": "2026-09-29 更新"
-    },
-    {
-      "name": "长弓溪谷",
-      "code": "0178",
-      "date": "2026-09-29 更新"
-    },
-    {
-      "name": "巴克什",
-      "code": "9951",
-      "date": "2026-09-29 更新"
-    },
-    {
-      "name": "航天基地",
-      "code": "1471",
-      "date": "2026-09-29 更新"
-    },
-    {
-      "name": "潮汐监狱",
-      "code": "8485",
-      "date": "2026-09-29 更新"
-    }
-  ],
+  "maps": [],
   "items": [
     {
       "station": "技术中心",
@@ -471,10 +440,15 @@
     "version": "v55.5",
     "adminEmail": "18612602599@163.com",
     "betVisible": true,
-    "watchEnabled": true,
+    "watchEnabled": false,
     "watchRoomId": "1921272912"
   },
   "adminLog": [
+    {
+      "time": "2026-09-29 12:49",
+      "role": "总管理员",
+      "action": "更新站点设置"
+    },
     {
       "time": "2026-08-20 16:52",
       "role": "总管理员",
@@ -1570,7 +1544,7 @@
   ],
   "title": "三角洲情报台",
   "source": "https://tmini.net/api/sjzmm?type=json",
-  "updatedAt": "2026-09-29T01:22:38.273Z",
+  "updatedAt": "2026-07-11T02:41:35.095Z",
   "rigs": [
     {
       "name": "轻型突击胸挂",
